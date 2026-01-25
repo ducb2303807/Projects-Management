@@ -86,7 +86,7 @@
                         <id>default-cli</id>
                         <configuration>
                             <mainClass>
-                                com.group4.projects_management_fe/com.group4.projects_management_fe.HelloApplication
+                                com.group4.projects_management_fe/com.group4.projects_management_fe.MainWindow
                             </mainClass>
                             <launcher>app</launcher>
                             <jlinkZipName>app</jlinkZipName>
