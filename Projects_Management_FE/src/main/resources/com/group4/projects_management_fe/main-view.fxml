@@ -12,6 +12,11 @@
    <Button mnemonicParsing="false" text="Button" />
 
     <Label fx:id="welcomeText" />
+   <ToolBar prefHeight="40.0" prefWidth="200.0">
+     <items>
+       <Button mnemonicParsing="false" text="Button" />
+     </items>
+   </ToolBar>
    <Label text="Label" />
    <PasswordField />
    <BorderPane prefHeight="200.0" prefWidth="200.0">
