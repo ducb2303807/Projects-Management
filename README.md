@@ -1,2 +1,2 @@
 # Projects-Management
-Nguyên lý xây dựng phần mềm
+Nguyên lý xây dựng phần mềm.
