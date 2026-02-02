@@ -1,2 +1,3 @@
 # Projects-Management
-Nguyên lý xây dựng phần mềm
+Nguyên lý xây dựng phần mềm.
+Ứng dụng Projects Management được xây dựng nhằm hỗ trợ quản lý và phân chia công việc trong nhóm một cách hiệu quả và có hệ thống. Hệ thống cho phép người dùng tạo dự án, chia nhỏ dự án thành các task, gán nhiệm vụ cho từng thành viên, theo dõi tiến độ thực hiện và cập nhật trạng thái công việc theo thời gian thực. Bên cạnh đó, ứng dụng còn cung cấp các chức năng như đặt thời hạn (deadline), mức độ ưu tiên, ghi chú, và thống kê tiến độ hoàn thành, giúp nâng cao khả năng phối hợp và giảm thiểu rủi ro trễ hạn. Việc áp dụng các nguyên lý xây dựng phần mềm như thiết kế hướng đối tượng, phân tách module, tái sử dụng mã nguồn và kiểm thử tự động giúp hệ thống dễ bảo trì, mở rộng và đảm bảo chất lượng. Ứng dụng hướng tới mục tiêu tối ưu hóa quy trình làm việc nhóm, tương tự các công cụ như Trello hoặc Jira.
