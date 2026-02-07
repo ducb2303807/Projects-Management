@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox xmlns="http://javafx.com/javafx"
+      xmlns:fx="http://javafx.com/fxml"
+      fx:controller="com.group4.projects_management_fe.ui.components.auth.LoginCardController"
+      styleClass="auth-card"
+      stylesheets="@../../styles/auth-cards.css"
+      alignment="CENTER">
+
+    <Label text="Đăng Nhập" styleClass="card-title"/>
+
+    <VBox spacing="10">
+        <TextField fx:id="usernameField" promptText="Tên đăng nhập" styleClass="text-field"/>
+        <PasswordField fx:id="passwordField" promptText="Mật khẩu" styleClass="text-field"/>
+    </VBox>
+
+    <Button text="Đăng nhập" maxWidth="Infinity" styleClass="action-button" onAction="#handleLogin"/>
+
+    <Hyperlink text="Chưa có tài khoản? Đăng ký ngay" onAction="#handleSwitchToSignup"/>
+
+</VBox>

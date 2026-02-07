@@ -1,0 +1,62 @@
+/* auth-cards.css */
+.root {
+    -fx-font-family: 'Segoe UI', sans-serif;
+}
+
+/* Khung thẻ (Card) */
+.auth-card {
+    -fx-background-color: white;
+    -fx-background-radius: 10;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 10, 0, 0, 5);
+    -fx-padding: 40;
+    -fx-spacing: 20;
+    -fx-alignment: center;
+    -fx-max-width: 400;
+    -fx-min-width: 350;
+}
+
+/* Tiêu đề */
+.card-title {
+    -fx-font-size: 24px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #2c3e50;
+}
+
+/* Ô nhập liệu */
+.text-field {
+    -fx-pref-height: 40;
+    -fx-background-radius: 5;
+    -fx-border-color: #bdc3c7;
+    -fx-border-radius: 5;
+    -fx-padding: 10;
+}
+
+.text-field:focused {
+    -fx-border-color: #3498db;
+}
+
+/* Nút bấm chính */
+.action-button {
+    -fx-background-color: #3498db;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-font-size: 14px;
+    -fx-pref-height: 40;
+    -fx-background-radius: 5;
+    -fx-cursor: hand;
+}
+
+.action-button:hover {
+    -fx-background-color: #2980b9;
+}
+
+/* Link chuyển đổi */
+.hyperlink {
+    -fx-text-fill: #7f8c8d;
+    -fx-border-color: transparent;
+    -fx-underline: false;
+}
+
+.hyperlink:hover {
+    -fx-text-fill: #3498db;
+}
