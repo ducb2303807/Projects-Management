@@ -79,6 +79,11 @@
             <artifactId>spring-boot-starter-webmvc-test</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>com.group4</groupId>
+            <artifactId>common</artifactId>
+            <scope>compile</scope>
+        </dependency>
     </dependencies>
 
     <build>
