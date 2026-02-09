@@ -1,4 +1,5 @@
-module com.group.projects_management_fe {
+module com.group4.projects_management_fe {
+
     requires javafx.controls;
     requires javafx.fxml;
 
@@ -7,6 +8,8 @@ module com.group.projects_management_fe {
     requires org.kordamp.ikonli.javafx;
     requires org.kordamp.bootstrapfx.core;
 
-    opens com.group4.projects_management_fe to javafx.fxml;
+    opens com.group4.projects_management_fe.features.auth to javafx.fxml;
+    //opens com.group4.projects_management_fe.features.project_list to javafx.fxml;
+
     exports com.group4.projects_management_fe;
 }
