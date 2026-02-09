@@ -1,4 +1,4 @@
-/***********************************************************************
+package com.group4.common.interfaces; /***********************************************************************
  * Module:  WidgetProvider.java
  * Author:  Lenovo
  * Purpose: Defines the Interface WidgetProvider

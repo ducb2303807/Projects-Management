@@ -1,4 +1,4 @@
-/***********************************************************************
+package com.group4.projects_management.entity; /***********************************************************************
  * Module:  ProjectMemberStatus.java
  * Author:  Lenovo
  * Purpose: Defines the Class ProjectMemberStatus

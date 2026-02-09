@@ -1,8 +1,10 @@
-/***********************************************************************
+package com.group4.projects_management.entity; /***********************************************************************
  * Module:  UserNotification.java
  * Author:  Lenovo
  * Purpose: Defines the Class UserNotification
  ***********************************************************************/
+
+import java.time.LocalDateTime;
 
 /** @pdOid a9899dc6-a56b-4a63-a061-00a9467b3e53 */
 public class UserNotification {
@@ -20,30 +22,4 @@ public class UserNotification {
    public void markAsRead() {
       // TODO: implement
    }
-   
-   
-   /** @pdGenerated default parent getter */
-   public User getUser() {
-      return user;
-   }
-   
-   /** @pdGenerated default parent setter
-     * @param newUser */
-   public void setUser(User newUser) {
-      if (this.user == null || !this.user.equals(newUser))
-      {
-         if (this.user != null)
-         {
-            User oldUser = this.user;
-            this.user = null;
-            oldUser.removeUserNotification(this);
-         }
-         if (newUser != null)
-         {
-            this.user = newUser;
-            this.user.addUserNotification(this);
-         }
-      }
-   }
-
 }

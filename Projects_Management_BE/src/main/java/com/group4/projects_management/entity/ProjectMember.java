@@ -1,10 +1,15 @@
-/***********************************************************************
+package com.group4.projects_management.entity; /***********************************************************************
  * Module:  ProjectMember.java
  * Author:  Lenovo
  * Purpose: Defines the Class ProjectMember
  ***********************************************************************/
 
+import lombok.Data;
+
+import java.time.LocalDateTime;
+
 /** @pdOid b611216c-16aa-4354-9881-f75a46baba4f */
+@Data
 public class ProjectMember {
    /** @pdOid 9aaaddb9-1a6f-4acc-8946-b43e089e6573 */
    private Long id;
@@ -23,30 +28,5 @@ public class ProjectMember {
    public ProjectRole projectRole;
    /** @pdRoleInfo migr=no name=Project assc=association9 mult=1..1 side=A */
    public Project project;
-   
-   
-   /** @pdGenerated default parent getter */
-   public Project getProject() {
-      return project;
-   }
-   
-   /** @pdGenerated default parent setter
-     * @param newProject */
-   public void setProject(Project newProject) {
-      if (this.project == null || !this.project.equals(newProject))
-      {
-         if (this.project != null)
-         {
-            Project oldProject = this.project;
-            this.project = null;
-            oldProject.removeMembers(this);
-         }
-         if (newProject != null)
-         {
-            this.project = newProject;
-            this.project.addMembers(this);
-         }
-      }
-   }
 
 }

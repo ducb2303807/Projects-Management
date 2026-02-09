@@ -1,4 +1,4 @@
-/***********************************************************************
+package com.group4.projects_management.entity; /***********************************************************************
  * Module:  Permission.java
  * Author:  Lenovo
  * Purpose: Defines the Class Permission

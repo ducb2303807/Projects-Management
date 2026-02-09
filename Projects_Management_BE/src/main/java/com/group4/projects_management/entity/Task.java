@@ -1,10 +1,15 @@
-/***********************************************************************
+package com.group4.projects_management.entity; /***********************************************************************
  * Module:  Task.java
  * Author:  Lenovo
  * Purpose: Defines the Class Task
  ***********************************************************************/
 
+import lombok.Data;
+
+import java.time.LocalDateTime;
+
 /** @pdOid f521481c-a646-4bde-bb82-baf28d561b0f */
+@Data
 public class Task {
    /** @pdOid c19f764e-b01e-4035-b8e4-fc859bd0c93b */
    private Long id;
@@ -68,154 +73,4 @@ public class Task {
    public void addComment(Comment comment) {
       // TODO: implement
    }
-   
-   
-   /** @pdGenerated default getter */
-   public java.util.Collection<TaskHistory> getHistorys() {
-      if (historys == null)
-         historys = new java.util.HashSet<TaskHistory>();
-      return historys;
-   }
-   
-   /** @pdGenerated default iterator getter */
-   public java.util.Iterator getIteratorHistorys() {
-      if (historys == null)
-         historys = new java.util.HashSet<TaskHistory>();
-      return historys.iterator();
-   }
-   
-   /** @pdGenerated default setter
-     * @param newHistorys */
-   public void setHistorys(java.util.Collection<TaskHistory> newHistorys) {
-      removeAllHistorys();
-      for (java.util.Iterator iter = newHistorys.iterator(); iter.hasNext();)
-         addHistorys((TaskHistory)iter.next());
-   }
-   
-   /** @pdGenerated default add
-     * @param newTaskHistory */
-   public void addHistorys(TaskHistory newTaskHistory) {
-      if (newTaskHistory == null)
-         return;
-      if (this.historys == null)
-         this.historys = new java.util.HashSet<TaskHistory>();
-      if (!this.historys.contains(newTaskHistory))
-      {
-         this.historys.add(newTaskHistory);
-         newTaskHistory.setTask(this);      
-      }
-   }
-   
-   /** @pdGenerated default remove
-     * @param oldTaskHistory */
-   public void removeHistorys(TaskHistory oldTaskHistory) {
-      if (oldTaskHistory == null)
-         return;
-      if (this.historys != null)
-         if (this.historys.contains(oldTaskHistory))
-         {
-            this.historys.remove(oldTaskHistory);
-            oldTaskHistory.setTask((Task)null);
-         }
-   }
-   
-   /** @pdGenerated default removeAll */
-   public void removeAllHistorys() {
-      if (historys != null)
-      {
-         TaskHistory oldTaskHistory;
-         for (java.util.Iterator iter = getIteratorHistorys(); iter.hasNext();)
-         {
-            oldTaskHistory = (TaskHistory)iter.next();
-            iter.remove();
-            oldTaskHistory.setTask((Task)null);
-         }
-      }
-   }
-   /** @pdGenerated default getter */
-   public java.util.Collection<Comment> getComments() {
-      if (comments == null)
-         comments = new java.util.HashSet<Comment>();
-      return comments;
-   }
-   
-   /** @pdGenerated default iterator getter */
-   public java.util.Iterator getIteratorComments() {
-      if (comments == null)
-         comments = new java.util.HashSet<Comment>();
-      return comments.iterator();
-   }
-   
-   /** @pdGenerated default setter
-     * @param newComments */
-   public void setComments(java.util.Collection<Comment> newComments) {
-      removeAllComments();
-      for (java.util.Iterator iter = newComments.iterator(); iter.hasNext();)
-         addComments((Comment)iter.next());
-   }
-   
-   /** @pdGenerated default add
-     * @param newComment */
-   public void addComments(Comment newComment) {
-      if (newComment == null)
-         return;
-      if (this.comments == null)
-         this.comments = new java.util.HashSet<Comment>();
-      if (!this.comments.contains(newComment))
-      {
-         this.comments.add(newComment);
-         newComment.setTask(this);      
-      }
-   }
-   
-   /** @pdGenerated default remove
-     * @param oldComment */
-   public void removeComments(Comment oldComment) {
-      if (oldComment == null)
-         return;
-      if (this.comments != null)
-         if (this.comments.contains(oldComment))
-         {
-            this.comments.remove(oldComment);
-            oldComment.setTask((Task)null);
-         }
-   }
-   
-   /** @pdGenerated default removeAll */
-   public void removeAllComments() {
-      if (comments != null)
-      {
-         Comment oldComment;
-         for (java.util.Iterator iter = getIteratorComments(); iter.hasNext();)
-         {
-            oldComment = (Comment)iter.next();
-            iter.remove();
-            oldComment.setTask((Task)null);
-         }
-      }
-   }
-   /** @pdGenerated default parent getter */
-   public Project getProject() {
-      return project;
-   }
-   
-   /** @pdGenerated default parent setter
-     * @param newProject */
-   public void setProject(Project newProject) {
-      if (this.project == null || !this.project.equals(newProject))
-      {
-         if (this.project != null)
-         {
-            Project oldProject = this.project;
-            this.project = null;
-            oldProject.removeTasks(this);
-         }
-         if (newProject != null)
-         {
-            this.project = newProject;
-            this.project.addTasks(this);
-         }
-      }
-   }
-
 }

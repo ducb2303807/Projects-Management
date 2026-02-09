@@ -1,4 +1,4 @@
-/***********************************************************************
+package com.group4.projects_management.entity; /***********************************************************************
  * Module:  Priority.java
  * Author:  Lenovo
  * Purpose: Defines the Class Priority

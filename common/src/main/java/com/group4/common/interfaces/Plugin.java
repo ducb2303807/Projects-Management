@@ -1,4 +1,4 @@
-/***********************************************************************
+package com.group4.common.interfaces; /***********************************************************************
  * Module:  Plugin.java
  * Author:  Lenovo
  * Purpose: Defines the Interface Plugin

@@ -1,10 +1,15 @@
-/***********************************************************************
+package com.group4.projects_management.entity; /***********************************************************************
  * Module:  Notification.java
  * Author:  Lenovo
  * Purpose: Defines the Class Notification
  ***********************************************************************/
 
+import lombok.Data;
+
+import java.time.LocalDateTime;
+
 /** @pdOid 42dc7ab3-e537-47fa-95b1-2302a533ffab */
+@Data
 public class Notification {
    /** @pdOid 88036377-1337-4dad-9274-e57c4168187d */
    private Long id;

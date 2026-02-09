@@ -1,4 +1,4 @@
-/***********************************************************************
+package com.group4.projects_management.entity; /***********************************************************************
  * Module:  TaskStatus.java
  * Author:  Lenovo
  * Purpose: Defines the Class TaskStatus

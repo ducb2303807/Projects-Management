@@ -1,4 +1,4 @@
-/***********************************************************************
+package com.group4.common.FE_Temp; /***********************************************************************
  * Module:  PluginManager.java
  * Author:  Lenovo
  * Purpose: Defines the Class PluginManager

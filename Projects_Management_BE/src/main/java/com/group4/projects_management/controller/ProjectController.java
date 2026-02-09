@@ -1,4 +1,4 @@
-﻿package com.group4.projects_management.controller;
+package com.group4.projects_management.controller;
 
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.Mapping;

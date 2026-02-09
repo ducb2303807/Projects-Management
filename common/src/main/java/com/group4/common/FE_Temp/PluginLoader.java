@@ -1,10 +1,10 @@
-/***********************************************************************
+package com.group4.common.FE_Temp; /***********************************************************************
  * Module:  PluginLoader.java
  * Author:  Lenovo
  * Purpose: Defines the Class PluginLoader
  ***********************************************************************/
 
-import java.util.*;
+import com.group4.common.interfaces.Plugin;import java.util.*;
 
 /** @pdOid 165ae04e-984b-44a4-a7bc-528331f0ed41 */
 public class PluginLoader {

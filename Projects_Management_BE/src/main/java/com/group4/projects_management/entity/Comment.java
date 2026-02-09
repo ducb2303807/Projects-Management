@@ -1,10 +1,15 @@
-/***********************************************************************
+package com.group4.projects_management.entity; /***********************************************************************
  * Module:  Comment.java
  * Author:  Lenovo
  * Purpose: Defines the Class Comment
  ***********************************************************************/
 
+import lombok.Data;
+
+import java.time.LocalDateTime;
+
 /** @pdOid 0e883aa9-0aed-4d40-b934-fa3a37b93713 */
+@Data
 public class Comment {
    /** @pdOid 6c1a81fc-c4b5-484d-a147-9edb08299b38 */
    private Long id;
@@ -31,30 +36,4 @@ public class Comment {
       // TODO: implement
       return 0;
    }
-   
-   
-   /** @pdGenerated default parent getter */
-   public Task getTask() {
-      return task;
-   }
-   
-   /** @pdGenerated default parent setter
-     * @param newTask */
-   public void setTask(Task newTask) {
-      if (this.task == null || !this.task.equals(newTask))
-      {
-         if (this.task != null)
-         {
-            Task oldTask = this.task;
-            this.task = null;
-            oldTask.removeComments(this);
-         }
-         if (newTask != null)
-         {
-            this.task = newTask;
-            this.task.addComments(this);
-         }
-      }
-   }
-
 }

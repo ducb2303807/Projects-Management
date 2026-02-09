@@ -1,4 +1,4 @@
-﻿package com.group4.projects_management.ExceptionHandler;
+package com.group4.projects_management.ExceptionHandler;
 
 import com.group4.projects_management.core.exception.ResourceNotFoundException;
 import lombok.extern.slf4j.Slf4j;

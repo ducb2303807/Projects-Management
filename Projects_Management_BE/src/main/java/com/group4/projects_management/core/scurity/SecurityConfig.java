@@ -1,4 +1,4 @@
-﻿package com.group4.projects_management.core.scurity;
+package com.group4.projects_management.core.scurity;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;

@@ -1,10 +1,15 @@
-/***********************************************************************
+package com.group4.projects_management.entity; /***********************************************************************
  * Module:  TaskHistory.java
  * Author:  Lenovo
  * Purpose: Defines the Class TaskHistory
  ***********************************************************************/
 
+import lombok.Data;
+
+import java.time.LocalDateTime;
+
 /** @pdOid 67fc81ff-c267-46d7-9ed9-80bf169619ae */
+@Data
 public class TaskHistory {
    /** @pdOid 39671e43-3521-4948-9f6d-68e1512b6258 */
    private int id;
@@ -22,29 +27,5 @@ public class TaskHistory {
    /** @pdRoleInfo migr=no name=Task assc=association17 mult=1..1 side=A */
    public Task task;
    
-   
-   /** @pdGenerated default parent getter */
-   public Task getTask() {
-      return task;
-   }
-   
-   /** @pdGenerated default parent setter
-     * @param newTask */
-   public void setTask(Task newTask) {
-      if (this.task == null || !this.task.equals(newTask))
-      {
-         if (this.task != null)
-         {
-            Task oldTask = this.task;
-            this.task = null;
-            oldTask.removeHistorys(this);
-         }
-         if (newTask != null)
-         {
-            this.task = newTask;
-            this.task.addHistorys(this);
-         }
-      }
-   }
 
 }

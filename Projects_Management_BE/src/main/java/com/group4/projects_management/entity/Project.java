@@ -1,12 +1,16 @@
-/***********************************************************************
+package com.group4.projects_management.entity; /***********************************************************************
  * Module:  Project.java
  * Author:  Lenovo
  * Purpose: Defines the Class Project
  ***********************************************************************/
 
+import lombok.Data;
+
+import java.time.LocalDateTime;
 import java.util.*;
 
 /** @pdOid ed3a2148-7b7a-4a09-a24a-3df8fa0f223c */
+@Data
 public class Project {
    /** @pdOid 2e5266d6-45b5-4a43-a120-7bad5afafc61 */
    private Long id;
@@ -71,154 +75,4 @@ public class Project {
       // TODO: implement
       return false;
    }
-   
-   
-   /** @pdGenerated default getter */
-   public java.util.Collection<Task> getTasks() {
-      if (tasks == null)
-         tasks = new java.util.HashSet<Task>();
-      return tasks;
-   }
-   
-   /** @pdGenerated default iterator getter */
-   public java.util.Iterator getIteratorTasks() {
-      if (tasks == null)
-         tasks = new java.util.HashSet<Task>();
-      return tasks.iterator();
-   }
-   
-   /** @pdGenerated default setter
-     * @param newTasks */
-   public void setTasks(java.util.Collection<Task> newTasks) {
-      removeAllTasks();
-      for (java.util.Iterator iter = newTasks.iterator(); iter.hasNext();)
-         addTasks((Task)iter.next());
-   }
-   
-   /** @pdGenerated default add
-     * @param newTask */
-   public void addTasks(Task newTask) {
-      if (newTask == null)
-         return;
-      if (this.tasks == null)
-         this.tasks = new java.util.HashSet<Task>();
-      if (!this.tasks.contains(newTask))
-      {
-         this.tasks.add(newTask);
-         newTask.setProject(this);      
-      }
-   }
-   
-   /** @pdGenerated default remove
-     * @param oldTask */
-   public void removeTasks(Task oldTask) {
-      if (oldTask == null)
-         return;
-      if (this.tasks != null)
-         if (this.tasks.contains(oldTask))
-         {
-            this.tasks.remove(oldTask);
-            oldTask.setProject((Project)null);
-         }
-   }
-   
-   /** @pdGenerated default removeAll */
-   public void removeAllTasks() {
-      if (tasks != null)
-      {
-         Task oldTask;
-         for (java.util.Iterator iter = getIteratorTasks(); iter.hasNext();)
-         {
-            oldTask = (Task)iter.next();
-            iter.remove();
-            oldTask.setProject((Project)null);
-         }
-      }
-   }
-   /** @pdGenerated default getter */
-   public java.util.Collection<ProjectMember> getMembers() {
-      if (members == null)
-         members = new java.util.HashSet<ProjectMember>();
-      return members;
-   }
-   
-   /** @pdGenerated default iterator getter */
-   public java.util.Iterator getIteratorMembers() {
-      if (members == null)
-         members = new java.util.HashSet<ProjectMember>();
-      return members.iterator();
-   }
-   
-   /** @pdGenerated default setter
-     * @param newMembers */
-   public void setMembers(java.util.Collection<ProjectMember> newMembers) {
-      removeAllMembers();
-      for (java.util.Iterator iter = newMembers.iterator(); iter.hasNext();)
-         addMembers((ProjectMember)iter.next());
-   }
-   
-   /** @pdGenerated default add
-     * @param newProjectMember */
-   public void addMembers(ProjectMember newProjectMember) {
-      if (newProjectMember == null)
-         return;
-      if (this.members == null)
-         this.members = new java.util.HashSet<ProjectMember>();
-      if (!this.members.contains(newProjectMember))
-      {
-         this.members.add(newProjectMember);
-         newProjectMember.setProject(this);      
-      }
-   }
-   
-   /** @pdGenerated default remove
-     * @param oldProjectMember */
-   public void removeMembers(ProjectMember oldProjectMember) {
-      if (oldProjectMember == null)
-         return;
-      if (this.members != null)
-         if (this.members.contains(oldProjectMember))
-         {
-            this.members.remove(oldProjectMember);
-            oldProjectMember.setProject((Project)null);
-         }
-   }
-   
-   /** @pdGenerated default removeAll */
-   public void removeAllMembers() {
-      if (members != null)
-      {
-         ProjectMember oldProjectMember;
-         for (java.util.Iterator iter = getIteratorMembers(); iter.hasNext();)
-         {
-            oldProjectMember = (ProjectMember)iter.next();
-            iter.remove();
-            oldProjectMember.setProject((Project)null);
-         }
-      }
-   }
-   /** @pdGenerated default parent getter */
-   public User getCreatedBy() {
-      return createdBy;
-   }
-   
-   /** @pdGenerated default parent setter
-     * @param newUser */
-   public void setCreatedBy(User newUser) {
-      if (this.createdBy == null || !this.createdBy.equals(newUser))
-      {
-         if (this.createdBy != null)
-         {
-            User oldUser = this.createdBy;
-            this.createdBy = null;
-            oldUser.removeProject(this);
-         }
-         if (newUser != null)
-         {
-            this.createdBy = newUser;
-            this.createdBy.addProject(this);
-         }
-      }
-   }
-
 }

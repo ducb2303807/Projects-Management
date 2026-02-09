@@ -1,4 +1,4 @@
-﻿package com.group4.projects_management.core.config;
+package com.group4.projects_management.core.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
