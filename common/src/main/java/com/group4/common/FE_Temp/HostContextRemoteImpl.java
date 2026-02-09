@@ -4,6 +4,8 @@ package com.group4.common.FE_Temp; /********************************************
  * Purpose: Defines the Class HostContextRemoteImpl
  ***********************************************************************/
 
+import com.group4.common.dto.ProjectResponseDTO;
+import com.group4.common.dto.TaskResponseDTO;
 import com.group4.common.interfaces.HostContext;
 
 import java.util.List;
@@ -11,12 +13,12 @@ import java.util.List;
 /** @pdOid b143ae7a-e68d-4634-83bc-7d84084e2e8c */
 public class HostContextRemoteImpl implements HostContext {
     @Override
-    public List<ProjectDTO> getAllProjects() {
+    public List<ProjectResponseDTO> getAllProjects() {
         return List.of();
     }
 
     @Override
-    public List<TaskDTO> getTasksByProject(Long projectId) {
+    public List<TaskResponseDTO> getTasksByProject(Long projectId) {
         return List.of();
     }
 

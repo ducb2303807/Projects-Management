@@ -4,6 +4,9 @@ package com.group4.common.interfaces; /*****************************************
  * Purpose: Defines the Interface HostContext
  ***********************************************************************/
 
+import com.group4.common.dto.ProjectResponseDTO;
+import com.group4.common.dto.TaskResponseDTO;
+
 import java.util.*;
 
 /** @pdOid 53f72f6f-c7c8-404d-ae54-7173f98eb1a1 */
