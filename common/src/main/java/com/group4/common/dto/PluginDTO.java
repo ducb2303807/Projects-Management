@@ -4,7 +4,14 @@ package com.group4.common.dto; /************************************************
  * Purpose: Defines the Class PluginDTO
  ***********************************************************************/
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
 /** @pdOid 46510657-5606-4ae1-a51c-1029e8cdc797 */
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class PluginDTO {
    /** @pdOid 904c0c56-cb72-41c9-a297-0f8e7a9b751a */
    private Long id;

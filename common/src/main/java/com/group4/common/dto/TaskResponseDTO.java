@@ -4,10 +4,19 @@ package com.group4.common.dto; /************************************************
  * Purpose: Defines the Class TaskResponseDTO
  ***********************************************************************/
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
+
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.List;
 
 /** @pdOid a88a633b-faff-47e9-b176-39d5649e641a */
+@EqualsAndHashCode(callSuper = true)
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class TaskResponseDTO extends TaskBaseDTO {
    /** @pdOid 17bf6769-7058-4aea-b78e-8bec7f242f2d */
    private Long taskId;

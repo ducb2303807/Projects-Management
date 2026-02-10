@@ -1,18 +1,19 @@
 package com.group4.common.dto; /***********************************************************************
- * Module:  UserUpdateDTO.java
+ * Module:  CommentBaseDTO.java
  * Author:  Lenovo
- * Purpose: Defines the Class UserUpdateDTO
+ * Purpose: Defines the Class CommentBaseDTO
  ***********************************************************************/
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
-/** @pdOid cb5a0887-d90a-4462-98f6-bb241d9297f9 */
-@EqualsAndHashCode(callSuper = true)
+/** @pdOid 3be23bac-306a-4541-b159-33a29ed66c50 */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class UserUpdateDTO extends UserBaseDTO {
+public abstract class CommentBaseDTO {
+   /** @pdOid 663643e1-0cb9-49c9-b1bf-fd9d00445be3 */
+   private java.lang.String content;
+
 }

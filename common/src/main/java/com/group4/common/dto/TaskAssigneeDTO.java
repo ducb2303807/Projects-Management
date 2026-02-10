@@ -4,7 +4,14 @@ package com.group4.common.dto; /************************************************
  * Purpose: Defines the Class TaskAssigneeDTO
  ***********************************************************************/
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
 /** @pdOid 25139825-5f59-4ef3-ad29-733e3edbd0cd */
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class TaskAssigneeDTO {
    /** @pdOid 855e2f12-7257-4f16-bc1a-2ebddf1a7ff5 */
    private Long projectMemberId;

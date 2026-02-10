@@ -4,9 +4,16 @@ package com.group4.common.dto; /************************************************
  * Purpose: Defines the Class NotificationDTO
  ***********************************************************************/
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
 import java.time.LocalDateTime;
 
 /** @pdOid 6168c17b-8f94-4f9d-8b6c-b8ec0eeb6542 */
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class NotificationDTO {
    /** @pdOid c72c2589-7089-4f03-945e-fc524b87d970 */
    private Long notificationId;

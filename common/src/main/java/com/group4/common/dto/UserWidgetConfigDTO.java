@@ -4,7 +4,14 @@ package com.group4.common.dto; /************************************************
  * Purpose: Defines the Class UserWidgetConfigDTO
  ***********************************************************************/
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
 /** @pdOid 6afbb6fb-c598-496c-af68-d799ec8ca2c5 */
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class UserWidgetConfigDTO {
    /** @pdOid d6b71760-a4b1-49c0-933f-b9241988d8e4 */
    private Long widgetConfigId;

@@ -4,9 +4,18 @@ package com.group4.common.dto; /************************************************
  * Purpose: Defines the Class ProjectResponseDTO
  ***********************************************************************/
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
+
 import java.time.LocalDateTime;
 
 /** @pdOid f0107505-70d5-42a9-8580-ebf3ecce3738 */
+@EqualsAndHashCode(callSuper = true)
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class ProjectResponseDTO extends ProjectBaseDTO {
    /** @pdOid 231b9935-45b0-4bf9-b424-964462659cec */
    private Long projectId;

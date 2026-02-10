@@ -4,7 +4,14 @@ package com.group4.common.dto; /************************************************
  * Purpose: Defines the Class ProjectStatsDTO
  ***********************************************************************/
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
 /** @pdOid a4ce5a32-e6d3-40e5-8922-7a1c312b5112 */
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class ProjectStatsDTO {
    /** @pdOid 7cbe7f58-cf3c-4136-a788-cb4f6a386e33 */
    private int totalTasks;

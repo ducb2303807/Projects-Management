@@ -4,7 +4,14 @@ package com.group4.common.dto; /************************************************
  * Purpose: Defines the Class AuthResponse
  ***********************************************************************/
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
 /** @pdOid 501f6c3a-a7da-4181-8db4-b9bce1286562 */
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class AuthResponse {
    /** @pdOid 51b3b5a4-da8e-4b33-9038-b278fa8d864c */
    private java.lang.String token;
@@ -14,5 +21,4 @@ public class AuthResponse {
    private java.lang.String fullName;
    /** @pdOid 3ddc5150-e561-4c3b-97e5-6fa8a5c1e206 */
    private java.lang.String roleName;
-
 }

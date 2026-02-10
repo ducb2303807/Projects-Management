@@ -23,7 +23,7 @@ public interface UserService {
    /** @param userId 
     * @param newPassword
     * @pdOid 5d1f89a3-240e-4cc9-9600-e39c2761397a */
-   void changePassword(Long userId, java.lang.String newPassword);
+   void changePassword(Long userId, String oldPassword, java.lang.String newPassword);
    /** @param keyword
     * @pdOid 231341be-4940-4c16-8e89-798ef0cd1d35 */
    List<UserDTO> searchUsers(java.lang.String keyword);

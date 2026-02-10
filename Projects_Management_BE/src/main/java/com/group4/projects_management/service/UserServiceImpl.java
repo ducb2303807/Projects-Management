@@ -39,7 +39,7 @@ public class UserServiceImpl extends BaseServiceImpl<User,Long> implements UserS
    }
 
    @Override
-   public void changePassword(Long userId, String newPassword) {
+   public void changePassword(Long userId, String oldPassword, String newPassword) {
 
    }
 

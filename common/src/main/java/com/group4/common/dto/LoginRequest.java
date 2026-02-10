@@ -4,7 +4,14 @@ package com.group4.common.dto; /************************************************
  * Purpose: Defines the Class LoginRequest
  ***********************************************************************/
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
 /** @pdOid 21c8c80e-2c41-4357-a1a3-8f0127fca47a */
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class LoginRequest {
    /** @pdOid 4603558d-7934-420b-afbb-0fe713b6e127 */
    private java.lang.String username;

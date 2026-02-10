@@ -4,8 +4,15 @@ package com.group4.common.dto; /************************************************
  * Purpose: Defines the Class BaseLookupDTO
  ***********************************************************************/
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
 /** @pdOid 6f9a3baf-74eb-4d83-8443-e8e351dfbd66 */
-public class BaseLookupDTO {
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+public abstract class BaseLookupDTO {
    /** @pdOid 56dd4c79-4bad-443a-89ad-bdf2fd136bd5 */
    private Long id;
    /** @pdOid a6ad034c-7d63-4112-82ed-54f070d838e7 */

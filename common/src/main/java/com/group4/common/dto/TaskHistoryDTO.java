@@ -4,9 +4,16 @@ package com.group4.common.dto; /************************************************
  * Purpose: Defines the Class TaskHistoryDTO
  ***********************************************************************/
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
 import java.time.LocalDateTime;
 
 /** @pdOid f1a3e9dd-d3b5-49c2-a69a-5627adedf548 */
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class TaskHistoryDTO {
    /** @pdOid 4c9a7d3b-5c3e-475e-a51c-d22830eb4e5f */
    private LocalDateTime changedAt;

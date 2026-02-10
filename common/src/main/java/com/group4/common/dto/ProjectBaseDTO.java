@@ -4,10 +4,17 @@ package com.group4.common.dto; /************************************************
  * Purpose: Defines the Class ProjectBaseDTO
  ***********************************************************************/
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
 import java.time.LocalDateTime;
 
 /** @pdOid 1d93d456-c62d-4010-84ec-821b38f47b5a */
-public class ProjectBaseDTO {
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+public abstract class ProjectBaseDTO {
    /** @pdOid 0424a3d8-12ef-4ebd-a1b0-01527bd7c0c6 */
    private java.lang.String projectName;
    /** @pdOid 565c0453-e1b0-43a0-88ef-56597d76fdcb */

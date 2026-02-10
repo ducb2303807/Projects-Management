@@ -4,9 +4,16 @@ package com.group4.common.dto; /************************************************
  * Purpose: Defines the Class TaskUpdateDTO
  ***********************************************************************/
 
-import java.util.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 
 /** @pdOid 817effc2-bf87-4834-be32-d3ff3c481840 */
+@EqualsAndHashCode(callSuper = true)
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class TaskUpdateDTO extends TaskBaseDTO {
    /** @pdOid 8daa97e8-b395-4ece-b0cd-cb3f4964d724 */
    private Long statusId;
