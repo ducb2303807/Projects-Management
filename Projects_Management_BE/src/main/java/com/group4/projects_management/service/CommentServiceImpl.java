@@ -1,8 +1,10 @@
-package com.group4.projects_management.service; /***********************************************************************
+/***********************************************************************
  * Module:  CommentServiceImpl.java
  * Author:  Lenovo
  * Purpose: Defines the Class CommentServiceImpl
  ***********************************************************************/
+
+package com.group4.projects_management.service;
 
 import com.group4.common.dto.CommentDTO;
 import com.group4.projects_management.entity.Comment;
@@ -16,7 +18,6 @@ import java.util.List;
 @Service
 public class CommentServiceImpl extends BaseServiceImpl<Comment,Long> implements CommentService {
    /** @pdRoleInfo migr=no name=TaskCommentRepository assc=association32 mult=1..1 */
-
    private final TaskCommentRepository taskCommentRepository;
 
    public CommentServiceImpl(TaskCommentRepository taskCommentRepository) {

@@ -6,9 +6,11 @@ package com.group4.common.dto; /************************************************
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 /** @pdOid e21573cd-451b-4ed9-9ad6-89c8c433da72 */
+@EqualsAndHashCode(callSuper = true)
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
