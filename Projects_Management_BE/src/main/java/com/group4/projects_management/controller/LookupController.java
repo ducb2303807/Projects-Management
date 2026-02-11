@@ -4,7 +4,7 @@ package com.group4.projects_management.controller; /****************************
  * Purpose: Defines the Class LookupController
  ***********************************************************************/
 
-import com.group4.common.dto.BaseLookupDTO;
+import com.group4.common.dto.LookupDTO;
 import com.group4.projects_management.service.LookupService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -21,8 +21,7 @@ public class LookupController {
 
    /** @param type
     * @pdOid cb54068c-3294-46b1-884b-2a82559f1a0e */
-   public ResponseEntity<List<BaseLookupDTO>> getAllByType(java.lang.String type) {
-      // TODO: implement
+   public ResponseEntity<List<LookupDTO>> getAllByType(java.lang.String type) {
       return null;
    }
 

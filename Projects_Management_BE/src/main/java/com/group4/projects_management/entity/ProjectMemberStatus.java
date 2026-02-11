@@ -5,7 +5,6 @@ package com.group4.projects_management.entity; /********************************
  ***********************************************************************/
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
@@ -16,17 +15,12 @@ import lombok.NoArgsConstructor;
 @Table(name = "PROJECT_MEMBER_STATUS")
 @Data
 @NoArgsConstructor
-@AllArgsConstructor
+
+@AttributeOverrides({
+        @AttributeOverride(name = "id", column = @Column(name = "PROJECT_MEMBER_STATUS_ID")),
+        @AttributeOverride(name = "name", column = @Column(name = "PROJECT_MEMBER_STATUS_NAME", length = 50, nullable = false)),
+        @AttributeOverride(name = "description", column = @Column(name = "PROJECT_MEMBER_STATUS_DESCRIPTION"))
+})
 @EqualsAndHashCode(callSuper = true)
-public class ProjectMemberStatus extends BaseLookup {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "PROJECT_MEMBER_STATUS_ID")
-    private Long id;
-
-    @Column(name = "PROJECT_MEMBER_STATUS_NAME", nullable = false, length = 50)
-    private String name;
-
-    @Column(name = "PROJECT_MEMBER_STATUS_DESCRIPTION")
-    private String description;
+public class ProjectMemberStatus extends BaseLookup<Long> {
 }

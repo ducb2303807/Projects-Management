@@ -12,9 +12,9 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public abstract class BaseLookupDTO {
+public class LookupDTO {
    /** @pdOid 56dd4c79-4bad-443a-89ad-bdf2fd136bd5 */
-   private Long id;
+   private String id;
    /** @pdOid a6ad034c-7d63-4112-82ed-54f070d838e7 */
    private java.lang.String name;
    /** @pdOid 87d71b51-a53c-4f66-ba32-75efe628917d */
