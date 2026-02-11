@@ -15,5 +15,4 @@ public abstract class BaseLookup {
    private java.lang.String name;
    /** @pdOid 53e0bfc7-ea1c-45ce-8136-f2176546f824 */
    private java.lang.String description;
-
 }

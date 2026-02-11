@@ -8,6 +8,7 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
 
@@ -33,6 +34,7 @@ public class Notification {
    @Column(name = "NOTIFICATION_REFERENCE_ID")
    private java.lang.String referenceId;
    /** @pdOid 4091409f-ea95-4ab7-b37d-a36966cb28da */
+   @CreationTimestamp
    @Column(name = "NOTIFICATION_CREATED_AT", nullable = false)
    private LocalDateTime createAt;
 

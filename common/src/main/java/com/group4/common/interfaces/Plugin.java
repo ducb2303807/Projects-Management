@@ -4,6 +4,8 @@ package com.group4.common.interfaces; /*****************************************
  * Purpose: Defines the Interface Plugin
  ***********************************************************************/
 
+import java.util.List;
+
 /** @pdOid c8cba02f-7958-423b-aea1-29d5bb3f9453 */
 public interface Plugin {
    /** @param context
@@ -20,4 +22,5 @@ public interface Plugin {
    /** @pdOid 582d2330-29b8-40b6-9d53-8ac3f1a7cdb0 */
    java.lang.String getVersion();
 
+   List<WidgetProvider> getWidgetProviders();
 }

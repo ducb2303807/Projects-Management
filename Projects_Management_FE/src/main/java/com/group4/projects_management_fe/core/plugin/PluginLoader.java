@@ -1,11 +1,13 @@
-package com.group4.common.FE_Temp; /***********************************************************************
+package com.group4.projects_management_fe.core.plugin; /***********************************************************************
  * Module:  PluginLoader.java
  * Author:  Lenovo
  * Purpose: Defines the Class PluginLoader
  ***********************************************************************/
 
-import com.group4.common.interfaces.Plugin;import java.util.*;
+import com.group4.common.interfaces.Plugin;
+import java.util.*;
 
+/* use Pf4j Loader alternative manual plugin reflection */
 /** @pdOid 165ae04e-984b-44a4-a7bc-528331f0ed41 */
 public class PluginLoader {
    /** @pdRoleInfo migr=no name=Plugin assc=association13 coll=java.util.Collection impl=java.util.HashSet mult=0..* type=Aggregation */
