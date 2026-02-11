@@ -5,12 +5,10 @@ package com.group4.projects_management.service; /*******************************
  ***********************************************************************/
 
 import com.group4.common.dto.*;
-import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 /** @pdOid 8bff7f6e-4d91-40f5-85c1-c0b870149bb3 */
-@Service
 public interface ProjectService {
    /** @param projectId 
     * @param inviteeId 

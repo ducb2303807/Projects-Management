@@ -14,17 +14,12 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = true)
-public class AppRole extends BaseLookup {
-   @Id
-   @GeneratedValue(strategy = GenerationType.IDENTITY)
-   @Column(name = "SYSTEM_ROLE_ID") // Bắt buộc phải có dòng này
-   private Long id;
-
-   @Column(name = "SYSTEM_ROLE_NAME")
-   private String name;
-
-   @Column(name = "SYSTEM_ROLE_DESCRIPTION")
-   private String description;
+@AttributeOverrides({
+        @AttributeOverride(name = "id", column = @Column(name = "SYSTEM_ROLE_ID")),
+        @AttributeOverride(name = "name", column = @Column(name = "SYSTEM_ROLE_NAME")),
+        @AttributeOverride(name = "description", column = @Column(name = "SYSTEM_ROLE_DESCRIPTION"))
+})
+public class AppRole extends BaseLookup<Long> {
 
    @ManyToMany
    @JoinTable(
