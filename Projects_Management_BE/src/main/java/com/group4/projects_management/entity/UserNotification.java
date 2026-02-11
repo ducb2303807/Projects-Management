@@ -39,16 +39,19 @@ public class UserNotification {
    @ManyToOne
    @JoinColumn(name = "NOTIFICATION_ID")
    @ToString.Exclude
-   public Notification notification;
+   private Notification notification;
    /** @pdRoleInfo migr=no name=User assc=association19 mult=1..1 side=A */
    @Id
    @ManyToOne
    @JoinColumn(name = "USER_ID")
    @ToString.Exclude
-   public User user;
+   private User user;
    
    /** @pdOid 0be8d923-8d3f-4a04-895b-da880708a5cd */
    public void markAsRead() {
-      // TODO: implement
+      if (!this.isRead) {
+         this.isRead = true;
+         this.readAt = LocalDateTime.now();
+      }
    }
 }
