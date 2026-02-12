@@ -9,16 +9,30 @@ import com.group4.common.dto.UserUpdateDTO;
 import com.group4.projects_management.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
-/** @pdOid 18ed4f5e-096b-4dbb-9051-ffce97322ba3 */
 @RestController
+@RequestMapping("/api/users")
 public class UserController {
-   /** @pdRoleInfo migr=no name=UserService assc=association28 mult=1..1 */
    @Autowired
    private UserService userService;
+
+   @GetMapping("/")
+   public ResponseEntity<List<UserDTO>> getAllUsers() {
+      return ResponseEntity.ok(userService.getAllUsers());
+   }
+
+   @GetMapping("/exists")
+   public ResponseEntity<Boolean> existsByUsername(@RequestParam String username) {
+      return ResponseEntity.ok(userService.existsByUsername(username));
+   }
+
+
    
    /** @param keyword
     * @pdOid 1c59d7f1-af61-406c-849c-3763788b4d58 */

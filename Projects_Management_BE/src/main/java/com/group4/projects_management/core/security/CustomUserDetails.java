@@ -1,4 +1,4 @@
-package com.group4.projects_management.core.scurity;
+package com.group4.projects_management.core.security;
 
 import com.group4.projects_management.entity.User;
 import org.springframework.security.core.GrantedAuthority;

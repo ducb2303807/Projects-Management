@@ -5,7 +5,7 @@ package com.group4.projects_management.service; /*******************************
  ***********************************************************************/
 
 import com.group4.common.dto.LookupDTO;
-import com.group4.common.dto.LookupType;
+import com.group4.common.enums.LookupType;
 
 import java.util.List;
 

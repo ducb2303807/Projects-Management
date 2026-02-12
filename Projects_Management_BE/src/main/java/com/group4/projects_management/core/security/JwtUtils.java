@@ -1,4 +1,4 @@
-package com.group4.projects_management.core.scurity;
+package com.group4.projects_management.core.security;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;

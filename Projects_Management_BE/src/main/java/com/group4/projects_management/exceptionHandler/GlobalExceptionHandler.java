@@ -1,5 +1,7 @@
-package com.group4.projects_management.ExceptionHandler;
+package com.group4.projects_management.exceptionHandler;
 
+import com.group4.common.enums.BusinessErrorCode;
+import com.group4.projects_management.core.exception.BusinessException;
 import com.group4.projects_management.core.exception.ResourceNotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
@@ -26,35 +28,49 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleNotFoundException(ResourceNotFoundException ex) {
         log.error(ex.getMessage());
-        return BuildErrorResponse(ex.getMessage(), HttpStatus.NOT_FOUND);
+        return buildErrorResponse(ex.getMessage(), BusinessErrorCode.SYSTEM_RESOURCE_NOT_FOUND.getCode(), HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(BusinessException.class)
+    public ResponseEntity<ErrorResponse> handleBusinessException(BusinessException ex) {
+        log.error(ex.getMessage());
+        return buildErrorResponse(ex.getMessage(), ex.getErrorCode().getCode(), HttpStatus.BAD_REQUEST);
     }
 
     @Override
     protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException ex,
                                                                   HttpHeaders headers,
                                                                   HttpStatusCode status,
-                                                                  WebRequest request)
-    {
+                                                                  WebRequest request) {
         String errors = ex.getBindingResult().getFieldErrors()
                 .stream()
                 .map(error -> error.getField() + ": " + error.getDefaultMessage())
                 .collect(Collectors.joining(", "));
-        return new ResponseEntity<>(new ErrorResponse("Dữ liệu không hợp lệ: " + errors), HttpStatus.BAD_REQUEST);
+
+        return (ResponseEntity) buildErrorResponse(
+                "Dữ liệu không hợp lệ: " + errors,
+                BusinessErrorCode.SYSTEM_VALIDATION_ERROR.getCode(),
+                HttpStatus.BAD_REQUEST
+        );
     }
 
     // lỗi Validation (400)
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleGeneralError(Exception ex) {
-        log.error("Lỗi hệ thống chưa xác định: ",ex);
-        return BuildErrorResponse("Lỗi hệ thống! Vui lòng thử lại sau.", HttpStatus.INTERNAL_SERVER_ERROR);
+        log.error("Lỗi hệ thống chưa xác định: ", ex);
+        return buildErrorResponse("Lỗi hệ thống! Vui lòng thử lại sau.", BusinessErrorCode.SYSTEM_INTERNAL_SERVER_ERROR.getCode(), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
-    private ResponseEntity<ErrorResponse> BuildErrorResponse(String message, HttpStatus status) {
-        ErrorResponse res = new ErrorResponse(
-                status.value(),
+    private ResponseEntity<ErrorResponse> buildErrorResponse(String message, String errorCode, HttpStatus status) {
+        return new ResponseEntity<>(createErrorBody(status.value(), errorCode, message), status);
+    }
+
+    private ErrorResponse createErrorBody(int status, String errorCode, String message) {
+        return new ErrorResponse(
+                status,
+                errorCode,
                 message,
                 LocalDateTime.now()
         );
-        return new ResponseEntity<>(res, status);
     }
 }
