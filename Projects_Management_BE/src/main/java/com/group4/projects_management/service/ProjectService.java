@@ -15,6 +15,8 @@ public interface ProjectService {
     * @param inviterId 
     * @param roleId
     * @pdOid 8144cdbe-f21f-4011-a675-731c7a0723d1 */
+
+   List<ProjectResponseDTO> getAllProjects();
    void inviteMember(Long projectId, Long inviteeId, Long inviterId, Long roleId);
    /** @param projectMemberId
     * @pdOid 7f0b6932-4c34-4548-b826-2f84291c5b29 */

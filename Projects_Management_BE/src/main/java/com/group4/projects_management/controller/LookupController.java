@@ -5,24 +5,32 @@ package com.group4.projects_management.controller; /****************************
  ***********************************************************************/
 
 import com.group4.common.dto.LookupDTO;
+import com.group4.common.enums.LookupType;
 import com.group4.projects_management.service.LookupService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-/** @pdOid 2886621b-803e-4f31-877b-6e25a9502ef8 */
 @RestController
+@RequestMapping("/api/lookups")
 public class LookupController {
-   /** @pdRoleInfo migr=no name=LookupService assc=association35 mult=1..1 */
    @Autowired
    private LookupService lookupService;
 
-   /** @param type
-    * @pdOid cb54068c-3294-46b1-884b-2a82559f1a0e */
-   public ResponseEntity<List<LookupDTO>> getAllByType(java.lang.String type) {
-      return null;
+   @GetMapping("/{type}")
+   public ResponseEntity<List<LookupDTO>> getAll(@PathVariable LookupType type) {
+      return ResponseEntity.ok(lookupService.getAll(type));
+   }
+
+   @PreAuthorize("hasRole('ADMIN')")
+   @PostMapping("/{type}")
+   public ResponseEntity<LookupDTO> createOrUpdate(@PathVariable LookupType type,
+                                                         @RequestBody LookupDTO dto)
+           throws Throwable {
+      return ResponseEntity.ok(lookupService.saveOrUpdate(type, dto));
    }
 
 }

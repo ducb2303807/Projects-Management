@@ -15,5 +15,5 @@ public interface LookupService {
     * @pdOid 95133962-e731-4541-ac21-f74b22d4cbf0 */
    List<LookupDTO> getAll(LookupType type);
    /** @pdOid 3aa6e98e-e7b7-468e-941b-cce05af69f1e */
-   int update();
+   LookupDTO saveOrUpdate(LookupType type, LookupDTO dto) throws Throwable;
 }

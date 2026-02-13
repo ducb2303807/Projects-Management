@@ -5,6 +5,7 @@ package com.group4.projects_management.entity; /********************************
  ***********************************************************************/
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
@@ -14,11 +15,14 @@ import lombok.NoArgsConstructor;
 @Table(name = "PERMISSION")
 @Data
 @NoArgsConstructor
+@AllArgsConstructor
 @EqualsAndHashCode(callSuper = true)
 @AttributeOverrides({
         @AttributeOverride(name = "id", column = @Column(name = "PERMISSION_ID")),
-        @AttributeOverride(name = "name", column = @Column(name = "PERMISSION_CODE", length = 50, nullable = false)),
+        @AttributeOverride(name = "name", column = @Column(name = "PERMISSION_NAME", columnDefinition = "TEXT", nullable = false)),
         @AttributeOverride(name = "description", column = @Column(name = "PERMISSION_DESCRIPTION"))
 })
 public class Permission extends BaseLookup<Long> {
+    @Column(name = "PERMISSION_CODE", nullable = false, length = 50, unique = true)
+    private String code;
 }

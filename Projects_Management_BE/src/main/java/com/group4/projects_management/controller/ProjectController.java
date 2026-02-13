@@ -8,6 +8,7 @@ import com.group4.common.dto.*;
 import com.group4.projects_management.service.ProjectService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -21,10 +22,12 @@ public class ProjectController {
    /** @pdRoleInfo migr=no name=ProjectService assc=association26 mult=1..1 */
    @Autowired
    private ProjectService projectService;
-   
-   /** @param request
-    * @pdOid a25a207d-c8f5-473f-ac33-b82960f1beee */
-   @PostMapping("")
+
+   @GetMapping
+   public ResponseEntity<List<ProjectResponseDTO>> getAllProjects() {
+      return ResponseEntity.ok(projectService.getAllProjects());
+   }
+   @PostMapping
    public ResponseEntity<ProjectResponseDTO> createProject(ProjectCreateRequestDTO request) {
       // TODO: implement
       return null;

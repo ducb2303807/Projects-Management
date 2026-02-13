@@ -21,6 +21,8 @@ public enum BusinessErrorCode {
     SYSTEM_RESOURCE_NOT_FOUND("SYS_002","System resource not found"),
     SYSTEM_INTERNAL_SERVER_ERROR("SYS_003","System internal server error"),
     SYSTEM_VALIDATION_ERROR("SYS_004","System Validation error"),
+    SYSTEM_ACCESS_DENIED("SYS_005","System Access denied"),
+    INVALID_PARAMETER("SYS_006","Invalid parameter")
     ;
 
     private final String code;

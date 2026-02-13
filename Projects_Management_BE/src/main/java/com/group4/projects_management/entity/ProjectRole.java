@@ -7,7 +7,6 @@ package com.group4.projects_management.entity; /********************************
 import jakarta.persistence.*;
 import lombok.*;
 
-/** @pdOid 235eeec6-021f-4ed1-bca5-d62e8563ef45 */
 @Entity
 @Table(name = "PROJECT_ROLE")
 @Data
