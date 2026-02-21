@@ -1,0 +1,85 @@
+.container {
+    -fx-font-family: "Segoe UI", Arial;
+    -fx-background-color: white;
+}
+
+.auth-container {
+    -fx-background-color: white;
+}
+
+.auth-form {
+    -fx-spacing: 14;
+    -fx-alignment: center;
+    -fx-padding: 30px;
+    -fx-pref-width: 400;
+    -fx-background-color: #fff;
+}
+
+.auth-title {
+    -fx-font-size: 26px;
+    -fx-font-weight: bold;
+}
+
+.auth-label {
+    -fx-font-size: 13px;
+    -fx-font-weight: bold;
+}
+
+.background-pane {
+    -fx-background-image: url(../image/bg_signup-login.png);
+    -fx-pref-width: 600;
+    -fx-pref-height: 700;
+    -fx-background-repeat: no-repeat;
+    -fx-background-size: 400px 400px;
+    -fx-background-position: center center;
+}
+
+.text-field,
+.password-field {
+    -fx-pref-width: 320;
+    -fx-pref-height: 36;
+    -fx-background-radius: 8;
+    -fx-border-radius: 8;
+    -fx-border-color: #e5e5e5;
+    -fx-background-color: #fafafa;
+    -fx-padding: 0 12;
+}
+
+.text-field:focused,
+.password-field:focused {
+    -fx-border-color: #2b0066;
+    -fx-background-color: white;
+}
+
+
+.primary-button {
+    -fx-pref-width: 300;
+    -fx-pref-height: 40;
+    -fx-background-radius: 8;
+    -fx-background-color: linear-gradient(
+            to right,
+            #0b0f6a,
+            #2630df
+    );
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+}
+
+.primary-button:hover {
+    -fx-opacity: 0.9;
+}
+
+
+.footer-text {
+    -fx-font-size: 12px;
+}
+
+.footer-link {
+    -fx-text-fill: #1a1f9c;
+    -fx-font-weight: bold;
+}
+
+.container-form {
+    -fx-background-color: #fff;
+}
+
