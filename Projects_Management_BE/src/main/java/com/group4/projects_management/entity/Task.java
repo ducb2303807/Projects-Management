@@ -103,4 +103,8 @@ public class Task {
    public void addComment(Comment comment) {
       // TODO: implement
    }
+
+   public boolean isEmpty() {
+      return false;
+   }
 }

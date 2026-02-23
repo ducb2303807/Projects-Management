@@ -11,6 +11,8 @@ import lombok.NoArgsConstructor;
 import lombok.ToString;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 
 /** @pdOid ed3a2148-7b7a-4a09-a24a-3df8fa0f223c */
@@ -39,66 +41,88 @@ public class Project {
    private java.lang.String description;
    /** @pdOid 95b2195b-2b45-480d-b99f-8d63211367b4 */
    @Column(name = "PROJECT_CREATED_AT", nullable = false)
-   private LocalDateTime createAt;
+   private LocalDateTime createdAt;
    
    /** @pdRoleInfo migr=no name=Task assc=association6 coll=java.util.Collection impl=java.util.HashSet mult=0..* type=Composition */
    @OneToMany(mappedBy = "project") // "project" là tên biến bạn đặt trong class ProjectMember
    @ToString.Exclude
-   public java.util.Collection<Task> tasks;
+   private java.util.Collection<Task> tasks = new HashSet<>();
    /** @pdRoleInfo migr=no name=ProjectMember assc=association9 coll=java.util.Collection impl=java.util.HashSet mult=0..* type=Composition */
    @OneToMany(mappedBy = "project") // "project" là tên biến bạn đặt trong class ProjectMember
    @ToString.Exclude
-   public java.util.Collection<ProjectMember> members;
+   private java.util.Collection<ProjectMember> members = new HashSet<>();
    /** @pdRoleInfo migr=no name=ProjectStatus assc=hasStatus mult=1..1 */
    @ManyToOne
    @JoinColumn(name = "PROJECT_STATUS_ID", nullable = false)
    @ToString.Exclude
-   public ProjectStatus projectStatus;
+   private ProjectStatus projectStatus;
    /** @pdRoleInfo migr=no name=User assc=association7 mult=1..1 side=A */
    @ManyToOne
    @JoinColumn(name = "createdBy", nullable = false)
    @ToString.Exclude
-   public User createdBy;
-   
-   /** @pdOid 10e72771-2811-47b2-819e-f417901cb177 */
-   public void removeMember() {
-      // TODO: implement
+   private User createdBy;
+   @PrePersist
+   public void createAt() {
+      this.createdAt = LocalDateTime.now();
    }
-   
+   /** @pdOid 10e72771-2811-47b2-819e-f417901cb177 */
+   public void removeMember(ProjectMember member) {
+      if (member == null) return;
+      if (!members.contains(member)) {
+         throw new IllegalArgumentException("Member not in this project");
+      }
+      member.leave();
+   }
    /** @pdOid 2d4c02bc-cfb1-4c94-b105-182986cb7917 */
    public double calculateProgress() {
-      // TODO: implement
-      return 0;
+      if (tasks == null || tasks.isEmpty()) {
+         return 0;
+      }
+      long completed = tasks.stream()
+              .filter(Task::isCompleted)
+              .count();
+      return (completed * 100.0) / tasks.size();
    }
-   
    /** @pdOid 7082dcab-7aa6-4835-a3d3-c5cd032f1204 */
    public boolean isOverdue() {
-      // TODO: implement
-      return false;
+      if (isCompleted()) {
+         return false;
+      }
+      return LocalDateTime.now().isAfter(endDate);
    }
    
    /** @pdOid c7a0a817-13e6-4aa8-aec5-ce6fbc2b8324 */
    public int getMemberCount() {
-      // TODO: implement
-      return 0;
+      if (members == null) return 0;
+      int count = 0;
+      for (ProjectMember member : members) {
+         if (member.isActive()) {
+            count++;
+         }
+      }
+      return count;
    }
    
    /** @param userId
     * @pdOid 5a758d3d-68ae-4fa1-ab98-16222a790e83 */
    public boolean hasMember(Long userId) {
-      // TODO: implement
-      return false;
+      if (members == null) return false;
+      return members.stream()
+              .filter(ProjectMember::isActive)
+              .anyMatch(m -> m.getUser().getId().equals(userId));
    }
-   
    /** @pdOid 655e0174-bd56-427e-9cf9-42dc87cddaf8 */
    public List<ProjectMember> getActiveMembers() {
-      // TODO: implement
-      return null;
+      List<ProjectMember> result = new ArrayList<>();
+      for (ProjectMember m : members) {
+         if (m.isActive()) {
+            result.add(m);
+         }
+      }
+      return result;
    }
-   
    /** @pdOid 6043c10b-7fc8-4ffe-9204-c6664cda21d3 */
    public boolean isCompleted() {
-      // TODO: implement
       return false;
    }
 }

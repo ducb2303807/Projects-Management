@@ -10,6 +10,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 
+import java.util.HashSet;
+
 /** @pdOid 2ec3d48f-9f0b-4d44-91e9-a43da8d13c77 */
 @Entity
 @Table(name = "USER")
@@ -45,20 +47,22 @@ public class User {
    @ManyToOne
    @JoinColumn(name = "APP_ROLE_ID")
    @ToString.Exclude
-   public AppRole appRole;
+   private AppRole appRole;
    /** @pdRoleInfo migr=no name=Project assc=association7 coll=java.util.Collection impl=java.util.HashSet mult=0..* type=Aggregation */
    @OneToMany(mappedBy = "createdBy")
    @ToString.Exclude
-   public java.util.Collection<Project> project;
+   private java.util.Collection<Project> project = new HashSet<>();
    /** @pdRoleInfo migr=no name=UserNotification assc=association19 coll=java.util.Collection impl=java.util.HashSet mult=0..* type=Aggregation */
    @OneToMany(mappedBy = "user")
    @ToString.Exclude
-   public java.util.Collection<UserNotification> userNotification;
+   private java.util.Collection<UserNotification> userNotification = new HashSet<>();
    
    /** @param roleName
     * @pdOid 62fcfaba-7039-4108-a9ca-15704bd90f5c */
    public boolean hasRole(java.lang.String roleName) {
-      // TODO: implement
-      return false;
+      if (this.appRole == null || roleName == null) {
+         return false;
+      }
+      return roleName.equalsIgnoreCase(this.appRole.getName());
    }
 }

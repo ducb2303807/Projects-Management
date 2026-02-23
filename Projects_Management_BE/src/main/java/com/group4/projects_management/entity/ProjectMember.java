@@ -14,7 +14,12 @@ import java.time.LocalDateTime;
 
 /** @pdOid b611216c-16aa-4354-9881-f75a46baba4f */
 @Entity
-@Table(name = "PROJECT_MEMBER")
+@Table(
+        name = "PROJECT_MEMBER",
+        uniqueConstraints = {
+                @UniqueConstraint(columnNames = {"PROJECT_ID", "USER_ID"})
+        }
+)
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -35,25 +40,52 @@ public class ProjectMember {
    @ManyToOne
    @JoinColumn(name = "PROJECT_MEMBER_INVITE_ID") // Tự tham chiếu để biết ai mời
    @ToString.Exclude
-   public ProjectMember invitedBy;
+   private ProjectMember invitedBy;
    /** @pdRoleInfo migr=no name=ProjectMemberStatus assc=association10 mult=1..1 */
    @ManyToOne
    @JoinColumn(name = "PROJECT_MEMBER_STATUS_ID", nullable = false)
    @ToString.Exclude
-   public ProjectMemberStatus projectMemberStatus;
+   private ProjectMemberStatus projectMemberStatus;
    /** @pdRoleInfo migr=no name=User assc=association11 mult=1..1 */
    @ManyToOne
    @JoinColumn(name = "USER_ID", nullable = false)
    @ToString.Exclude
-   public User user;
+   private User user;
    /** @pdRoleInfo migr=no name=ProjectRole assc=association12 mult=1..1 */
    @ManyToOne
    @JoinColumn(name = "PROJECT_ROLE_ID", nullable = false)
    @ToString.Exclude
-   public ProjectRole projectRole;
+   private ProjectRole projectRole;
    /** @pdRoleInfo migr=no name=Project assc=association9 mult=1..1 side=A */
    @ManyToOne
    @JoinColumn(name = "PROJECT_ID", nullable = false)
    @ToString.Exclude
-   public Project project;
+   private Project project;
+
+   @PrePersist
+   protected void onJoin() {
+      this.joinAt = LocalDateTime.now();
+   }
+
+   public void leave() {
+      if (this.leftAt == null) {
+         this.leftAt = LocalDateTime.now();
+      }
+   }
+
+   public boolean isActive() {
+      return this.leftAt == null;
+   }
+
+   public boolean hasRoleId(Long roleId) {
+      return this.projectRole != null
+              && roleId != null
+              && roleId.equals(this.projectRole.getId());
+   }
+
+   public boolean hasRoleCode(String roleName) {
+      return this.projectRole != null
+              && roleName != null
+              && roleName.equalsIgnoreCase(this.projectRole.getName());
+   }
 }
