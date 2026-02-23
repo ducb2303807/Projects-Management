@@ -31,8 +31,36 @@
 ## 📂 Cấu trúc mã nguồn
 ```text
 Projects-Management/
-├── FE/                
-├── BE/
+├── common/
+│   ├── dto/
+│   ├── interfaces/
+│
+├── Projects_Management_BE/
+│   ├── controller/
+│   ├── service/
+│   ├── repository/
+│   ├── entity/
+│   ├── core/
+│   │   ├── config/
+│   │   ├── security/
+│   │   ├── exception/
+│   │   └── util/
+│   └── exception-handler/
+│
+├── Projects_Management_FE/
+│   ├── core/
+│   │   ├── api/
+│   │   ├── di/
+│   │   ├── navigation/
+│   │   └── events/
+│   ├── features/
+│   │   └── project_list/
+│   ├── ui/
+│   │   ├── components/
+│   │   └── styles/
+│   └── resources/
+│
+├── docs/
 └── README.md
 ```
 
