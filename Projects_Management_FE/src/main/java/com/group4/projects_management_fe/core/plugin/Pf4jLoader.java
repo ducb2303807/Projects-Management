@@ -1,4 +1,4 @@
-﻿package com.group4.projects_management_fe.core.plugin;
+package com.group4.projects_management_fe.core.plugin;
 
 import com.group4.common.interfaces.HostContext;
 import com.group4.common.interfaces.Plugin;
