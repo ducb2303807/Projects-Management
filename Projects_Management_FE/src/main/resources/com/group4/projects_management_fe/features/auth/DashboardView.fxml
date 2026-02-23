@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+
+<VBox spacing="20" alignment="CENTER"
+      fx:controller="com.group4.projects_management_fe.features.auth.DashboardController"
+      xmlns:fx="http://javafx.com/fxml"
+      style="-fx-padding: 40;">
+
+    <Label text="Dashboard"
+           style="-fx-font-size: 28; -fx-font-weight: bold;"/>
+
+    <Label text="Welcome to your dashboard!"/>
+
+</VBox>

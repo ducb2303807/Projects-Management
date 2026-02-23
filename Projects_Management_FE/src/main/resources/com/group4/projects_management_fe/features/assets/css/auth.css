@@ -83,3 +83,82 @@
     -fx-background-color: #fff;
 }
 
+.top-bar {
+    -fx-background-color: #f8f8f8;
+}
+
+.nav-btn {
+    -fx-font-size: 16px;
+    -fx-background-color: transparent;
+    -fx-background-insets: 0;
+    -fx-background-radius: 0;
+    -fx-border-color: transparent;
+    -fx-border-width: 0;
+    -fx-font-family: "SansSerif";
+    -fx-font-weight: 600;
+    -fx-text-fill: #111111;
+}
+
+.nav-btn.active {
+    -fx-border-color: #8558cc;
+    -fx-border-width: 0 0 3 0;
+}
+
+
+/* ===== Notification Button ===== */
+.notif-btn {
+    -fx-background-color: #ffffff;
+    -fx-background-radius: 100;
+
+    -fx-min-width: 50;
+    -fx-min-height: 50;
+
+    -fx-padding: 0;
+    -fx-border-width: 0;
+    -fx-background-insets: 0;
+
+    -fx-focus-color: transparent;
+    -fx-faint-focus-color: transparent;
+    -fx-cursor: hand;
+}
+
+.notif-icon {
+    -fx-icon-size: 22px;
+    -fx-icon-color: #555555;
+}
+
+.notif-btn:hover {
+    -fx-background-color: #E4E4E4;
+}
+
+.notif-btn:pressed {
+    -fx-background-color: #DADADA;
+}
+
+.user-box {
+    -fx-background-color: #F5F6F8;
+    -fx-background-radius: 40;
+    -fx-padding: 4 18 4 12;
+    -fx-alignment: center-left;
+    -fx-cursor: hand;
+}
+
+.user-box:hover {
+    -fx-background-color: #ECEEF2;
+}
+
+.avatar {
+    -fx-background-radius: 50%;
+    -fx-max-width: 40;
+    -fx-max-height: 40;
+    -fx-overflow: hidden;
+}
+
+.avt {
+    -fx-background-radius: 50%;
+}
+
+.role-text {
+    -fx-font-size: 10px;
+    -fx-text-fill: #8A8F98;
+}

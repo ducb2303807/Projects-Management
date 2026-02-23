@@ -7,7 +7,7 @@ module com.group4.projects_management_fe {
     requires net.synedra.validatorfx;
     requires org.kordamp.ikonli.javafx;
     requires org.kordamp.bootstrapfx.core;
-
+    requires org.kordamp.ikonli.fontawesome5;
     opens com.group4.projects_management_fe.features.auth to javafx.fxml;
     //opens com.group4.projects_management_fe.features.project_list to javafx.fxml;
 

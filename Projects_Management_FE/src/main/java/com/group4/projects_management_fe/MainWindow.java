@@ -13,7 +13,7 @@ public class MainWindow extends Application {
 
         FXMLLoader loader = new FXMLLoader(
                 MainWindow.class.getResource(
-                        "/com/group4/projects_management_fe/features/auth/AuthView.fxml"
+                        "/com/group4/projects_management_fe/features/auth/MainLayout.fxml"
                 )
         );
         Scene scene = new Scene(loader.load(), 900, 600);

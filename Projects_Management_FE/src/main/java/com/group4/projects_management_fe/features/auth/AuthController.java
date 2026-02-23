@@ -9,7 +9,10 @@ import javafx.scene.control.TextField;
 import javafx.scene.layout.VBox;
 import javafx.util.Duration;
 import javafx.scene.control.Alert;
-
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.stage.Stage;
 import java.util.regex.Pattern;
 
 public class AuthController {
@@ -162,6 +165,7 @@ public class AuthController {
         }
 
         showAlert("Login successfull", "Welcome back!");
+        openMainLayout();
     }
 
     @FXML
@@ -199,6 +203,25 @@ public class AuthController {
 
         showAlert("Register successful!", "Now, please login.");
         showSignIn();
+    }
+
+    private void openMainLayout() {
+        try {
+            FXMLLoader loader = new FXMLLoader(
+                    getClass().getResource(
+                            "/com/group4/projects_management_fe/features/auth/MainLayout.fxml"
+                    )
+            );
+
+            Parent root = loader.load();
+
+            Stage stage = (Stage) signInForm.getScene().getWindow();
+            stage.setScene(new Scene(root, 1200, 800));
+            stage.centerOnScreen();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     private void showAlert(String title, String message) {
