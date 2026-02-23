@@ -15,10 +15,10 @@ public interface PluginService {
    List<PluginDTO> getAvailablePlugins();
    /** @param userId
     * @pdOid c025775c-facf-4244-89f9-f16157bb51fb */
-   UserWidgetConfigDTO getUserDashboardConfig(Long userId);
+   List<UserWidgetConfigDTO> getUserDashboardConfig(Long userId);
    /** @param userId 
     * @param configs
     * @pdOid aeea4104-4c00-43c1-a8f3-cf12d485c7e0 */
-   void saveDashboardLayout(int userId, List<UserWidgetConfigDTO> configs);
+   void saveDashboardLayout(Long userId, List<UserWidgetConfigDTO> configs);
 
 }

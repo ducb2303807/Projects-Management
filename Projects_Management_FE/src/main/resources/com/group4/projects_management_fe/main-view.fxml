@@ -5,32 +5,36 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<VBox alignment="CENTER" prefHeight="496.0" prefWidth="588.0" spacing="20.0" xmlns="http://javafx.com/javafx/17.0.12"
-      xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.group4.projects_management_fe.MainController">
+<VBox alignment="CENTER" prefHeight="355.0" prefWidth="472.0" spacing="20.0" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.group4.projects_management_fe.MainController">
     <padding>
-        <Insets bottom="20.0" left="20.0" right="20.0" top="20.0"/>
+        <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
     </padding>
-    <Button mnemonicParsing="false" text="Button"/>
+   <Button mnemonicParsing="false" text="Con meof" />
 
-    <Label fx:id="welcomeText"/>
-    <ToolBar prefHeight="40.0" prefWidth="200.0">
-        <items>
-            <Button mnemonicParsing="false" text="Button"/>
-        </items>
-    </ToolBar>
-    <Label text="Label"/>
-    <PasswordField/>
-    <BorderPane prefHeight="200.0" prefWidth="200.0">
-        <left>
-            <ColorPicker BorderPane.alignment="CENTER"/>
-        </left>
-        <center>
-            <ChoiceBox prefWidth="150.0" BorderPane.alignment="CENTER"/>
-        </center>
-    </BorderPane>
+    <Label fx:id="welcomeText" />
+   <ToolBar prefHeight="40.0" prefWidth="200.0">
+     <items>
+       <Button mnemonicParsing="false" text="Button" />
+     </items>
+   </ToolBar>
+   <Label text="Label" />
+   <PasswordField />
+   <BorderPane prefHeight="200.0" prefWidth="200.0">
+      <left>
+         <ColorPicker BorderPane.alignment="CENTER" />
+      </left>
+      <center>
+         <ChoiceBox prefWidth="150.0" BorderPane.alignment="CENTER" />
+      </center>
+   </BorderPane>
     <Button onAction="#onHelloButtonClick" text="cccccccccccxzcdsafsdfdsfds  ">
-        <cursor>
-            <Cursor fx:constant="HAND"/>
-        </cursor>
-    </Button>
+      <cursor>
+         <Cursor fx:constant="HAND" />
+      </cursor></Button>
+   <Pane prefHeight="200.0" prefWidth="200.0" />
+   <ToolBar prefHeight="40.0" prefWidth="200.0">
+     <items>
+       <Button mnemonicParsing="false" prefHeight="30.0" prefWidth="406.0" text="Button" />
+     </items>
+   </ToolBar>
 </VBox>

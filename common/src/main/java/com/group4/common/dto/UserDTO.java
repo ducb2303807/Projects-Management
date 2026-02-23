@@ -16,10 +16,9 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class UserDTO extends UserBaseDTO {
    /** @pdOid 6de4b207-efb8-4b49-b4f1-104978cc0138 */
-   private Long userId;
+   private Long id;
    /** @pdOid d7c2a91a-e918-46cd-b723-3076c586962f */
    private boolean isActive;
    /** @pdOid c87c62fe-b595-4faa-a269-3e4f57ef5eaa */
    private java.lang.String systemRoleName;
-
 }

@@ -33,12 +33,13 @@ public class PluginServiceImpl extends BaseServiceImpl<Plugin,Long> implements P
    }
 
    @Override
-   public UserWidgetConfigDTO getUserDashboardConfig(Long userId) {
+   public List<UserWidgetConfigDTO> getUserDashboardConfig(Long userId) {
       return null;
    }
 
    @Override
-   public void saveDashboardLayout(int userId, List<UserWidgetConfigDTO> configs) {
+   public void saveDashboardLayout(Long userId, List<UserWidgetConfigDTO> configs) {
 
    }
+
 }

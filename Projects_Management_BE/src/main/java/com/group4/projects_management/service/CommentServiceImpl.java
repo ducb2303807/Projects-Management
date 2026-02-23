@@ -14,7 +14,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
-/** @pdOid fbbd948e-035c-4ffa-ba83-93f17138ba93 */
+
 @Service
 public class CommentServiceImpl extends BaseServiceImpl<Comment,Long> implements CommentService {
    /** @pdRoleInfo migr=no name=TaskCommentRepository assc=association32 mult=1..1 */

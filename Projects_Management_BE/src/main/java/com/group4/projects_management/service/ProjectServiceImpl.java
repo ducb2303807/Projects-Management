@@ -6,6 +6,7 @@ package com.group4.projects_management.service; /*******************************
 
 import com.group4.common.dto.*;
 import com.group4.projects_management.entity.Project;
+import com.group4.projects_management.mapper.ProjectMapper;
 import com.group4.projects_management.repository.ProjectMemberRepository;
 import com.group4.projects_management.repository.ProjectRepository;
 import com.group4.projects_management.service.base.BaseServiceImpl;
@@ -18,12 +19,23 @@ import java.util.List;
 public class ProjectServiceImpl extends BaseServiceImpl<Project,Long> implements ProjectService {
    /** @pdRoleInfo migr=no name=ProjectRepository assc=association25 mult=1..1 */
    private final ProjectRepository projectRepository;
+
    /** @pdRoleInfo migr=no name=ProjectMemberRepository assc=association45 mult=1..1 */
    public ProjectMemberRepository projectMemberRepository;
+   private final ProjectMapper projectMapper;
 
-   public ProjectServiceImpl(ProjectRepository repository) {
+   public ProjectServiceImpl(ProjectRepository repository, ProjectMapper projectMapper) {
       super(repository);
       this.projectRepository = repository;
+       this.projectMapper = projectMapper;
+   }
+
+   @Override
+   public List<ProjectResponseDTO> getAllProjects() {
+      return projectRepository.findAll()
+              .stream()
+              .map(projectMapper::toDto)
+              .toList();
    }
 
    @Override
@@ -62,12 +74,12 @@ public class ProjectServiceImpl extends BaseServiceImpl<Project,Long> implements
    }
 
    @Override
-   public List<ProjectResponseDTO> getProjectsByUserId() {
+   public List<ProjectResponseDTO> getProjectsByUserId(Long userId) {
       return List.of();
    }
 
    @Override
-   public ProjectResponseDTO updateProject(Long projectId, ProjectCreateRequestDTO dto) {
+   public ProjectResponseDTO updateProject(Long projectId, ProjectUpdateRequestDTO dto) {
       return null;
    }
 
@@ -87,7 +99,7 @@ public class ProjectServiceImpl extends BaseServiceImpl<Project,Long> implements
    }
 
    @Override
-   public ProjectResponseDTO getProjectDetail() {
+   public ProjectResponseDTO getProjectDetail(Long projectId) {
       return null;
    }
 }

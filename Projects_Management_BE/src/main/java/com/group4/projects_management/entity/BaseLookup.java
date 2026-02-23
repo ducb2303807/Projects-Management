@@ -4,15 +4,21 @@ package com.group4.projects_management.entity; /********************************
  * Purpose: Defines the Class BaseLookup
  ***********************************************************************/
 
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
 import jakarta.persistence.MappedSuperclass;
 import lombok.Data;
 
-/** @pdOid f18ab97a-45d6-49ce-bdf3-ccd27c6b74e0 */
+import java.io.Serializable;
+
 @Data
 @MappedSuperclass
-public abstract class BaseLookup {
-   /** @pdOid 92476b67-01b3-4fd2-af36-bfdcc5ddcb3b */
+public abstract class BaseLookup<ID extends Serializable> {
+   @Id
+   @GeneratedValue(strategy = GenerationType.IDENTITY)
+   private ID id;
    private java.lang.String name;
-   /** @pdOid 53e0bfc7-ea1c-45ce-8136-f2176546f824 */
    private java.lang.String description;
+   private String systemCode;
 }

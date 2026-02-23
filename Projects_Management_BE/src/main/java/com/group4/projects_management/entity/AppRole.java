@@ -7,6 +7,8 @@ package com.group4.projects_management.entity; /********************************
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.HashSet;
+
 /** @pdOid 5413a20b-ef1b-40b4-806e-52d827877aea */
 @Entity
 @Table(name = "APP_ROLE")
@@ -14,17 +16,13 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = true)
-public class AppRole extends BaseLookup {
-   @Id
-   @GeneratedValue(strategy = GenerationType.IDENTITY)
-   @Column(name = "SYSTEM_ROLE_ID") // Bắt buộc phải có dòng này
-   private Long id;
-
-   @Column(name = "SYSTEM_ROLE_NAME")
-   private String name;
-
-   @Column(name = "SYSTEM_ROLE_DESCRIPTION")
-   private String description;
+@AttributeOverrides(value = {
+        @AttributeOverride(name = "id", column = @Column(name = "APP_ROLE_ID")),
+        @AttributeOverride(name = "name", column = @Column(name = "SYSTEM_NAME", length = 50, nullable = false)),
+        @AttributeOverride(name = "description", column = @Column(name = "SYSTEM_DESCRIPTION")),
+        @AttributeOverride(name = "systemCode", column = @Column(name = "SYSTEM_CODE"))
+})
+public class AppRole extends BaseLookup<Long> {
 
    @ManyToMany
    @JoinTable(
@@ -33,5 +31,11 @@ public class AppRole extends BaseLookup {
            inverseJoinColumns = @JoinColumn(name = "PERMISSION_ID")
    )
    @ToString.Exclude
-   private java.util.Collection<Permission> permissions;
+   private java.util.Collection<Permission> permissions = new HashSet<>();
+
+   public boolean hasPermission(String permissionCode) {
+      if (permissionCode == null) return false;
+      return permissions.stream()
+              .anyMatch(per -> permissionCode.equalsIgnoreCase(per.getCode()));
+   }
 }

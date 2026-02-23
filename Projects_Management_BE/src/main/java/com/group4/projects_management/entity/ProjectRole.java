@@ -8,6 +8,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.util.Collection;
+import java.util.HashSet;
 
 /** @pdOid 235eeec6-021f-4ed1-bca5-d62e8563ef45 */
 @Entity
@@ -16,17 +17,13 @@ import java.util.Collection;
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = true)
-public class ProjectRole extends BaseLookup {
-   @Id
-   @GeneratedValue(strategy = GenerationType.IDENTITY)
-   @Column(name = "PROJECT_ROLE_ID")
-   private Long id;
-
-   @Column(name = "PROJECT_ROLE_NAME", nullable = false, length = 50)
-   private String name;
-
-   @Column(name = "PROJECT_ROLE_DESCRIPTION")
-   private String description;
+@AttributeOverrides({
+        @AttributeOverride(name = "id", column = @Column(name = "PROJECT_ROLE_ID")),
+        @AttributeOverride(name = "name", column = @Column(name = "SYSTEM_NAME", length = 50, nullable = false)),
+        @AttributeOverride(name = "description", column = @Column(name = "SYSTEM_DESCRIPTION")),
+        @AttributeOverride(name = "systemCode", column = @Column(name = "SYSTEM_CODE"))
+})
+public class ProjectRole extends BaseLookup<Long> {
 
    @ManyToMany
    @JoinTable(
@@ -35,5 +32,5 @@ public class ProjectRole extends BaseLookup {
            inverseJoinColumns = @JoinColumn(name = "PERMISSION_ID")
    )
    @ToString.Exclude
-   private Collection<Permission> permissions;
+   private Collection<Permission> permissions = new HashSet<>();
 }

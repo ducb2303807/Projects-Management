@@ -37,22 +37,16 @@ public interface TaskService {
     * @param taskStatusId
     * @pdOid 2875ea94-938f-41c2-8fb9-b822d7e83ed5 */
    void updateTaskStatus(Long taskId, Long taskStatusId);
-   /** @param taskId 
-    * @param memberId
-    * @pdOid 3166b565-f9b6-495a-bfcd-55ce54652517 */
-   void removeMemberFromTask(Long taskId, Long memberId);
-   /** @param taskId 
-    * @param membersId
-    * @pdOid e57b207c-ae27-4838-b3dd-be8587e9a491 */
+
+   void removeMemberFromTask(Long taskAssignmentId);
+
    void removeMembersFromTask(Long taskId, List<Long> membersId);
    /** @param taskId 
     * @param dto
     * @pdOid 19ffe925-d5b2-40a5-ad6d-d6ea1d48f65e */
    TaskResponseDTO updateTask(Long taskId, TaskUpdateDTO dto);
-   /** @param projectId 
-    * @param dto
-    * @pdOid 56f89f6d-a4d8-47df-995a-340a6e8b238b */
-   TaskResponseDTO createTask(Long projectId, TaskCeateRequestDTO dto);
+
+   TaskResponseDTO createTask(TaskCeateRequestDTO dto);
    /** @param projectId 
     * @param statusId
     * @pdOid 17f62ca3-613b-4673-b6f1-aa6745bf4827 */
