@@ -11,9 +11,15 @@ public class MainWindow extends Application {
 
     public void start(Stage stage) throws IOException {
 
+//        FXMLLoader loader = new FXMLLoader(
+//                MainWindow.class.getResource(
+//                        "/com/group4/projects_management_fe/features/auth/MainLayout.fxml"
+//                )
+//        );
+
         FXMLLoader loader = new FXMLLoader(
                 MainWindow.class.getResource(
-                        "/com/group4/projects_management_fe/features/auth/MainLayout.fxml"
+                        "/com/group4/projects_management_fe/features/auth/AuthView.fxml"
                 )
         );
         Scene scene = new Scene(loader.load(), 900, 600);
