@@ -45,7 +45,7 @@ public class User {
    
    /** @pdRoleInfo migr=no name=AppRole assc=association3 mult=1..1 */
    @ManyToOne
-   @JoinColumn(name = "SYSTEM_ROLE_ID")
+   @JoinColumn(name = "APP_ROLE_ID")
    @ToString.Exclude
    private AppRole appRole;
    /** @pdRoleInfo migr=no name=Project assc=association7 coll=java.util.Collection impl=java.util.HashSet mult=0..* type=Aggregation */

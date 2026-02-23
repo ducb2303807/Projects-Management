@@ -16,17 +16,13 @@ import java.util.HashSet;
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = true)
-public class AppRole extends BaseLookup {
-   @Id
-   @GeneratedValue(strategy = GenerationType.IDENTITY)
-   @Column(name = "SYSTEM_ROLE_ID") // Bắt buộc phải có dòng này
-   private Long id;
-
-   @Column(name = "SYSTEM_ROLE_NAME")
-   private String name;
-
-   @Column(name = "SYSTEM_ROLE_DESCRIPTION")
-   private String description;
+@AttributeOverrides(value = {
+        @AttributeOverride(name = "id", column = @Column(name = "APP_ROLE_ID")),
+        @AttributeOverride(name = "name", column = @Column(name = "SYSTEM_NAME", length = 50, nullable = false)),
+        @AttributeOverride(name = "description", column = @Column(name = "SYSTEM_DESCRIPTION")),
+        @AttributeOverride(name = "systemCode", column = @Column(name = "SYSTEM_CODE"))
+})
+public class AppRole extends BaseLookup<Long> {
 
    @ManyToMany
    @JoinTable(

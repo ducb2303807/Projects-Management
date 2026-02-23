@@ -19,5 +19,4 @@ public interface CommentService {
     * @param replyCommentId
     * @pdOid 7ed2bf78-6bb6-4098-b780-6d2827d0e5e4 */
    CommentDTO createComment(Long taskId, Long projectMemberId, java.lang.String text, Long replyCommentId);
-
 }

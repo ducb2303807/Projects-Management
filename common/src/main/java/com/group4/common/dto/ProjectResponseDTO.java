@@ -18,7 +18,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class ProjectResponseDTO extends ProjectBaseDTO {
    /** @pdOid 231b9935-45b0-4bf9-b424-964462659cec */
-   private Long projectId;
+   private Long id;
    /** @pdOid 1ca8890b-4adc-430d-8c80-f6b072a4c571 */
    private java.lang.String userCreatedUsername;
    /** @pdOid bc4d7272-c477-4e44-a9f6-114bb6c26d01 */
@@ -31,5 +31,4 @@ public class ProjectResponseDTO extends ProjectBaseDTO {
    private LocalDateTime createdAt;
    /** @pdOid ebf2bb09-330f-4268-abce-c1c2dea3716e */
    private int memberCount;
-
 }
