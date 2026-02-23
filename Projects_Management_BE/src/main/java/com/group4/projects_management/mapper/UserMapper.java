@@ -29,6 +29,7 @@ public abstract class UserMapper {
     @Mapping(target = "userNotification", ignore = true)
     public abstract User toEntity(UserRegistrationDTO userDTO);
 
+
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "hashedPassword", ignore = true)
     @Mapping(target = "appRole", ignore = true)

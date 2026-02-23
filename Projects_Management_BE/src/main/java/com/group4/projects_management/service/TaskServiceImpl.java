@@ -65,9 +65,10 @@ public class TaskServiceImpl extends BaseServiceImpl<Task,Long> implements TaskS
    }
 
    @Override
-   public void removeMemberFromTask(Long taskId, Long memberId) {
+   public void removeMemberFromTask(Long taskAssignmentId) {
 
    }
+
 
    @Override
    public void removeMembersFromTask(Long taskId, List<Long> membersId) {
@@ -80,7 +81,7 @@ public class TaskServiceImpl extends BaseServiceImpl<Task,Long> implements TaskS
    }
 
    @Override
-   public TaskResponseDTO createTask(Long projectId, TaskCeateRequestDTO dto) {
+   public TaskResponseDTO createTask(TaskCeateRequestDTO dto) {
       return null;
    }
 

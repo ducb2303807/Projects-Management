@@ -6,9 +6,7 @@ package com.group4.projects_management.service;
  ***********************************************************************/
 
 import com.group4.common.dto.LookupDTO;
-import com.group4.common.enums.BusinessErrorCode;
 import com.group4.common.enums.LookupType;
-import com.group4.projects_management.core.exception.BusinessException;
 import com.group4.projects_management.core.exception.ResourceNotFoundException;
 import com.group4.projects_management.entity.*;
 import com.group4.projects_management.repository.*;
@@ -72,7 +70,7 @@ public class LookupServiceImpl implements LookupService {
         LookupMetadata<BaseLookup<Serializable>, Serializable> meta =
                 (LookupMetadata<BaseLookup<Serializable>, Serializable>) registry.get(type);
 
-        if (!meta.editable) throw new BusinessException("Quyền hạn hệ thống không được sửa qua đây!", BusinessErrorCode.SYSTEM_ACCESS_DENIED);
+//        if (!meta.editable) throw new BusinessException("Quyền hạn hệ thống không được sửa qua đây!", BusinessErrorCode.SYSTEM_ACCESS_DENIED);
 
         BaseLookup<Serializable> entity;
         if (dto.getId() != null && !dto.getId().isEmpty()) {

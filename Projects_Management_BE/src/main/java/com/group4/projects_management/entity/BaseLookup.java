@@ -20,4 +20,5 @@ public abstract class BaseLookup<ID extends Serializable> {
    private ID id;
    private java.lang.String name;
    private java.lang.String description;
+   private String systemCode;
 }

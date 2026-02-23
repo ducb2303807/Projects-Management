@@ -17,8 +17,10 @@ import lombok.NoArgsConstructor;
 @EqualsAndHashCode(callSuper = true)
 @AttributeOverrides({
         @AttributeOverride(name = "id", column = @Column(name = "TASK_STATUS_ID")),
-        @AttributeOverride(name = "name", column = @Column(name = "TASK_STATUS_NAME", nullable = false, length = 50)),
-        @AttributeOverride(name = "description", column = @Column(name = "TASK_STATUS_DESCRIPTION"))
+        @AttributeOverride(name = "name", column = @Column(name = "SYSTEM_NAME", length = 50, nullable = false)),
+        @AttributeOverride(name = "description", column = @Column(name = "SYSTEM_DESCRIPTION")),
+        @AttributeOverride(name = "systemCode", column = @Column(name = "SYSTEM_CODE"))
+
 })
 public class TaskStatus extends BaseLookup<Long> {
 }

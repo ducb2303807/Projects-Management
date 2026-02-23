@@ -74,12 +74,12 @@ public class ProjectServiceImpl extends BaseServiceImpl<Project,Long> implements
    }
 
    @Override
-   public List<ProjectResponseDTO> getProjectsByUserId() {
+   public List<ProjectResponseDTO> getProjectsByUserId(Long userId) {
       return List.of();
    }
 
    @Override
-   public ProjectResponseDTO updateProject(Long projectId, ProjectCreateRequestDTO dto) {
+   public ProjectResponseDTO updateProject(Long projectId, ProjectUpdateRequestDTO dto) {
       return null;
    }
 
@@ -99,7 +99,7 @@ public class ProjectServiceImpl extends BaseServiceImpl<Project,Long> implements
    }
 
    @Override
-   public ProjectResponseDTO getProjectDetail() {
+   public ProjectResponseDTO getProjectDetail(Long projectId) {
       return null;
    }
 }

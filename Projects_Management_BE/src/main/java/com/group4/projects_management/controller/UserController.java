@@ -54,9 +54,12 @@ public class UserController {
    }
 
 
-   public ResponseEntity<Void> changePassword(Long userId, java.lang.String newPassword) {
-      // TODO: implement
-      return null;
+   @PatchMapping("/{userId}/change-password")
+   public ResponseEntity<Void> changePassword(
+           @PathVariable Long userId,
+           @RequestParam String newPassword) {
+      userService.changePassword(userId, newPassword);
+      return ResponseEntity.ok().build();
    }
 
 }
