@@ -15,6 +15,13 @@
     </properties>
 
     <dependencies>
+        <!-- Source: https://mvnrepository.com/artifact/org.pf4j/pf4j -->
+        <dependency>
+            <groupId>org.pf4j</groupId>
+            <artifactId>pf4j</artifactId>
+            <version>3.15.0</version>
+            <scope>compile</scope>
+        </dependency>
         <dependency>
             <groupId>com.group4</groupId>
             <artifactId>common</artifactId>

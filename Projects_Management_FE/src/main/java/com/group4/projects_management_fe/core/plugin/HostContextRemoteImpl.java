@@ -1,4 +1,4 @@
-package com.group4.common.FE_Temp; /***********************************************************************
+package com.group4.projects_management_fe.core.plugin; /***********************************************************************
  * Module:  HostContextRemoteImpl.java
  * Author:  Lenovo
  * Purpose: Defines the Class HostContextRemoteImpl
