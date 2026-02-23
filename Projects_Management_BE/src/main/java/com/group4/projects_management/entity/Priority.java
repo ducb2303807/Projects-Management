@@ -17,8 +17,10 @@ import lombok.NoArgsConstructor;
 @EqualsAndHashCode(callSuper = true)
 @AttributeOverrides({
         @AttributeOverride(name = "id", column = @Column(name = "PRIORITY_ID")),
-        @AttributeOverride(name = "name", column = @Column(name = "PRIORITY_NAME", nullable = false, length = 50)),
-        @AttributeOverride(name = "description", column = @Column(name = "PRIORITY_DESCRIPTION"))
+        @AttributeOverride(name = "name", column = @Column(name = "SYSTEM_NAME", length = 50, nullable = false)),
+        @AttributeOverride(name = "description", column = @Column(name = "SYSTEM_DESCRIPTION")),
+        @AttributeOverride(name = "systemCode", column = @Column(name = "SYSTEM_CODE"))
+
 })
 public class Priority extends BaseLookup<Long> {
 }

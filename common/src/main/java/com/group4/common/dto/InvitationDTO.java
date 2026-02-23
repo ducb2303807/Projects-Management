@@ -25,5 +25,4 @@ public class InvitationDTO extends MemberBaseDTO {
    private java.lang.String inviterName;
    /** @pdOid c633d603-d1f2-4ba8-93a3-c21f0967dce8 */
    private LocalDateTime sentAt;
-
 }

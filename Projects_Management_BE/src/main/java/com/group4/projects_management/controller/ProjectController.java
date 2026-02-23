@@ -8,9 +8,7 @@ import com.group4.common.dto.*;
 import com.group4.projects_management.service.ProjectService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -21,87 +19,73 @@ public class ProjectController {
    /** @pdRoleInfo migr=no name=ProjectService assc=association26 mult=1..1 */
    @Autowired
    private ProjectService projectService;
-   
-   /** @param request
-    * @pdOid a25a207d-c8f5-473f-ac33-b82960f1beee */
-   @PostMapping("")
+
+   @GetMapping
+   public ResponseEntity<List<ProjectResponseDTO>> getAllProjects() {
+      return ResponseEntity.ok(projectService.getAllProjects());
+   }
+   @PostMapping
    public ResponseEntity<ProjectResponseDTO> createProject(ProjectCreateRequestDTO request) {
-      // TODO: implement
-      return null;
+      return ResponseEntity.ok(projectService.createProject(request));
    }
-   
-   /** @param userId
-    * @pdOid 89fa0401-f837-4cee-937e-263110cba329 */
-   public ResponseEntity<List<ProjectResponseDTO>> getProjectsByUserId(Long userId) {
-      // TODO: implement
-      return null;
+
+   @GetMapping("/user/{userId}")
+   public ResponseEntity<List<ProjectResponseDTO>> getProjectsByUserId(@PathVariable Long userId) {
+      return ResponseEntity.ok(projectService.getProjectsByUserId(userId));
    }
-   
-   /** @param projectId
-    * @pdOid 6fa9475b-8ab5-4289-a545-d9f8c494c8ed */
-   public ResponseEntity<ProjectResponseDTO> getProjectDetail(Long projectId) {
-      // TODO: implement
-      return null;
+
+   @GetMapping("/{projectId}")
+   public ResponseEntity<ProjectResponseDTO> getProjectDetail(@PathVariable Long projectId) {
+      return ResponseEntity.ok(projectService.getProjectDetail(projectId));
    }
-   
-   /** @param projectId 
-    * @param request
-    * @pdOid 9c906992-7656-4c21-83d2-0394766b40e8 */
-   public ResponseEntity<ProjectResponseDTO> updateProject(Long projectId, ProjectUpdateRequestDTO request) {
-      // TODO: implement
-      return null;
+
+   @PutMapping("/{projectId}")
+   public ResponseEntity<ProjectResponseDTO> updateProject(@PathVariable Long projectId, @RequestBody ProjectUpdateRequestDTO request) {
+      return ResponseEntity.ok(projectService.updateProject(projectId, request));
    }
-   
-   /** @param projectId
-    * @pdOid fa8309b1-edbf-4c7f-aa40-c16b267df4e9 */
-   public ResponseEntity<List<ProjectMemberDTO>> getMembersOfProject(Long projectId) {
-      // TODO: implement
-      return null;
+
+   @GetMapping("/{projectId}/members")
+   public ResponseEntity<List<ProjectMemberDTO>> getMembersOfProject(@PathVariable Long projectId) {
+      return ResponseEntity.ok(projectService.getMembersOfProject(projectId));
    }
-   
-   /** @param projectId 
-    * @param inviteeId 
-    * @param inviterId 
-    * @param roleId
-    * @pdOid a6ec21f9-57ac-48bc-91e6-fabdb49fab00 */
-   public ResponseEntity<Void> inviteMember(Long projectId, Long inviteeId, Long inviterId, Long roleId) {
-      // TODO: implement
-      return null;
+
+   @PostMapping("/{projectId}/invite")
+   public ResponseEntity<Void> inviteMember(
+           @PathVariable Long projectId,
+           @RequestParam Long inviteeId,
+           @RequestParam Long inviterId,
+           @RequestParam Long roleId) {
+      projectService.inviteMember(projectId, inviteeId, inviterId, roleId);
+      return ResponseEntity.ok().build();
    }
-   
-   /** @param projectMemberId
-    * @pdOid 9714b47e-e717-41ad-b115-e687fef46bed */
-   public ResponseEntity<Void> acceptInvitation(Long projectMemberId) {
-      // TODO: implement
-      return null;
+
+   @PatchMapping("/members/{projectMemberId}/accept")
+   public ResponseEntity<Void> acceptInvitation(@PathVariable Long projectMemberId) {
+      projectService.acceptInvitation(projectMemberId);
+      return ResponseEntity.ok().build();
    }
-   
-   /** @param projectMemerId
-    * @pdOid a14de7d9-64bd-44d0-8354-3166b220a889 */
-   public ResponseEntity<Void> declineInvitation(Long projectMemerId) {
-      // TODO: implement
-      return null;
+
+   @PatchMapping("/members/{projectMemberId}/decline")
+   public ResponseEntity<Void> declineInvitation(@PathVariable Long projectMemberId) {
+      projectService.declineInvitation(projectMemberId);
+      return ResponseEntity.ok().build();
    }
-   
-   /** @param projectId
-    * @pdOid d3100255-5021-495b-b43e-7048512ed62a */
-   public ResponseEntity<ProjectStatsDTO> getProjectStatistics(Long projectId) {
-      // TODO: implement
-      return null;
+
+   @GetMapping("/{projectId}/statistics")
+   public ResponseEntity<ProjectStatsDTO> getProjectStatistics(@PathVariable Long projectId) {
+      return ResponseEntity.ok(projectService.getProjectStatistics(projectId));
    }
-   
-   /** @param projectMemberId
-    * @pdOid eda92cad-65d1-4fa5-8d95-0f312691d814 */
-   public ResponseEntity<Void> leaveProject(Long projectMemberId) {
-      // TODO: implement
-      return null;
+
+   @DeleteMapping("/members/{projectMemberId}/leave")
+   public ResponseEntity<Void> leaveProject(@PathVariable Long projectMemberId) {
+      projectService.leaveProject(projectMemberId);
+      return ResponseEntity.ok().build();
    }
-   
-   /** @param projectMemberId
-    * @pdOid cf4c4eb3-cd57-44eb-9f4e-ead01feef07f */
-   public ResponseEntity<Void> removeMemberFormProject(Long projectMemberId) {
-      // TODO: implement
-      return null;
+
+   @DeleteMapping("/members/{projectMemberId}")
+   public ResponseEntity<Void> removeMemberFormProject(@PathVariable Long projectMemberId) {
+      projectService.removeMemberFromProject(projectMemberId);
+      return ResponseEntity.ok().build();
    }
 
 }

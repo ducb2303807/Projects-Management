@@ -12,8 +12,8 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public abstract class CommentBaseDTO {
+abstract class CommentBaseDTO {
    /** @pdOid 663643e1-0cb9-49c9-b1bf-fd9d00445be3 */
-   private java.lang.String content;
+   protected java.lang.String content;
 
 }

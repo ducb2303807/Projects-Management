@@ -14,12 +14,11 @@ import java.time.LocalDateTime;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public abstract class TaskBaseDTO {
+abstract class TaskBaseDTO {
    /** @pdOid 82f2b31e-1218-4973-9732-05c55f588ebe */
-   private java.lang.String taskName;
+   protected java.lang.String taskName;
    /** @pdOid 24bb26a6-9aff-4645-9e37-2db2bb542814 */
-   private java.lang.String description;
+   protected java.lang.String description;
    /** @pdOid 796aae6b-6c2f-4e63-baf2-6753f65f0625 */
-   private LocalDateTime deadline;
-
+   protected LocalDateTime deadline;
 }

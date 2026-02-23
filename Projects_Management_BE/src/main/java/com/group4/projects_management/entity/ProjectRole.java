@@ -7,7 +7,6 @@ package com.group4.projects_management.entity; /********************************
 import jakarta.persistence.*;
 import lombok.*;
 
-/** @pdOid 235eeec6-021f-4ed1-bca5-d62e8563ef45 */
 @Entity
 @Table(name = "PROJECT_ROLE")
 @Data
@@ -16,8 +15,9 @@ import lombok.*;
 @EqualsAndHashCode(callSuper = true)
 @AttributeOverrides({
         @AttributeOverride(name = "id", column = @Column(name = "PROJECT_ROLE_ID")),
-        @AttributeOverride(name = "name", column = @Column(name = "PROJECT_ROLE_NAME", length = 50, nullable = false)),
-        @AttributeOverride(name = "description", column = @Column(name = "PROJECT_ROLE_DESCRIPTION"))
+        @AttributeOverride(name = "name", column = @Column(name = "SYSTEM_NAME", length = 50, nullable = false)),
+        @AttributeOverride(name = "description", column = @Column(name = "SYSTEM_DESCRIPTION")),
+        @AttributeOverride(name = "systemCode", column = @Column(name = "SYSTEM_CODE"))
 })
 public class ProjectRole extends BaseLookup<Long> {
 

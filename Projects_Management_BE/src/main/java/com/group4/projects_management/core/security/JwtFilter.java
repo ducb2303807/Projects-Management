@@ -1,4 +1,4 @@
-package com.group4.projects_management.core.scurity;
+package com.group4.projects_management.core.security;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;

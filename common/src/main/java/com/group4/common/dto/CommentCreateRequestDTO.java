@@ -21,5 +21,4 @@ public class CommentCreateRequestDTO extends CommentBaseDTO {
    private Long parentId;
    /** @pdOid 54cbacb0-6cbd-4603-9b1c-69b27a02f0cd */
    private Long projectMemberId;
-
 }

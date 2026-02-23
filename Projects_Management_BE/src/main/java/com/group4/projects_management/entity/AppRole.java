@@ -14,10 +14,11 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = true)
-@AttributeOverrides({
-        @AttributeOverride(name = "id", column = @Column(name = "SYSTEM_ROLE_ID")),
-        @AttributeOverride(name = "name", column = @Column(name = "SYSTEM_ROLE_NAME")),
-        @AttributeOverride(name = "description", column = @Column(name = "SYSTEM_ROLE_DESCRIPTION"))
+@AttributeOverrides(value = {
+        @AttributeOverride(name = "id", column = @Column(name = "APP_ROLE_ID")),
+        @AttributeOverride(name = "name", column = @Column(name = "SYSTEM_NAME", length = 50, nullable = false)),
+        @AttributeOverride(name = "description", column = @Column(name = "SYSTEM_DESCRIPTION")),
+        @AttributeOverride(name = "systemCode", column = @Column(name = "SYSTEM_CODE"))
 })
 public class AppRole extends BaseLookup<Long> {
 

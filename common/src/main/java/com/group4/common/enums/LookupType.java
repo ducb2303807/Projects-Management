@@ -1,4 +1,4 @@
-package com.group4.common.dto;
+package com.group4.common.enums;
 
 public enum LookupType {
     APP_ROLE,
