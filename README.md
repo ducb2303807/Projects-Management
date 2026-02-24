@@ -67,6 +67,13 @@ Projects-Management/
 ## 📸 Demo dự án
 
 ## ⚙️ Hướng dẫn cài đặt
+
+### 1. Yêu cầu hệ thống (Prerequisites)
+- **Java Development Kit (JDK):** Yêu cầu 21+. 
+- **Database:** MySQL Server (phiên bản 8.0+).
+- **Công cụ build:** Maven.
+- **IDE:** IntelliJ IDEA (khuyên dùng), Eclipse hoặc VS Code.
+
 1. Clone dự án
 2. Cấu hình Backend
 3. Cấu hình Frontend
