@@ -23,5 +23,4 @@ abstract class ProjectBaseDTO {
    protected LocalDateTime startAt;
    /** @pdOid 66401136-bb5c-4036-8b17-166bdd62c43a */
    protected LocalDateTime endAt;
-
 }

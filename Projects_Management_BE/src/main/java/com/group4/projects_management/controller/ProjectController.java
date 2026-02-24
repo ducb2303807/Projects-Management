@@ -5,7 +5,10 @@ package com.group4.projects_management.controller; /****************************
  ***********************************************************************/
 
 import com.group4.common.dto.*;
+import com.group4.projects_management.core.security.SecurityUtils;
 import com.group4.projects_management.service.ProjectService;
+import com.group4.projects_management.service.TaskService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -19,24 +22,33 @@ public class ProjectController {
    /** @pdRoleInfo migr=no name=ProjectService assc=association26 mult=1..1 */
    @Autowired
    private ProjectService projectService;
+   @Autowired
+   private TaskService taskService;
 
    @GetMapping
    public ResponseEntity<List<ProjectResponseDTO>> getAllProjects() {
       return ResponseEntity.ok(projectService.getAllProjects());
    }
-   @PostMapping
-   public ResponseEntity<ProjectResponseDTO> createProject(ProjectCreateRequestDTO request) {
-      return ResponseEntity.ok(projectService.createProject(request));
+
+   @GetMapping("/me")
+   public ResponseEntity<List<ProjectResponseDTO>> getMyProjects() {
+      Long currentUserId = SecurityUtils.getCurrentUserId();
+      return ResponseEntity.ok(projectService.getProjectsByUserId(currentUserId));
    }
 
-   @GetMapping("/user/{userId}")
-   public ResponseEntity<List<ProjectResponseDTO>> getProjectsByUserId(@PathVariable Long userId) {
-      return ResponseEntity.ok(projectService.getProjectsByUserId(userId));
+   @PostMapping
+   public ResponseEntity<ProjectResponseDTO> createProject(@RequestBody ProjectCreateRequestDTO request) {
+      return ResponseEntity.ok(projectService.createProject(request));
    }
 
    @GetMapping("/{projectId}")
    public ResponseEntity<ProjectResponseDTO> getProjectDetail(@PathVariable Long projectId) {
       return ResponseEntity.ok(projectService.getProjectDetail(projectId));
+   }
+
+   @GetMapping("/{projectId}/tasks")
+   public ResponseEntity<List<TaskResponseDTO>> getTasksByProjectId(@PathVariable Long projectId) {
+      return ResponseEntity.ok(taskService.getTasksByProject(projectId));
    }
 
    @PutMapping("/{projectId}")
@@ -49,7 +61,7 @@ public class ProjectController {
       return ResponseEntity.ok(projectService.getMembersOfProject(projectId));
    }
 
-   @PostMapping("/{projectId}/invite")
+   @PostMapping("/{projectId}/invitations")
    public ResponseEntity<Void> inviteMember(
            @PathVariable Long projectId,
            @RequestParam Long inviteeId,
@@ -59,26 +71,12 @@ public class ProjectController {
       return ResponseEntity.ok().build();
    }
 
-   @PatchMapping("/members/{projectMemberId}/accept")
-   public ResponseEntity<Void> acceptInvitation(@PathVariable Long projectMemberId) {
-      projectService.acceptInvitation(projectMemberId);
-      return ResponseEntity.ok().build();
-   }
+   @PatchMapping("/members/{projectMemberId}")
+   public ResponseEntity<Void> updateMemberStatus(
+           @PathVariable Long projectMemberId,
+           @Valid @RequestBody ProjectMemberUpdateDTO request) {
 
-   @PatchMapping("/members/{projectMemberId}/decline")
-   public ResponseEntity<Void> declineInvitation(@PathVariable Long projectMemberId) {
-      projectService.declineInvitation(projectMemberId);
-      return ResponseEntity.ok().build();
-   }
-
-   @GetMapping("/{projectId}/statistics")
-   public ResponseEntity<ProjectStatsDTO> getProjectStatistics(@PathVariable Long projectId) {
-      return ResponseEntity.ok(projectService.getProjectStatistics(projectId));
-   }
-
-   @DeleteMapping("/members/{projectMemberId}/leave")
-   public ResponseEntity<Void> leaveProject(@PathVariable Long projectMemberId) {
-      projectService.leaveProject(projectMemberId);
+      projectService.updateMemberStatus(projectMemberId, request);
       return ResponseEntity.ok().build();
    }
 
@@ -88,4 +86,8 @@ public class ProjectController {
       return ResponseEntity.ok().build();
    }
 
+   @GetMapping("/{projectId}/statistics")
+   public ResponseEntity<ProjectStatsDTO> getProjectStatistics(@PathVariable Long projectId) {
+      return ResponseEntity.ok(projectService.getProjectStatistics(projectId));
+   }
 }

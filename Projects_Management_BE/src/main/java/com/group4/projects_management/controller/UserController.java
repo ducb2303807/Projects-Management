@@ -5,6 +5,7 @@ package com.group4.projects_management.controller; /****************************
  ***********************************************************************/
 
 import com.group4.common.dto.*;
+import com.group4.projects_management.service.ProjectService;
 import com.group4.projects_management.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -17,6 +18,8 @@ import java.util.List;
 public class UserController {
    @Autowired
    private UserService userService;
+   @Autowired
+   private ProjectService projectService;
 
    @GetMapping
    public ResponseEntity<List<UserDTO>> getAllUsers() {
@@ -26,6 +29,11 @@ public class UserController {
    @PostMapping
    public ResponseEntity<UserDTO> register(@RequestBody UserRegistrationDTO request) {
       return ResponseEntity.ok(userService.register(request));
+   }
+
+   @GetMapping("/{userId}/projects")
+   public ResponseEntity<List<ProjectResponseDTO>> getProjectsByUserId(@PathVariable Long userId) {
+      return ResponseEntity.ok(projectService.getProjectsByUserId(userId));
    }
 
    @PostMapping("/exists")
