@@ -79,7 +79,8 @@ public class Project {
          return 0;
       }
       long completed = tasks.stream()
-              .filter(Task::isCompleted)
+              // TODO
+              .filter(x -> true)
               .count();
       return (completed * 100.0) / tasks.size();
    }

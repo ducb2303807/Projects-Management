@@ -36,6 +36,6 @@ public class AppRole extends BaseLookup<Long> {
    public boolean hasPermission(String permissionCode) {
       if (permissionCode == null) return false;
       return permissions.stream()
-              .anyMatch(per -> permissionCode.equalsIgnoreCase(per.getCode()));
+              .anyMatch(per -> permissionCode.equalsIgnoreCase(per.getSystemCode()));
    }
 }
