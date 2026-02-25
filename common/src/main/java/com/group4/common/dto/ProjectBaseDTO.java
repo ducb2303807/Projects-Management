@@ -20,7 +20,7 @@ abstract class ProjectBaseDTO {
    /** @pdOid 565c0453-e1b0-43a0-88ef-56597d76fdcb */
    protected java.lang.String description;
    /** @pdOid 18938c0e-d5f2-430f-8777-1572c34e99ad */
-   protected LocalDateTime startAt;
+   protected LocalDateTime startDate;
    /** @pdOid 66401136-bb5c-4036-8b17-166bdd62c43a */
-   protected LocalDateTime endAt;
+   protected LocalDateTime endDate;
 }

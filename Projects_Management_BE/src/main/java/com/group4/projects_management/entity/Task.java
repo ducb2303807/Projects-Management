@@ -65,11 +65,16 @@ public class Task {
    public Project project;
 
    public boolean isOverdue() {
+      if (this.taskStatus != null
+              && "COMPLETED".equalsIgnoreCase(this.taskStatus.getSystemCode()))
+         return false;
+
       if (this.deadline == null) return false;
       return this.deadline.isBefore(LocalDateTime.now());
    }
 
    public int getMemberCount() {
+      if (assignments == null) return 0;
       int count = 0;
       for (var assignment : assignments) {
          if (assignment.getAssignee().isActive()) count++;
@@ -84,18 +89,27 @@ public class Task {
    public long getRemainingDays() {
       return deadline.until(LocalDateTime.now(), java.time.temporal.ChronoUnit.DAYS);
    }
-   
+
 
    public void addAssignment(ProjectMember assignee, ProjectMember assigner) {
+      if (assignee == null || assigner == null) return;
+
       TaskAssignment assignment = new TaskAssignment();
       assignment.setAssignee(assignee);
       assignment.setAssigner(assigner);
-      assignment.setTask(this);
-      assignment.setAssignAt(LocalDateTime.now());
-      assignments.add(assignment);
+
+      this.addAssignment(assignment);
    }
 
    public void addAssignment(TaskAssignment assignment) {
+      if (assignment == null) return;
+
+      assignment.setTask(this);
+
+      if (assignment.getAssignAt() == null) {
+         assignment.setAssignAt(LocalDateTime.now());
+      }
+
       this.assignments.add(assignment);
    }
 
