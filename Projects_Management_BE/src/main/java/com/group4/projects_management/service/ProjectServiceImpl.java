@@ -10,9 +10,7 @@ import com.group4.projects_management.entity.Project;
 import com.group4.projects_management.entity.ProjectMember;
 import com.group4.projects_management.entity.ProjectMemberStatus;
 import com.group4.projects_management.mapper.ProjectMapper;
-import com.group4.projects_management.repository.ProjectMemberRepository;
-import com.group4.projects_management.repository.ProjectMemberStatusRepository;
-import com.group4.projects_management.repository.ProjectRepository;
+import com.group4.projects_management.repository.*;
 import com.group4.projects_management.service.base.BaseServiceImpl;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
@@ -25,17 +23,20 @@ import java.util.List;
  */
 @Service
 public class ProjectServiceImpl extends BaseServiceImpl<Project, Long> implements ProjectService {
-    /**
-     * @pdRoleInfo migr=no name=ProjectRepository assc=association25 mult=1..1
-     */
     private final ProjectRepository projectRepository;
+    private final UserRepository userRepository;
+    private final ProjectRoleRepository projectRoleRepository;
+    private final ProjectStatusRepository projectStatusRepository;
     private final ProjectMemberRepository projectMemberRepository;
     private final ProjectMemberStatusRepository projectMemberStatusRepository;
     private final ProjectMapper projectMapper;
 
-    public ProjectServiceImpl(ProjectRepository repository, ProjectMemberRepository projectMemberRepository, ProjectMemberStatusRepository projectMemberStatusRepository, ProjectMapper projectMapper) {
+    public ProjectServiceImpl(ProjectRepository repository, UserRepository userRepository, ProjectRoleRepository projectRoleRepository, ProjectStatusRepository projectStatusRepository, ProjectMemberRepository projectMemberRepository, ProjectMemberStatusRepository projectMemberStatusRepository, ProjectMapper projectMapper) {
         super(repository);
         this.projectRepository = repository;
+        this.userRepository = userRepository;
+        this.projectRoleRepository = projectRoleRepository;
+        this.projectStatusRepository = projectStatusRepository;
         this.projectMemberRepository = projectMemberRepository;
         this.projectMemberStatusRepository = projectMemberStatusRepository;
         this.projectMapper = projectMapper;
@@ -94,9 +95,18 @@ public class ProjectServiceImpl extends BaseServiceImpl<Project, Long> implement
         return null;
     }
 
+    // Lấy tất cả project mà user tham gia
     @Override
     public List<ProjectResponseDTO> getProjectsByUserId(Long userId) {
-        return List.of();
+
+        final String activeMemberStatusCode = "ACCEPTED";
+
+        return projectMemberRepository.findByUser_IdAndLeftAtIsNullAndProjectMemberStatus_SystemCode(userId, activeMemberStatusCode)
+                .stream()
+                .map(ProjectMember::getProject)
+                .map(projectMapper::toDto)
+                .toList();
+
     }
 
     @Override
@@ -116,12 +126,52 @@ public class ProjectServiceImpl extends BaseServiceImpl<Project, Long> implement
 
     @Override
     public ProjectResponseDTO createProject(ProjectCreateRequestDTO dto) {
-        return null;
+        if (dto == null)
+            throw new IllegalArgumentException("Request cannot be null");
+
+        if (dto.getCreateByUserId() == null) {
+            throw new IllegalArgumentException("createByUserId is required");
+        }
+
+        var creator = userRepository.findById(dto.getCreateByUserId())
+                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy người tạo dự án"));
+
+        var ownerRole = projectRoleRepository.findBySystemCode("OWNER")
+                .orElseThrow(() -> new RuntimeException("Hệ thống chưa cấu hình ProjectRole systemCode=OWNER"));
+
+        // If you have a different default project status code in DB, change it here.
+        var defaultProjectStatus = projectStatusRepository.findBySystemCode("ACTIVE")
+                .orElseThrow(() -> new RuntimeException("Hệ thống chưa cấu hình ProjectStatus systemCode=ACTIVE"));
+
+        var activeMemberStatus = projectMemberStatusRepository.findBySystemCode("ACCEPTED")
+                .orElseThrow(() -> new RuntimeException("Hệ thống chưa cấu hình ProjectMemberStatus systemCode=ACCEPTED"));
+
+        Project project = projectMapper.toCreateEntity(dto);
+
+        project.setCreatedBy(creator);
+        project.setProjectStatus(defaultProjectStatus);
+
+        Project savedProject = projectRepository.save(project);
+
+        ProjectMember creatorMember = new ProjectMember();
+        creatorMember.setProject(savedProject);
+        creatorMember.setUser(creator);
+        creatorMember.setProjectRole(ownerRole);
+        creatorMember.setProjectMemberStatus(activeMemberStatus);
+        creatorMember.setInvitedBy(null);
+
+        projectMemberRepository.save(creatorMember);
+
+        return projectMapper.toDto(savedProject);
     }
 
     @Override
     public ProjectResponseDTO getProjectDetail(Long projectId) {
-        return null;
+        var project = projectRepository.findById(projectId)
+                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy dự án"));
+
+        var response = projectMapper.toDto(project);
+        return response;
     }
 
     private void handleAccept(ProjectMember member, ProjectMemberStatus statusEntity) {

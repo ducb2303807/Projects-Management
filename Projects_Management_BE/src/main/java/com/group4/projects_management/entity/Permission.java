@@ -19,7 +19,7 @@ import lombok.EqualsAndHashCode;
         @AttributeOverride(name = "id", column = @Column(name = "PERMISSION_ID")),
         @AttributeOverride(name = "name", column = @Column(name = "SYSTEM_NAME", length = 50, nullable = false)),
         @AttributeOverride(name = "description", column = @Column(name = "SYSTEM_DESCRIPTION")),
-        @AttributeOverride(name = "systemCode", column = @Column(name = "SYSTEM_CODE"))
+        @AttributeOverride(name = "systemCode", column = @Column(name = "SYSTEM_CODE",  nullable = false))
 
 })
 public class Permission extends BaseLookup<Long> {
