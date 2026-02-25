@@ -10,6 +10,7 @@ import com.group4.projects_management.entity.Project;
 import com.group4.projects_management.entity.ProjectMember;
 import com.group4.projects_management.entity.ProjectMemberStatus;
 import com.group4.projects_management.mapper.ProjectMapper;
+import com.group4.projects_management.mapper.ProjectMemberMapper;
 import com.group4.projects_management.repository.*;
 import com.group4.projects_management.service.base.BaseServiceImpl;
 import jakarta.transaction.Transactional;
@@ -30,8 +31,9 @@ public class ProjectServiceImpl extends BaseServiceImpl<Project, Long> implement
     private final ProjectMemberRepository projectMemberRepository;
     private final ProjectMemberStatusRepository projectMemberStatusRepository;
     private final ProjectMapper projectMapper;
+    private final ProjectMemberMapper projectMemberMapper;
 
-    public ProjectServiceImpl(ProjectRepository repository, UserRepository userRepository, ProjectRoleRepository projectRoleRepository, ProjectStatusRepository projectStatusRepository, ProjectMemberRepository projectMemberRepository, ProjectMemberStatusRepository projectMemberStatusRepository, ProjectMapper projectMapper) {
+    public ProjectServiceImpl(ProjectRepository repository, UserRepository userRepository, ProjectRoleRepository projectRoleRepository, ProjectStatusRepository projectStatusRepository, ProjectMemberRepository projectMemberRepository, ProjectMemberStatusRepository projectMemberStatusRepository, ProjectMapper projectMapper, ProjectMemberMapper projectMemberMapper) {
         super(repository);
         this.projectRepository = repository;
         this.userRepository = userRepository;
@@ -40,6 +42,7 @@ public class ProjectServiceImpl extends BaseServiceImpl<Project, Long> implement
         this.projectMemberRepository = projectMemberRepository;
         this.projectMemberStatusRepository = projectMemberStatusRepository;
         this.projectMapper = projectMapper;
+        this.projectMemberMapper = projectMemberMapper;
     }
 
     @Override
@@ -77,7 +80,13 @@ public class ProjectServiceImpl extends BaseServiceImpl<Project, Long> implement
 
     @Override
     public List<InvitationDTO> getPendingInvitations(Long userId) {
-        return List.of();
+        var invitations = this.projectMemberRepository
+                .findAllByUser_IdAndProjectMemberStatus_SystemCode(userId, "PENDING")
+                .stream()
+                .map(this.projectMemberMapper::toInvitationDto)
+                .toList();
+
+        return invitations;
     }
 
     @Override
@@ -116,12 +125,20 @@ public class ProjectServiceImpl extends BaseServiceImpl<Project, Long> implement
 
     @Override
     public List<ProjectMemberDTO> getMembersOfProject(Long projectId) {
-        return List.of();
+        var project = this.projectRepository.findById(projectId)
+                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy project!"));
+
+        return project.getActiveMembers()
+                .stream().map(this.projectMemberMapper::toDto)
+                .toList();
     }
 
     @Override
     public void leaveProject(Long projectMemberId) {
+        var member = projectMemberRepository.findById(projectMemberId)
+                .orElseThrow(() -> new ResourceNotFoundException("member không tồn tại"));
 
+        member.leave();
     }
 
     @Override

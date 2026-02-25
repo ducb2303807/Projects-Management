@@ -24,9 +24,6 @@ import java.util.List;
  */
 @Service
 public class UserServiceImpl extends BaseServiceImpl<User, Long> implements UserService {
-    /**
-     * @pdRoleInfo migr=no name=UserRepository assc=association31 mult=1..1
-     */
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtUtils jwtUtils;

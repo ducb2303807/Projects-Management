@@ -17,7 +17,6 @@ import java.util.List;
 
 @Service
 public class CommentServiceImpl extends BaseServiceImpl<Comment,Long> implements CommentService {
-   /** @pdRoleInfo migr=no name=TaskCommentRepository assc=association32 mult=1..1 */
    private final TaskCommentRepository taskCommentRepository;
 
    public CommentServiceImpl(TaskCommentRepository taskCommentRepository) {

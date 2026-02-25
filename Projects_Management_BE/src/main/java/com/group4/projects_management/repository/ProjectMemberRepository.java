@@ -13,4 +13,6 @@ import java.util.List;
 public interface ProjectMemberRepository extends BaseRepository<ProjectMember, Long> {
 
     List<ProjectMember> findByUser_IdAndLeftAtIsNullAndProjectMemberStatus_SystemCode(Long userId, String status);
+
+    List<ProjectMember> findAllByUser_IdAndProjectMemberStatus_SystemCode(Long userId, String projectMemberStatusSystemCode);
 }
