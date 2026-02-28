@@ -90,6 +90,7 @@ public class UserServiceImpl extends BaseServiceImpl<User, Long> implements User
         }
 
         userMapper.updateEntityFromDto(dto, user);
+
         userRepository.save(user);
         return userMapper.toDto(user);
     }
