@@ -5,10 +5,7 @@ import com.group4.common.dto.UserDTO;
 import com.group4.common.dto.UserRegistrationDTO;
 import com.group4.common.dto.UserUpdateDTO;
 import com.group4.projects_management.entity.User;
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
-import org.mapstruct.MappingTarget;
-import org.mapstruct.NullValuePropertyMappingStrategy;
+import org.mapstruct.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
@@ -36,6 +33,7 @@ public abstract class UserMapper {
     @Mapping(target = "active", ignore = true)
     @Mapping(target = "project", ignore = true)
     @Mapping(target = "userNotification", ignore = true)
+    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     public abstract void updateEntityFromDto(UserUpdateDTO dto, @MappingTarget User user);
 
     public AuthResponse toAuthResponse(String token, User user) {

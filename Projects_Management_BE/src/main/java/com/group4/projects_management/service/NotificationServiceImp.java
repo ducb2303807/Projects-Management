@@ -5,7 +5,9 @@ package com.group4.projects_management.service; /*******************************
  ***********************************************************************/
 
 import com.group4.common.dto.NotificationDTO;
+import com.group4.projects_management.core.exception.ResourceNotFoundException;
 import com.group4.projects_management.entity.Notification;
+import com.group4.projects_management.mapper.UserNotificationMapper;
 import com.group4.projects_management.repository.NotificationRepository;
 import com.group4.projects_management.repository.UserNotificationRepository;
 import com.group4.projects_management.service.base.BaseServiceImpl;
@@ -16,25 +18,36 @@ import java.util.List;
 /** @pdOid e0710e36-f81b-4af0-9747-40513bf2c38e */
 @Service
 public class NotificationServiceImp extends BaseServiceImpl<Notification,Long> implements NotificationService {
-   /** @pdRoleInfo migr=no name=NotificationRepository assc=association29 mult=1..1 */
    private final NotificationRepository notificationRepository;
-   /** @pdRoleInfo migr=no name=UserNotificationRepository assc=association30 mult=1..1 */
    private final UserNotificationRepository userNotificationRepository;
+   private final UserNotificationMapper userNotificationMapper;
 
-   public NotificationServiceImp(NotificationRepository notificationRepository, UserNotificationRepository userNotificationRepository) {
+   public NotificationServiceImp(NotificationRepository notificationRepository, UserNotificationRepository userNotificationRepository, UserNotificationMapper userNotificationMapper) {
       super(notificationRepository);
       this.notificationRepository = notificationRepository;
       this.userNotificationRepository = userNotificationRepository;
+       this.userNotificationMapper = userNotificationMapper;
    }
 
    @Override
    public List<NotificationDTO> getNotificationsForUser(Long userId) {
-      return List.of();
+      var notifications = this.userNotificationRepository
+              .findAllByUserIdWithNotification(userId);
+
+      return notifications
+              .stream()
+              .map(this.userNotificationMapper::toDto)
+              .toList();
    }
 
    @Override
    public void markAsRead(Long notificationId, Long userId) {
+      var notification = this.userNotificationRepository.findByUser_IdAndNotification_Id(userId, notificationId)
+              .orElseThrow(() -> new ResourceNotFoundException("Notification not found"));
 
+      notification.markAsRead();
+
+      this.userNotificationRepository.save(notification);
    }
 
    @Override
