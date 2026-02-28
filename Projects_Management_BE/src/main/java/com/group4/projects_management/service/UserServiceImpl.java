@@ -45,7 +45,7 @@ public class UserServiceImpl extends BaseServiceImpl<User, Long> implements User
                 .orElseThrow(() -> new BusinessException("Tài khoản không tồn tại", BusinessErrorCode.USER_NOT_FOUND));
 
         if (!user.isActive()) {
-            throw new BusinessException("Tài khoản của bạn đã bị khóa!",BusinessErrorCode.ACCOUNT_LOCKED);
+            throw new BusinessException("Tài khoản của bạn đã bị khóa!", BusinessErrorCode.ACCOUNT_LOCKED);
         }
 
         if (!passwordEncoder.matches(request.getPassword(), user.getHashedPassword())) {
@@ -59,14 +59,13 @@ public class UserServiceImpl extends BaseServiceImpl<User, Long> implements User
 
     @Override
     @Transactional
-    public UserDTO register(UserRegistrationDTO dto)
-    {
-       if (existsByUsername(dto.getUsername())) {
-           throw new BusinessException("Username đã tồn tại!",BusinessErrorCode.USERNAME_ALREADY_EXISTS);
-       }
-       if (existsByEmail(dto.getEmail())) {
-           throw new BusinessException("Email đã tồn tại", BusinessErrorCode.EMAIL_ALREADY_EXISTS);
-       }
+    public UserDTO register(UserRegistrationDTO dto) {
+        if (this.existsByUsername(dto.getUsername())) {
+            throw new BusinessException("Username đã tồn tại!", BusinessErrorCode.USERNAME_ALREADY_EXISTS);
+        }
+        if (this.existsByEmail(dto.getEmail())) {
+            throw new BusinessException("Email đã tồn tại", BusinessErrorCode.EMAIL_ALREADY_EXISTS);
+        }
 
         var role = appRoleRepository.getAppRoleBySystemCode("user");
 
@@ -82,7 +81,9 @@ public class UserServiceImpl extends BaseServiceImpl<User, Long> implements User
         var user = userRepository.findById(userId)
                 .orElseThrow(() -> new BusinessException("User not found", BusinessErrorCode.USER_NOT_FOUND));
 
-        if (dto.getEmail() != null && existsByEmail(dto.getEmail())) {
+        if (dto.getEmail() != null
+                && !dto.getEmail().equals(user.getEmail())
+                && existsByEmail(dto.getEmail())) {
             throw new BusinessException("Email đã tồn tại", BusinessErrorCode.EMAIL_ALREADY_EXISTS);
         }
 
@@ -117,7 +118,10 @@ public class UserServiceImpl extends BaseServiceImpl<User, Long> implements User
 
     @Override
     public List<UserDTO> searchUsers(String keyword) {
-        return List.of();
+        var users = this.userRepository
+                .findTop10ByUsernameContainingAndIsActiveIsTrueOrEmailContainingAndIsActiveIsTrue(keyword,keyword);
+
+        return users.stream().map(userMapper::toDto).toList();
     }
 
     @Override

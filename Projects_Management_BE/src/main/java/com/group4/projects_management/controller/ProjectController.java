@@ -8,6 +8,7 @@ import com.group4.common.dto.*;
 import com.group4.projects_management.core.security.SecurityUtils;
 import com.group4.projects_management.service.ProjectService;
 import com.group4.projects_management.service.TaskService;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -15,11 +16,10 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-/** @pdOid 77c82126-6d2b-449a-b8d4-32b47d4148fb */
 @RestController
 @RequestMapping("/api/projects")
+@SecurityRequirement(name = "bearerAuth")
 public class ProjectController {
-   /** @pdRoleInfo migr=no name=ProjectService assc=association26 mult=1..1 */
    @Autowired
    private ProjectService projectService;
    @Autowired

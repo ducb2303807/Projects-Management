@@ -33,10 +33,10 @@ public class Notification {
    private java.lang.String referenceId;
 
    @Column(name = "NOTIFICATION_CREATED_AT", nullable = false)
-   private LocalDateTime createAt;
+   private LocalDateTime createdAt;
 
    @PrePersist
    protected void onCreate() {
-      this.createAt = LocalDateTime.now();
+      this.createdAt = LocalDateTime.now();
    }
 }
