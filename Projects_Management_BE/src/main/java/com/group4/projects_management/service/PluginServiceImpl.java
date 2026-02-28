@@ -14,17 +14,15 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
-/** @pdOid 9139fdfa-02cb-4036-8013-9bb9925855fe */
 @Service
 public class PluginServiceImpl extends BaseServiceImpl<Plugin,Long> implements PluginService {
-   /** @pdRoleInfo migr=no name=PluginRepository assc=association37 mult=1..1 */
    private final PluginRepository pluginRepository;
-   /** @pdRoleInfo migr=no name=UserWidgetConfigRepository assc=association49 mult=1..1 */
-   public UserWidgetConfigRepository userWidgetConfigRepository;
+   private final UserWidgetConfigRepository userWidgetConfigRepository;
 
-   public PluginServiceImpl(PluginRepository repository) {
+   public PluginServiceImpl(PluginRepository repository, UserWidgetConfigRepository userWidgetConfigRepository) {
       super(repository);
       this.pluginRepository = repository;
+       this.userWidgetConfigRepository = userWidgetConfigRepository;
    }
 
    @Override
