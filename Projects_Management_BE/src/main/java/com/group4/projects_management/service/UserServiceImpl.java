@@ -82,9 +82,6 @@ public class UserServiceImpl extends BaseServiceImpl<User, Long> implements User
         var user = userRepository.findById(userId)
                 .orElseThrow(() -> new BusinessException("User not found", BusinessErrorCode.USER_NOT_FOUND));
 
-        if (dto.getUsername() != null && existsByUsername(dto.getUsername())) {
-            throw new BusinessException("Username đã tồn tại!",BusinessErrorCode.USERNAME_ALREADY_EXISTS);
-        }
         if (dto.getEmail() != null && existsByEmail(dto.getEmail())) {
             throw new BusinessException("Email đã tồn tại", BusinessErrorCode.EMAIL_ALREADY_EXISTS);
         }
