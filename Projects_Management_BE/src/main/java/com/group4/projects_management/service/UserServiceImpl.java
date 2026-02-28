@@ -14,7 +14,7 @@ import com.group4.projects_management.repository.AppRoleRepository;
 import com.group4.projects_management.repository.UserRepository;
 import com.group4.projects_management.service.base.BaseServiceImpl;
 import jakarta.transaction.Transactional;
-import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -24,16 +24,13 @@ import java.util.List;
  */
 @Service
 public class UserServiceImpl extends BaseServiceImpl<User, Long> implements UserService {
-    /**
-     * @pdRoleInfo migr=no name=UserRepository assc=association31 mult=1..1
-     */
     private final UserRepository userRepository;
-    private final PasswordEncoder passwordEncoder;
+    private final BCryptPasswordEncoder passwordEncoder;
     private final JwtUtils jwtUtils;
     private final UserMapper userMapper;
     private final AppRoleRepository appRoleRepository;
 
-    public UserServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder, JwtUtils jwtUtils, UserMapper userMapper, AppRoleRepository appRoleRepository) {
+    public UserServiceImpl(UserRepository userRepository, BCryptPasswordEncoder passwordEncoder, JwtUtils jwtUtils, UserMapper userMapper, AppRoleRepository appRoleRepository) {
         super(userRepository);
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
@@ -85,14 +82,12 @@ public class UserServiceImpl extends BaseServiceImpl<User, Long> implements User
         var user = userRepository.findById(userId)
                 .orElseThrow(() -> new BusinessException("User not found", BusinessErrorCode.USER_NOT_FOUND));
 
-        if (dto.getUsername() != null && existsByUsername(dto.getUsername())) {
-            throw new BusinessException("Username đã tồn tại!",BusinessErrorCode.USERNAME_ALREADY_EXISTS);
-        }
         if (dto.getEmail() != null && existsByEmail(dto.getEmail())) {
             throw new BusinessException("Email đã tồn tại", BusinessErrorCode.EMAIL_ALREADY_EXISTS);
         }
 
         userMapper.updateEntityFromDto(dto, user);
+
         userRepository.save(user);
         return userMapper.toDto(user);
     }
@@ -116,9 +111,6 @@ public class UserServiceImpl extends BaseServiceImpl<User, Long> implements User
         var user = userRepository.findById(userId)
                 .orElseThrow(() -> new BusinessException("User not found", BusinessErrorCode.USER_NOT_FOUND));
 
-//        if (!passwordEncoder.matches(oldPassword, user.getHashedPassword())) {
-//            throw new BusinessException("old password is incorrect", BusinessErrorCode.INVALID_PASSWORD);
-//        }
         user.setHashedPassword(passwordEncoder.encode(newPassword));
         userRepository.save(user);
     }

@@ -16,5 +16,5 @@ abstract class MemberBaseDTO {
    /** @pdOid ab59159b-0378-489e-b27a-3a3b132f5e87 */
    protected java.lang.String roleName;
    /** @pdOid 66c306ce-ce1b-454e-a9a7-2e3e2c703011 */
-   protected java.lang.String status;
+   protected java.lang.String statusName;
 }

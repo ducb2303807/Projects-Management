@@ -24,7 +24,7 @@ public class ProjectMemberDTO extends MemberBaseDTO {
    /** @pdOid 9e52c739-e92c-46fc-85e3-67c2a8b54bf6 */
    private java.lang.String username;
    /** @pdOid cb6f4911-9d44-4e13-81c1-f06d47545b32 */
-   private java.lang.String fullname;
+   private java.lang.String fullName;
    /** @pdOid 358fa326-6881-4936-b916-b2cba40d8b6a */
    private java.lang.String email;
    /** @pdOid cf6a32e7-188b-48b1-a25f-d7a34fa4a89a */
