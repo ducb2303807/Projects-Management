@@ -49,4 +49,11 @@ public class UserNotification {
          this.readAt = LocalDateTime.now();
       }
    }
+
+   public void markAsUnread() {
+      if (this.isRead) {
+         this.isRead = false;
+         this.readAt = null;
+      }
+   }
 }
