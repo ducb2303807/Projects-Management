@@ -27,8 +27,6 @@ public class TaskResponseDTO extends TaskBaseDTO {
    /** @pdOid c152bbcf-e2ec-414b-8544-cb5467e6d178 */
    private LocalDateTime createdAt;
    /** @pdOid d3afb28f-2f74-4b61-8f77-a7d7605106c1 */
-   private LocalDateTime updatedAt;
-   /** @pdOid 4aadc7a4-f347-42bc-b25f-b5a70ce7fc9b */
    private List<TaskAssigneeDTO> assignees;
 
 }
