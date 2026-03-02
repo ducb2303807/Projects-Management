@@ -1,4 +1,93 @@
-# Projects-Management
-Nguyên lý xây dựng phần mềm.
-Ứng dụng Projects Management được xây dựng nhằm hỗ trợ quản lý và phân chia công việc trong nhóm một cách hiệu quả và có hệ thống. Hệ thống cho phép người dùng tạo dự án, chia nhỏ dự án thành các task, gán nhiệm vụ cho từng thành viên, theo dõi tiến độ thực hiện và cập nhật trạng thái công việc theo thời gian thực. Bên cạnh đó, ứng dụng còn cung cấp các chức năng như đặt thời hạn (deadline), mức độ ưu tiên, ghi chú, và thống kê tiến độ hoàn thành, giúp nâng cao khả năng phối hợp và giảm thiểu rủi ro trễ hạn. Việc áp dụng các nguyên lý xây dựng phần mềm như thiết kế hướng đối tượng, phân tách module, tái sử dụng mã nguồn và kiểm thử tự động giúp hệ thống dễ bảo trì, mở rộng và đảm bảo chất lượng. Ứng dụng hướng tới mục tiêu tối ưu hóa quy trình làm việc nhóm, tương tự các công cụ như Trello hoặc Jira.
-# Thành viên nhóm
+# Projects Management System
+**Hệ thống quản lý dự án tối ưu dành cho nhóm làm việc hiện đại.**
+
+<p align="left">
+  <img src="https://img.shields.io/github/repo-size/ducb2303807/Projects-Management?style=for-the-badge" alt="repo-size">
+  <img src="https://img.shields.io/github/license/ducb2303807/Projects-Management?style=for-the-badge&color=green" alt="license">
+</p>
+
+---
+
+##  Giới thiệu dự án
+**Projects Management** là một ứng dụng hỗ trợ quản lý quy trình làm việc, giúp các thành viên trong nhóm theo dõi tiến độ, phân chia nhiệm vụ và quản lý thời gian hiệu quả. Dự án được xây dựng với mục tiêu tối giản hóa thao tác nhưng vẫn đảm bảo tính chuyên nghiệp trong quản trị.
+
+## Thành viên
+
+| Tên                    | MSSV     | Vai trò   | GitHub                                            |
+| :--------------------- | :------- | :-------- | :------------------------------------------------ |
+| **Dương Minh Đức**    | B2303807 | Leader    | [@ducb2303807](https://github.com/ducb2303807) - [@d3nhatv0lam](https://github.com/d3nhatv0lam) |
+| **Võ Thành Nam**   | B2303829 | Member | [@NamIvsb02](https://github.com/NamIvsb02)    |
+| **Đặng Nguyễn Gia Hân**  | B2303809 | Member    | [@lesyeuxdehunny](https://github.com/lesyeuxdehunny)    |
+| **Võ Nguyễn Bảo Nghi**   | B2303830 | Member    | [@nghib2303830](https://github.com/nghib2303830/)           |
+| **Nguyễn Nhất Phi** | B2303842 | Member    | [@zHe11Catz](https://github.com/zHe11Catz)    |
+
+## Giảng viên
+
+TS. Trương Minh Thái
+
+##  Tính năng chính
+* **Quản lý người dùng:** Đăng ký, đăng nhập và bảo mật thông tin tài khoản.
+* **Quản lý dự án:** Tạo mới, chỉnh sửa, xóa và lưu trữ thông tin dự án.
+* **Quản lý Task (Công việc):** Chia nhỏ công việc, gán người thực hiện và đặt Deadline.
+* **Theo dõi trạng thái:** Cập nhật trạng thái công việc (To Do, In Progress, Done).
+* **Tìm kiếm & Lọc:** Tìm kiếm nhanh các dự án theo tên hoặc thành viên phụ trách.
+
+## Công nghệ sử dụng
+
+| Thành phần | Công nghệ |
+| :--- | :--- |
+| **Frontend** | JavaFx (MVVMfx) |
+| **Backend** | Spring Boot |
+| **Database** | MySQL |
+| **Authentication** | JSON Web Token (JWT) |
+| **Version Control** | Git & GitHub |
+
+## Cấu trúc mã nguồn
+```text
+Projects-Management/
+├── common/
+│   ├── dto/
+│   ├── interfaces/
+│
+├── Projects_Management_BE/
+│   ├── controller/
+│   ├── service/
+│   ├── repository/
+│   ├── entity/
+│   ├── core/
+│   │   ├── config/
+│   │   ├── security/
+│   │   ├── exception/
+│   │   └── util/
+│   └── exception-handler/
+│
+├── Projects_Management_FE/
+│   ├── core/
+│   │   ├── api/
+│   │   ├── di/
+│   │   ├── navigation/
+│   │   └── events/
+│   ├── features/
+│   │   └── project_list/
+│   ├── ui/
+│   │   ├── components/
+│   │   └── styles/
+│   └── resources/
+│
+├── docs/
+└── README.md
+```
+
+## Demo dự án
+
+## Hướng dẫn cài đặt
+
+### 1. Yêu cầu hệ thống (Prerequisites)
+- **Java Development Kit (JDK):** Yêu cầu 21+. 
+- **Database:** MySQL Server (phiên bản 8.0+).
+- **Công cụ build:** Maven.
+- **IDE:** IntelliJ IDEA (khuyên dùng), Eclipse hoặc VS Code.
+
+1. Clone dự án
+2. Cấu hình Backend
+3. Cấu hình Frontend

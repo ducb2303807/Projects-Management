@@ -1,0 +1,164 @@
+.container {
+    -fx-font-family: "Segoe UI", Arial;
+    -fx-background-color: white;
+}
+
+.auth-container {
+    -fx-background-color: white;
+}
+
+.auth-form {
+    -fx-spacing: 14;
+    -fx-alignment: center;
+    -fx-padding: 30px;
+    -fx-pref-width: 400;
+    -fx-background-color: #fff;
+}
+
+.auth-title {
+    -fx-font-size: 26px;
+    -fx-font-weight: bold;
+}
+
+.auth-label {
+    -fx-font-size: 13px;
+    -fx-font-weight: bold;
+}
+
+.background-pane {
+    -fx-background-image: url(../image/bg_signup-login.png);
+    -fx-pref-width: 600;
+    -fx-pref-height: 700;
+    -fx-background-repeat: no-repeat;
+    -fx-background-size: 400px 400px;
+    -fx-background-position: center center;
+}
+
+.text-field,
+.password-field {
+    -fx-pref-width: 320;
+    -fx-pref-height: 36;
+    -fx-background-radius: 8;
+    -fx-border-radius: 8;
+    -fx-border-color: #e5e5e5;
+    -fx-background-color: #fafafa;
+    -fx-padding: 0 12;
+}
+
+.text-field:focused,
+.password-field:focused {
+    -fx-border-color: #2b0066;
+    -fx-background-color: white;
+}
+
+
+.primary-button {
+    -fx-pref-width: 300;
+    -fx-pref-height: 40;
+    -fx-background-radius: 8;
+    -fx-background-color: linear-gradient(
+            to right,
+            #0b0f6a,
+            #2630df
+    );
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+}
+
+.primary-button:hover {
+    -fx-opacity: 0.9;
+}
+
+
+.footer-text {
+    -fx-font-size: 12px;
+}
+
+.footer-link {
+    -fx-text-fill: #1a1f9c;
+    -fx-font-weight: bold;
+}
+
+.container-form {
+    -fx-background-color: #fff;
+}
+
+.top-bar {
+    -fx-background-color: #f8f8f8;
+}
+
+.nav-btn {
+    -fx-font-size: 16px;
+    -fx-background-color: transparent;
+    -fx-background-insets: 0;
+    -fx-background-radius: 0;
+    -fx-border-color: transparent;
+    -fx-border-width: 0;
+    -fx-font-family: "SansSerif";
+    -fx-font-weight: 600;
+    -fx-text-fill: #111111;
+}
+
+.nav-btn.active {
+    -fx-border-color: #8558cc;
+    -fx-border-width: 0 0 3 0;
+}
+
+
+/* ===== Notification Button ===== */
+.notif-btn {
+    -fx-background-color: #ffffff;
+    -fx-background-radius: 100;
+
+    -fx-min-width: 50;
+    -fx-min-height: 50;
+
+    -fx-padding: 0;
+    -fx-border-width: 0;
+    -fx-background-insets: 0;
+
+    -fx-focus-color: transparent;
+    -fx-faint-focus-color: transparent;
+    -fx-cursor: hand;
+}
+
+.notif-icon {
+    -fx-icon-size: 22px;
+    -fx-icon-color: #555555;
+}
+
+.notif-btn:hover {
+    -fx-background-color: #E4E4E4;
+}
+
+.notif-btn:pressed {
+    -fx-background-color: #DADADA;
+}
+
+.user-box {
+    -fx-background-color: #F5F6F8;
+    -fx-background-radius: 40;
+    -fx-padding: 4 18 4 12;
+    -fx-alignment: center-left;
+    -fx-cursor: hand;
+}
+
+.user-box:hover {
+    -fx-background-color: #ECEEF2;
+}
+
+.avatar {
+    -fx-background-radius: 50%;
+    -fx-max-width: 40;
+    -fx-max-height: 40;
+    -fx-overflow: hidden;
+}
+
+.avt {
+    -fx-background-radius: 50%;
+}
+
+.role-text {
+    -fx-font-size: 10px;
+    -fx-text-fill: #8A8F98;
+}
