@@ -4,11 +4,9 @@ package com.group4.projects_management.controller; /****************************
  * Purpose: Defines the Class TaskController
  ***********************************************************************/
 
-import com.group4.common.dto.TaskCeateRequestDTO;
-import com.group4.common.dto.TaskHistoryDTO;
-import com.group4.common.dto.TaskResponseDTO;
-import com.group4.common.dto.TaskUpdateDTO;
+import com.group4.common.dto.*;
 import com.group4.projects_management.core.security.SecurityUtils;
+import com.group4.projects_management.service.CommentService;
 import com.group4.projects_management.service.TaskService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -22,6 +20,8 @@ import java.util.List;
 public class TaskController {
    @Autowired
    private TaskService taskService;
+   @Autowired
+   private CommentService commentService;
 
    @PostMapping("/project/{projectId}")
    public ResponseEntity<TaskResponseDTO> createTaskInProject(
@@ -33,24 +33,7 @@ public class TaskController {
       return ResponseEntity.ok(taskService.createTask(request));
    }
 
-   @GetMapping("/project/{projectId}")
-   public ResponseEntity<List<TaskResponseDTO>> getTasksByProjectId(@PathVariable Long projectId) {
-      return ResponseEntity.ok(taskService.getTasksByProject(projectId));
-   }
-
-   @PatchMapping("/{taskId}/status")
-   public ResponseEntity<Void> setTaskStatus(@PathVariable Long taskId, @RequestParam Long statusId) {
-      taskService.updateTaskStatus(taskId, statusId);
-      return ResponseEntity.ok().build();
-   }
-
-   @PatchMapping("/{taskId}/priority")
-   public ResponseEntity<Void> setTaskPriority(@PathVariable Long taskId, @RequestParam Long priorityId) {
-      taskService.updateTaskPriority(taskId, priorityId);
-      return ResponseEntity.ok().build();
-   }
-
-   @PostMapping("/{taskId}/assign")
+   @PostMapping("/{taskId}/assignments")
    public ResponseEntity<Void> assignMember(@PathVariable Long taskId, @RequestParam Long projectMemberId) {
       var userId = SecurityUtils.getCurrentUserId();
       taskService.assignMember(taskId, projectMemberId, userId);
@@ -63,7 +46,7 @@ public class TaskController {
       return ResponseEntity.ok().build();
    }
 
-   @GetMapping("/{taskId}/history")
+   @GetMapping("/{taskId}/historys")
    public ResponseEntity<List<TaskHistoryDTO>> getTaskHistory(@PathVariable Long taskId) {
       return ResponseEntity.ok(taskService.getTaskHistory(taskId));
    }
@@ -71,5 +54,10 @@ public class TaskController {
    @PutMapping("/{taskId}")
    public ResponseEntity<TaskResponseDTO> updateTask(@PathVariable Long taskId, @RequestBody TaskUpdateDTO request) {
       return ResponseEntity.ok(taskService.updateTask(taskId, request));
+   }
+
+   @GetMapping("{taskId}/comments/")
+   public ResponseEntity<List<CommentDTO>> getTaskComment(@PathVariable Long taskId) {
+      return ResponseEntity.ok(commentService.getCommentsByTask(taskId));
    }
 }

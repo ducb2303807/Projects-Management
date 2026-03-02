@@ -17,5 +17,4 @@ import lombok.NoArgsConstructor;
 public class ProjectCreateRequestDTO extends ProjectBaseDTO {
    /** @pdOid e63b7911-e7d6-413b-86bf-b371fbfca20c */
    private Long createByUserId;
-
 }

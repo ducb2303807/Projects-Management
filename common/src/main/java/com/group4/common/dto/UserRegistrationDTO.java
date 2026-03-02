@@ -17,9 +17,9 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class UserRegistrationDTO extends UserBaseDTO {
-   /** @pdOid 7164cea3-1586-4ae5-850c-047dab159f8d */
+   @NotBlank( message = "Username cannot be blank")
+   protected java.lang.String username;
    @NotBlank( message = "Password is required")
    @Size(min = 6, message = "Password must be at least 6 characters long")
    private java.lang.String password;
-
 }

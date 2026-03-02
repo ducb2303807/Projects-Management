@@ -9,7 +9,6 @@ import lombok.*;
 
 import java.util.HashSet;
 
-/** @pdOid 5413a20b-ef1b-40b4-806e-52d827877aea */
 @Entity
 @Table(name = "APP_ROLE")
 @Data
@@ -20,7 +19,7 @@ import java.util.HashSet;
         @AttributeOverride(name = "id", column = @Column(name = "APP_ROLE_ID")),
         @AttributeOverride(name = "name", column = @Column(name = "SYSTEM_NAME", length = 50, nullable = false)),
         @AttributeOverride(name = "description", column = @Column(name = "SYSTEM_DESCRIPTION")),
-        @AttributeOverride(name = "systemCode", column = @Column(name = "SYSTEM_CODE"))
+        @AttributeOverride(name = "systemCode", column = @Column(name = "SYSTEM_CODE",  nullable = false))
 })
 public class AppRole extends BaseLookup<Long> {
 
@@ -36,6 +35,6 @@ public class AppRole extends BaseLookup<Long> {
    public boolean hasPermission(String permissionCode) {
       if (permissionCode == null) return false;
       return permissions.stream()
-              .anyMatch(per -> permissionCode.equalsIgnoreCase(per.getCode()));
+              .anyMatch(per -> permissionCode.equalsIgnoreCase(per.getSystemCode()));
    }
 }

@@ -36,75 +36,93 @@ public class Task {
 
    @Column(name = "TASK_CREATED_AT", nullable = false)
    private LocalDateTime createdAt;
-   
-   /** @pdRoleInfo migr=no name=Priority assc=association8 mult=1..1 */
+
+   @OneToMany(mappedBy = "task")
+   @ToString.Exclude
+   public java.util.Collection<TaskAssignment> assignments;
+
    @ManyToOne
    @JoinColumn(name = "PRIORITY_ID", nullable = false)
    @ToString.Exclude
    public Priority priority;
-   /** @pdRoleInfo migr=no name=TaskHistory assc=association17 coll=java.util.Collection impl=java.util.HashSet mult=0..* type=Composition */
+
    @OneToMany(mappedBy = "task")
    @ToString.Exclude
    public java.util.Collection<TaskHistory> historys;
-   /** @pdRoleInfo migr=no name=TaskStatus assc=association20 mult=1..1 */
+
    @ManyToOne
    @JoinColumn(name = "TASK_STATUS_ID", nullable = false)
    @ToString.Exclude
    public TaskStatus taskStatus;
-   /** @pdRoleInfo migr=no name=Comment assc=association21 coll=java.util.Collection impl=java.util.HashSet mult=0..* type=Composition */
+
    @OneToMany(mappedBy = "task")
    @ToString.Exclude
    public java.util.Collection<Comment> comments;
-   /** @pdRoleInfo migr=no name=Project assc=association6 mult=1..1 side=A */
+
    @ManyToOne
    @JoinColumn(name = "PROJECT_ID", nullable = false)
    @ToString.Exclude
    public Project project;
-   
-   /** @pdOid 858eb2b9-cb60-4c67-8e3b-85ffe23871d0 */
+
    public boolean isOverdue() {
-      // TODO: implement
-      return false;
+      if (this.taskStatus != null
+              && "COMPLETED".equalsIgnoreCase(this.taskStatus.getSystemCode()))
+         return false;
+
+      if (this.deadline == null) return false;
+      return this.deadline.isBefore(LocalDateTime.now());
    }
-   
-   /** @pdOid 66c26773-7b21-443a-87c5-2a41db972b6f */
+
    public int getMemberCount() {
-      // TODO: implement
-      return 0;
+      if (assignments == null) return 0;
+      int count = 0;
+      for (var assignment : assignments) {
+         if (assignment.getAssignee().isActive()) count++;
+      }
+      return count;
    }
-   
-   /** @pdOid 8f5c84cb-6114-4c05-98c0-ef242a913a53 */
+
    public boolean isUrgent() {
-      // TODO: implement
-      return false;
+     return this.priority.getSystemCode().equals("Urgent");
    }
-   
-   /** @pdOid 7c19221e-df9e-48fc-bf15-7d61911428da */
+
    public long getRemainingDays() {
-      // TODO: implement
-      return 0;
+      return deadline.until(LocalDateTime.now(), java.time.temporal.ChronoUnit.DAYS);
    }
-   
-   /** @param projectMember
-    * @pdOid 056f8fe5-2b76-4b09-8667-82e11f2dabf9 */
-   public void addAssignee(ProjectMember projectMember) {
-      // TODO: implement
+
+
+   public void addAssignment(ProjectMember assignee, ProjectMember assigner) {
+      if (assignee == null || assigner == null) return;
+
+      TaskAssignment assignment = new TaskAssignment();
+      assignment.setAssignee(assignee);
+      assignment.setAssigner(assigner);
+
+      this.addAssignment(assignment);
    }
-   
-   /** @param newStatus
-    * @pdOid 734b1e10-6754-46c4-b925-adb8cc118112 */
+
+   public void addAssignment(TaskAssignment assignment) {
+      if (assignment == null) return;
+
+      assignment.setTask(this);
+
+      if (assignment.getAssignAt() == null) {
+         assignment.setAssignAt(LocalDateTime.now());
+      }
+
+      this.assignments.add(assignment);
+   }
+
    public boolean canUpdateStatus(TaskStatus newStatus) {
       // TODO: implement
       return false;
    }
-   
-   /** @param comment
-    * @pdOid bc0096f3-024b-4369-8db1-174e4f6c6c54 */
+
    public void addComment(Comment comment) {
-      // TODO: implement
+      this.comments.add(comment);
    }
 
-   public boolean isEmpty() {
-      return false;
+   public boolean isEmptyAssignment() {
+      return this.assignments.isEmpty();
    }
 }

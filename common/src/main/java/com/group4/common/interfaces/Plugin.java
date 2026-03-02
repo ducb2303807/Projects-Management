@@ -1,12 +1,7 @@
-package com.group4.common.interfaces; /***********************************************************************
- * Module:  Plugin.java
- * Author:  Lenovo
- * Purpose: Defines the Interface Plugin
- ***********************************************************************/
+package com.group4.common.interfaces;
 
 import java.util.List;
 
-/** @pdOid c8cba02f-7958-423b-aea1-29d5bb3f9453 */
 public interface Plugin {
    /** @param context
     * @pdOid 638d1046-2029-4139-8a28-439663b118e8 */

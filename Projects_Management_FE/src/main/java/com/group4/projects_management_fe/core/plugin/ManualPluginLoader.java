@@ -4,8 +4,9 @@ package com.group4.projects_management_fe.core.plugin; /************************
  * Purpose: Defines the Class PluginLoader
  ***********************************************************************/
 
+
 import com.group4.common.interfaces.Plugin;
-import java.util.*;
+import java.util.List;
 
 /* use Pf4j Loader alternative manual plugin reflection */
 /** @pdOid 165ae04e-984b-44a4-a7bc-528331f0ed41 */
