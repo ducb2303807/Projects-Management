@@ -114,13 +114,28 @@ public class ProjectServiceImpl extends BaseServiceImpl<Project, Long> implement
     }
 
     @Override
+    @Transactional
     public void removeMemberFromProject(Long projectMemberId) {
+        var member = projectMemberRepository.findById(projectMemberId)
+                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy thành viên trong project"));
 
+        member.leave();
+
+        projectMemberRepository.save(member);
     }
 
     @Override
+    @Transactional
     public void updateMemberRole(Long projectMemberId, Long roleId) {
+        var member = projectMemberRepository.findById(projectMemberId)
+                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy thành viên trong project"));
 
+        var newRole = projectRoleRepository.findById(roleId)
+                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy role"));
+
+        member.setProjectRole(newRole);
+
+        projectMemberRepository.save(member);
     }
 
     @Override
