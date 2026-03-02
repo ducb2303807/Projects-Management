@@ -113,8 +113,9 @@
                                  <VBox.margin>
                                     <Insets top="-30.0" />
                                  </VBox.margin></Label>
+                                          <TextField fx:id="registerFullName" maxWidth="300.0" prefWidth="300.0" promptText="Fullname" styleClass="input" />
             
-                                          <TextField fx:id="registerName" maxWidth="300.0" prefWidth="300.0" promptText="Name" styleClass="input" />
+                                          <TextField fx:id="registerName" maxWidth="300.0" prefWidth="300.0" promptText="Username" styleClass="input" />
             
                                           <TextField fx:id="registerEmail" maxWidth="300.0" promptText="Email" styleClass="input" />
             
