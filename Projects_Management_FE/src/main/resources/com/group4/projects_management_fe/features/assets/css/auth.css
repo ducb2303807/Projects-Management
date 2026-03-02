@@ -162,3 +162,74 @@
     -fx-font-size: 10px;
     -fx-text-fill: #8A8F98;
 }
+
+.footer-bar {
+    -fx-padding: 0 30 0 60;
+    -fx-background-color: white;
+}
+
+}
+//card overlay
+.overlay {
+    -fx-background-color: rgba(0,0,0,0.3);
+    -fx-alignment: center;
+}
+
+.profile-panel {
+    -fx-background-color: white;
+    -fx-background-radius: 20;
+    -fx-padding: 30;
+}
+
+.profile-header {
+    -fx-padding: 0 0 15 0;
+    -fx-border-color: #e5e5e5;
+    -fx-border-width: 0 0 1 0;
+}
+
+.tab-active {
+    -fx-font-size: 18;
+    -fx-font-weight: bold;
+    -fx-text-fill: #5b3cc4;
+}
+
+.tab {
+    -fx-font-size: 18;
+    -fx-text-fill: #666;
+}
+
+.logout-btn {
+    -fx-background-color: #4b2e83;
+    -fx-text-fill: white;
+    -fx-background-radius: 20;
+}
+
+.field-label {
+    -fx-text-fill: #777;
+}
+
+.profile-field {
+    -fx-background-radius: 15;
+    -fx-border-radius: 15;
+    -fx-padding: 10;
+}
+
+.save-btn {
+    -fx-background-color: linear-gradient(to right, #4b2e83, #a45bdc);
+    -fx-text-fill: white;
+    -fx-background-radius: 20;
+}
+
+.logout-btn {
+    -fx-background-color: linear-gradient(to right, #5f3dc4, #845ef7);
+    -fx-text-fill: white;
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+    -fx-padding: 10 30 10 30;
+    -fx-background-radius: 25;
+    -fx-cursor: hand;
+}
+
+.logout-btn:hover {
+    -fx-background-color: linear-gradient(to right, #4c2fb3, #7048e8);
+}

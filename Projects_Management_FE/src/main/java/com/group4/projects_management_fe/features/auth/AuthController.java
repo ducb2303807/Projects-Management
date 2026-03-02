@@ -3,9 +3,11 @@ package com.group4.projects_management_fe.features.auth;
 import javafx.animation.FadeTransition;
 import javafx.animation.Interpolator;
 import javafx.animation.TranslateTransition;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
+import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.util.Duration;
 import javafx.scene.control.Alert;
@@ -30,6 +32,9 @@ public class AuthController {
     private PasswordField loginPassword;
 
     @FXML
+    private TextField registerFullName;
+
+    @FXML
     private TextField registerName;
 
     @FXML
@@ -47,6 +52,8 @@ public class AuthController {
     private static final Pattern pReg =
             Pattern.compile("^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d).{8,}$");
 
+    private static final Pattern nameReg =
+            Pattern.compile("^[A-Za-zÀ-ỹ\\s]{2,50}$");
 
     private static final double FORM_WIDTH = 450;
     private static final Duration ANIMATION_TIME = Duration.millis(400);
@@ -140,20 +147,20 @@ public class AuthController {
     @FXML
     private void handleLogin() {
 
-        String email = loginEmail.getText();
-        String password = loginPassword.getText();
+        String email = loginEmail.getText().trim();
+        String password = loginPassword.getText().trim();
 
-        if (email == null || email.isBlank()) {
-            showAlert("Validation error", "Email cannot be empty");
+        if (email.isEmpty()) {
+            showAlert("Validation Error", "Email cannot be empty.");
             return;
         }
 
         if (!eReg.matcher(email).matches()) {
-            showAlert("Validation error", "Email format is invalid");
+            showAlert("Validation Error", "Email format is invalid.");
             return;
         }
 
-        if (password == null || password.isBlank()) {
+        if (password.isEmpty()) {
             showAlert("Validation Error", "Password cannot be empty.");
             return;
         }
@@ -164,23 +171,35 @@ public class AuthController {
             return;
         }
 
-        showAlert("Login successfull", "Welcome back!");
+        showAlert("Login successful", "Welcome back!");
         openMainLayout();
     }
 
     @FXML
     private void handleRegister() {
 
-        String name = registerName.getText();
-        String email = registerEmail.getText();
-        String password = registerPassword.getText();
+        String fullName = registerFullName.getText().trim();
+        String name = registerName.getText().trim();
+        String email = registerEmail.getText().trim();
+        String password = registerPassword.getText().trim();
 
-        if (name == null || name.isBlank()) {
+        if (fullName.isEmpty()) {
+            showAlert("Validation Error", "Full name cannot be empty.");
+            return;
+        }
+
+        if (!nameReg.matcher(fullName).matches()) {
+            showAlert("Validation Error",
+                    "Full name must contain only letters and spaces (2-50 characters).");
+            return;
+        }
+
+        if (name.isEmpty()) {
             showAlert("Validation Error", "Name cannot be empty.");
             return;
         }
 
-        if (email == null || email.isBlank()) {
+        if (email.isEmpty()) {
             showAlert("Validation Error", "Email cannot be empty.");
             return;
         }
@@ -190,7 +209,7 @@ public class AuthController {
             return;
         }
 
-        if (password == null || password.isBlank()) {
+        if (password.isEmpty()) {
             showAlert("Validation Error", "Password cannot be empty.");
             return;
         }
@@ -209,7 +228,7 @@ public class AuthController {
         try {
             FXMLLoader loader = new FXMLLoader(
                     getClass().getResource(
-                            "/com/group4/projects_management_fe/features/auth/MainLayout.fxml"
+                            "/com/group4/projects_management_fe/features/auth/MainLayoutView.fxml"
                     )
             );
 

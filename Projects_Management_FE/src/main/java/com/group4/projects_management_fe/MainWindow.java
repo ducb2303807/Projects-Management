@@ -13,7 +13,7 @@ public class MainWindow extends Application {
 
 //        FXMLLoader loader = new FXMLLoader(
 //                MainWindow.class.getResource(
-//                        "/com/group4/projects_management_fe/features/auth/MainLayout.fxml"
+//                        "/com/group4/projects_management_fe/features/auth/MainLayoutView.fxml"
 //                )
 //        );
 
