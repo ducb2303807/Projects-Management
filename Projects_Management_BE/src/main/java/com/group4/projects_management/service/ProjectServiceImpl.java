@@ -115,7 +115,6 @@ public class ProjectServiceImpl extends BaseServiceImpl<Project, Long> implement
                 .map(ProjectMember::getProject)
                 .map(projectMapper::toDto)
                 .toList();
-
     }
 
     @Override

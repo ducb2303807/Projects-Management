@@ -7,56 +7,90 @@ package com.group4.projects_management.service; /*******************************
 import com.group4.common.dto.NotificationDTO;
 import com.group4.projects_management.core.exception.ResourceNotFoundException;
 import com.group4.projects_management.entity.Notification;
+import com.group4.projects_management.entity.UserNotification;
 import com.group4.projects_management.mapper.UserNotificationMapper;
 import com.group4.projects_management.repository.NotificationRepository;
 import com.group4.projects_management.repository.UserNotificationRepository;
+import com.group4.projects_management.repository.UserRepository;
 import com.group4.projects_management.service.base.BaseServiceImpl;
+import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
-/** @pdOid e0710e36-f81b-4af0-9747-40513bf2c38e */
 @Service
-public class NotificationServiceImp extends BaseServiceImpl<Notification,Long> implements NotificationService {
-   private final NotificationRepository notificationRepository;
-   private final UserNotificationRepository userNotificationRepository;
-   private final UserNotificationMapper userNotificationMapper;
+public class NotificationServiceImp extends BaseServiceImpl<Notification, Long> implements NotificationService {
+    private final NotificationRepository notificationRepository;
+    private final UserNotificationRepository userNotificationRepository;
+    private final UserNotificationMapper userNotificationMapper;
 
-   public NotificationServiceImp(NotificationRepository notificationRepository, UserNotificationRepository userNotificationRepository, UserNotificationMapper userNotificationMapper) {
-      super(notificationRepository);
-      this.notificationRepository = notificationRepository;
-      this.userNotificationRepository = userNotificationRepository;
-       this.userNotificationMapper = userNotificationMapper;
-   }
+    private final UserRepository userRepository;
 
-   @Override
-   public List<NotificationDTO> getNotificationsForUser(Long userId) {
-      var notifications = this.userNotificationRepository
-              .findAllByUserIdWithNotification(userId);
+    public NotificationServiceImp(NotificationRepository notificationRepository, UserNotificationRepository userNotificationRepository, UserNotificationMapper userNotificationMapper, UserRepository userRepository) {
+        super(notificationRepository);
+        this.notificationRepository = notificationRepository;
+        this.userNotificationRepository = userNotificationRepository;
+        this.userNotificationMapper = userNotificationMapper;
+        this.userRepository = userRepository;
+    }
 
-      return notifications
-              .stream()
-              .map(this.userNotificationMapper::toDto)
-              .toList();
-   }
+    @Override
+    public List<NotificationDTO> getNotificationsForUser(Long userId) {
+        var notifications = this.userNotificationRepository
+                .findAllByUserIdWithNotification(userId);
 
-   @Override
-   public void markAsRead(Long notificationId, Long userId) {
-      var notification = this.userNotificationRepository.findByUser_IdAndNotification_Id(userId, notificationId)
-              .orElseThrow(() -> new ResourceNotFoundException("Notification not found"));
+        return notifications
+                .stream()
+                .map(this.userNotificationMapper::toDto)
+                .toList();
+    }
 
-      notification.markAsRead();
+    @Override
+    @Transactional
+    public void markAsRead(Long notificationId, Long userId) {
+        var notification = this.userNotificationRepository.findByUser_IdAndNotification_Id(userId, notificationId)
+                .orElseThrow(() -> new ResourceNotFoundException("Notification not found"));
 
-      this.userNotificationRepository.save(notification);
-   }
+        notification.markAsRead();
 
-   @Override
-   public void sendNotification(Long userId, String text, String type, Long referenceId) {
+        this.userNotificationRepository.save(notification);
+    }
 
-   }
+    @Override
+    @Transactional
+    public void sendNotification(Long userId, String text, String type, Long referenceId) {
+        var user = this.userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
-   @Override
-   public void createNotification(List<Long> usersId, String text, String type, Long referenceId) {
+        var notification = Notification.create(text, type, referenceId.toString());
+        notificationRepository.save(notification);
 
-   }
+        var userNotification = new UserNotification();
+        userNotification.setUser(user);
+        userNotification.setNotification(notification);
+        userNotificationRepository.save(userNotification);
+    }
+
+    @Override
+    @Transactional
+    public void sendNotification(List<Long> usersId, String text, String type, Long referenceId) {
+        var notification = Notification.create(text, type, referenceId.toString());
+        notificationRepository.save(notification);
+
+        var users = this.userRepository.findAllById(usersId);
+
+        if (users.size() != usersId.size()) {
+            // Check chuyên sâu nếu cần
+        }
+
+        var userNotifications = users.stream().map(user -> {
+                    var userNotification = new UserNotification();
+                    userNotification.setUser(user);
+                    userNotification.setNotification(notification);
+                    return userNotification;
+                })
+                .toList();
+
+        userNotificationRepository.saveAll(userNotifications);
+    }
 }
