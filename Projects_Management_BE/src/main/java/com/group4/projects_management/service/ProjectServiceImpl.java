@@ -54,8 +54,32 @@ public class ProjectServiceImpl extends BaseServiceImpl<Project, Long> implement
     }
 
     @Override
+    @Transactional
     public void inviteMember(Long projectId, Long inviteeId, Long inviterId, Long roleId) {
+        var project = projectRepository.findById(projectId)
+                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy project"));
 
+        var invitee = userRepository.findById(inviteeId)
+                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy user được mời"));
+
+        var inviterMember = projectMemberRepository.findByProject_IdAndUser_Id(projectId, inviterId)
+                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy ProjectMember của inviter"));
+
+        var role = projectRoleRepository.findById(roleId)
+                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy role"));
+
+        var pendingStatus = projectMemberStatusRepository.findBySystemCode("PENDING")
+                .orElseThrow(() -> new RuntimeException("Hệ thống chưa cấu hình ProjectMemberStatus systemCode=PENDING"));
+
+        ProjectMember member = new ProjectMember();
+        member.setProject(project);
+        member.setUser(invitee);
+        member.setProjectRole(role);
+        member.setProjectMemberStatus(pendingStatus);
+        member.setInvitedBy(inviterMember);
+        member.setInvitedAt(LocalDateTime.now());
+
+        projectMemberRepository.save(member);
     }
 
     @Override
