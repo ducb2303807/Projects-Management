@@ -9,4 +9,8 @@ import com.group4.projects_management.repository.Base.BaseRepository;
 
 /** @pdOid 9b851944-caed-4a10-a0ed-e8cb4396c90f */
 public interface TaskRepository extends BaseRepository<Task, Long> {
+
+    int countByProject_Id(Long projectId);
+
+    int countByProject_IdAndStatus_SystemCode(Long projectId, String statusCode);
 }

@@ -32,8 +32,9 @@ public class ProjectServiceImpl extends BaseServiceImpl<Project, Long> implement
     private final ProjectMemberStatusRepository projectMemberStatusRepository;
     private final ProjectMapper projectMapper;
     private final ProjectMemberMapper projectMemberMapper;
+    private final TaskRepository taskRepository;
 
-    public ProjectServiceImpl(ProjectRepository repository, UserRepository userRepository, ProjectRoleRepository projectRoleRepository, ProjectStatusRepository projectStatusRepository, ProjectMemberRepository projectMemberRepository, ProjectMemberStatusRepository projectMemberStatusRepository, ProjectMapper projectMapper, ProjectMemberMapper projectMemberMapper) {
+    public ProjectServiceImpl(ProjectRepository repository, UserRepository userRepository, ProjectRoleRepository projectRoleRepository, ProjectStatusRepository projectStatusRepository, ProjectMemberRepository projectMemberRepository, ProjectMemberStatusRepository projectMemberStatusRepository, ProjectMapper projectMapper, ProjectMemberMapper projectMemberMapper, TaskRepository taskRepository) {
         super(repository);
         this.projectRepository = repository;
         this.userRepository = userRepository;
@@ -43,6 +44,7 @@ public class ProjectServiceImpl extends BaseServiceImpl<Project, Long> implement
         this.projectMemberStatusRepository = projectMemberStatusRepository;
         this.projectMapper = projectMapper;
         this.projectMemberMapper = projectMemberMapper;
+        this.taskRepository = taskRepository;
     }
 
     @Override
@@ -140,7 +142,23 @@ public class ProjectServiceImpl extends BaseServiceImpl<Project, Long> implement
 
     @Override
     public ProjectStatsDTO getProjectStatistics(Long projectId) {
-        return null;
+        // Đảm bảo project tồn tại
+        projectRepository.findById(projectId)
+                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy dự án"));
+
+        int totalTasks = taskRepository.countByProject_Id(projectId);
+        int completedTasks = taskRepository.countByProject_IdAndStatus_SystemCode(projectId, "COMPLETED");
+        int inProgressTasks = taskRepository.countByProject_IdAndStatus_SystemCode(projectId, "IN_PROGRESS");
+
+        double progressPercentage = totalTasks == 0 ? 0.0 :
+                (double) completedTasks / totalTasks * 100.0;
+
+        return new ProjectStatsDTO(
+                totalTasks,
+                completedTasks,
+                inProgressTasks,
+                progressPercentage
+        );
     }
 
     // Lấy tất cả project mà user tham gia
@@ -157,8 +175,27 @@ public class ProjectServiceImpl extends BaseServiceImpl<Project, Long> implement
     }
 
     @Override
+    @Transactional
     public ProjectResponseDTO updateProject(Long projectId, ProjectUpdateRequestDTO dto) {
-        return null;
+        var project = projectRepository.findById(projectId)
+                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy dự án"));
+
+        if (dto.getProjectName() != null) {
+            project.setName(dto.getProjectName());
+        }
+
+        if (dto.getDescription() != null) {
+            project.setDescription(dto.getDescription());
+        }
+
+        if (dto.getStatusCode() != null) {
+            var status = projectStatusRepository.findBySystemCode(dto.getStatusCode())
+                    .orElseThrow(() -> new RuntimeException("Không tìm thấy ProjectStatus với code: " + dto.getStatusCode()));
+            project.setProjectStatus(status);
+        }
+
+        Project updated = projectRepository.save(project);
+        return projectMapper.toDto(updated);
     }
 
     @Override
