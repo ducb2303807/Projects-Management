@@ -33,4 +33,7 @@ public class Plugin {
 
     @Column(name = "PLUGIN_MAIN_CLASS", nullable = false, columnDefinition = "TEXT")
     private String mainClass;
+
+    @Column(name = "SYSTEM_CODE", unique = true)
+    private String systemCode;
 }
