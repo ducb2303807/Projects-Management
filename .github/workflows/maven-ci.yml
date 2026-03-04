@@ -37,7 +37,7 @@ jobs:
 
       - name: Build and Run Backend Tests
         working-directory: Projects_Management_BE
-        run: mvn -B clean verify
+        run: mvn -B clean verify -Dfile.encoding=UTF-8
 #        env:
 #          # Ghi cấu hình DB
 #          SPRING_DATASOURCE_URL: jdbc:mysql://localhost:3306/projects_management_db
