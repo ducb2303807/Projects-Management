@@ -31,6 +31,10 @@ jobs:
           distribution: 'temurin'
           cache: maven
 
+      - name: Install common module
+        working-directory: common
+        run: mvn clean install
+
       - name: Build and Run Backend Tests
         working-directory: Projects_Management_BE
         run: mvn -B clean verify
