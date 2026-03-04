@@ -1,5 +1,5 @@
 # Projects Management System
-**Hệ thống quản lý dự án tối ưu dành cho nhóm làm việc hiện đại.**
+**Hệ thống quản lý dự án tối ưu dành cho nhóm làm việc hiện đại.**  
 
 <p align="left">
   <img src="https://img.shields.io/github/repo-size/ducb2303807/Projects-Management?style=for-the-badge" alt="repo-size">
