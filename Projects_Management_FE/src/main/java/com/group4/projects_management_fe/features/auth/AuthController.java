@@ -3,11 +3,9 @@ package com.group4.projects_management_fe.features.auth;
 import javafx.animation.FadeTransition;
 import javafx.animation.Interpolator;
 import javafx.animation.TranslateTransition;
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
-import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.util.Duration;
 import javafx.scene.control.Alert;
@@ -228,7 +226,7 @@ public class AuthController {
         try {
             FXMLLoader loader = new FXMLLoader(
                     getClass().getResource(
-                            "/com/group4/projects_management_fe/features/auth/MainLayoutView.fxml"
+                            "/com/group4/projects_management_fe/features/mainlayout/MainLayoutView.fxml"
                     )
             );
 
