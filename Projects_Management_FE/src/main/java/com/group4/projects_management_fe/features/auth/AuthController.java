@@ -236,6 +236,8 @@ public class AuthController {
 
             Stage stage = (Stage) signInForm.getScene().getWindow();
             stage.setScene(new Scene(root, 1200, 800));
+            stage.setResizable(true);
+            stage.setTitle("Nexus");
             stage.centerOnScreen();
 
         } catch (Exception e) {

@@ -30,6 +30,7 @@ public class MainWindow extends Application {
         );
         stage.setTitle("Login");
         stage.setScene(scene);
+        stage.setResizable(false);
         stage.show();
     }
 }
