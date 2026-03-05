@@ -1,8 +1,4 @@
-package com.group4.projects_management.service; /***********************************************************************
- * Module:  NotificationServiceImp.java
- * Author:  Lenovo
- * Purpose: Defines the Class NotificationServiceImp
- ***********************************************************************/
+package com.group4.projects_management.service;
 
 import com.group4.common.dto.NotificationDTO;
 import com.group4.projects_management.core.exception.ResourceNotFoundException;
@@ -58,6 +54,22 @@ public class NotificationServiceImp extends BaseServiceImpl<Notification, Long> 
 
     @Override
     @Transactional
+    public void markAllAsRead(Long userId) {
+        if (!this.userRepository.existsById(userId)) {
+            throw new ResourceNotFoundException("User not found");
+        }
+
+        var notifications = this.userNotificationRepository.findAllByUser_Id(userId);
+
+        for (var userNotification : notifications) {
+            userNotification.markAsRead();
+        }
+
+        this.userNotificationRepository.saveAll(notifications);
+    }
+
+    @Override
+    @Transactional
     public void sendNotification(Long userId, String text, String type, Long referenceId) {
         var user = this.userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
@@ -93,4 +105,15 @@ public class NotificationServiceImp extends BaseServiceImpl<Notification, Long> 
 
         userNotificationRepository.saveAll(userNotifications);
     }
+
+    @Override
+    public int countUnreadNotifications(Long userId) {
+        if (!userRepository.existsById(userId)) {
+            throw new ResourceNotFoundException("User not found");
+        }
+
+        return this.userNotificationRepository.countByUser_IdAndIsReadIsFalse(userId);
+    }
+
+
 }
