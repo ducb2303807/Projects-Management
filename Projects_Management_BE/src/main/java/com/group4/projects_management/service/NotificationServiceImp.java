@@ -15,6 +15,8 @@ import com.group4.projects_management.repository.UserRepository;
 import com.group4.projects_management.service.base.BaseServiceImpl;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import java.util.List;
 
@@ -23,15 +25,17 @@ public class NotificationServiceImp extends BaseServiceImpl<Notification, Long> 
     private final NotificationRepository notificationRepository;
     private final UserNotificationRepository userNotificationRepository;
     private final UserNotificationMapper userNotificationMapper;
-
     private final UserRepository userRepository;
 
-    public NotificationServiceImp(NotificationRepository notificationRepository, UserNotificationRepository userNotificationRepository, UserNotificationMapper userNotificationMapper, UserRepository userRepository) {
+    private final SseService sseService;
+
+    public NotificationServiceImp(NotificationRepository notificationRepository, UserNotificationRepository userNotificationRepository, UserNotificationMapper userNotificationMapper, UserRepository userRepository, SseService sseService) {
         super(notificationRepository);
         this.notificationRepository = notificationRepository;
         this.userNotificationRepository = userNotificationRepository;
         this.userNotificationMapper = userNotificationMapper;
         this.userRepository = userRepository;
+        this.sseService = sseService;
     }
 
     @Override
@@ -69,6 +73,14 @@ public class NotificationServiceImp extends BaseServiceImpl<Notification, Long> 
         userNotification.setUser(user);
         userNotification.setNotification(notification);
         userNotificationRepository.save(userNotification);
+
+        var dto = userNotificationMapper.toDto(userNotification);
+        TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+            @Override
+            public void afterCommit() {
+                sseService.send(userId, "NOTIFICATION_EVENT", dto);
+            }
+        });
     }
 
     @Override
