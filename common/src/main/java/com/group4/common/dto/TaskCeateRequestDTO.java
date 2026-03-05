@@ -20,4 +20,5 @@ public class TaskCeateRequestDTO extends TaskBaseDTO {
    /** @pdOid 7ac0eb29-41ae-4662-891a-29675b034b73 */
    private Long priorityId;
 
+    private Long taskStatusId;
 }

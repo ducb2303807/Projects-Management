@@ -54,8 +54,42 @@ public class ProjectServiceImpl extends BaseServiceImpl<Project, Long> implement
     }
 
     @Override
+    @Transactional
     public void inviteMember(Long projectId, Long inviteeId, Long inviterId, Long roleId) {
 
+        var project = projectRepository.findById(projectId)
+                .orElseThrow(() -> new ResourceNotFoundException("Project not found"));
+
+        var invitee = userRepository.findById(inviteeId)
+                .orElseThrow(() -> new ResourceNotFoundException("Invitee not found"));
+
+        var role = projectRoleRepository.findById(roleId)
+                .orElseThrow(() -> new ResourceNotFoundException("Project role not found"));
+
+        var pendingStatus = projectMemberStatusRepository.findBySystemCode("PENDING")
+                .orElseThrow(() -> new RuntimeException("ProjectMemberStatus PENDING not configured"));
+
+        boolean exists = projectMemberRepository.existsByProject_IdAndUser_Id(projectId, inviteeId);
+
+        if (exists) {
+            throw new RuntimeException("User already belongs to this project");
+        }
+
+        ProjectMember inviterMember =
+                projectMemberRepository.findByProject_IdAndUser_Id(projectId, inviterId);
+
+        if (inviterMember == null) {
+            throw new RuntimeException("Inviter is not a member of the project");
+        }
+
+        ProjectMember member = new ProjectMember();
+        member.setProject(project);
+        member.setUser(invitee);
+        member.setProjectRole(role);
+        member.setInvitedBy(inviterMember);
+        member.setProjectMemberStatus(pendingStatus);
+
+        projectMemberRepository.save(member);
     }
 
     @Override
@@ -123,6 +157,7 @@ public class ProjectServiceImpl extends BaseServiceImpl<Project, Long> implement
     }
 
     @Override
+    @Transactional
     public List<ProjectMemberDTO> getMembersOfProject(Long projectId) {
         var project = this.projectRepository.findById(projectId)
                 .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy project!"));

@@ -23,7 +23,7 @@ public class TaskController {
    @Autowired
    private CommentService commentService;
 
-   @PostMapping("/project/{projectId}")
+   @PostMapping("/api/projects/{projectId}/tasks")
    public ResponseEntity<TaskResponseDTO> createTaskInProject(
            @PathVariable Long projectId,
            @RequestBody TaskCeateRequestDTO request) {
@@ -46,7 +46,7 @@ public class TaskController {
       return ResponseEntity.ok().build();
    }
 
-   @GetMapping("/{taskId}/historys")
+   @GetMapping("/{taskId}/histories")
    public ResponseEntity<List<TaskHistoryDTO>> getTaskHistory(@PathVariable Long taskId) {
       return ResponseEntity.ok(taskService.getTaskHistory(taskId));
    }
