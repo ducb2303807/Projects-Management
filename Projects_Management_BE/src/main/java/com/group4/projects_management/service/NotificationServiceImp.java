@@ -14,14 +14,14 @@ import com.group4.projects_management.repository.UserNotificationRepository;
 import com.group4.projects_management.repository.UserRepository;
 import com.group4.projects_management.service.base.BaseServiceImpl;
 import jakarta.transaction.Transactional;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.support.TransactionSynchronization;
-import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import java.util.List;
 
 @Service
 public class NotificationServiceImp extends BaseServiceImpl<Notification, Long> implements NotificationService {
+    private final ApplicationEventPublisher eventPublisher;
     private final NotificationRepository notificationRepository;
     private final UserNotificationRepository userNotificationRepository;
     private final UserNotificationMapper userNotificationMapper;
@@ -29,13 +29,15 @@ public class NotificationServiceImp extends BaseServiceImpl<Notification, Long> 
 
     private final SseService sseService;
 
-    public NotificationServiceImp(NotificationRepository notificationRepository, UserNotificationRepository userNotificationRepository, UserNotificationMapper userNotificationMapper, UserRepository userRepository, SseService sseService) {
+
+    public NotificationServiceImp(NotificationRepository notificationRepository, UserNotificationRepository userNotificationRepository, UserNotificationMapper userNotificationMapper, UserRepository userRepository, SseService sseService, ApplicationEventPublisher eventPublisher) {
         super(notificationRepository);
         this.notificationRepository = notificationRepository;
         this.userNotificationRepository = userNotificationRepository;
         this.userNotificationMapper = userNotificationMapper;
         this.userRepository = userRepository;
         this.sseService = sseService;
+        this.eventPublisher = eventPublisher;
     }
 
     @Override
@@ -75,12 +77,7 @@ public class NotificationServiceImp extends BaseServiceImpl<Notification, Long> 
         userNotificationRepository.save(userNotification);
 
         var dto = userNotificationMapper.toDto(userNotification);
-        TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
-            @Override
-            public void afterCommit() {
-                sseService.send(userId, "NOTIFICATION_EVENT", dto);
-            }
-        });
+        this.eventPublisher.publishEvent(dto);
     }
 
     @Override
