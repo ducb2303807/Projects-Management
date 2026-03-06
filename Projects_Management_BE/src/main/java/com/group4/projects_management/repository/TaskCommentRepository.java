@@ -7,6 +7,9 @@ package com.group4.projects_management.repository; /****************************
 import com.group4.projects_management.entity.Comment;
 import com.group4.projects_management.repository.Base.BaseRepository;
 
+import java.util.List;
+
 /** @pdOid 131eca75-272e-4017-8cea-a9929e380a9f */
 public interface TaskCommentRepository extends BaseRepository<Comment, Long> {
+    List<Comment> findByTaskId(Long taskId);
 }

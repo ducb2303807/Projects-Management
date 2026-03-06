@@ -7,6 +7,9 @@ package com.group4.projects_management.repository; /****************************
 import com.group4.projects_management.entity.TaskHistory;
 import com.group4.projects_management.repository.Base.BaseRepository;
 
+import java.util.List;
+
 /** @pdOid 8399f405-ebef-464e-8e06-b0c1f870ae8b */
 public interface TaskHistoryRepository extends BaseRepository<TaskHistory, Long> {
+    List<TaskHistory> findByTaskId(Long taskId);
 }
