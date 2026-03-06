@@ -47,12 +47,16 @@ public class NotificationServiceImp extends BaseServiceImpl<Notification, Long> 
     @Override
     @Transactional
     public void markAsRead(Long notificationId, Long userId) {
-        var notification = this.userNotificationRepository.findByUser_IdAndNotification_Id(userId, notificationId)
+        var userNotification = this.userNotificationRepository.findByUser_IdAndNotification_Id(userId, notificationId)
                 .orElseThrow(() -> new ResourceNotFoundException("Notification not found"));
 
-        notification.markAsRead();
+        if (userNotification.isRead()) {
+            return;
+        }
 
-        this.userNotificationRepository.save(notification);
+        userNotification.markAsRead();
+
+        this.userNotificationRepository.save(userNotification);
     }
 
     @Override
@@ -64,16 +68,26 @@ public class NotificationServiceImp extends BaseServiceImpl<Notification, Long> 
 
         var notifications = this.userNotificationRepository.findAllByUser_Id(userId);
 
-        for (var userNotification : notifications) {
+        var unreadNotifications = notifications.stream()
+                .filter(un -> !un.isRead()) // Chỉ lấy những cái chưa đọc
+                .toList();
+
+        if (unreadNotifications.isEmpty()) {
+            return;
+        }
+
+        for (var userNotification : unreadNotifications) {
             userNotification.markAsRead();
         }
 
-        this.userNotificationRepository.saveAll(notifications);
+        this.userNotificationRepository.saveAll(unreadNotifications);
     }
 
     @Override
     @Transactional
     public void sendNotification(Long userId, String text, String type, Long referenceId) {
+
+
         var user = this.userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
@@ -92,6 +106,12 @@ public class NotificationServiceImp extends BaseServiceImpl<Notification, Long> 
     @Override
     @Transactional
     public void sendNotification(List<Long> usersId, String text, String type, Long referenceId) {
+        if (usersId == null || usersId.isEmpty())
+            return;
+
+        if (text == null || text.isBlank())
+            throw new IllegalArgumentException("Notification text cannot be empty");
+
         var notification = Notification.create(text, type, referenceId.toString());
         notificationRepository.save(notification);
 
@@ -99,6 +119,7 @@ public class NotificationServiceImp extends BaseServiceImpl<Notification, Long> 
 
         if (users.size() != usersId.size()) {
             // Check chuyên sâu nếu cần
+            System.out.println("Warning: Some user IDs were not found in database.");
         }
 
         var userNotifications = users.stream().map(user -> {
@@ -111,7 +132,9 @@ public class NotificationServiceImp extends BaseServiceImpl<Notification, Long> 
                 })
                 .toList();
 
-        userNotificationRepository.saveAll(userNotifications);
+        if (!userNotifications.isEmpty()) {
+            userNotificationRepository.saveAll(userNotifications);
+        }
     }
 
     @Override
