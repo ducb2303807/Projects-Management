@@ -18,25 +18,35 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/tasks")
 public class TaskController {
+
    @Autowired
    private TaskService taskService;
+
    @Autowired
    private CommentService commentService;
 
-   @PostMapping("/api/projects/{projectId}/tasks")
+   @PostMapping("/projects/{projectId}/tasks")
    public ResponseEntity<TaskResponseDTO> createTaskInProject(
            @PathVariable Long projectId,
            @RequestBody TaskCeateRequestDTO request) {
 
-      // Đảm bảo projectId từ URL được gán vào request
       request.setProjectId(projectId);
       return ResponseEntity.ok(taskService.createTask(request));
    }
 
    @PostMapping("/{taskId}/assignments")
-   public ResponseEntity<Void> assignMember(@PathVariable Long taskId, @RequestParam Long projectMemberId) {
+   public ResponseEntity<Void> assignMember(
+           @PathVariable Long taskId,
+           @RequestParam Long projectMemberId) {
+
+      var auth = org.springframework.security.core.context.SecurityContextHolder
+              .getContext().getAuthentication();
+
       var userId = SecurityUtils.getCurrentUserId();
+      System.out.println("Current userId = " + userId);
+
       taskService.assignMember(taskId, projectMemberId, userId);
+
       return ResponseEntity.ok().build();
    }
 
@@ -56,7 +66,7 @@ public class TaskController {
       return ResponseEntity.ok(taskService.updateTask(taskId, request));
    }
 
-   @GetMapping("{taskId}/comments/")
+   @GetMapping("/{taskId}/comments")
    public ResponseEntity<List<CommentDTO>> getTaskComment(@PathVariable Long taskId) {
       return ResponseEntity.ok(commentService.getCommentsByTask(taskId));
    }

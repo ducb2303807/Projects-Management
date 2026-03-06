@@ -4,6 +4,7 @@ import com.group4.common.dto.*;
 import com.group4.projects_management.entity.*;
 import com.group4.projects_management.repository.*;
 import com.group4.projects_management.service.base.BaseServiceImpl;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -42,15 +43,16 @@ public class TaskServiceImpl extends BaseServiceImpl<Task, Long> implements Task
 
    @Override
    public void assignMember(Long taskId, Long assigneeId, Long assignerId) {
-
+      System.out.println("assignerId = " + assignerId);
       Task task = taskRepository.findById(taskId)
               .orElseThrow(() -> new RuntimeException("Task not found"));
 
       ProjectMember assignee = projectMemberRepository.findById(assigneeId)
               .orElseThrow(() -> new RuntimeException("Assignee not found"));
 
-      ProjectMember assigner = projectMemberRepository.findById(assignerId)
-              .orElseThrow(() -> new RuntimeException("Assigner not found"));
+      ProjectMember assigner = projectMemberRepository
+              .findByUser_IdAndProject_Id(assignerId, task.getProject().getId())
+              .orElseThrow(() -> new RuntimeException("Assigner not in project"));
 
       TaskAssignment assignment = new TaskAssignment();
       assignment.setTask(task);
@@ -73,7 +75,7 @@ public class TaskServiceImpl extends BaseServiceImpl<Task, Long> implements Task
    @Override
    public List<TaskResponseDTO> getTasksByProject(Long projectId) {
 
-      List<Task> tasks = taskRepository.findAll();
+      List<Task> tasks = taskRepository.findByProject_Id(projectId);
       List<TaskResponseDTO> result = new ArrayList<>();
 
       for (Task task : tasks) {
@@ -105,28 +107,24 @@ public class TaskServiceImpl extends BaseServiceImpl<Task, Long> implements Task
    @Override
    public List<TaskHistoryDTO> getTaskHistory(Long taskId) {
 
-      Task task = taskRepository.findById(taskId)
-              .orElseThrow(() -> new RuntimeException("Task not found"));
+      List<TaskHistory> histories = taskHistoryRepository.findByTaskId(taskId);
 
       List<TaskHistoryDTO> result = new ArrayList<>();
 
-      if (task.getHistorys() != null) {
+      for (TaskHistory history : histories) {
 
-         for (TaskHistory history : task.getHistorys()) {
+         TaskHistoryDTO dto = new TaskHistoryDTO();
 
-            TaskHistoryDTO dto = new TaskHistoryDTO();
+         dto.setChangedAt(history.getChangedAt());
+         dto.setColumnName(history.getColumnName());
+         dto.setOldValue(history.getOldValue());
+         dto.setNewValue(history.getNewValue());
 
-            dto.setChangedAt(history.getChangedAt());
-            dto.setColumnName(history.getColumnName());
-            dto.setOldValue(history.getOldValue());
-            dto.setNewValue(history.getNewValue());
-
-            if (history.getChangedBy() != null) {
-               dto.setChangeBy(history.getChangedBy().getUser().getUsername());
-            }
-
-            result.add(dto);
+         if (history.getChangedBy() != null) {
+            dto.setChangeBy(history.getChangedBy().getUser().getUsername());
          }
+
+         result.add(dto);
       }
 
       return result;
@@ -236,7 +234,6 @@ public class TaskServiceImpl extends BaseServiceImpl<Task, Long> implements Task
 
       task.setProject(project);
 
-      // 🔥 THÊM STATUS
       TaskStatus status = taskStatusRepository.findById(dto.getTaskStatusId())
               .orElseThrow(() -> new RuntimeException("Task status not found"));
 
@@ -258,15 +255,29 @@ public class TaskServiceImpl extends BaseServiceImpl<Task, Long> implements Task
    @Override
    public List<TaskResponseDTO> getTasksByStatus(Long projectId, Long statusId) {
 
-      List<TaskResponseDTO> tasks = getTasksByProject(projectId);
+      List<Task> tasks =
+              taskRepository.findByProject_IdAndTaskStatus_Id(projectId, statusId);
+
       List<TaskResponseDTO> result = new ArrayList<>();
 
-      for (TaskResponseDTO task : tasks) {
+      for (Task task : tasks) {
 
-         if (task.getStatusName() != null && task.getStatusName().equals(statusId.toString())) {
-            result.add(task);
+         TaskResponseDTO dto = new TaskResponseDTO();
+         dto.setTaskId(task.getId());
+         dto.setTaskName(task.getName());
+         dto.setDescription(task.getDescription());
+         dto.setDeadline(task.getDeadline());
+         dto.setCreatedAt(task.getCreatedAt());
+
+         if (task.getPriority() != null) {
+            dto.setPriorityName(task.getPriority().getName());
          }
 
+         if (task.getTaskStatus() != null) {
+            dto.setStatusName(task.getTaskStatus().getName());
+         }
+
+         result.add(dto);
       }
 
       return result;

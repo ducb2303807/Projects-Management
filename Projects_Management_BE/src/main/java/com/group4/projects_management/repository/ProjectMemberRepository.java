@@ -8,6 +8,7 @@ import com.group4.projects_management.entity.ProjectMember;
 import com.group4.projects_management.repository.Base.BaseRepository;
 
 import java.util.List;
+import java.util.Optional;
 
 /** @pdOid 2c6d799b-fc02-4a09-a1f3-21ac987720f0 */
 public interface ProjectMemberRepository extends BaseRepository<ProjectMember, Long> {
@@ -17,6 +18,6 @@ public interface ProjectMemberRepository extends BaseRepository<ProjectMember, L
     boolean existsByProject_IdAndUser_Id(Long projectId, Long userId);
 
     ProjectMember findByProject_IdAndUser_Id(Long projectId, Long userId);
-
+    Optional<ProjectMember> findByUser_IdAndProject_Id(Long userId, Long projectId);
     List<ProjectMember> findAllByUser_IdAndProjectMemberStatus_SystemCode(Long userId, String projectMemberStatusSystemCode);
 }
