@@ -1,5 +1,6 @@
 package com.group4.projects_management_fe;
 
+import com.group4.projects_management_fe.core.api.base.BaseApi;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
@@ -26,5 +27,11 @@ public class MainWindow extends Application {
         stage.setScene(scene);
         stage.setResizable(false);
         stage.show();
+    }
+
+    @Override
+    public void stop() throws Exception {
+        BaseApi.shutdown();
+        super.stop();
     }
 }

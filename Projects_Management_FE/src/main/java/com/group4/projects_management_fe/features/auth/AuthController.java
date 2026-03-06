@@ -1,18 +1,22 @@
 package com.group4.projects_management_fe.features.auth;
 
+import com.group4.common.dto.LoginRequest;
+import com.group4.projects_management_fe.core.api.AuthApi;
 import javafx.animation.FadeTransition;
 import javafx.animation.Interpolator;
 import javafx.animation.TranslateTransition;
+import javafx.application.Platform;
 import javafx.fxml.FXML;
-import javafx.scene.control.PasswordField;
-import javafx.scene.control.TextField;
-import javafx.scene.layout.VBox;
-import javafx.util.Duration;
-import javafx.scene.control.Alert;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
+import javafx.scene.control.PasswordField;
+import javafx.scene.control.TextField;
+import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
+import javafx.util.Duration;
+
 import java.util.regex.Pattern;
 
 public class AuthController {
@@ -55,6 +59,8 @@ public class AuthController {
 
     private static final double FORM_WIDTH = 450;
     private static final Duration ANIMATION_TIME = Duration.millis(400);
+
+    private AuthApi authApi = new AuthApi();
 
     @FXML
     private void initialize() {
@@ -153,24 +159,45 @@ public class AuthController {
             return;
         }
 
-        if (!eReg.matcher(email).matches()) {
-            showAlert("Validation Error", "Email format is invalid.");
-            return;
-        }
+//        if (!eReg.matcher(email).matches()) {
+//            showAlert("Validation Error", "Email format is invalid.");
+//            return;
+//        }
 
         if (password.isEmpty()) {
             showAlert("Validation Error", "Password cannot be empty.");
             return;
         }
+//
+//        if (!pReg.matcher(password).matches()) {
+//            showAlert("Validation Error",
+//                    "Password must be at least 8 characters and include uppercase, lowercase and a number.");
+//            return;
+//        }
 
-        if (!pReg.matcher(password).matches()) {
-            showAlert("Validation Error",
-                    "Password must be at least 8 characters and include uppercase, lowercase and a number.");
-            return;
-        }
+        LoginRequest loginRequest = LoginRequest.builder()
+                .username(email)
+                .password(password).build();
 
-        showAlert("Login successful", "Welcome back!");
-        openMainLayout();
+        authApi.login(loginRequest).thenAccept(response -> {
+            Platform.runLater(() -> {
+                showAlert("Login successful", "Welcome back!");
+                openMainLayout();
+            });
+        }).exceptionally(ex -> {
+            Platform.runLater(() -> {
+                Throwable cause = ex.getCause() != null ? ex.getCause() : ex;
+
+                String cleanMessage = cause.getMessage();
+
+                if (cleanMessage != null && cleanMessage.contains(": ")) {
+                    cleanMessage = cleanMessage.substring(cleanMessage.indexOf(": ") + 2);
+                }
+
+                showAlert("Login failed",cleanMessage);
+            });
+            return null;
+        });
     }
 
     @FXML

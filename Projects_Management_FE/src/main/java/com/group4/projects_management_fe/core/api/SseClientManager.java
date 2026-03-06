@@ -1,4 +1,4 @@
-﻿package com.group4.projects_management_fe.core.api;
+package com.group4.projects_management_fe.core.api;
 
 import com.group4.common.dto.NotificationDTO;
 import javafx.application.Platform;
@@ -91,6 +91,11 @@ public class SseClientManager {
     public void shutdown() {
         stopListening();
         scheduler.shutdown();
-        this.client.dispatcher().executorService().shutdown();
+        client.dispatcher().executorService().shutdown();
+        client.connectionPool().evictAll();
+
+        if (client.cache() != null) {
+            try { client.cache().close(); } catch (Exception ignored) {}
+        }
     }
 }
