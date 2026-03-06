@@ -23,16 +23,13 @@ public class NotificationServiceImp extends BaseServiceImpl<Notification, Long> 
     private final UserNotificationMapper userNotificationMapper;
     private final UserRepository userRepository;
 
-    private final SseService sseService;
 
-
-    public NotificationServiceImp(NotificationRepository notificationRepository, UserNotificationRepository userNotificationRepository, UserNotificationMapper userNotificationMapper, UserRepository userRepository, SseService sseService, ApplicationEventPublisher eventPublisher) {
+    public NotificationServiceImp(NotificationRepository notificationRepository, UserNotificationRepository userNotificationRepository, UserNotificationMapper userNotificationMapper, UserRepository userRepository, ApplicationEventPublisher eventPublisher) {
         super(notificationRepository);
         this.notificationRepository = notificationRepository;
         this.userNotificationRepository = userNotificationRepository;
         this.userNotificationMapper = userNotificationMapper;
         this.userRepository = userRepository;
-        this.sseService = sseService;
         this.eventPublisher = eventPublisher;
     }
 
@@ -108,6 +105,8 @@ public class NotificationServiceImp extends BaseServiceImpl<Notification, Long> 
                     var userNotification = new UserNotification();
                     userNotification.setUser(user);
                     userNotification.setNotification(notification);
+
+                    this.eventPublisher.publishEvent(userNotificationMapper.toDto(userNotification));
                     return userNotification;
                 })
                 .toList();
@@ -120,9 +119,6 @@ public class NotificationServiceImp extends BaseServiceImpl<Notification, Long> 
         if (!userRepository.existsById(userId)) {
             throw new ResourceNotFoundException("User not found");
         }
-
         return this.userNotificationRepository.countByUser_IdAndIsReadIsFalse(userId);
     }
-
-
 }
