@@ -19,4 +19,8 @@ public interface NotificationService {
 
    void sendNotification(List<Long> usersId, java.lang.String text, java.lang.String type, Long referenceId);
 
+   int countUnreadNotifications(Long userId);
+
+   void markAllAsRead(Long userId);
+
 }

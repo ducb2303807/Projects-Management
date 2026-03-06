@@ -1,8 +1,4 @@
-package com.group4.projects_management.service; /***********************************************************************
- * Module:  NotificationServiceImp.java
- * Author:  Lenovo
- * Purpose: Defines the Class NotificationServiceImp
- ***********************************************************************/
+package com.group4.projects_management.service;
 
 import com.group4.common.dto.NotificationDTO;
 import com.group4.projects_management.core.exception.ResourceNotFoundException;
@@ -27,16 +23,13 @@ public class NotificationServiceImp extends BaseServiceImpl<Notification, Long> 
     private final UserNotificationMapper userNotificationMapper;
     private final UserRepository userRepository;
 
-    private final SseService sseService;
 
-
-    public NotificationServiceImp(NotificationRepository notificationRepository, UserNotificationRepository userNotificationRepository, UserNotificationMapper userNotificationMapper, UserRepository userRepository, SseService sseService, ApplicationEventPublisher eventPublisher) {
+    public NotificationServiceImp(NotificationRepository notificationRepository, UserNotificationRepository userNotificationRepository, UserNotificationMapper userNotificationMapper, UserRepository userRepository, ApplicationEventPublisher eventPublisher) {
         super(notificationRepository);
         this.notificationRepository = notificationRepository;
         this.userNotificationRepository = userNotificationRepository;
         this.userNotificationMapper = userNotificationMapper;
         this.userRepository = userRepository;
-        this.sseService = sseService;
         this.eventPublisher = eventPublisher;
     }
 
@@ -54,17 +47,47 @@ public class NotificationServiceImp extends BaseServiceImpl<Notification, Long> 
     @Override
     @Transactional
     public void markAsRead(Long notificationId, Long userId) {
-        var notification = this.userNotificationRepository.findByUser_IdAndNotification_Id(userId, notificationId)
+        var userNotification = this.userNotificationRepository.findByUser_IdAndNotification_Id(userId, notificationId)
                 .orElseThrow(() -> new ResourceNotFoundException("Notification not found"));
 
-        notification.markAsRead();
+        if (userNotification.isRead()) {
+            return;
+        }
 
-        this.userNotificationRepository.save(notification);
+        userNotification.markAsRead();
+
+        this.userNotificationRepository.save(userNotification);
+    }
+
+    @Override
+    @Transactional
+    public void markAllAsRead(Long userId) {
+        if (!this.userRepository.existsById(userId)) {
+            throw new ResourceNotFoundException("User not found");
+        }
+
+        var notifications = this.userNotificationRepository.findAllByUser_Id(userId);
+
+        var unreadNotifications = notifications.stream()
+                .filter(un -> !un.isRead()) // Chỉ lấy những cái chưa đọc
+                .toList();
+
+        if (unreadNotifications.isEmpty()) {
+            return;
+        }
+
+        for (var userNotification : unreadNotifications) {
+            userNotification.markAsRead();
+        }
+
+        this.userNotificationRepository.saveAll(unreadNotifications);
     }
 
     @Override
     @Transactional
     public void sendNotification(Long userId, String text, String type, Long referenceId) {
+
+
         var user = this.userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
@@ -83,6 +106,12 @@ public class NotificationServiceImp extends BaseServiceImpl<Notification, Long> 
     @Override
     @Transactional
     public void sendNotification(List<Long> usersId, String text, String type, Long referenceId) {
+        if (usersId == null || usersId.isEmpty())
+            return;
+
+        if (text == null || text.isBlank())
+            throw new IllegalArgumentException("Notification text cannot be empty");
+
         var notification = Notification.create(text, type, referenceId.toString());
         notificationRepository.save(notification);
 
@@ -90,16 +119,29 @@ public class NotificationServiceImp extends BaseServiceImpl<Notification, Long> 
 
         if (users.size() != usersId.size()) {
             // Check chuyên sâu nếu cần
+            System.out.println("Warning: Some user IDs were not found in database.");
         }
 
         var userNotifications = users.stream().map(user -> {
                     var userNotification = new UserNotification();
                     userNotification.setUser(user);
                     userNotification.setNotification(notification);
+
+                    this.eventPublisher.publishEvent(userNotificationMapper.toDto(userNotification));
                     return userNotification;
                 })
                 .toList();
 
-        userNotificationRepository.saveAll(userNotifications);
+        if (!userNotifications.isEmpty()) {
+            userNotificationRepository.saveAll(userNotifications);
+        }
+    }
+
+    @Override
+    public int countUnreadNotifications(Long userId) {
+        if (!userRepository.existsById(userId)) {
+            throw new ResourceNotFoundException("User not found");
+        }
+        return this.userNotificationRepository.countByUser_IdAndIsReadIsFalse(userId);
     }
 }
