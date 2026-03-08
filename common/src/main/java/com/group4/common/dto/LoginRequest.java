@@ -7,6 +7,7 @@ package com.group4.common.dto; /************************************************
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -14,6 +15,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class LoginRequest {
    /** @pdOid 4603558d-7934-420b-afbb-0fe713b6e127 */
    @NotBlank( message = "Username cannot be blank")

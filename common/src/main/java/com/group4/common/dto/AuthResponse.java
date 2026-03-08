@@ -5,6 +5,7 @@ package com.group4.common.dto; /************************************************
  ***********************************************************************/
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -12,6 +13,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class AuthResponse {
    /** @pdOid 51b3b5a4-da8e-4b33-9038-b278fa8d864c */
    private java.lang.String token;

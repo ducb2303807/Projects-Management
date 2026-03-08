@@ -72,6 +72,19 @@ public class ProjectServiceImpl extends BaseServiceImpl<Project, Long> implement
 
         var pendingStatus = projectMemberStatusRepository.findBySystemCode("PENDING")
                 .orElseThrow(() -> new RuntimeException("Hệ thống chưa cấu hình ProjectMemberStatus systemCode=PENDING"));
+      
+        boolean exists = projectMemberRepository.existsByProject_IdAndUser_Id(projectId, inviteeId);
+
+        if (exists) {
+            throw new RuntimeException("User đã thuộc project này rồi");
+        }
+
+        ProjectMember inviterMember =
+                projectMemberRepository.findByProject_IdAndUser_Id(projectId, inviterId);
+
+        if (inviterMember == null) {
+            throw new RuntimeException("Người mời không phải là thành viên của project");
+        }
 
         ProjectMember member = new ProjectMember();
         member.setProject(project);
@@ -199,6 +212,7 @@ public class ProjectServiceImpl extends BaseServiceImpl<Project, Long> implement
     }
 
     @Override
+    @Transactional
     public List<ProjectMemberDTO> getMembersOfProject(Long projectId) {
         var project = this.projectRepository.findById(projectId)
                 .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy project!"));

@@ -1,18 +1,22 @@
 package com.group4.projects_management_fe.features.auth;
 
+import com.group4.common.dto.LoginRequest;
+import com.group4.projects_management_fe.core.api.AuthApi;
 import javafx.animation.FadeTransition;
 import javafx.animation.Interpolator;
 import javafx.animation.TranslateTransition;
+import javafx.application.Platform;
 import javafx.fxml.FXML;
-import javafx.scene.control.PasswordField;
-import javafx.scene.control.TextField;
-import javafx.scene.layout.VBox;
-import javafx.util.Duration;
-import javafx.scene.control.Alert;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
+import javafx.scene.control.PasswordField;
+import javafx.scene.control.TextField;
+import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
+import javafx.util.Duration;
+
 import java.util.regex.Pattern;
 
 public class AuthController {
@@ -28,6 +32,9 @@ public class AuthController {
 
     @FXML
     private PasswordField loginPassword;
+
+    @FXML
+    private TextField registerFullName;
 
     @FXML
     private TextField registerName;
@@ -47,9 +54,13 @@ public class AuthController {
     private static final Pattern pReg =
             Pattern.compile("^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d).{8,}$");
 
+    private static final Pattern nameReg =
+            Pattern.compile("^[A-Za-zÀ-ỹ\\s]{2,50}$");
 
     private static final double FORM_WIDTH = 450;
     private static final Duration ANIMATION_TIME = Duration.millis(400);
+
+    private AuthApi authApi = new AuthApi();
 
     @FXML
     private void initialize() {
@@ -140,47 +151,80 @@ public class AuthController {
     @FXML
     private void handleLogin() {
 
-        String email = loginEmail.getText();
-        String password = loginPassword.getText();
+        String email = loginEmail.getText().trim();
+        String password = loginPassword.getText().trim();
 
-        if (email == null || email.isBlank()) {
-            showAlert("Validation error", "Email cannot be empty");
+        if (email.isEmpty()) {
+            showAlert("Validation Error", "Email cannot be empty.");
             return;
         }
 
-        if (!eReg.matcher(email).matches()) {
-            showAlert("Validation error", "Email format is invalid");
-            return;
-        }
+//        if (!eReg.matcher(email).matches()) {
+//            showAlert("Validation Error", "Email format is invalid.");
+//            return;
+//        }
 
-        if (password == null || password.isBlank()) {
+        if (password.isEmpty()) {
             showAlert("Validation Error", "Password cannot be empty.");
             return;
         }
+//
+//        if (!pReg.matcher(password).matches()) {
+//            showAlert("Validation Error",
+//                    "Password must be at least 8 characters and include uppercase, lowercase and a number.");
+//            return;
+//        }
 
-        if (!pReg.matcher(password).matches()) {
-            showAlert("Validation Error",
-                    "Password must be at least 8 characters and include uppercase, lowercase and a number.");
-            return;
-        }
+        LoginRequest loginRequest = LoginRequest.builder()
+                .username(email)
+                .password(password).build();
 
-        showAlert("Login successfull", "Welcome back!");
-        openMainLayout();
+        authApi.login(loginRequest).thenAccept(response -> {
+            Platform.runLater(() -> {
+                showAlert("Login successful", "Welcome back!");
+                openMainLayout();
+            });
+        }).exceptionally(ex -> {
+            Platform.runLater(() -> {
+                Throwable cause = ex.getCause() != null ? ex.getCause() : ex;
+
+                String cleanMessage = cause.getMessage();
+
+                if (cleanMessage != null && cleanMessage.contains(": ")) {
+                    cleanMessage = cleanMessage.substring(cleanMessage.indexOf(": ") + 2);
+                }
+
+                showAlert("Login failed",cleanMessage);
+            });
+            return null;
+        });
     }
 
     @FXML
     private void handleRegister() {
 
-        String name = registerName.getText();
-        String email = registerEmail.getText();
-        String password = registerPassword.getText();
+        String fullName = registerFullName.getText().trim();
+        String name = registerName.getText().trim();
+        String email = registerEmail.getText().trim();
+        String password = registerPassword.getText().trim();
 
-        if (name == null || name.isBlank()) {
+        if (fullName.isEmpty()) {
+            showAlert("Validation Error", "Full name cannot be empty.");
+            return;
+        }
+
+        if (!nameReg.matcher(fullName).matches()) {
+            showAlert("Validation Error",
+                    "Full name must contain only letters and spaces (2-50 characters).");
+            return;
+        }
+
+        if (name.isEmpty()) {
             showAlert("Validation Error", "Name cannot be empty.");
             return;
         }
 
-        if (email == null || email.isBlank()) {
+        if (email.isEmpty()) {
             showAlert("Validation Error", "Email cannot be empty.");
             return;
         }
@@ -190,7 +234,7 @@ public class AuthController {
             return;
         }
 
-        if (password == null || password.isBlank()) {
+        if (password.isEmpty()) {
             showAlert("Validation Error", "Password cannot be empty.");
             return;
         }
@@ -209,7 +253,7 @@ public class AuthController {
         try {
             FXMLLoader loader = new FXMLLoader(
                     getClass().getResource(
-                            "/com/group4/projects_management_fe/features/auth/MainLayout.fxml"
+                            "/com/group4/projects_management_fe/features/mainlayout/MainLayoutView.fxml"
                     )
             );
 
@@ -217,6 +261,8 @@ public class AuthController {
 
             Stage stage = (Stage) signInForm.getScene().getWindow();
             stage.setScene(new Scene(root, 1200, 800));
+            stage.setResizable(true);
+            stage.setTitle("Nexus");
             stage.centerOnScreen();
 
         } catch (Exception e) {

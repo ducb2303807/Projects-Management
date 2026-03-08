@@ -5,6 +5,7 @@ package com.group4.common.dto; /************************************************
  ***********************************************************************/
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -12,6 +13,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class UserWidgetConfigDTO {
    /** @pdOid d6b71760-a4b1-49c0-933f-b9241988d8e4 */
    private Long widgetConfigId;
