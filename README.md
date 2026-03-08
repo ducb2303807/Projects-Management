@@ -88,6 +88,67 @@ Projects-Management/
 - **Công cụ build:** Maven.
 - **IDE:** IntelliJ IDEA (khuyên dùng), Eclipse hoặc VS Code.
 
-1. Clone dự án
-2. Cấu hình Backend
-3. Cấu hình Frontend
+### 2. Clone dự án
+
+```bash
+git clone https://github.com/ducb2303807/Projects-Management.git
+cd Projects-Management
+```
+
+### 3. Cài đặt phụ thuộc
+
+- Cài đặt theo lệnh sau và đợi đến khi hiện dòng `BUILD SUCCESS`
+
+```bash
+mvn clean install
+```
+
+### 4. Cấu hình Backend
+
+- Cấu hình lại `.env` file bằng file `.env.example`, chỉnh sửa cấu hình lại theo database của bạn
+
+```
+ADDRESS=<%= address %>
+PORT=<%= port %>
+DB_URL=<%= dbUrl %>
+DB_USER=<%= dbUser %>
+DB_PASS=<%= dbPass %>
+```
+- Cấu hình thông tin trong `src/main/resources/application.properties` nếu cần. Bạn cũng có thể thay đổi address và port server thông qua các file `*.properties`
+
+```text
+# Server name
+spring.application.name=Projects_Management
+
+# run for development
+spring.profiles.active=dev
+# run for production
+#spring.profiles.active=prod
+# run for test
+#spring.profiles.active=test
+```
+
+### 5. Chạy Backend
+
+- Chạy backend bằng lệnh sau
+
+```bash
+mvn spring-boot:run -pl Projects_Management_BE
+```
+
+### 6. Cấu hình Frontend
+
+- Cấu hình lại `.env` file bằng file `.env.example`, chỉnh sửa cấu hình lại theo cấu hình của bạn
+
+```
+API_BASE_URL=<YOUR_API_SERVER_BASE_ENDPOINT_BASE_URL>
+APP_TIMEOUT=<YOUR_APP_REQUEST_TIMEOUT>
+```
+
+### 7. Chạy Frontend
+
+- Chạy frontend bằng lệnh sau
+
+```bash
+mvn org.openjfx:javafx-maven-plugin:0.0.8:run -pl Projects_Management_FE
+```
