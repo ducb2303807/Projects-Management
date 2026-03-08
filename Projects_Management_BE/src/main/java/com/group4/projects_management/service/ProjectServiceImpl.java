@@ -79,13 +79,6 @@ public class ProjectServiceImpl extends BaseServiceImpl<Project, Long> implement
             throw new RuntimeException("User đã thuộc project này rồi");
         }
 
-        ProjectMember inviterMember =
-                projectMemberRepository.findByProject_IdAndUser_Id(projectId, inviterId);
-
-        if (inviterMember == null) {
-            throw new RuntimeException("Người mời không phải là thành viên của project");
-        }
-
         ProjectMember member = new ProjectMember();
         member.setProject(project);
         member.setUser(invitee);
