@@ -12,5 +12,5 @@ public interface TaskRepository extends BaseRepository<Task, Long> {
 
     int countByProject_Id(Long projectId);
 
-    int countByProject_IdAndStatus_SystemCode(Long projectId, String statusCode);
+    int countByProject_IdAndTaskStatus_SystemCode(Long projectId, String statusCode);
 }

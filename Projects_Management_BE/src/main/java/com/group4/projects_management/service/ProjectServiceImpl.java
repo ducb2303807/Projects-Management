@@ -147,8 +147,8 @@ public class ProjectServiceImpl extends BaseServiceImpl<Project, Long> implement
                 .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy dự án"));
 
         int totalTasks = taskRepository.countByProject_Id(projectId);
-        int completedTasks = taskRepository.countByProject_IdAndStatus_SystemCode(projectId, "COMPLETED");
-        int inProgressTasks = taskRepository.countByProject_IdAndStatus_SystemCode(projectId, "IN_PROGRESS");
+        int completedTasks = taskRepository.countByProject_IdAndTaskStatus_SystemCode(projectId, "COMPLETED");
+        int inProgressTasks = taskRepository.countByProject_IdAndTaskStatus_SystemCode(projectId, "IN_PROGRESS");
 
         double progressPercentage = totalTasks == 0 ? 0.0 :
                 (double) completedTasks / totalTasks * 100.0;
