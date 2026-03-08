@@ -148,7 +148,7 @@
                         <id>default-cli</id>
                         <configuration>
                             <mainClass>
-                                com.group4.projects_management_fe/com.group4.projects_management_fe.MainWindow
+                                com.group4.projects_management_fe.Launcher
                             </mainClass>
                             <launcher>app</launcher>
                             <jlinkZipName>app</jlinkZipName>
