@@ -7,6 +7,7 @@ package com.group4.common.dto; /************************************************
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 
 import java.time.LocalDateTime;
 
@@ -14,6 +15,7 @@ import java.time.LocalDateTime;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@SuperBuilder
 abstract class TaskBaseDTO {
    /** @pdOid 82f2b31e-1218-4973-9732-05c55f588ebe */
    protected java.lang.String taskName;

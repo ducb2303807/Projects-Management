@@ -7,6 +7,7 @@ package com.group4.common.dto; /************************************************
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -14,6 +15,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class ChangePasswordRequestDTO {
    /** @pdOid ea622504-d6a2-4325-8a65-ae08107f229d */
    @NotBlank

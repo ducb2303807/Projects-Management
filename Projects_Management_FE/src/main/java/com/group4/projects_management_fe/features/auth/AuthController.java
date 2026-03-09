@@ -1,20 +1,23 @@
 package com.group4.projects_management_fe.features.auth;
 
+import com.group4.common.dto.LoginRequest;
+import com.group4.projects_management_fe.core.api.AuthApi;
+import com.group4.common.dto.UserRegistrationDTO;
 import javafx.animation.FadeTransition;
 import javafx.animation.Interpolator;
 import javafx.animation.TranslateTransition;
-import javafx.event.ActionEvent;
+import javafx.application.Platform;
 import javafx.fxml.FXML;
-import javafx.scene.control.PasswordField;
-import javafx.scene.control.TextField;
-import javafx.scene.layout.StackPane;
-import javafx.scene.layout.VBox;
-import javafx.util.Duration;
-import javafx.scene.control.Alert;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
+import javafx.scene.control.PasswordField;
+import javafx.scene.control.TextField;
+import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
+import javafx.util.Duration;
+
 import java.util.regex.Pattern;
 
 public class AuthController {
@@ -58,9 +61,10 @@ public class AuthController {
     private static final double FORM_WIDTH = 450;
     private static final Duration ANIMATION_TIME = Duration.millis(400);
 
+    private AuthApi authApi = new AuthApi();
+
     @FXML
     private void initialize() {
-
         bgArea.setTranslateX(0);
 
         signInForm.setVisible(true);
@@ -155,46 +159,67 @@ public class AuthController {
             return;
         }
 
-        if (!eReg.matcher(email).matches()) {
-            showAlert("Validation Error", "Email format is invalid.");
-            return;
-        }
+//        if (!eReg.matcher(email).matches()) {
+//            showAlert("Validation Error", "Email format is invalid.");
+//            return;
+//        }
 
         if (password.isEmpty()) {
             showAlert("Validation Error", "Password cannot be empty.");
             return;
         }
+//
+//        if (!pReg.matcher(password).matches()) {
+//            showAlert("Validation Error",
+//                    "Password must be at least 8 characters and include uppercase, lowercase and a number.");
+//            return;
+//        }
 
-        if (!pReg.matcher(password).matches()) {
-            showAlert("Validation Error",
-                    "Password must be at least 8 characters and include uppercase, lowercase and a number.");
-            return;
-        }
+        LoginRequest loginRequest = LoginRequest.builder()
+                .username(email)
+                .password(password).build();
 
-        showAlert("Login successful", "Welcome back!");
-        openMainLayout();
+        authApi.login(loginRequest).thenAccept(response -> {
+            Platform.runLater(() -> {
+                showAlert("Login successful", "Welcome back!");
+                openMainLayout();
+            });
+        }).exceptionally(ex -> {
+            Platform.runLater(() -> {
+                Throwable cause = ex.getCause() != null ? ex.getCause() : ex;
+
+                String cleanMessage = cause.getMessage();
+
+                if (cleanMessage != null && cleanMessage.contains(": ")) {
+                    cleanMessage = cleanMessage.substring(cleanMessage.indexOf(": ") + 2);
+                }
+
+                showAlert("Login failed", cleanMessage);
+            });
+            return null;
+        });
     }
 
     @FXML
     private void handleRegister() {
 
         String fullName = registerFullName.getText().trim();
-        String name = registerName.getText().trim();
+        String username = registerName.getText().trim();
         String email = registerEmail.getText().trim();
         String password = registerPassword.getText().trim();
 
         if (fullName.isEmpty()) {
-            showAlert("Validation Error", "Full name cannot be empty.");
+            showAlert("Validation Error", "Full username cannot be empty.");
             return;
         }
 
         if (!nameReg.matcher(fullName).matches()) {
             showAlert("Validation Error",
-                    "Full name must contain only letters and spaces (2-50 characters).");
+                    "Full username must contain only letters and spaces (2-50 characters).");
             return;
         }
 
-        if (name.isEmpty()) {
+        if (username.isEmpty()) {
             showAlert("Validation Error", "Name cannot be empty.");
             return;
         }
@@ -220,15 +245,50 @@ public class AuthController {
             return;
         }
 
-        showAlert("Register successful!", "Now, please login.");
-        showSignIn();
+        UserRegistrationDTO registerRequest = UserRegistrationDTO
+                .builder()
+                .username(username)
+                .password(password)
+                .fullName(fullName)
+                .email(email)
+                .build();
+
+        // 2. Gọi API thông qua authApi
+        authApi.register(registerRequest).thenAccept(response -> {
+            // Khi thành công dùng Platform.runLater để update UI
+            Platform.runLater(() -> {
+                showAlert("Register successful!", "Your account has been created. Now, please login.");
+
+                // (Tuỳ chọn) Xóa trắng các ô nhập liệu sau khi đăng ký thành công
+//                registerFullName.clear();
+//                registerName.clear();
+//                registerEmail.clear();
+//                registerPassword.clear();
+
+                // Chuyển về màn hình đăng nhập
+                showSignIn();
+            });
+        }).exceptionally(ex -> {
+            // Xử lý lỗi giống handleLogin
+            Platform.runLater(() -> {
+                Throwable cause = ex.getCause() != null ? ex.getCause() : ex;
+                String cleanMessage = cause.getMessage();
+
+                if (cleanMessage != null && cleanMessage.contains(": ")) {
+                    cleanMessage = cleanMessage.substring(cleanMessage.indexOf(": ") + 2);
+                }
+
+                showAlert("Registration failed", cleanMessage);
+            });
+            return null;
+        });
     }
 
     private void openMainLayout() {
         try {
             FXMLLoader loader = new FXMLLoader(
                     getClass().getResource(
-                            "/com/group4/projects_management_fe/features/auth/MainLayoutView.fxml"
+                            "/com/group4/projects_management_fe/features/mainlayout/MainLayoutView.fxml"
                     )
             );
 
@@ -236,6 +296,8 @@ public class AuthController {
 
             Stage stage = (Stage) signInForm.getScene().getWindow();
             stage.setScene(new Scene(root, 1200, 800));
+            stage.setResizable(true);
+            stage.setTitle("Nexus");
             stage.centerOnScreen();
 
         } catch (Exception e) {

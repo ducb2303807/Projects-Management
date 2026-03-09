@@ -4,15 +4,14 @@ package com.group4.common.dto; /************************************************
  * Purpose: Defines the Class UserDTO
  ***********************************************************************/
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
+import lombok.*;
+import lombok.experimental.SuperBuilder;
 
 @EqualsAndHashCode(callSuper = true)
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@SuperBuilder
 public class UserDTO extends UserBaseDTO {
    private Long id;
    protected java.lang.String username;

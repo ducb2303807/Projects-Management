@@ -6,7 +6,7 @@
 <?import javafx.scene.layout.*?>
 <?import org.kordamp.ikonli.javafx.*?>
 
-<BorderPane xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.group4.projects_management_fe.features.auth.MainLayoutController">
+<BorderPane style="-fx-background-color: #F8F9FA;" stylesheets="@../assets/css/auth.css" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.group4.projects_management_fe.features.mainlayout.MainLayoutController">
 
     <!-- TOP BAR -->
     <top>
@@ -58,7 +58,7 @@
 
     <!-- CENTER -->
     <center>
-        <StackPane>
+        <StackPane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308">
 
             <StackPane fx:id="contentPane" style="-fx-padding:40;" />
 

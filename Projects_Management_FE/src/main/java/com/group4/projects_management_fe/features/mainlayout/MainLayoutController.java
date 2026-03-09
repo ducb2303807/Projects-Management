@@ -1,4 +1,4 @@
-package com.group4.projects_management_fe.features.auth;
+package com.group4.projects_management_fe.features.mainlayout;
 
 import com.group4.projects_management_fe.MainWindow;
 import javafx.animation.FadeTransition;
@@ -54,10 +54,6 @@ public class MainLayoutController {
         showDashboard();
         setActive(dashboardBtn);
 
-        dashboardBtn.setOnAction(e -> setActive(dashboardBtn));
-        projectsBtn.setOnAction(e -> setActive(projectsBtn));
-        tasksBtn.setOnAction(e -> setActive(tasksBtn));
-
         Circle clip = new Circle(20, 20, 20);
         avatarImage.setClip(clip);
         userBox.setOnMouseClicked(e -> showProfile());
@@ -66,17 +62,20 @@ public class MainLayoutController {
 
     @FXML
     private void showDashboard() {
-        loadView("/com/group4/projects_management_fe/features/auth/DashboardView.fxml");
+        setActive(dashboardBtn);
+        loadView("/com/group4/projects_management_fe/features/dashboard/DashboardView.fxml");
     }
 
     @FXML
     private void showProjects() {
-        loadView("/com/group4/projects_management_fe/features/auth/ProjectsView.fxml");
+        setActive(projectsBtn);
+        loadView("/com/group4/projects_management_fe/features/project/ProjectsView.fxml");
     }
 
     @FXML
     private void showTasks() {
-        loadView("/com/group4/projects_management_fe/features/auth/TasksView.fxml");
+        setActive(tasksBtn);
+        loadView("/com/group4/projects_management_fe/features/task/TasksView.fxml");
     }
 
     private void loadView(String fxmlPath) {

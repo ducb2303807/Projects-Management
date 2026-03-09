@@ -4,7 +4,7 @@
 <?import javafx.scene.control.*?>
 
 <VBox spacing="20" alignment="CENTER"
-      fx:controller="com.group4.projects_management_fe.features.auth.DashboardController"
+      fx:controller="com.group4.projects_management_fe.features.dashboard.DashboardController"
       xmlns:fx="http://javafx.com/fxml"
       style="-fx-padding: 40;">
 

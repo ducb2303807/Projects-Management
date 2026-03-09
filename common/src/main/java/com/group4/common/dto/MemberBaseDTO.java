@@ -7,14 +7,16 @@ package com.group4.common.dto; /************************************************
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 
 /** @pdOid 9193756f-f687-4466-8c01-b5b9594679d3 */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@SuperBuilder
 abstract class MemberBaseDTO {
    /** @pdOid ab59159b-0378-489e-b27a-3a3b132f5e87 */
-   protected java.lang.String roleName;
+   private java.lang.String roleName;
    /** @pdOid 66c306ce-ce1b-454e-a9a7-2e3e2c703011 */
-   protected java.lang.String statusName;
+   private java.lang.String statusName;
 }

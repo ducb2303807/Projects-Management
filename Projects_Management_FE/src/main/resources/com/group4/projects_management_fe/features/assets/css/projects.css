@@ -1,0 +1,30 @@
+.project-container {
+    -fx-background-color: #F8F9FA;
+    -fx-padding: 0px 50px;
+    -fx-spacing: 30px;
+    -fx-font-family: "Montserrat";
+}
+
+.recently-visited {
+    -fx-spacing: 20px;
+}
+
+rv-header {
+    -fx-font-size: 18px;
+}
+
+.rv-content {
+    -fx-background-color: #F3F4F5;
+    -fx-background-radius: 25px;
+    -fx-padding: 0px 20px;
+    -fx-spacing: 15;
+}
+
+.all-projects {
+    -fx-spacing: 20px;
+}
+
+.ap-header {
+    -fx-font-size: 24px;
+    -fx-font-weight: 700;
+}

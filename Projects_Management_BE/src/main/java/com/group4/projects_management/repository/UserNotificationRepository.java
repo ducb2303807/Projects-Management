@@ -21,4 +21,7 @@ public interface UserNotificationRepository extends BaseRepository<UserNotificat
 
     Optional<UserNotification> findByUser_IdAndNotification_Id(Long userId, Long notificationId);
 
+    int countByUser_IdAndIsReadIsFalse(Long userId);
+
+    List<UserNotification> findAllByUser_Id(Long userId);
 }
