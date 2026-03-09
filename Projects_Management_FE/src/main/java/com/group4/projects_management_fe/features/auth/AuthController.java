@@ -64,7 +64,6 @@ public class AuthController {
 
     @FXML
     private void initialize() {
-
         bgArea.setTranslateX(0);
 
         signInForm.setVisible(true);
@@ -194,7 +193,7 @@ public class AuthController {
                     cleanMessage = cleanMessage.substring(cleanMessage.indexOf(": ") + 2);
                 }
 
-                showAlert("Login failed",cleanMessage);
+                showAlert("Login failed", cleanMessage);
             });
             return null;
         });

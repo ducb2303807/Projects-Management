@@ -45,6 +45,13 @@
             <version>3.1.12</version>
             <scope>compile</scope>
         </dependency>
+        <!-- Source: https://mvnrepository.com/artifact/org.pdfsam.rxjava3/rxjavafx -->
+        <dependency>
+            <groupId>org.pdfsam.rxjava3</groupId>
+            <artifactId>rxjavafx</artifactId>
+            <version>3.0.3</version>
+            <scope>compile</scope>
+        </dependency>
         <!-- Source: https://mvnrepository.com/artifact/tools.jackson.core/jackson-databind -->
         <dependency>
             <groupId>tools.jackson.core</groupId>
@@ -148,7 +155,7 @@
                         <id>default-cli</id>
                         <configuration>
                             <mainClass>
-                                com.group4.projects_management_fe.Launcher
+                               com.group4.projects_management_fe.MainWindow
                             </mainClass>
                             <launcher>app</launcher>
                             <jlinkZipName>app</jlinkZipName>
