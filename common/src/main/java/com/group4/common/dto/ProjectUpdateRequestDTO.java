@@ -16,5 +16,4 @@ import lombok.experimental.SuperBuilder;
 public class ProjectUpdateRequestDTO extends ProjectBaseDTO {
    /** @pdOid 26cc8fc1-1c98-44dd-bf90-32306ad02c57 */
    private Long statusId;
-
 }

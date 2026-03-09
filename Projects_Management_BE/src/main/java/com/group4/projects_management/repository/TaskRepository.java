@@ -11,5 +11,12 @@ import java.util.List;
 
 /** @pdOid 9b851944-caed-4a10-a0ed-e8cb4396c90f */
 public interface TaskRepository extends BaseRepository<Task, Long> {
+
+    int countByProject_Id(Long projectId);
+
+    int countByProject_IdAndTaskStatus_SystemCode(Long projectId, String statusCode);
+
     List<Task> findByProject_Id(Long projectId);
-    List<Task> findByProject_IdAndTaskStatus_Id(Long projectId, Long statusId);}
+
+    List<Task> findByProject_IdAndTaskStatus_Id(Long projectId, Long statusId);
+}

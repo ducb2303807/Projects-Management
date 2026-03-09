@@ -34,7 +34,10 @@ public class ProjectMember {
 
    @Column(name = "PROJECT_MEMBER_LEFT_AT")
    private LocalDateTime leftAt;
-   
+
+   @Column(name = "PROJECT_MEMBER_INVITED_AT")
+   private LocalDateTime invitedAt;
+
    @ManyToOne
    @JoinColumn(name = "PROJECT_MEMBER_INVITE_ID") // Tự tham chiếu để biết ai mời
    @ToString.Exclude

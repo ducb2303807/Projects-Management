@@ -17,7 +17,9 @@ public interface ProjectMemberRepository extends BaseRepository<ProjectMember, L
 
     boolean existsByProject_IdAndUser_Id(Long projectId, Long userId);
 
-    ProjectMember findByProject_IdAndUser_Id(Long projectId, Long userId);
     Optional<ProjectMember> findByUser_IdAndProject_Id(Long userId, Long projectId);
+
     List<ProjectMember> findAllByUser_IdAndProjectMemberStatus_SystemCode(Long userId, String projectMemberStatusSystemCode);
+
+    Optional<ProjectMember> findByProject_IdAndUser_Id(Long projectId, Long userId);
 }

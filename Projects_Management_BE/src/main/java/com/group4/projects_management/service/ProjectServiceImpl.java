@@ -32,8 +32,9 @@ public class ProjectServiceImpl extends BaseServiceImpl<Project, Long> implement
     private final ProjectMemberStatusRepository projectMemberStatusRepository;
     private final ProjectMapper projectMapper;
     private final ProjectMemberMapper projectMemberMapper;
+    private final TaskRepository taskRepository;
 
-    public ProjectServiceImpl(ProjectRepository repository, UserRepository userRepository, ProjectRoleRepository projectRoleRepository, ProjectStatusRepository projectStatusRepository, ProjectMemberRepository projectMemberRepository, ProjectMemberStatusRepository projectMemberStatusRepository, ProjectMapper projectMapper, ProjectMemberMapper projectMemberMapper) {
+    public ProjectServiceImpl(ProjectRepository repository, UserRepository userRepository, ProjectRoleRepository projectRoleRepository, ProjectStatusRepository projectStatusRepository, ProjectMemberRepository projectMemberRepository, ProjectMemberStatusRepository projectMemberStatusRepository, ProjectMapper projectMapper, ProjectMemberMapper projectMemberMapper, TaskRepository taskRepository) {
         super(repository);
         this.projectRepository = repository;
         this.userRepository = userRepository;
@@ -43,6 +44,7 @@ public class ProjectServiceImpl extends BaseServiceImpl<Project, Long> implement
         this.projectMemberStatusRepository = projectMemberStatusRepository;
         this.projectMapper = projectMapper;
         this.projectMemberMapper = projectMemberMapper;
+        this.taskRepository = taskRepository;
     }
 
     @Override
@@ -56,38 +58,34 @@ public class ProjectServiceImpl extends BaseServiceImpl<Project, Long> implement
     @Override
     @Transactional
     public void inviteMember(Long projectId, Long inviteeId, Long inviterId, Long roleId) {
-
         var project = projectRepository.findById(projectId)
-                .orElseThrow(() -> new ResourceNotFoundException("Project not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy project"));
 
         var invitee = userRepository.findById(inviteeId)
-                .orElseThrow(() -> new ResourceNotFoundException("Invitee not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy user được mời"));
+
+        var inviterMember = projectMemberRepository.findByProject_IdAndUser_Id(projectId, inviterId)
+                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy ProjectMember của inviter"));
 
         var role = projectRoleRepository.findById(roleId)
-                .orElseThrow(() -> new ResourceNotFoundException("Project role not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy role"));
 
         var pendingStatus = projectMemberStatusRepository.findBySystemCode("PENDING")
-                .orElseThrow(() -> new RuntimeException("ProjectMemberStatus PENDING not configured"));
-
+                .orElseThrow(() -> new RuntimeException("Hệ thống chưa cấu hình ProjectMemberStatus systemCode=PENDING"));
+      
         boolean exists = projectMemberRepository.existsByProject_IdAndUser_Id(projectId, inviteeId);
 
         if (exists) {
-            throw new RuntimeException("User already belongs to this project");
-        }
-
-        ProjectMember inviterMember =
-                projectMemberRepository.findByProject_IdAndUser_Id(projectId, inviterId);
-
-        if (inviterMember == null) {
-            throw new RuntimeException("Inviter is not a member of the project");
+            throw new RuntimeException("User đã thuộc project này rồi");
         }
 
         ProjectMember member = new ProjectMember();
         member.setProject(project);
         member.setUser(invitee);
         member.setProjectRole(role);
-        member.setInvitedBy(inviterMember);
         member.setProjectMemberStatus(pendingStatus);
+        member.setInvitedBy(inviterMember);
+        member.setInvitedAt(LocalDateTime.now());
 
         projectMemberRepository.save(member);
     }
@@ -124,18 +122,49 @@ public class ProjectServiceImpl extends BaseServiceImpl<Project, Long> implement
     }
 
     @Override
+    @Transactional
     public void removeMemberFromProject(Long projectMemberId) {
+        var member = projectMemberRepository.findById(projectMemberId)
+                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy thành viên trong project"));
 
+        member.leave();
+
+        projectMemberRepository.save(member);
     }
 
     @Override
+    @Transactional
     public void updateMemberRole(Long projectMemberId, Long roleId) {
+        var member = projectMemberRepository.findById(projectMemberId)
+                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy thành viên trong project"));
 
+        var newRole = projectRoleRepository.findById(roleId)
+                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy role"));
+
+        member.setProjectRole(newRole);
+
+        projectMemberRepository.save(member);
     }
 
     @Override
     public ProjectStatsDTO getProjectStatistics(Long projectId) {
-        return null;
+        // Đảm bảo project tồn tại
+        projectRepository.findById(projectId)
+                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy dự án"));
+
+        int totalTasks = taskRepository.countByProject_Id(projectId);
+        int completedTasks = taskRepository.countByProject_IdAndTaskStatus_SystemCode(projectId, "COMPLETED");
+        int inProgressTasks = taskRepository.countByProject_IdAndTaskStatus_SystemCode(projectId, "IN_PROGRESS");
+
+        double progressPercentage = totalTasks == 0 ? 0.0 :
+                (double) completedTasks / totalTasks * 100.0;
+
+        return new ProjectStatsDTO(
+                totalTasks,
+                completedTasks,
+                inProgressTasks,
+                progressPercentage
+        );
     }
 
     // Lấy tất cả project mà user tham gia
@@ -152,8 +181,21 @@ public class ProjectServiceImpl extends BaseServiceImpl<Project, Long> implement
     }
 
     @Override
+    @Transactional
     public ProjectResponseDTO updateProject(Long projectId, ProjectUpdateRequestDTO dto) {
-        return null;
+        var project = projectRepository.findById(projectId)
+                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy dự án"));
+
+        if (dto.getProjectName() != null) {
+            project.setName(dto.getProjectName());
+        }
+
+        if (dto.getDescription() != null) {
+            project.setDescription(dto.getDescription());
+        }
+
+        Project updated = projectRepository.save(project);
+        return projectMapper.toDto(updated);
     }
 
     @Override
