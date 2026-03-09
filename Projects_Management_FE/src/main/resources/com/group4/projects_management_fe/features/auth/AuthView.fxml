@@ -64,7 +64,7 @@
                                  </VBox.margin>
                               </Label>
       
-                              <TextField fx:id="loginEmail" maxWidth="300.0" promptText="Email" styleClass="input" />
+                              <TextField fx:id="loginEmail" maxWidth="300.0" promptText="Username" styleClass="input" />
       
                               <PasswordField fx:id="loginPassword" maxWidth="300.0" promptText="Password" styleClass="input" />
       

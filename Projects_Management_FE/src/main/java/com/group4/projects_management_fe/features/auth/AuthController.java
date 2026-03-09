@@ -2,6 +2,7 @@ package com.group4.projects_management_fe.features.auth;
 
 import com.group4.common.dto.LoginRequest;
 import com.group4.projects_management_fe.core.api.AuthApi;
+import com.group4.common.dto.UserRegistrationDTO;
 import javafx.animation.FadeTransition;
 import javafx.animation.Interpolator;
 import javafx.animation.TranslateTransition;
@@ -204,22 +205,22 @@ public class AuthController {
     private void handleRegister() {
 
         String fullName = registerFullName.getText().trim();
-        String name = registerName.getText().trim();
+        String username = registerName.getText().trim();
         String email = registerEmail.getText().trim();
         String password = registerPassword.getText().trim();
 
         if (fullName.isEmpty()) {
-            showAlert("Validation Error", "Full name cannot be empty.");
+            showAlert("Validation Error", "Full username cannot be empty.");
             return;
         }
 
         if (!nameReg.matcher(fullName).matches()) {
             showAlert("Validation Error",
-                    "Full name must contain only letters and spaces (2-50 characters).");
+                    "Full username must contain only letters and spaces (2-50 characters).");
             return;
         }
 
-        if (name.isEmpty()) {
+        if (username.isEmpty()) {
             showAlert("Validation Error", "Name cannot be empty.");
             return;
         }
@@ -245,8 +246,43 @@ public class AuthController {
             return;
         }
 
-        showAlert("Register successful!", "Now, please login.");
-        showSignIn();
+        UserRegistrationDTO registerRequest = UserRegistrationDTO
+                .builder()
+                .username(username)
+                .password(password)
+                .fullName(fullName)
+                .email(email)
+                .build();
+
+        // 2. Gọi API thông qua authApi
+        authApi.register(registerRequest).thenAccept(response -> {
+            // Khi thành công dùng Platform.runLater để update UI
+            Platform.runLater(() -> {
+                showAlert("Register successful!", "Your account has been created. Now, please login.");
+
+                // (Tuỳ chọn) Xóa trắng các ô nhập liệu sau khi đăng ký thành công
+//                registerFullName.clear();
+//                registerName.clear();
+//                registerEmail.clear();
+//                registerPassword.clear();
+
+                // Chuyển về màn hình đăng nhập
+                showSignIn();
+            });
+        }).exceptionally(ex -> {
+            // Xử lý lỗi giống handleLogin
+            Platform.runLater(() -> {
+                Throwable cause = ex.getCause() != null ? ex.getCause() : ex;
+                String cleanMessage = cause.getMessage();
+
+                if (cleanMessage != null && cleanMessage.contains(": ")) {
+                    cleanMessage = cleanMessage.substring(cleanMessage.indexOf(": ") + 2);
+                }
+
+                showAlert("Registration failed", cleanMessage);
+            });
+            return null;
+        });
     }
 
     private void openMainLayout() {

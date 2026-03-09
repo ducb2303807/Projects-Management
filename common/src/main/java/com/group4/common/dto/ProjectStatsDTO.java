@@ -5,6 +5,7 @@ package com.group4.common.dto; /************************************************
  ***********************************************************************/
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -12,6 +13,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class ProjectStatsDTO {
    /** @pdOid 7cbe7f58-cf3c-4136-a788-cb4f6a386e33 */
    private int totalTasks;
