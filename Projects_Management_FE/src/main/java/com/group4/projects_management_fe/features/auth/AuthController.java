@@ -205,22 +205,22 @@ public class AuthController {
     private void handleRegister() {
 
         String fullName = registerFullName.getText().trim();
-        String name = registerName.getText().trim();
+        String username = registerName.getText().trim();
         String email = registerEmail.getText().trim();
         String password = registerPassword.getText().trim();
 
         if (fullName.isEmpty()) {
-            showAlert("Validation Error", "Full name cannot be empty.");
+            showAlert("Validation Error", "Full username cannot be empty.");
             return;
         }
 
         if (!nameReg.matcher(fullName).matches()) {
             showAlert("Validation Error",
-                    "Full name must contain only letters and spaces (2-50 characters).");
+                    "Full username must contain only letters and spaces (2-50 characters).");
             return;
         }
 
-        if (name.isEmpty()) {
+        if (username.isEmpty()) {
             showAlert("Validation Error", "Name cannot be empty.");
             return;
         }
@@ -246,13 +246,13 @@ public class AuthController {
             return;
         }
 
-        UserRegistrationDTO registerRequest = new UserRegistrationDTO();
-
-        registerRequest.setUsername(name);      // Dùng tên làm username
-        registerRequest.setPassword(password);
-
-        registerRequest.setFullName(fullName);
-        registerRequest.setEmail(email);
+        UserRegistrationDTO registerRequest = UserRegistrationDTO
+                .builder()
+                .username(username)
+                .password(password)
+                .fullName(fullName)
+                .email(email)
+                .build();
 
         // 2. Gọi API thông qua authApi
         authApi.register(registerRequest).thenAccept(response -> {

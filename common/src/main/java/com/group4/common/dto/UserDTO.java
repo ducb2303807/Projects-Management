@@ -5,12 +5,13 @@ package com.group4.common.dto; /************************************************
  ***********************************************************************/
 
 import lombok.*;
+import lombok.experimental.SuperBuilder;
 
 @EqualsAndHashCode(callSuper = true)
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
+@SuperBuilder
 public class UserDTO extends UserBaseDTO {
    private Long id;
    protected java.lang.String username;

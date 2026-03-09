@@ -5,13 +5,14 @@ package com.group4.common.dto; /************************************************
  ***********************************************************************/
 
 import lombok.*;
+import lombok.experimental.SuperBuilder;
 
 /** @pdOid 8b7c632b-7418-4bc6-8fb2-dac5e4e59473 */
 @EqualsAndHashCode(callSuper = true)
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
+@SuperBuilder
 public class ProjectCreateRequestDTO extends ProjectBaseDTO {
    /** @pdOid e63b7911-e7d6-413b-86bf-b371fbfca20c */
    private Long createByUserId;
