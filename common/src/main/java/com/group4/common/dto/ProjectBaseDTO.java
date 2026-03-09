@@ -7,6 +7,7 @@ package com.group4.common.dto; /************************************************
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 
 import java.time.LocalDateTime;
 
@@ -14,13 +15,14 @@ import java.time.LocalDateTime;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@SuperBuilder
 abstract class ProjectBaseDTO {
    /** @pdOid 0424a3d8-12ef-4ebd-a1b0-01527bd7c0c6 */
-   protected java.lang.String projectName;
+   private java.lang.String projectName;
    /** @pdOid 565c0453-e1b0-43a0-88ef-56597d76fdcb */
-   protected java.lang.String description;
+   private java.lang.String description;
    /** @pdOid 18938c0e-d5f2-430f-8777-1572c34e99ad */
-   protected LocalDateTime startDate;
+   private LocalDateTime startDate;
    /** @pdOid 66401136-bb5c-4036-8b17-166bdd62c43a */
-   protected LocalDateTime endDate;
+   private LocalDateTime endDate;
 }
