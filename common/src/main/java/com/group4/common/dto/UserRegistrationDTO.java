@@ -7,13 +7,14 @@ package com.group4.common.dto; /************************************************
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.*;
+import lombok.experimental.SuperBuilder;
 
 /** @pdOid 6f1d4c7f-190c-4fc1-a988-1e587cc688e0 */
 @EqualsAndHashCode(callSuper = true)
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
+@SuperBuilder
 public class UserRegistrationDTO extends UserBaseDTO {
    @NotBlank( message = "Username cannot be blank")
    protected java.lang.String username;

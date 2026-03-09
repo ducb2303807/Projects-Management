@@ -1,5 +1,5 @@
 .container {
-    -fx-font-family: "Segoe UI", Arial;
+    -fx-font-family: "Segoe UI", Montserrat;
     -fx-background-color: white;
 }
 
@@ -83,8 +83,10 @@
     -fx-background-color: #fff;
 }
 
+/*-fx-effect với cú pháp dropshadow( <blurType>, <color>, <radius>, <spread>, <offsetX>,*/
 .top-bar {
-    -fx-background-color: #f8f8f8;
+    -fx-background-color: #f8f9f8;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.25), 10, 0, 0, 5);
 }
 
 .nav-btn {
@@ -166,10 +168,11 @@
 .footer-bar {
     -fx-padding: 0 30 0 60;
     -fx-background-color: white;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.25), 10, 0, 0, -3);
 }
 
-}
-//card overlay
+/*}*/
+/*//card overlay*/
 .overlay {
     -fx-background-color: rgba(0,0,0,0.3);
     -fx-alignment: center;
