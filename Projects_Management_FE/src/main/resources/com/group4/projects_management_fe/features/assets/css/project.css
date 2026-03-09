@@ -1,0 +1,278 @@
+/*.root {*/
+/*    -fx-background-color: #F3F4F6;*/
+/*    -fx-padding: 50px;*/
+/*}*/
+
+/*.status-badge {*/
+/*    -fx-border-color: rgba(255, 255, 255, 0.8);*/
+/*    -fx-border-radius: 20px;*/
+/*    -fx-border-width: 1px;*/
+/*    -fx-padding: 4px 12px;*/
+/*}*/
+
+/*.status-text {*/
+/*    -fx-text-fill: white;*/
+/*    -fx-font-family: "Segoe UI", sans-serif;*/
+/*    -fx-font-size: 12px;*/
+/*    -fx-font-weight: 600;*/
+/*}*/
+
+/*.project-title {*/
+/*    -fx-text-fill: white;*/
+/*    -fx-font-family: "Segoe UI", sans-serif;*/
+/*    -fx-font-size: 20px;*/
+/*    -fx-font-weight: bold;*/
+/*}*/
+
+/*.creator-label {*/
+/*    -fx-text-fill: #666666;*/
+/*    -fx-font-family: "Segoe UI", sans-serif;*/
+/*    -fx-font-size: 12px;*/
+/*}*/
+
+/*.creator-name {*/
+/*    -fx-text-fill: #333333;*/
+/*    -fx-font-family: "Segoe UI", sans-serif;*/
+/*    -fx-font-size: 12px;*/
+/*    -fx-font-weight: bold;*/
+/*}*/
+
+/*.icon-text {*/
+/*    -fx-text-fill: rgba(255, 255, 255, 0.8);*/
+/*    -fx-font-family: "Segoe UI", sans-serif;*/
+/*    -fx-font-size: 12px;*/
+/*}*/
+
+/*.ellipsis {*/
+/*    -fx-text-fill: white;*/
+/*    -fx-font-family: "Segoe UI", sans-serif;*/
+/*    -fx-font-size: 20px;*/
+/*    -fx-font-weight: bold;*/
+/*    -fx-cursor: hand;*/
+/*}*/
+
+/*!* Nền của toàn bộ trang *!*/
+/*.main-view-bg {*/
+/*    -fx-background-color: #F4F7FB;*/
+/*}*/
+
+/*!* Tiêu đề mục nhỏ (Recently visited) *!*/
+/*.section-subtitle {*/
+/*    -fx-text-fill: #8a8a8a;*/
+/*    -fx-font-family: "Segoe UI", sans-serif;*/
+/*    -fx-font-size: 14px;*/
+/*}*/
+
+/*!* Tên dự án trong thẻ Recent *!*/
+/*.recent-project-name {*/
+/*    -fx-text-fill: #333333;*/
+/*    -fx-font-family: "Segoe UI", sans-serif;*/
+/*    -fx-font-size: 12px;*/
+/*    -fx-font-weight: bold;*/
+/*}*/
+
+/*!* Nếu bạn không có ảnh thật, dùng background tạm cho ImageView folder *!*/
+/*.recent-folder-icon {*/
+/*    -fx-background-color: #4a4a4a;*/
+/*    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.2), 10, 0, 0, 5);*/
+/*}*/
+
+/*.recent-card {*/
+/*    -fx-cursor: hand;*/
+/*}*/
+
+/*!* Tiêu đề mục lớn (Projects) *!*/
+/*.section-title {*/
+/*    -fx-text-fill: #1a1a1a;*/
+/*    -fx-font-family: "Segoe UI", sans-serif;*/
+/*    -fx-font-size: 24px;*/
+/*    -fx-font-weight: bold;*/
+/*}*/
+
+/*!* Các nút icon (Kính lúp, sắp xếp) *!*/
+/*.icon-btn {*/
+/*    -fx-text-fill: #8a8a8a;*/
+/*    -fx-font-size: 18px;*/
+/*    -fx-cursor: hand;*/
+/*}*/
+
+/*!* Nút + New màu tím *!*/
+/*.btn-new {*/
+/*    -fx-background-color: #7f559f;*/
+/*    -fx-background-radius: 20px;*/
+/*    -fx-text-fill: white;*/
+/*    -fx-font-family: "Segoe UI", sans-serif;*/
+/*    -fx-font-size: 14px;*/
+/*    -fx-font-weight: bold;*/
+/*    -fx-padding: 8px 20px;*/
+/*    -fx-cursor: hand;*/
+/*}*/
+/*.btn-new:hover {*/
+/*    -fx-background-color: #5c3f81;*/
+/*}*/
+
+/*!* Xoá viền của ScrollPane *!*/
+/*.transparent-scrollpane {*/
+/*    -fx-background-color: transparent;*/
+/*    -fx-control-inner-background: transparent;*/
+/*}*/
+/*.transparent-scrollpane .viewport {*/
+/*    -fx-background-color: transparent;*/
+/*}*/
+
+/*!* ---- PHẦN DÀNH CHO ProjectCard.fxml (Cập nhật đường path cho size nhỏ hơn 320x180) ---- *!*/
+/*.card-background {*/
+/*    !* SVG Path thu nhỏ tỷ lệ *!*/
+/*    -fx-shape: "M 15 0 L 120 0 C 140 0, 145 35, 175 35 L 305 35 Q 320 35 320 50 L 320 165 Q 320 180 305 180 L 15 180 Q 0 180 0 165 L 0 15 Q 0 0 15 0 Z";*/
+/*    -fx-background-color: linear-gradient(to bottom right, #5c3f81, #7f559f, #4a3469);*/
+/*    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.15), 10, 0, 0, 5);*/
+/*}*/
+/*!* Các class khác của thẻ tím giữ nguyên như cũ... *!*/
+
+/* ========================================================= */
+/* 1. CÁC SETTING CHUNG & MAIN VIEW (ProjectsView.fxml)      */
+/* ========================================================= */
+.root {
+    -fx-background-color: #F3F4F6;
+    -fx-padding: 50px;
+}
+
+.main-view-bg {
+    -fx-background-color: #F4F7FB;
+}
+
+.section-subtitle {
+    -fx-text-fill: #8a8a8a;
+    -fx-font-family: "Segoe UI", sans-serif;
+    -fx-font-size: 14px;
+}
+
+.section-title {
+    -fx-text-fill: #1a1a1a;
+    -fx-font-family: "Segoe UI", sans-serif;
+    -fx-font-size: 24px;
+    -fx-font-weight: bold;
+}
+
+.icon-btn {
+    -fx-text-fill: #8a8a8a;
+    -fx-font-size: 18px;
+    -fx-cursor: hand;
+}
+
+.btn-new {
+    -fx-background-color: #7f559f;
+    -fx-background-radius: 20px;
+    -fx-text-fill: white;
+    -fx-font-family: "Segoe UI", sans-serif;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-padding: 8px 20px;
+    -fx-cursor: hand;
+}
+
+.btn-new:hover {
+    -fx-background-color: #5c3f81;
+}
+
+.transparent-scrollpane {
+    -fx-background-color: transparent;
+    -fx-control-inner-background: transparent;
+}
+
+.transparent-scrollpane .viewport {
+    -fx-background-color: transparent;
+}
+
+
+/* ========================================================= */
+/* 2. RECENTLY VISITED CARD (RecentProjectCard.fxml)         */
+/* ========================================================= */
+.recent-card {
+    -fx-cursor: hand;
+}
+
+.recent-project-name {
+    -fx-text-fill: #333333;
+    -fx-font-family: "Segoe UI", sans-serif;
+    -fx-font-size: 12px;
+    -fx-font-weight: bold;
+}
+
+.recent-folder-icon {
+    -fx-background-color: #4a4a4a;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.2), 10, 0, 0, 5);
+}
+
+
+/* ========================================================= */
+/* 3. PROJECT CARD CHÍNH (ProjectCard.fxml - Bản dùng ảnh)   */
+/* ========================================================= */
+
+/* Container bọc ngoài cùng của thẻ (Phải trong suốt để lộ phần cắt khuyết của ảnh) */
+.main-card-container {
+    -fx-background-color: transparent;
+    -fx-padding: 0;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.15), 10, 0, 0, 5); /* Giữ bóng đổ cho thẻ */
+}
+
+/* Các lớp bọc nội dung nằm đè lên ảnh */
+.inner-card-content, .content-pane {
+    -fx-background-color: transparent;
+}
+
+.status-badge {
+    -fx-background-color: transparent;
+    -fx-border-color: rgba(255, 255, 255, 0.8);
+    -fx-border-radius: 20px;
+    -fx-border-width: 1px;
+    -fx-padding: 4px 12px;
+}
+
+.status-text {
+    -fx-text-fill: white;
+    -fx-font-family: "Segoe UI", sans-serif;
+    -fx-font-size: 12px;
+    -fx-font-weight: 600;
+}
+
+.project-title {
+    -fx-text-fill: white;
+    -fx-font-family: "Segoe UI", sans-serif;
+    -fx-font-size: 20px;
+    -fx-font-weight: bold;
+}
+
+/* Khu vực góc trên bên phải (Nằm ngoài vùng tím) */
+.creator-label {
+    -fx-text-fill: #8a8a8a;
+    -fx-font-family: "Segoe UI", sans-serif;
+    -fx-font-size: 12px;
+}
+
+.creator-name {
+    -fx-text-fill: #333333;
+    -fx-font-family: "Segoe UI", sans-serif;
+    -fx-font-size: 12px;
+    -fx-font-weight: bold;
+}
+
+/* Màu nền tạm cho hình tròn Avatar */
+.avatar-circle {
+    -fx-fill: #2c3e50;
+}
+
+.ellipsis {
+    -fx-text-fill: white;
+    -fx-font-family: "Segoe UI", sans-serif;
+    -fx-font-size: 20px;
+    -fx-font-weight: bold;
+    -fx-cursor: hand;
+}
+
+/* Class cũ là icon-text, đổi thành date-label cho chuẩn ngữ nghĩa theo thẻ mới */
+.date-label, .icon-text {
+    -fx-text-fill: rgba(255, 255, 255, 0.8);
+    -fx-font-family: "Segoe UI", sans-serif;
+    -fx-font-size: 12px;
+}
