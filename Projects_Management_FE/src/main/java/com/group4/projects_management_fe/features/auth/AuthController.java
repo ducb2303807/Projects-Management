@@ -2,6 +2,7 @@ package com.group4.projects_management_fe.features.auth;
 
 import com.group4.common.dto.LoginRequest;
 import com.group4.projects_management_fe.core.api.AuthApi;
+import com.group4.common.dto.UserRegistrationDTO;
 import javafx.animation.FadeTransition;
 import javafx.animation.Interpolator;
 import javafx.animation.TranslateTransition;
@@ -245,8 +246,43 @@ public class AuthController {
             return;
         }
 
-        showAlert("Register successful!", "Now, please login.");
-        showSignIn();
+        UserRegistrationDTO registerRequest = new UserRegistrationDTO();
+
+        registerRequest.setUsername(name);      // Dùng tên làm username
+        registerRequest.setPassword(password);
+
+        registerRequest.setFullName(fullName);
+        registerRequest.setEmail(email);
+
+        // 2. Gọi API thông qua authApi
+        authApi.register(registerRequest).thenAccept(response -> {
+            // Khi thành công dùng Platform.runLater để update UI
+            Platform.runLater(() -> {
+                showAlert("Register successful!", "Your account has been created. Now, please login.");
+
+                // (Tuỳ chọn) Xóa trắng các ô nhập liệu sau khi đăng ký thành công
+//                registerFullName.clear();
+//                registerName.clear();
+//                registerEmail.clear();
+//                registerPassword.clear();
+
+                // Chuyển về màn hình đăng nhập
+                showSignIn();
+            });
+        }).exceptionally(ex -> {
+            // Xử lý lỗi giống handleLogin
+            Platform.runLater(() -> {
+                Throwable cause = ex.getCause() != null ? ex.getCause() : ex;
+                String cleanMessage = cause.getMessage();
+
+                if (cleanMessage != null && cleanMessage.contains(": ")) {
+                    cleanMessage = cleanMessage.substring(cleanMessage.indexOf(": ") + 2);
+                }
+
+                showAlert("Registration failed", cleanMessage);
+            });
+            return null;
+        });
     }
 
     private void openMainLayout() {
