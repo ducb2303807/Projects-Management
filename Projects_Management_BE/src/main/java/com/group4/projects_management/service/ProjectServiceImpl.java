@@ -229,15 +229,15 @@ public class ProjectServiceImpl extends BaseServiceImpl<Project, Long> implement
         var creator = userRepository.findById(dto.getCreateByUserId())
                 .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy người tạo dự án"));
 
-        var ownerRole = projectRoleRepository.findBySystemCode("OWNER")
-                .orElseThrow(() -> new RuntimeException("Hệ thống chưa cấu hình ProjectRole systemCode=OWNER"));
+        var ownerRole = projectRoleRepository.findBySystemCode("PM")
+                .orElseThrow(() -> new RuntimeException("Hệ thống chưa cấu hình ProjectRole systemCode=PM"));
 
         // If you have a different default project status code in DB, change it here.
         var defaultProjectStatus = projectStatusRepository.findBySystemCode("ACTIVE")
                 .orElseThrow(() -> new RuntimeException("Hệ thống chưa cấu hình ProjectStatus systemCode=ACTIVE"));
 
-        var activeMemberStatus = projectMemberStatusRepository.findBySystemCode("ACCEPTED")
-                .orElseThrow(() -> new RuntimeException("Hệ thống chưa cấu hình ProjectMemberStatus systemCode=ACCEPTED"));
+        var activeMemberStatus = projectMemberStatusRepository.findBySystemCode("ACTIVE")
+                .orElseThrow(() -> new RuntimeException("Hệ thống chưa cấu hình ProjectMemberStatus systemCode=ACTIVE"));
 
         Project project = projectMapper.toCreateEntity(dto);
 

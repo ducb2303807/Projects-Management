@@ -57,7 +57,7 @@ public class Project {
 
 
    @ManyToOne
-   @JoinColumn(name = "createdBy", nullable = false)
+   @JoinColumn(name = "PROJECT_CREATE_BY_ID", nullable = false)
    @ToString.Exclude
    private User createdBy;
 
