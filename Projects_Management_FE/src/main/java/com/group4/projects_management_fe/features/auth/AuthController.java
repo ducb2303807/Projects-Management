@@ -61,7 +61,7 @@ public class AuthController {
     private static final double FORM_WIDTH = 450;
     private static final Duration ANIMATION_TIME = Duration.millis(400);
 
-    private AuthApi authApi = new AuthApi();
+    private final AuthApi authApi = new AuthApi();
 
     @FXML
     private void initialize() {
