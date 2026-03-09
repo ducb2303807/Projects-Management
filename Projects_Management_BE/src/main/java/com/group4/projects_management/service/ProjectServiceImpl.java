@@ -194,12 +194,6 @@ public class ProjectServiceImpl extends BaseServiceImpl<Project, Long> implement
             project.setDescription(dto.getDescription());
         }
 
-        if (dto.getStatusCode() != null) {
-            var status = projectStatusRepository.findBySystemCode(dto.getStatusCode())
-                    .orElseThrow(() -> new RuntimeException("Không tìm thấy ProjectStatus với code: " + dto.getStatusCode()));
-            project.setProjectStatus(status);
-        }
-
         Project updated = projectRepository.save(project);
         return projectMapper.toDto(updated);
     }
