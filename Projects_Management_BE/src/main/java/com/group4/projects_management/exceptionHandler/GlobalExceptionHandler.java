@@ -1,19 +1,23 @@
 package com.group4.projects_management.exceptionHandler;
 
+import com.group4.common.dto.ErrorResponse;
 import com.group4.common.enums.BusinessErrorCode;
 import com.group4.projects_management.core.exception.BusinessException;
 import com.group4.projects_management.core.exception.ResourceNotFoundException;
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.JwtException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
-import com.group4.common.dto.ErrorResponse;
 
 import java.time.LocalDateTime;
 import java.util.stream.Collectors;
@@ -24,6 +28,50 @@ import java.util.stream.Collectors;
 @Slf4j
 public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
+    // Token hết hạn
+    @ExceptionHandler(ExpiredJwtException.class)
+    public ResponseEntity<ErrorResponse> handleExpiredJwtException(ExpiredJwtException ex) {
+        log.error("Token hết hạn: {}", ex.getMessage());
+        return buildErrorResponse(
+                "Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại!",
+                BusinessErrorCode.AUTH_TOKEN_EXPIRED.getCode(),
+                HttpStatus.UNAUTHORIZED
+        );
+    }
+
+    // Token không hợp lệ
+    @ExceptionHandler(JwtException.class)
+    public ResponseEntity<ErrorResponse> handleJwtException(JwtException ex) {
+        log.error("Token không hợp lệ: {}", ex.getMessage());
+        return buildErrorResponse(
+                "Token xác thực không hợp lệ!",
+                BusinessErrorCode.AUTH_INVALID_TOKEN.getCode(),
+                HttpStatus.UNAUTHORIZED
+        );
+    }
+
+    // Chưa đăng nhập
+    @ExceptionHandler(AuthenticationException.class)
+    public ResponseEntity<ErrorResponse> handleAuthenticationException(AuthenticationException ex) {
+        log.error("Lỗi xác thực: {}", ex.getMessage());
+        return buildErrorResponse(
+                "Vui lòng đăng nhập để sử dụng chức năng này!",
+                BusinessErrorCode.AUTH_REQUIRED.getCode(),
+                HttpStatus.UNAUTHORIZED
+        );
+    }
+
+    // không đủ quyền hạn
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<ErrorResponse> handleAccessDeniedException(AccessDeniedException ex) {
+        log.error("Lỗi phân quyền: {}", ex.getMessage());
+        return buildErrorResponse(
+                "Bạn không có quyền thực hiện hành động này!",
+                BusinessErrorCode.SYSTEM_ACCESS_DENIED.getCode(),
+                HttpStatus.FORBIDDEN
+        );
+    }
+
     // lỗi Not Found 404
     @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleNotFoundException(ResourceNotFoundException ex) {
@@ -31,12 +79,14 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         return buildErrorResponse(ex.getMessage(), BusinessErrorCode.SYSTEM_RESOURCE_NOT_FOUND.getCode(), HttpStatus.NOT_FOUND);
     }
 
+    // Business Exception (400)
     @ExceptionHandler(BusinessException.class)
     public ResponseEntity<ErrorResponse> handleBusinessException(BusinessException ex) {
         log.error(ex.getMessage());
         return buildErrorResponse(ex.getMessage(), ex.getErrorCode().getCode(), HttpStatus.BAD_REQUEST);
     }
 
+    // Server Exception (500)
     @ExceptionHandler(RuntimeException.class)
     public ResponseEntity<ErrorResponse> handleRuntimeException(RuntimeException ex) {
         return buildErrorResponse(ex.getMessage(), ex.getClass().getSimpleName(), HttpStatus.INTERNAL_SERVER_ERROR);
@@ -60,7 +110,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         );
     }
 
-
+    // Unhandled Exception (500)
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleGeneralError(Exception ex) {
         log.error("Lỗi hệ thống chưa xác định: ", ex);

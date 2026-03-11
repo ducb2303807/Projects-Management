@@ -2,7 +2,7 @@
 
 import com.group4.common.dto.SseNotificationDTO;
 import com.group4.projects_management_fe.core.api.base.AbstractSseManager;
-import com.group4.projects_management_fe.core.error.UnauthorizedException;
+import com.group4.projects_management_fe.core.exception.UnauthorizedException;
 import com.group4.projects_management_fe.core.session.AuthSessionProvider;
 import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.core.ObservableEmitter;
@@ -10,6 +10,7 @@ import io.reactivex.rxjava3.core.ObservableSource;
 import io.reactivex.rxjava3.disposables.Disposable;
 import io.reactivex.rxjava3.functions.Function;
 import io.reactivex.rxjava3.schedulers.Schedulers;
+import io.reactivex.rxjava3.subjects.PublishSubject;
 import okhttp3.Request;
 import okhttp3.Response;
 import okhttp3.sse.EventSource;
@@ -22,35 +23,67 @@ import java.util.function.Consumer;
 
 
 public class RxSseManager extends AbstractSseManager<SseNotificationDTO> {
-    private Disposable sseSubscription;
+    private Disposable connectionDisposable;
+    private final PublishSubject<SseNotificationDTO> eventPublisher = PublishSubject.create();
+    private final PublishSubject<Throwable> errorPublisher = PublishSubject.create();
 
     public RxSseManager(AuthSessionProvider sessionProvider) {
         super(SseNotificationDTO.class, sessionProvider);
     }
 
     @Override
-    public void startListening(Consumer<SseNotificationDTO> onDataReceived, Consumer<Throwable> onError, Runnable onUnauthorized) {
-        stopListening();
+    public synchronized void connect(Runnable onUnauthorized) {
+        if (connectionDisposable != null && !connectionDisposable.isDisposed()) return;
 
-        this.sseSubscription = this.createSseObservable()
+        this.connectionDisposable = this.createSseObservable()
                 .subscribeOn(Schedulers.io())
-                .doOnError(error -> this.notifyErrorToUI(error, onError))
+                .doOnError(error -> {
+                    if (!(error instanceof UnauthorizedException)) {
+                        errorPublisher.onNext(error);
+                    }
+                })
                 .retryWhen(buildRetryPolicy())
-                .subscribe(sseNotification -> this.notifySuccessToUI(sseNotification, onDataReceived)
-                        , fatalError -> handleFatalError(fatalError, onUnauthorized)
+                .subscribe(
+                        eventPublisher::onNext,
+                        fatalError -> {
+                            if (fatalError instanceof UnauthorizedException && onUnauthorized != null) {
+                                onUnauthorized.run();
+                            }
+                        }
                 );
     }
 
     @Override
-    public void stopListening() {
-        if (sseSubscription != null && !sseSubscription.isDisposed()) {
-            sseSubscription.dispose();
-            sseSubscription = null;
+    public Runnable subscribe(Consumer<SseNotificationDTO> onReceive, Consumer<Throwable> onError) {
+        Disposable receivedSubscription = eventPublisher.observeOn(Schedulers.computation())
+                .subscribe(onReceive::accept);
+        Disposable errorSubscription = errorPublisher.observeOn(Schedulers.computation())
+                .subscribe(onError::accept);
+
+        return () -> {
+            receivedSubscription.dispose();
+            errorSubscription.dispose();
+        };
+    }
+
+    @Override
+    public void disconnect() {
+        if (connectionDisposable != null) connectionDisposable.dispose();
+    }
+
+    @Override
+    protected void onCustomShutdown() {
+        if (!eventPublisher.hasComplete()) {
+            eventPublisher.onComplete();
+        }
+        if (!errorPublisher.hasComplete()) {
+            errorPublisher.onComplete();
         }
     }
 
+
     private Observable<SseNotificationDTO> createSseObservable() {
-        return Observable.<SseNotificationDTO>create(emitter -> {
+        return Observable.create(emitter -> {
             Request request = new Request.Builder()
                     .url(this.getUrl())
                     .build();
@@ -89,11 +122,13 @@ public class RxSseManager extends AbstractSseManager<SseNotificationDTO> {
 
             @Override
             public void onFailure(@NotNull EventSource eventSource, Throwable t, Response response) {
-                emitter.onError(new RuntimeException("Mất kết nối SSE", t));
+                Throwable parsedError = parseHttpError(response, t);
+                emitter.onError(parsedError);
             }
         };
     }
 
+    // lỗi bình thường thì retry, lỗi về token thì dừng stream luôn
     private Function<Observable<Throwable>, ObservableSource<?>> buildRetryPolicy() {
         return errors -> errors
                 .flatMap(error -> {
@@ -109,24 +144,5 @@ public class RxSseManager extends AbstractSseManager<SseNotificationDTO> {
                 });
     }
 
-    private void notifyErrorToUI(Throwable error, Consumer<Throwable> onError) {
-        if (onError != null && !(error instanceof UnauthorizedException)) {
-            onError.accept(error);
-        }
-    }
 
-    private void notifySuccessToUI(SseNotificationDTO notification, Consumer<SseNotificationDTO> onDataReceived) {
-        if (onDataReceived != null) {
-            onDataReceived.accept(notification);
-        }
-    }
-
-    private void handleFatalError(Throwable fatalError, Runnable onUnauthorized) {
-        if (fatalError instanceof UnauthorizedException) {
-            System.out.println("Token hết hạn, đá user ra trang Login.");
-            if (onUnauthorized != null) onUnauthorized.run();
-        } else {
-            System.err.println("Mất kết nối hoàn toàn: " + fatalError.getMessage());
-        }
-    }
 }

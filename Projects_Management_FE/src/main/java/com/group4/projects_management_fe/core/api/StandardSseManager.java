@@ -1,101 +1,120 @@
 package com.group4.projects_management_fe.core.api;
 
-import com.group4.common.dto.NotificationDTO;
-import javafx.application.Platform;
-import okhttp3.OkHttpClient;
+import com.group4.common.dto.SseNotificationDTO;
+import com.group4.projects_management_fe.core.api.base.AbstractSseManager;
+import com.group4.projects_management_fe.core.exception.UnauthorizedException;
+import com.group4.projects_management_fe.core.session.AuthSessionProvider;
 import okhttp3.Request;
 import okhttp3.Response;
 import okhttp3.sse.EventSource;
 import okhttp3.sse.EventSourceListener;
 import okhttp3.sse.EventSources;
-import tools.jackson.databind.json.JsonMapper;
-import tools.jackson.datatype.jsr310.JavaTimeModule;
+import org.jetbrains.annotations.NotNull;
 
+import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
 
-public class StandardSseManager {
-    private final JsonMapper jsonMapper = JsonMapper.builder()
-            .addModule(new JavaTimeModule())
-            .build();
-
+public class StandardSseManager extends AbstractSseManager<SseNotificationDTO> {
     private EventSource eventSource;
-    private static final int MAX_RETRY_DELAY = 60;
     private int retryCount = 0;
-
+    private Runnable globalOnUnauthorized;
+    // Đang kết nối
+    private boolean isConnecting = false;
     private final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
-    private final OkHttpClient client = new OkHttpClient.Builder()
-            .readTimeout(0, TimeUnit.MILLISECONDS)
-            .build();
 
-    public void startListening(Long userId) {
-        stopListening();
+    private final List<Consumer<SseNotificationDTO>> dataSubscribers = new CopyOnWriteArrayList<>();
+    private final List<Consumer<Throwable>> errorSubscribers = new CopyOnWriteArrayList<>();
+
+    protected StandardSseManager(AuthSessionProvider sessionProvider) {
+        super(SseNotificationDTO.class, sessionProvider);
+    }
+
+    @Override
+    public synchronized void connect(Runnable onUnauthorized) {
+        if (this.eventSource != null || this.isConnecting) return;
+        this.isConnecting = true;
+        this.globalOnUnauthorized = onUnauthorized;
 
         Request request = new Request.Builder()
-                .url("http://localhost:8080/api/notifications/subscribe/" + userId)
-                // .header("Authorization", "Bearer " + token) // Nếu có JWT
+                .url(this.getUrl())
                 .build();
 
         EventSourceListener listener = new EventSourceListener() {
             @Override
-            public void onOpen(EventSource eventSource, Response response) {
+            public void onOpen(@NotNull EventSource eventSource, @NotNull Response response) {
                 System.out.println("Kết nối SSE thành công!");
                 retryCount = 0;
+                isConnecting = false;
             }
 
             @Override
-            public void onEvent(EventSource eventSource, String id, String type, String data) {
+            public void onEvent(@NotNull EventSource eventSource, String id, String type, @NotNull String data) {
                 if ("INIT".equals(type)) {
                     System.out.println("Server xác nhận: " + data);
                     return;
                 }
 
                 try {
-                    NotificationDTO notificationDTO = jsonMapper.readValue(data, NotificationDTO.class);
-                    Platform.runLater(() -> {
-                        System.out.println("Thông báo mới: " + notificationDTO.getText());
-
-                        // update UI
-                    });
+                    var dto = parseData(data);
+                    dataSubscribers.forEach(subscriber -> subscriber.accept(dto));
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    System.err.println("Lỗi parse JSON: " + e.getMessage());
                 }
-
             }
 
             @Override
             public void onFailure(EventSource eventSource, Throwable t, Response response) {
-                System.err.println("Lỗi SSE: " + t.getMessage());
                 eventSource.cancel();
+                StandardSseManager.this.eventSource = null;
+                StandardSseManager.this.isConnecting = false;
 
-                int delay = (int) Math.min(Math.pow(2, retryCount), MAX_RETRY_DELAY);
+                Throwable parsedError = parseHttpError(response, t);
+                if (parsedError instanceof UnauthorizedException &&
+                        globalOnUnauthorized != null) {
+                    globalOnUnauthorized.run();
+                    return;
+                }
+
+                errorSubscribers.forEach(subscriber -> subscriber.accept(parsedError));
+
+                int delay = (int) Math.min(Math.pow(2, retryCount), MAX_RETRY_DELAY_MILLISECOND);
                 retryCount++;
 
                 System.err.println("Thử lại sau " + delay);
-
-                scheduler.schedule(() -> startListening(userId), delay, TimeUnit.SECONDS);
+                scheduler.schedule(() -> connect(onUnauthorized), delay, TimeUnit.MILLISECONDS);
             }
         };
-
         this.eventSource = EventSources.createFactory(this.client).newEventSource(request, listener);
     }
 
-    public void stopListening() {
+    public synchronized void disconnect() {
         if (this.eventSource != null) {
             this.eventSource.cancel();
             this.eventSource = null;
         }
+        this.globalOnUnauthorized = null;
+        this.isConnecting = false;
     }
 
-    public void shutdown() {
-        stopListening();
-        scheduler.shutdown();
-        client.dispatcher().executorService().shutdown();
-        client.connectionPool().evictAll();
+    @Override
+    public Runnable subscribe(Consumer<SseNotificationDTO> onReceive, Consumer<Throwable> onError) {
+        if (onReceive != null) this.dataSubscribers.add(onReceive);
+        if (onError != null) this.errorSubscribers.add(onError);
 
-        if (client.cache() != null) {
-            try { client.cache().close(); } catch (Exception ignored) {}
-        }
+        return () -> {
+            this.dataSubscribers.remove(onReceive);
+            this.errorSubscribers.remove(onError);
+        };
+    }
+
+    @Override
+    protected void onCustomShutdown() {
+        scheduler.shutdownNow();
+        dataSubscribers.clear();
+        errorSubscribers.clear();
     }
 }

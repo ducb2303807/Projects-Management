@@ -1,9 +1,14 @@
 ﻿package com.group4.projects_management_fe.core.api.base;
 
+import com.group4.common.dto.ErrorResponse;
+import com.group4.common.enums.BusinessErrorCode;
 import com.group4.projects_management_fe.core.config.DotEnvManager;
+import com.group4.projects_management_fe.core.exception.ApiException;
+import com.group4.projects_management_fe.core.exception.UnauthorizedException;
 import com.group4.projects_management_fe.core.session.AuthSessionProvider;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
+import okhttp3.Response;
 import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.datatype.jsr310.JavaTimeModule;
 
@@ -33,7 +38,7 @@ public abstract class AbstractSseManager<T> implements SseClientManager<T> {
 
         if (sessionProvider != null) {
             clientBuilder.addInterceptor(chain -> {
-                Request original =  chain.request();
+                Request original = chain.request();
                 String token = sessionProvider.getValidToken();
 
                 if (token != null && !token.isEmpty()) {
@@ -41,8 +46,7 @@ public abstract class AbstractSseManager<T> implements SseClientManager<T> {
                             .header("Authorization", "Bearer " + token)
                             .build();
                     return chain.proceed(authorized);
-                }
-                else return chain.proceed(original);
+                } else return chain.proceed(original);
             });
         }
         this.client = clientBuilder.build();
@@ -52,14 +56,13 @@ public abstract class AbstractSseManager<T> implements SseClientManager<T> {
         return endpoint;
     }
 
-    // Helper method để map JSON
     protected T parseData(String data) throws Exception {
         return jsonMapper.readValue(data, responseType);
     }
 
     @Override
     public void shutdown() {
-        this.stopListening();
+        this.disconnect();
         client.dispatcher().executorService().shutdown();
         client.connectionPool().evictAll();
 
@@ -74,5 +77,35 @@ public abstract class AbstractSseManager<T> implements SseClientManager<T> {
     }
 
     protected void onCustomShutdown() {
+    }
+
+    protected Throwable parseHttpError(Response response, Throwable defaultThrowable) {
+        if (response != null) {
+            try {
+                String responseBody = response.body() != null ? response.body().string() : "";
+                if (!responseBody.isEmpty()) {
+                    ErrorResponse errorResponse = jsonMapper.readValue(responseBody, ErrorResponse.class);
+                    String errorCode = errorResponse.getErrorCode();
+                    if (response.code() == 401 ||
+                            BusinessErrorCode.AUTH_INVALID_TOKEN.getCode().equals(errorCode) ||
+                            BusinessErrorCode.AUTH_TOKEN_EXPIRED.getCode().equals(errorCode) ||
+                            BusinessErrorCode.AUTH_REQUIRED.getCode().equals(errorCode)) {
+                        return new UnauthorizedException(errorResponse.getMessage());
+                    }
+                    return new ApiException(errorResponse.getMessage(), defaultThrowable);
+                }
+            } catch (Exception e) {
+                System.err.println("Không thể parse ErrorResponse từ BE: " + e.getMessage());
+            }
+
+            if (response.code() == 401) {
+                return new UnauthorizedException("Phiên đăng nhập không hợp lệ");
+            } else {
+                return new ApiException("Lỗi Server - HTTP Code: " + response.code(), defaultThrowable);
+            }
+        }
+        // response == null
+        return defaultThrowable != null ? new ApiException("Mất kết nối mạng: " + defaultThrowable.getMessage(), defaultThrowable)
+                : new ApiException("Mất kết nối mạng không xác định", defaultThrowable);
     }
 }
