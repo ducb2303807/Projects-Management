@@ -5,12 +5,14 @@ import lombok.Getter;
 @Getter
 public enum BusinessErrorCode {
     // Auth
-    USER_NOT_FOUND("AUTH_001","User not found"),
-    INVALID_PASSWORD("AUTH_002","Invalid password"),
-    TOKEN_EXPIRED("AUTH_003","Token expired"),
-    ACCOUNT_LOCKED("AUTH_004","Account locked"),
-    EMAIL_ALREADY_EXISTS("AUTH_005","Email already exists"),
-    USERNAME_ALREADY_EXISTS("AUTH_006","Username already exists"),
+    AUTH_USER_NOT_FOUND("AUTH_001","User not found"),
+    AUTH_INVALID_PASSWORD("AUTH_002","Invalid password"),
+    AUTH_INVALID_TOKEN("TOKEN_003","Token invalid"),
+    AUTH_TOKEN_EXPIRED("AUTH_004","Token expired"),
+    AUTH_ACCOUNT_LOCKED("AUTH_005","Account locked"),
+    AUTH_EMAIL_ALREADY_EXISTS("AUTH_006","Email already exists"),
+    AUTH_USERNAME_ALREADY_EXISTS("AUTH_007","Username already exists"),
+    AUTH_REQUIRED("AUTH_008","Authentication required"),
 
     // Project
     PROJECT_NOT_FOUND("PROJ_001","Project not found"),

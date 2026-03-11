@@ -3,7 +3,9 @@
 import java.util.function.Consumer;
 
 public interface SseClientManager<T> {
-    void startListening(Consumer<T> onReceive, Consumer<Throwable> onError, Runnable onUnauthorized);
-    void stopListening();
+    void connect(Runnable onUnauthorized);
+    void disconnect();
     void shutdown();
+
+    Runnable subscribe(Consumer<T> onReceive, Consumer<Throwable> onError);
 }
