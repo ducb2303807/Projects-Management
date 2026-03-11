@@ -15,8 +15,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 public class AuthResponse {
-   /** @pdOid 51b3b5a4-da8e-4b33-9038-b278fa8d864c */
    private java.lang.String token;
-   /** @pdOid 86df68da-b199-44bf-af81-a6771ac48ac7 */
    private UserDTO user;
 }

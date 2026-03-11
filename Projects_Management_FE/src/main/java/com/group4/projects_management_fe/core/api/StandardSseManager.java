@@ -15,7 +15,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-public class SseClientManager {
+public class StandardSseManager {
     private final JsonMapper jsonMapper = JsonMapper.builder()
             .addModule(new JavaTimeModule())
             .build();
