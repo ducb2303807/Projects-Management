@@ -2,6 +2,7 @@ package com.group4.projects_management_fe.core.api.base;
 
 import com.group4.common.dto.ErrorResponse;
 import com.group4.projects_management_fe.core.config.DotEnvManager;
+import com.group4.projects_management_fe.core.exception.ApiException;
 import okhttp3.*;
 import org.jetbrains.annotations.NotNull;
 import tools.jackson.databind.json.JsonMapper;
@@ -18,8 +19,8 @@ public abstract class BaseApi {
             .connectTimeout(Duration.ofMillis(
                     Long.parseLong(DotEnvManager.getEnv("APP_TIMEOUT", "1000"))
             ))
-            .dispatcher(new Dispatcher(Executors.newSingleThreadExecutor(runable -> {
-                Thread thread = new Thread(runable);
+            .dispatcher(new Dispatcher(Executors.newSingleThreadExecutor(runnable -> {
+                Thread thread = new Thread(runnable);
                 thread.setDaemon(true);
                 return thread;
             })))
@@ -33,7 +34,7 @@ public abstract class BaseApi {
         client.newCall(request).enqueue(new Callback() {
             @Override
             public void onFailure(@NotNull Call call, @NotNull IOException e) {
-                future.completeExceptionally(new Exception("Lỗi kết nối: " + e.getMessage()));
+                future.completeExceptionally(new ApiException("Lỗi kết nối: " + e.getMessage()));
             }
 
             @Override
@@ -59,15 +60,15 @@ public abstract class BaseApi {
 
     private <T> void handleError(String jsonData, int statusCode, CompletableFuture<T> future) {
         if (jsonData == null || jsonData.isBlank()) {
-            future.completeExceptionally(new Exception("Lỗi hệ thống (Status: " + statusCode + ")"));
+            future.completeExceptionally(new ApiException("Lỗi hệ thống (Status: " + statusCode + ")"));
             return;
         }
         try {
             ErrorResponse errorResponse = jsonMapper.readValue(jsonData, ErrorResponse.class);
-            future.completeExceptionally(new Exception(errorResponse.getMessage()));
+            future.completeExceptionally(new ApiException(errorResponse.getMessage()));
         } catch (Exception e) {
             e.printStackTrace();
-            future.completeExceptionally(new Exception("Lỗi không xác định (HTTP " + statusCode + ")"));
+            future.completeExceptionally(new ApiException("Lỗi không xác định (HTTP " + statusCode + ")"));
         }
     }
 
