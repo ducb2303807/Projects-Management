@@ -4,6 +4,7 @@ import com.group4.projects_management_fe.core.api.base.BaseApi;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
+import javafx.scene.image.*;
 import javafx.stage.Stage;
 
 import java.io.IOException;
@@ -23,8 +24,15 @@ public class MainWindow extends Application {
                         "/com/group4/projects_management_fe/features/assets/css/auth.css"
                 ).toExternalForm()
         );
+
+        Image logo = new Image(
+                getClass().getResourceAsStream("/com/group4/projects_management_fe/features/assets/image/app_icon_v6.png")
+        );
+
+        stage.getIcons().add(logo);
         stage.setTitle("Login");
         stage.setScene(scene);
+        stage.centerOnScreen();
         stage.setResizable(false);
         stage.show();
     }
