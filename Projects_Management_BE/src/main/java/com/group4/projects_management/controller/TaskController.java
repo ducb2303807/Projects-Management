@@ -8,6 +8,8 @@ import com.group4.common.dto.*;
 import com.group4.projects_management.core.security.SecurityUtils;
 import com.group4.projects_management.service.CommentService;
 import com.group4.projects_management.service.TaskService;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -17,6 +19,7 @@ import java.util.List;
 /** @pdOid ce9b19d3-3ddd-449d-8d79-b270923a5f2d */
 @RestController
 @RequestMapping("/api/tasks")
+@SecurityRequirement(name = "bearerAuth")
 public class TaskController {
 
    @Autowired
@@ -28,7 +31,7 @@ public class TaskController {
    @PostMapping("/projects/{projectId}/tasks")
    public ResponseEntity<TaskResponseDTO> createTaskInProject(
            @PathVariable Long projectId,
-           @RequestBody TaskCeateRequestDTO request) {
+           @Valid @RequestBody TaskCeateRequestDTO request) {
 
       request.setProjectId(projectId);
       return ResponseEntity.ok(taskService.createTask(request));
@@ -62,7 +65,8 @@ public class TaskController {
    }
 
    @PutMapping("/{taskId}")
-   public ResponseEntity<TaskResponseDTO> updateTask(@PathVariable Long taskId, @RequestBody TaskUpdateDTO request) {
+   public ResponseEntity<TaskResponseDTO> updateTask(@PathVariable Long taskId,
+                                                     @Valid @RequestBody TaskUpdateDTO request) {
       return ResponseEntity.ok(taskService.updateTask(taskId, request));
    }
 
