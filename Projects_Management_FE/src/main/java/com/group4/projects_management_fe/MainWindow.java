@@ -17,7 +17,7 @@ public class MainWindow extends Application {
                         "/com/group4/projects_management_fe/features/auth/AuthView.fxml"
                 )
         );
-        Scene scene = new Scene(loader.load(), 900, 600);
+        Scene scene = new Scene(loader.load(), 900, 650);
         scene.getStylesheets().add(
                 MainWindow.class.getResource(
                         "/com/group4/projects_management_fe/features/assets/css/auth.css"
