@@ -29,7 +29,7 @@ public class AuthController {
     private VBox signUpForm;
 
     @FXML
-    private TextField loginEmail;
+    private TextField loginUsername;
 
     @FXML
     private PasswordField loginPassword;
@@ -151,7 +151,7 @@ public class AuthController {
     @FXML
     private void handleLogin() {
 
-        String email = loginEmail.getText().trim();
+        String email = loginUsername.getText().trim();
         String password = loginPassword.getText().trim();
 
         if (email.isEmpty()) {

@@ -1,5 +1,5 @@
 .container {
-    -fx-font-family: "Segoe UI", Montserrat;
+    -fx-font-family: "Montserrat";
     -fx-background-color: white;
 }
 
@@ -15,8 +15,13 @@
     -fx-background-color: #fff;
 }
 
+.auth-header {
+    -fx-font-family: Aesthetiva;
+    -fx-font-size: 25px;
+}
+
 .auth-title {
-    -fx-font-size: 26px;
+    -fx-font-size: 24px;
     -fx-font-weight: bold;
 }
 
@@ -69,6 +74,14 @@
     -fx-opacity: 0.9;
 }
 
+.form-footer {
+    -fx-spacing: 5px;
+}
+
+.form-label {
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+}
 
 .footer-text {
     -fx-font-size: 12px;
@@ -81,6 +94,12 @@
 
 .container-form {
     -fx-background-color: #fff;
+}
+
+.login-label {
+    -fx-alignment: left;
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
 }
 
 /*-fx-effect với cú pháp dropshadow( <blurType>, <color>, <radius>, <spread>, <offsetX>,*/
