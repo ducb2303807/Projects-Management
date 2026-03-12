@@ -1,4 +1,4 @@
-﻿package com.group4.projects_management_fe.core.session;
+package com.group4.projects_management_fe.core.session;
 
 import com.group4.common.dto.UserDTO;
 

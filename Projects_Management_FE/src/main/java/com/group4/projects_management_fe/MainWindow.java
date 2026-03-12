@@ -1,6 +1,6 @@
 package com.group4.projects_management_fe;
 
-import com.group4.projects_management_fe.core.api.base.BaseApi;
+import com.group4.projects_management_fe.core.api.config.ApiConfig;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
@@ -11,6 +11,7 @@ import java.io.IOException;
 
 public class MainWindow extends Application {
 
+    @Override
     public void start(Stage stage) throws IOException {
 
         FXMLLoader loader = new FXMLLoader(
@@ -39,7 +40,7 @@ public class MainWindow extends Application {
 
     @Override
     public void stop() throws Exception {
-        BaseApi.shutdown();
+        ApiConfig.shutdown();
         super.stop();
     }
 }

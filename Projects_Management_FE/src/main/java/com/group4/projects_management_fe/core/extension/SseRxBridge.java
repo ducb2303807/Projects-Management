@@ -1,4 +1,4 @@
-﻿package com.group4.projects_management_fe.core.extension;
+package com.group4.projects_management_fe.core.extension;
 
 import com.group4.projects_management_fe.core.api.base.SseClientManager;
 import io.reactivex.rxjava3.core.Observable;
