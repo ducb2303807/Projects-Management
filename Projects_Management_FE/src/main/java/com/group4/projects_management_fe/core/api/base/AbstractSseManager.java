@@ -1,8 +1,8 @@
-﻿package com.group4.projects_management_fe.core.api.base;
+package com.group4.projects_management_fe.core.api.base;
 
 import com.group4.common.dto.ErrorResponse;
 import com.group4.common.enums.BusinessErrorCode;
-import com.group4.projects_management_fe.core.config.DotEnvManager;
+import com.group4.projects_management_fe.core.api.config.ApiConfig;
 import com.group4.projects_management_fe.core.exception.ApiException;
 import com.group4.projects_management_fe.core.exception.UnauthorizedException;
 import com.group4.projects_management_fe.core.session.AuthSessionProvider;
@@ -10,18 +10,13 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 import tools.jackson.databind.json.JsonMapper;
-import tools.jackson.datatype.jsr310.JavaTimeModule;
 
-import java.time.Duration;
 import java.util.concurrent.TimeUnit;
 
 public abstract class AbstractSseManager<T> implements SseClientManager<T> {
-    private final String endpoint = DotEnvManager.getEnv("API_BASE_URL", "http://localhost:8080/api") + "/notifications/subscribe/me";
-
-    protected final int MAX_RETRY_DELAY_MILLISECOND = Integer.parseInt(
-            DotEnvManager.getEnv("APP_TIMEOUT", String.valueOf(Duration.ofSeconds(6).toMillis()))
-    );
-    protected final JsonMapper jsonMapper;
+    private final String endpoint = ApiConfig.BASE_URL + "/notifications/subscribe/me";
+    protected final int MAX_RETRY_DELAY_MILLISECOND = (int) ApiConfig.APP_TIMEOUT_MS;
+    protected final JsonMapper jsonMapper = ApiConfig.JSON_MAPPER;
     protected final OkHttpClient client;
     protected final Class<T> responseType;
 
@@ -29,11 +24,7 @@ public abstract class AbstractSseManager<T> implements SseClientManager<T> {
     protected AbstractSseManager(Class<T> responseType, AuthSessionProvider sessionProvider) {
         this.responseType = responseType;
 
-        this.jsonMapper = JsonMapper.builder()
-                .addModule(new JavaTimeModule())
-                .build();
-
-        var clientBuilder = new OkHttpClient.Builder()
+        var clientBuilder = ApiConfig.SHARED_HTTP_CLIENT.newBuilder()
                 .readTimeout(0, TimeUnit.MILLISECONDS);
 
         if (sessionProvider != null) {

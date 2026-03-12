@@ -1,4 +1,4 @@
-﻿package com.group4.projects_management_fe.core.api;
+package com.group4.projects_management_fe.core.api;
 
 import com.group4.common.dto.SseNotificationDTO;
 import com.group4.projects_management_fe.core.api.base.AbstractSseManager;
