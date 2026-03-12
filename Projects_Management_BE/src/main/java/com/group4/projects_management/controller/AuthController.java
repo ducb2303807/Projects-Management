@@ -10,6 +10,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -36,7 +37,7 @@ public class AuthController {
            @ApiResponse(responseCode = "500", description = "Lỗi hệ thống không xác định")
    })
    @PostMapping("/login")
-   public ResponseEntity<AuthResponse> login(@RequestBody LoginRequest request) {
+   public ResponseEntity<AuthResponse> login(@Valid @RequestBody LoginRequest request) {
       return ResponseEntity.ok(userService.login(request));
    }
 
@@ -52,7 +53,7 @@ public class AuthController {
                    content = @Content(schema = @Schema(implementation = com.group4.common.dto.ErrorResponse.class)))
    })
    @PostMapping("/register")
-   public ResponseEntity<UserDTO> register(@RequestBody UserRegistrationDTO request) {
+   public ResponseEntity<UserDTO> register(@Valid @RequestBody UserRegistrationDTO request) {
       return ResponseEntity.ok(userService.register(request));
    }
 }

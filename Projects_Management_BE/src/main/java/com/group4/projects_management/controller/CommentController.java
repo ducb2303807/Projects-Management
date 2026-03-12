@@ -7,6 +7,8 @@ package com.group4.projects_management.controller; /****************************
 import com.group4.common.dto.CommentCreateRequestDTO;
 import com.group4.common.dto.CommentDTO;
 import com.group4.projects_management.service.CommentService;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -18,6 +20,7 @@ import java.util.List;
  */
 @RestController
 @RequestMapping("/api/comments")
+@SecurityRequirement(name = "bearerAuth")
 public class CommentController {
     @Autowired
     private CommentService commentService;
@@ -28,14 +31,14 @@ public class CommentController {
     }
 
     @PostMapping
-    public ResponseEntity<CommentDTO> createComment(@RequestBody CommentCreateRequestDTO request) {
+    public ResponseEntity<CommentDTO> createComment(@Valid @RequestBody CommentCreateRequestDTO request) {
         return ResponseEntity.ok(commentService.createComment(request.getTaskId(), request.getProjectMemberId(), request.getContent(), request.getParentId()));
     }
 
     @PostMapping("/{parentId}/reply")
     public ResponseEntity<CommentDTO> replyComment(
             @PathVariable Long parentId,
-            @RequestBody CommentCreateRequestDTO request) {
+            @Valid @RequestBody CommentCreateRequestDTO request) {
         return ResponseEntity.ok(commentService.createComment(request.getTaskId(), request.getProjectMemberId(), request.getContent(), request.getParentId()));
     }
 }
