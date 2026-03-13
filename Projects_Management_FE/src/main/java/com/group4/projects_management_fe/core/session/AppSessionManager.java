@@ -4,7 +4,6 @@ import com.group4.common.dto.UserDTO;
 
 public class AppSessionManager implements AuthSessionProvider {
     private static AppSessionManager instance;
-
     private String token;
     private UserDTO currentUser;
 
