@@ -159,115 +159,215 @@
     </VBox>
 
 
-    <!-- OVERLAY -->
-    <StackPane fx:id="overlay" onMouseClicked="#closePopup" style="-fx-background-color: rgba(0, 0, 0, 0.6); " styleClass="overlay" visible="false" StackPane.alignment="CENTER">
-      <children>
-         <VBox maxHeight="450" maxWidth="720" onMouseClicked="#consumeMouseEvent" prefWidth="720" spacing="30" style=" -fx-background-color: white;" styleClass="popup">
-            <children>
-         
-                 <HBox fx:id="createProjectPopup" maxHeight="450" maxWidth="720" onMouseClicked="#consumeMouseEvent" prefWidth="720" spacing="30" style=" -fx-background-color: white;" styleClass="popup">
-                     <VBox.margin>
-                         <Insets top="20" right="20" bottom="20" left="20"/>
-                     </VBox.margin>
-                 <!-- LEFT SIDE -->
-                 <VBox prefHeight="450.0" prefWidth="398.0" spacing="18" HBox.hgrow="ALWAYS">
-         
-                     <Label styleClass="popup-title" text="Project name" />
-         
-                     <GridPane hgap="12" vgap="14">
-         
-                         <columnConstraints>
-                             <ColumnConstraints percentWidth="35" />
-                             <ColumnConstraints percentWidth="65" />
-                         </columnConstraints>
-         
-                         <Label text="Start date" />
-                         <DatePicker GridPane.columnIndex="1" />
-         
-                         <Label text="End date" GridPane.rowIndex="1" />
-                         <DatePicker GridPane.columnIndex="1" GridPane.rowIndex="1" />
-         
-                         <Label text="Description" GridPane.rowIndex="2" />
-         
-                         <TextArea prefHeight="90" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+    <StackPane fx:id="overlay" onMouseClicked="#closePopup" style="-fx-background-color: rgba(0,0,0,0.8); -fx-alignment: CENTER; visibility: true;" visible="false" StackPane.alignment="CENTER">
+
+        <children>
+
+            <!-- POPUP -->
+            <VBox maxHeight="450" maxWidth="720" onMouseClicked="#consumeMouseEvent" prefWidth="720" style="-fx-background-color:white;                          -fx-border-radius:20;                          -fx-background-radius:20;                          -fx-padding:30;                          -fx-effect:dropshadow(three-pass-box, rgba(0,0,0,0.3),20,0,0,10);">
+
+                <children>
+
+                    <!-- TITLE -->
+                    <Label style="-fx-font-size:22px; -fx-font-weight:bold;" text="Project name" />
+
+                    <HBox fx:id="createProjectPopup" maxHeight="450" maxWidth="720" onMouseClicked="#consumeMouseEvent" prefWidth="720" spacing="30" style="-fx-background-color:white;">
+
+                        <VBox.margin>
+                            <Insets bottom="30" left="30" right="30" top="30" />
+                        </VBox.margin>
+
+                        <!-- LEFT SIDE -->
+                        <VBox maxWidth="350.0" minWidth="350.0" prefWidth="360" spacing="18" HBox.hgrow="ALWAYS">
+
+                            <GridPane hgap="16" vgap="18">
+
+                                <columnConstraints>
+                                    <ColumnConstraints percentWidth="32.0" />
+                                    <ColumnConstraints percentWidth="68.0" />
+                                </columnConstraints>
+
+                                <!-- START DATE -->
+                                <HBox alignment="CENTER_LEFT"
+                                      maxWidth="100.0"
+                                      minWidth="50.0"
+                                      prefHeight="26.0"
+                                      prefWidth="50.0"
+                                      spacing="10">
+
+                                    <Label text="📅" />
+                                    <Label text="Start date"
+                                           style="-fx-font-size:14; -fx-text-fill:#777;" />
+                                </HBox>
+
+                                <DatePicker GridPane.columnIndex="1"
+                                            style="-fx-background-color:#f5f5f5; -fx-border-color:transparent; -fx-background-radius:8;" />
+
+
+                                <!-- END DATE -->
+                                <HBox alignment="CENTER_LEFT"
+                                      maxWidth="100.0"
+                                      minWidth="50.0"
+                                      prefWidth="50.0"
+                                      spacing="10"
+                                      GridPane.rowIndex="1">
+
+                                    <Label text="📅" />
+                                    <Label text="End date"
+                                           style="-fx-font-size:14; -fx-text-fill:#777;" />
+                                </HBox>
+
+                                <DatePicker GridPane.columnIndex="1"
+                                            GridPane.rowIndex="1"
+                                            style="-fx-background-color:#f5f5f5; -fx-border-color:transparent; -fx-background-radius:8;" />
+
+
+                                <!-- STATUS -->
+                                <HBox alignment="CENTER_LEFT"
+                                      maxWidth="100.0"
+                                      minWidth="50.0"
+                                      prefWidth="50.0"
+                                      spacing="10"
+                                      GridPane.rowIndex="2">
+
+                                    <Label text="☑" />
+                                    <Label text="Status"
+                                           style="-fx-font-size:14; -fx-text-fill:#777;" />
+                                </HBox>
+
+                                <Button fx:id="statusBtn"
+                                        text="Empty"
+                                        onAction="#showStatusMenu"
+                                        GridPane.columnIndex="1"
+                                        GridPane.rowIndex="2"
+                                        style="-fx-background-color:#f5f5f5; -fx-background-radius:8;" />
+
+
+                                <!-- MEMBER -->
+                                <HBox alignment="CENTER_LEFT"
+                                      maxWidth="100.0"
+                                      minWidth="50.0"
+                                      prefWidth="50.0"
+                                      spacing="10"
+                                      GridPane.rowIndex="3">
+
+                                    <Label text="👥" />
+                                    <Label text="1 member"
+                                           style="-fx-font-size:14; -fx-text-fill:#777;" />
+                                </HBox>
+
+                                <Label text="No member selected"
+                                       GridPane.columnIndex="1"
+                                       GridPane.rowIndex="3"
+                                       style="-fx-font-size:14;" />
+
+
+                                <!-- DESCRIPTION -->
+                                <HBox alignment="CENTER_LEFT"
+                                      spacing="10"
+                                      GridPane.rowIndex="4">
+
+                                    <Label text="≡" />
+                                    <Label text="Description:"
+                                           style="-fx-font-size:14; -fx-text-fill:#777;" />
+                                </HBox>
+
+                                <TextArea prefHeight="80"
+                                          promptText="Add a description..."
+                                          GridPane.columnIndex="1"
+                                          GridPane.rowIndex="4"
+                                          style="-fx-border-color:transparent; -fx-background-color:#f5f5f5; -fx-background-radius:8;" />
                         <rowConstraints>
                            <RowConstraints />
                            <RowConstraints />
                            <RowConstraints />
+                           <RowConstraints />
+                           <RowConstraints />
                         </rowConstraints>
-         
-                     </GridPane>
-         
-                 </VBox>
-         
-         
-                 <!-- RIGHT SIDE -->
-                 <VBox spacing="18" styleClass="popup-right">
-         
-                     <!-- CREATED BY -->
-                     <VBox spacing="6">
-         
-                         <Label styleClass="popup-sub" text="Created by" />
-         
-                         <HBox alignment="CENTER_LEFT" spacing="10">
-         
-                             <Circle radius="18" />
-         
-                             <VBox>
-                                 <Label styleClass="user-name" text="Hunny" />
-                                 <Label styleClass="user-time" text="Feb 14, 2026, 11:32 PM" />
-                             </VBox>
-         
-                         </HBox>
-         
-                     </VBox>
-         
-         
-                     <!-- CO MANAGER -->
-                     <VBox spacing="8">
-         
-                         <Label styleClass="popup-sub" text="Add Co-Manager" />
-         
-                         <Button styleClass="add-manager-btn" text="+" />
-         
-                     </VBox>
-         
-         
-                     <!-- LAST UPDATE -->
-                     <VBox spacing="6">
-         
-                         <Label styleClass="popup-sub" text="Last updated by" />
-         
-                         <HBox spacing="10">
-         
-                             <Circle radius="16" />
-         
-                             <VBox>
-                                 <Label styleClass="user-name" text="Hunny" />
-                                 <Label styleClass="user-time" text="Feb 14, 2026, 11:32 PM" />
-                             </VBox>
-         
-                         </HBox>
-         
-                     </VBox>
-         
-         
-                     <Region VBox.vgrow="ALWAYS" />
-         
-                     <!-- BUTTONS -->
-                     <HBox alignment="CENTER_RIGHT" spacing="10">
-         
-                         <Button onAction="#closePopup" styleClass="cancel-btn" text="Cancel" />
-         
-                         <Button styleClass="create-btn" text="Create" />
-         
-                     </HBox>
-         
-                 </VBox>
-                 </HBox>
-            </children>
-         </VBox>
-      </children>
+
+                            </GridPane>
+
+                        </VBox>
+
+
+                        <!-- RIGHT SIDE -->
+                        <VBox minWidth="360.0" spacing="18" style="-fx-padding:0 0 0 20;                                      -fx-border-color:transparent transparent transparent #eeeeee;">
+
+                            <!-- CREATED BY -->
+                            <VBox spacing="6">
+
+                                <Label style="-fx-font-size:13px; -fx-text-fill:#888;" text="Created by" />
+
+                                <HBox alignment="CENTER_LEFT" spacing="10">
+
+                                    <Circle radius="18" style="-fx-fill:linear-gradient(to right,#7b5cff,#9f7aea);" />
+
+                                    <VBox>
+
+                                        <Label style="-fx-font-weight:600;" text="NamInvincible" />
+
+                                        <Label style="-fx-font-size:11px; -fx-text-fill:#888;" text="Feb 14, 2026, 11:32 PM" />
+
+                                    </VBox>
+
+                                </HBox>
+
+                            </VBox>
+
+
+                            <!-- CO MANAGER -->
+                            <VBox spacing="8">
+
+                                <Label style="-fx-font-size:13px; -fx-text-fill:#888;" text="Add Co-Manager" />
+
+                                <Button style="-fx-background-color:#f3f3f3;                                                -fx-background-radius:50;                                                -fx-pref-width:32;                                                -fx-pref-height:32;" text="+" />
+
+                            </VBox>
+
+
+                            <!-- LAST UPDATE -->
+                            <VBox spacing="6">
+
+                                <Label style="-fx-font-size:13px; -fx-text-fill:#888;" text="Last updated by" />
+
+                                <HBox spacing="10">
+
+                                    <Circle radius="16" style="-fx-fill:linear-gradient(to right,#7b5cff,#9f7aea);" />
+
+                                    <VBox>
+
+                                        <Label style="-fx-font-weight:600;" text="NamInvincible" />
+
+                                        <Label style="-fx-font-size:11px; -fx-text-fill:#888;" text="Feb 14, 2026, 11:32 PM" />
+
+                                    </VBox>
+
+                                </HBox>
+
+                            </VBox>
+
+
+                            <Region VBox.vgrow="ALWAYS" />
+
+
+                            <!-- BUTTONS -->
+                            <HBox alignment="CENTER_RIGHT" spacing="10">
+
+                                <Button onAction="#closePopup" style="-fx-background-color:#eeeeee;                                                -fx-background-radius:8;" text="Cancel" />
+
+                                <Button style="-fx-background-color:linear-gradient(to right,#7b5cff,#9f7aea);                                                -fx-text-fill:white;                                                -fx-background-radius:8;" text="Create" />
+
+                            </HBox>
+
+                        </VBox>
+
+                    </HBox>
+
+                </children>
+
+            </VBox>
+
+        </children>
     </StackPane>
 
 </StackPane>
