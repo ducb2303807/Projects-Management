@@ -14,15 +14,20 @@ public class MainWindow extends Application {
 
         FXMLLoader loader = new FXMLLoader(
                 MainWindow.class.getResource(
-                        "/com/group4/projects_management_fe/features/dashboard/DashBoardView.fxml"
+                        "/com/group4/projects_management_fe/features/auth/AuthView.fxml"
+//                        "/com/group4/projects_management_fe/features/dashboard/DashboardView.fxml"
                 )
         );
-//        Scene scene = new Scene(loader.load(), 900, 600);
-        Scene scene = new Scene(loader.load(), 1400, 800);
+        Scene scene = new Scene(loader.load(), 900, 600);
+        scene.getStylesheets().add(
+                getClass().getResource(
+                        "/com/group4/projects_management_fe/features/assets/css/auth.css"
+                ).toExternalForm()
+        );
 
         scene.getStylesheets().add(
-                MainWindow.class.getResource(
-                        "/com/group4/projects_management_fe/features/assets/css/auth.css"
+                getClass().getResource(
+                        "/com/group4/projects_management_fe/features/assets/css/dashboard.css"
                 ).toExternalForm()
         );
         stage.setTitle("Login");

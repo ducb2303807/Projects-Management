@@ -17,7 +17,8 @@
 
 <StackPane fx:id="container" prefHeight="700.0" prefWidth="1200.0" styleClass="container"
            xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
-           fx:controller="com.group4.projects_management_fe.features.auth.AuthController">
+           fx:controller="com.group4.projects_management_fe.features.auth.AuthController"
+           stylesheets="@/com/group4/projects_management_fe/features/assets/css/auth.css">
 
     <children>
         <ImageView fx:id="backgroundImage" fitHeight="554" fitWidth="550" pickOnBounds="true">

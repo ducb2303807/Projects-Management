@@ -11,6 +11,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.shape.Circle;
@@ -83,12 +84,12 @@ public class MainLayoutController {
             FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
             Node view = loader.load();
 
-            contentPane.getChildren().setAll(view);
+            VBox wrapper = new VBox(view);
+            wrapper.setMaxWidth(1200);
 
-            FadeTransition fade = new FadeTransition(Duration.millis(250), view);
-            fade.setFromValue(0);
-            fade.setToValue(1);
-            fade.play();
+            VBox.setVgrow(view, Priority.ALWAYS);
+
+            contentPane.getChildren().setAll(wrapper);
 
         } catch (IOException e) {
             e.printStackTrace();
