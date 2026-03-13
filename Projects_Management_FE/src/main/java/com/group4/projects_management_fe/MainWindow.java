@@ -2,6 +2,7 @@ package com.group4.projects_management_fe;
 
 import com.group4.common.interfaces.HostContext;
 import com.group4.projects_management_fe.core.api.config.ApiConfig;
+import com.group4.projects_management_fe.core.navigation.AppStageManager;
 import com.group4.projects_management_fe.core.plugin.HostContextRemoteImpl;
 import com.group4.projects_management_fe.core.plugin.Pf4jLoader;
 import com.group4.projects_management_fe.core.plugin.PluginLoader;
@@ -18,8 +19,12 @@ public class MainWindow extends Application {
     private final HostContext hostContext = new HostContextRemoteImpl();
     @Override
     public void start(Stage stage) throws IOException {
+        // plugin
         pluginLoader = new Pf4jLoader(hostContext);
         pluginLoader.loadPlugins();
+        // stage manager init
+        AppStageManager.getInstance().setStage(stage);
+
 
         FXMLLoader loader = new FXMLLoader(
                 MainWindow.class.getResource(
