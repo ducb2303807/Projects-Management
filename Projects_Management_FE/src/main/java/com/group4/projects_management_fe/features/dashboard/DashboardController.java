@@ -4,10 +4,9 @@ import javafx.animation.FadeTransition;
 import javafx.animation.ParallelTransition;
 import javafx.animation.ScaleTransition;
 import javafx.fxml.FXML;
+import javafx.geometry.Side;
 import javafx.scene.Node;
-import javafx.scene.control.DatePicker;
-import javafx.scene.control.Label;
-import javafx.scene.control.ListView;
+import javafx.scene.control.*;
 import javafx.scene.control.skin.DatePickerSkin;
 import javafx.scene.layout.*;
 import javafx.geometry.Pos;
@@ -28,6 +27,16 @@ public class DashboardController {
 
     @FXML
     private HBox createProjectPopup;
+
+    @FXML
+    private Button statusBtn;
+
+    private ContextMenu statusMenu;
+
+    @FXML
+    private void showStatusMenu() {
+        statusMenu.show(statusBtn, Side.BOTTOM, 0, 5);
+    }
 
     @FXML
     private void openPopup() {
@@ -131,6 +140,18 @@ public class DashboardController {
                 "Interactive prototype for app screens of deltamime project",
                 "Completed"
         ));
+
+        MenuItem completed = new MenuItem("Completed");
+        MenuItem ongoing = new MenuItem("On going");
+        MenuItem review = new MenuItem("In review");
+        MenuItem delayed = new MenuItem("Delayed");
+
+        completed.setOnAction(e -> statusBtn.setText("Completed"));
+        ongoing.setOnAction(e -> statusBtn.setText("On going"));
+        review.setOnAction(e -> statusBtn.setText("In review"));
+        delayed.setOnAction(e -> statusBtn.setText("Delayed"));
+
+        statusMenu = new ContextMenu(completed, ongoing, review, delayed);
     }
 
     private HBox createTask(String title, String status) {
