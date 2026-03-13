@@ -1,4 +1,4 @@
-﻿package com.group4.projects_management_fe.core.api.base;
+package com.group4.projects_management_fe.core.api.base;
 
 import com.group4.common.dto.ErrorResponse;
 import com.group4.common.enums.BusinessErrorCode;

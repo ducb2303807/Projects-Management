@@ -1,16 +1,273 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.layout.*?>
-<?import javafx.scene.control.*?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.DatePicker?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.shape.Circle?>
 
-<VBox spacing="20" alignment="CENTER"
-      fx:controller="com.group4.projects_management_fe.features.dashboard.DashboardController"
-      xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
-      style="-fx-padding: 40;">
+<StackPane alignment="CENTER" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.group4.projects_management_fe.features.dashboard.DashboardController">
+    <!-- DASHBOARD CONTENT -->
+    <VBox spacing="25" styleClass="main-container" stylesheets="@../assets/css/dashboard.css">
 
-    <Label text="Dashboard"
-           style="-fx-font-size: 28; -fx-font-weight: bold;"/>
+        <VBox spacing="15" style="-fx-background-color: #E9E9E9; -fx-border-radius: 20px; -fx-background-radius: 20px; -fx-padding: 20px;" styleClass="overview-section">
 
-    <Label text="Welcome to your dashboard!"/>
+            <HBox alignment="CENTER_LEFT" spacing="10">
 
-</VBox>
+                <Label styleClass="title" text="Overview" />
+
+                <Region HBox.hgrow="ALWAYS" />
+
+                <Button styleClass="filter-btn" text="Last 30 days">
+                    <HBox.margin>
+                        <Insets right="20" />
+                    </HBox.margin>
+                </Button>
+
+            </HBox>
+
+
+            <HBox alignment="CENTER" spacing="40" styleClass="card-container">
+
+                <VBox prefWidth="350" styleClass="card">
+                    <Label styleClass="card-title" text="Total Project" />
+                    <Label styleClass="card-number" text="64" />
+                </VBox>
+
+                <VBox prefWidth="350" styleClass="card">
+                    <Label styleClass="card-title" text="Total Tasks" />
+                    <Label styleClass="card-number" text="95" />
+                </VBox>
+
+                <VBox prefWidth="350" styleClass="card">
+                    <Label styleClass="card-title" text="Assigned Tasks" />
+                    <Label styleClass="card-number" text="12" />
+                </VBox>
+
+                <VBox prefWidth="350" styleClass="card">
+                    <Label styleClass="card-title" text="Completed Tasks" />
+                    <Label styleClass="card-number" text="30" />
+                </VBox>
+
+            </HBox>
+
+        </VBox>
+
+
+        <!-- MAIN GRID -->
+        <GridPane hgap="20" vgap="20">
+
+            <columnConstraints>
+                <ColumnConstraints percentWidth="50" />
+                <ColumnConstraints percentWidth="25" />
+                <ColumnConstraints percentWidth="25" />
+            </columnConstraints>
+
+            <!-- PROJECT SUMMARY -->
+            <VBox styleClass="box" GridPane.columnIndex="0" GridPane.rowIndex="0">
+
+                <HBox alignment="CENTER_LEFT" spacing="10">
+
+                    <Label styleClass="box-title" text="Project summary" />
+
+                    <Region HBox.hgrow="ALWAYS" />
+
+                    <Button styleClass="icon-btn">
+                        <graphic>
+                            <Label text="⇅" />
+                        </graphic>
+                    </Button>
+
+                    <Button onAction="#openPopup" styleClass="new-btn" text="+ New" />
+
+                </HBox>
+
+                <TableView prefHeight="200" prefWidth="620" styleClass="project-table">
+
+                    <columns>
+                        <TableColumn maxWidth="220" minWidth="220" prefWidth="220" text="Project name" />
+                        <TableColumn maxWidth="140" minWidth="140" prefWidth="140" text="Project manager" />
+                        <TableColumn maxWidth="140" minWidth="140" prefWidth="140" text="Due date" />
+                        <TableColumn maxWidth="120" minWidth="120" prefWidth="120" text="Status" />
+                    </columns>
+
+                </TableView>
+
+            </VBox>
+
+            <!-- CALENDAR -->
+            <VBox styleClass="box" GridPane.columnIndex="1" GridPane.rowIndex="0">
+                <VBox fx:id="calendarBox" />
+            </VBox>
+
+            <!-- REVIEW -->
+            <VBox spacing="15" styleClass="box" GridPane.columnIndex="2" GridPane.rowIndex="0">
+
+                <Label styleClass="box-title" text="Review" />
+
+                <Pane styleClass="review-box" />
+                <Pane styleClass="review-box" />
+                <Pane styleClass="review-box" />
+
+            </VBox>
+
+            <!-- TODAY TASK -->
+            <VBox spacing="15" styleClass="box" GridPane.columnIndex="0" GridPane.rowIndex="1">
+
+                <Label styleClass="box-title" text="Today task" />
+
+                <HBox spacing="25" styleClass="task-tabs">
+                    <Label styleClass="task-tab-active" text="All" />
+                    <Label text="Important" />
+                </HBox>
+
+                <Separator />
+
+                <ListView fx:id="taskListView" prefHeight="220" />
+
+            </VBox>
+
+            <!-- NOTE -->
+            <VBox styleClass="box" GridPane.columnIndex="1" GridPane.rowIndex="1">
+
+                <Label styleClass="box-title" text="Note" />
+
+                <TextArea prefHeight="200" />
+
+            </VBox>
+
+            <rowConstraints>
+                <RowConstraints percentHeight="50" />
+                <RowConstraints percentHeight="50" />
+            </rowConstraints>
+
+        </GridPane>
+
+    </VBox>
+
+
+    <!-- OVERLAY -->
+    <StackPane fx:id="overlay" onMouseClicked="#closePopup" style="-fx-background-color: rgba(0, 0, 0, 0.6); " styleClass="overlay" visible="false" StackPane.alignment="CENTER">
+      <children>
+         <VBox maxHeight="450" maxWidth="720" onMouseClicked="#consumeMouseEvent" prefWidth="720" spacing="30" style=" -fx-background-color: white;" styleClass="popup">
+            <children>
+         
+                 <HBox fx:id="createProjectPopup" maxHeight="450" maxWidth="720" onMouseClicked="#consumeMouseEvent" prefWidth="720" spacing="30" style=" -fx-background-color: white;" styleClass="popup">
+                     <VBox.margin>
+                         <Insets top="20" right="20" bottom="20" left="20"/>
+                     </VBox.margin>
+                 <!-- LEFT SIDE -->
+                 <VBox prefHeight="450.0" prefWidth="398.0" spacing="18" HBox.hgrow="ALWAYS">
+         
+                     <Label styleClass="popup-title" text="Project name" />
+         
+                     <GridPane hgap="12" vgap="14">
+         
+                         <columnConstraints>
+                             <ColumnConstraints percentWidth="35" />
+                             <ColumnConstraints percentWidth="65" />
+                         </columnConstraints>
+         
+                         <Label text="Start date" />
+                         <DatePicker GridPane.columnIndex="1" />
+         
+                         <Label text="End date" GridPane.rowIndex="1" />
+                         <DatePicker GridPane.columnIndex="1" GridPane.rowIndex="1" />
+         
+                         <Label text="Description" GridPane.rowIndex="2" />
+         
+                         <TextArea prefHeight="90" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                        <rowConstraints>
+                           <RowConstraints />
+                           <RowConstraints />
+                           <RowConstraints />
+                        </rowConstraints>
+         
+                     </GridPane>
+         
+                 </VBox>
+         
+         
+                 <!-- RIGHT SIDE -->
+                 <VBox spacing="18" styleClass="popup-right">
+         
+                     <!-- CREATED BY -->
+                     <VBox spacing="6">
+         
+                         <Label styleClass="popup-sub" text="Created by" />
+         
+                         <HBox alignment="CENTER_LEFT" spacing="10">
+         
+                             <Circle radius="18" />
+         
+                             <VBox>
+                                 <Label styleClass="user-name" text="Hunny" />
+                                 <Label styleClass="user-time" text="Feb 14, 2026, 11:32 PM" />
+                             </VBox>
+         
+                         </HBox>
+         
+                     </VBox>
+         
+         
+                     <!-- CO MANAGER -->
+                     <VBox spacing="8">
+         
+                         <Label styleClass="popup-sub" text="Add Co-Manager" />
+         
+                         <Button styleClass="add-manager-btn" text="+" />
+         
+                     </VBox>
+         
+         
+                     <!-- LAST UPDATE -->
+                     <VBox spacing="6">
+         
+                         <Label styleClass="popup-sub" text="Last updated by" />
+         
+                         <HBox spacing="10">
+         
+                             <Circle radius="16" />
+         
+                             <VBox>
+                                 <Label styleClass="user-name" text="Hunny" />
+                                 <Label styleClass="user-time" text="Feb 14, 2026, 11:32 PM" />
+                             </VBox>
+         
+                         </HBox>
+         
+                     </VBox>
+         
+         
+                     <Region VBox.vgrow="ALWAYS" />
+         
+                     <!-- BUTTONS -->
+                     <HBox alignment="CENTER_RIGHT" spacing="10">
+         
+                         <Button onAction="#closePopup" styleClass="cancel-btn" text="Cancel" />
+         
+                         <Button styleClass="create-btn" text="Create" />
+         
+                     </HBox>
+         
+                 </VBox>
+                 </HBox>
+            </children>
+         </VBox>
+      </children>
+    </StackPane>
+
+</StackPane>

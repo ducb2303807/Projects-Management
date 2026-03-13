@@ -1,4 +1,4 @@
-﻿package com.group4.projects_management_fe.core.api.base;
+package com.group4.projects_management_fe.core.api.base;
 
 import java.util.function.Consumer;
 
