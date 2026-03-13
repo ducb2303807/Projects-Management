@@ -5,6 +5,7 @@
 <?import javafx.scene.control.DatePicker?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.Separator?>
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
@@ -19,11 +20,13 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.shape.Circle?>
 
-<StackPane alignment="CENTER" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.group4.projects_management_fe.features.dashboard.DashboardController">
-    <!-- DASHBOARD CONTENT -->
-    <VBox spacing="25" styleClass="main-container" stylesheets="@../assets/css/dashboard.css">
+<ScrollPane fitToWidth="true" style="-fx-background-color:transparent;" stylesheets="@../assets/css/dashboard.css" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.group4.projects_management_fe.features.dashboard.DashboardController">
+    <content>
+<StackPane alignment="CENTER" maxWidth="1500.0">
 
-        <VBox spacing="15" style="-fx-background-color: #E9E9E9; -fx-border-radius: 20px; -fx-background-radius: 20px; -fx-padding: 20px;" styleClass="overview-section">
+    <VBox prefHeight="700.0" prefWidth="1500.0" spacing="25" styleClass="main-container">
+
+        <VBox maxHeight="150.0" prefHeight="174.0" prefWidth="1439.0" spacing="15" style="-fx-background-color: #E9E9E9; -fx-border-radius: 20px; -fx-background-radius: 20px; -fx-padding: 20px;" styleClass="overview-section">
 
             <HBox alignment="CENTER_LEFT" spacing="10">
 
@@ -40,24 +43,24 @@
             </HBox>
 
 
-            <HBox alignment="CENTER" spacing="40" styleClass="card-container">
+            <HBox alignment="CENTER" maxHeight="80.0" spacing="50.0" styleClass="card-container">
 
-                <VBox prefWidth="350" styleClass="card">
+                <VBox maxHeight="70.0" prefWidth="350" styleClass="card">
                     <Label styleClass="card-title" text="Total Project" />
-                    <Label styleClass="card-number" text="64" />
+                    <Label prefHeight="23.0" prefWidth="27.0" styleClass="card-number" text="64" />
                 </VBox>
 
-                <VBox prefWidth="350" styleClass="card">
+                <VBox maxHeight="70.0" prefWidth="350" styleClass="card">
                     <Label styleClass="card-title" text="Total Tasks" />
                     <Label styleClass="card-number" text="95" />
                 </VBox>
 
-                <VBox prefWidth="350" styleClass="card">
+                <VBox maxHeight="70.0" prefWidth="350" styleClass="card">
                     <Label styleClass="card-title" text="Assigned Tasks" />
                     <Label styleClass="card-number" text="12" />
                 </VBox>
 
-                <VBox prefWidth="350" styleClass="card">
+                <VBox maxHeight="70.0" prefWidth="350" styleClass="card">
                     <Label styleClass="card-title" text="Completed Tasks" />
                     <Label styleClass="card-number" text="30" />
                 </VBox>
@@ -77,7 +80,7 @@
             </columnConstraints>
 
             <!-- PROJECT SUMMARY -->
-            <VBox styleClass="box" GridPane.columnIndex="0" GridPane.rowIndex="0">
+            <VBox prefHeight="306.0" prefWidth="700.0" styleClass="box" GridPane.columnIndex="0" GridPane.rowIndex="0">
 
                 <HBox alignment="CENTER_LEFT" spacing="10">
 
@@ -125,7 +128,7 @@
             </VBox>
 
             <!-- TODAY TASK -->
-            <VBox spacing="15" styleClass="box" GridPane.columnIndex="0" GridPane.rowIndex="1">
+            <VBox maxHeight="400.0" minHeight="300.0" prefHeight="300.0" prefWidth="0.0" spacing="15" styleClass="box" GridPane.columnIndex="0" GridPane.rowIndex="1">
 
                 <Label styleClass="box-title" text="Today task" />
 
@@ -141,7 +144,7 @@
             </VBox>
 
             <!-- NOTE -->
-            <VBox styleClass="box" GridPane.columnIndex="1" GridPane.rowIndex="1">
+            <VBox maxHeight="400.0" minHeight="300.0" prefHeight="300.0" prefWidth="0.0" styleClass="box" GridPane.columnIndex="1" GridPane.rowIndex="1">
 
                 <Label styleClass="box-title" text="Note" />
 
@@ -159,12 +162,12 @@
     </VBox>
 
 
-    <StackPane fx:id="overlay" onMouseClicked="#closePopup" style="-fx-background-color: rgba(0,0,0,0.8); -fx-alignment: CENTER; visibility: true;" visible="false" StackPane.alignment="CENTER">
+    <StackPane fx:id="overlay" onMouseClicked="#closePopup" style="-fx-background-color: rgba(0,0,0,0.8); -fx-alignment: CENTER;" visible="false" StackPane.alignment="CENTER">
 
         <children>
 
             <!-- POPUP -->
-            <VBox maxHeight="450" maxWidth="720" onMouseClicked="#consumeMouseEvent" prefWidth="720" style="-fx-background-color:white;                          -fx-border-radius:20;                          -fx-background-radius:20;                          -fx-padding:30;                          -fx-effect:dropshadow(three-pass-box, rgba(0,0,0,0.3),20,0,0,10);">
+            <VBox maxHeight="450" maxWidth="720" onMouseClicked="#consumeMouseEvent" prefWidth="720" style="-fx-background-color:white; -fx-border-radius:20;                          -fx-background-radius:20;                          -fx-padding:30;                          -fx-effect:dropshadow(three-pass-box, rgba(0,0,0,0.3),20,0,0,10);">
 
                 <children>
 
@@ -188,95 +191,53 @@
                                 </columnConstraints>
 
                                 <!-- START DATE -->
-                                <HBox alignment="CENTER_LEFT"
-                                      maxWidth="100.0"
-                                      minWidth="50.0"
-                                      prefHeight="26.0"
-                                      prefWidth="50.0"
-                                      spacing="10">
+                                <HBox alignment="CENTER_LEFT" maxWidth="100.0" minWidth="50.0" prefHeight="26.0" prefWidth="50.0" spacing="10">
 
                                     <Label text="📅" />
-                                    <Label text="Start date"
-                                           style="-fx-font-size:14; -fx-text-fill:#777;" />
+                                    <Label style="-fx-font-size:14; -fx-text-fill:#777;" text="Start date" />
                                 </HBox>
 
-                                <DatePicker GridPane.columnIndex="1"
-                                            style="-fx-background-color:#f5f5f5; -fx-border-color:transparent; -fx-background-radius:8;" />
+                                <DatePicker style="-fx-background-color:#f5f5f5; -fx-border-color:transparent; -fx-background-radius:8;" GridPane.columnIndex="1" />
 
 
                                 <!-- END DATE -->
-                                <HBox alignment="CENTER_LEFT"
-                                      maxWidth="100.0"
-                                      minWidth="50.0"
-                                      prefWidth="50.0"
-                                      spacing="10"
-                                      GridPane.rowIndex="1">
+                                <HBox alignment="CENTER_LEFT" maxWidth="100.0" minWidth="50.0" prefWidth="50.0" spacing="10" GridPane.rowIndex="1">
 
                                     <Label text="📅" />
-                                    <Label text="End date"
-                                           style="-fx-font-size:14; -fx-text-fill:#777;" />
+                                    <Label style="-fx-font-size:14; -fx-text-fill:#777;" text="End date" />
                                 </HBox>
 
-                                <DatePicker GridPane.columnIndex="1"
-                                            GridPane.rowIndex="1"
-                                            style="-fx-background-color:#f5f5f5; -fx-border-color:transparent; -fx-background-radius:8;" />
+                                <DatePicker style="-fx-background-color:#f5f5f5; -fx-border-color:transparent; -fx-background-radius:8;" GridPane.columnIndex="1" GridPane.rowIndex="1" />
 
 
                                 <!-- STATUS -->
-                                <HBox alignment="CENTER_LEFT"
-                                      maxWidth="100.0"
-                                      minWidth="50.0"
-                                      prefWidth="50.0"
-                                      spacing="10"
-                                      GridPane.rowIndex="2">
+                                <HBox alignment="CENTER_LEFT" maxWidth="100.0" minWidth="50.0" prefWidth="50.0" spacing="10" GridPane.rowIndex="2">
 
                                     <Label text="☑" />
-                                    <Label text="Status"
-                                           style="-fx-font-size:14; -fx-text-fill:#777;" />
+                                    <Label style="-fx-font-size:14; -fx-text-fill:#777;" text="Status" />
                                 </HBox>
 
-                                <Button fx:id="statusBtn"
-                                        text="Empty"
-                                        onAction="#showStatusMenu"
-                                        GridPane.columnIndex="1"
-                                        GridPane.rowIndex="2"
-                                        style="-fx-background-color:#f5f5f5; -fx-background-radius:8;" />
+                                <Button fx:id="statusBtn" onAction="#showStatusMenu" style="-fx-background-color:#f5f5f5; -fx-background-radius:8;" text="Empty" GridPane.columnIndex="1" GridPane.rowIndex="2" />
 
 
                                 <!-- MEMBER -->
-                                <HBox alignment="CENTER_LEFT"
-                                      maxWidth="100.0"
-                                      minWidth="50.0"
-                                      prefWidth="50.0"
-                                      spacing="10"
-                                      GridPane.rowIndex="3">
+                                <HBox alignment="CENTER_LEFT" maxWidth="100.0" minWidth="50.0" prefWidth="50.0" spacing="10" GridPane.rowIndex="3">
 
                                     <Label text="👥" />
-                                    <Label text="1 member"
-                                           style="-fx-font-size:14; -fx-text-fill:#777;" />
+                                    <Label style="-fx-font-size:14; -fx-text-fill:#777;" text="1 member" />
                                 </HBox>
 
-                                <Label text="No member selected"
-                                       GridPane.columnIndex="1"
-                                       GridPane.rowIndex="3"
-                                       style="-fx-font-size:14;" />
+                                <Label style="-fx-font-size:14;" text="No member selected" GridPane.columnIndex="1" GridPane.rowIndex="3" />
 
 
                                 <!-- DESCRIPTION -->
-                                <HBox alignment="CENTER_LEFT"
-                                      spacing="10"
-                                      GridPane.rowIndex="4">
+                                <HBox alignment="CENTER_LEFT" spacing="10" GridPane.rowIndex="4">
 
                                     <Label text="≡" />
-                                    <Label text="Description:"
-                                           style="-fx-font-size:14; -fx-text-fill:#777;" />
+                                    <Label style="-fx-font-size:14; -fx-text-fill:#777;" text="Description:" />
                                 </HBox>
 
-                                <TextArea prefHeight="80"
-                                          promptText="Add a description..."
-                                          GridPane.columnIndex="1"
-                                          GridPane.rowIndex="4"
-                                          style="-fx-border-color:transparent; -fx-background-color:#f5f5f5; -fx-background-radius:8;" />
+                                <TextArea prefHeight="80" promptText="Add a description..." style="-fx-border-color:transparent; -fx-background-color:#f5f5f5; -fx-background-radius:8;" GridPane.columnIndex="1" GridPane.rowIndex="4" />
                         <rowConstraints>
                            <RowConstraints />
                            <RowConstraints />
@@ -371,3 +332,6 @@
     </StackPane>
 
 </StackPane>
+    </content>
+
+</ScrollPane>
