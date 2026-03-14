@@ -7,6 +7,8 @@ package com.group4.projects_management.controller; /****************************
 import com.group4.common.dto.LookupDTO;
 import com.group4.common.enums.LookupType;
 import com.group4.projects_management.service.LookupService;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -16,6 +18,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/lookups")
+@SecurityRequirement(name = "bearerAuth")
 public class LookupController {
    @Autowired
    private LookupService lookupService;
@@ -28,7 +31,7 @@ public class LookupController {
    @PreAuthorize("hasRole('ADMIN')")
    @PostMapping("/{type}")
    public ResponseEntity<LookupDTO> createOrUpdate(@PathVariable LookupType type,
-                                                         @RequestBody LookupDTO dto)
+                                                         @Valid @RequestBody LookupDTO dto)
            throws Throwable {
       return ResponseEntity.ok(lookupService.saveOrUpdate(type, dto));
    }

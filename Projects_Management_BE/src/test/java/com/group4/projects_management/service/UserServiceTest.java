@@ -81,7 +81,7 @@ public class UserServiceTest {
 
             assertThatThrownBy(() -> userService.login(request))
                     .isInstanceOf(BusinessException.class)
-                    .hasFieldOrPropertyWithValue("errorCode", BusinessErrorCode.USER_NOT_FOUND);
+                    .hasFieldOrPropertyWithValue("errorCode", BusinessErrorCode.AUTH_USER_NOT_FOUND);
         }
 
         @Test
@@ -93,7 +93,7 @@ public class UserServiceTest {
 
             assertThatThrownBy(() -> userService.login(request))
                     .isInstanceOf(BusinessException.class)
-                    .hasFieldOrPropertyWithValue("errorCode", BusinessErrorCode.ACCOUNT_LOCKED);
+                    .hasFieldOrPropertyWithValue("errorCode", BusinessErrorCode.AUTH_ACCOUNT_LOCKED);
         }
 
         @Test
@@ -105,7 +105,7 @@ public class UserServiceTest {
 
             assertThatThrownBy(() -> userService.login(request))
                     .isInstanceOf(BusinessException.class)
-                    .hasFieldOrPropertyWithValue("errorCode", BusinessErrorCode.INVALID_PASSWORD);
+                    .hasFieldOrPropertyWithValue("errorCode", BusinessErrorCode.AUTH_INVALID_PASSWORD);
         }
     }
 

@@ -14,10 +14,10 @@ import lombok.experimental.SuperBuilder;
 @AllArgsConstructor
 @SuperBuilder
 public class CommentCreateRequestDTO extends CommentBaseDTO {
-   /** @pdOid 61a049e9-9457-4e0b-9b1a-6d17286b19c9 */
+
    private Long taskId;
-   /** @pdOid a8a754a1-038b-4ba4-bb06-3913ef355fd2 */
+
    private Long parentId;
-   /** @pdOid 54cbacb0-6cbd-4603-9b1c-69b27a02f0cd */
+
    private Long projectMemberId;
 }

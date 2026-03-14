@@ -4,8 +4,8 @@ package com.group4.common.dto; /************************************************
  * Purpose: Defines the Class LoginRequest
  ***********************************************************************/
 
-import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -17,11 +17,11 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 public class LoginRequest {
-   /** @pdOid 4603558d-7934-420b-afbb-0fe713b6e127 */
+
    @NotBlank( message = "Username cannot be blank")
    private java.lang.String username;
-   /** @pdOid 71bb78d9-87a7-4627-b581-47d82d1e3329 */
+
    @NotBlank( message = "Password cannot be blank")
-   @Min( value = 6, message = "Password must be at least 6 characters long")
+   @Size(min = 5, message = "Password must be at least 5 characters long")
    private java.lang.String password;
 }

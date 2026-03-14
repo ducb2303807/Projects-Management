@@ -15,7 +15,9 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 
-/** @pdOid ed3a2148-7b7a-4a09-a24a-3df8fa0f223c */
+/**
+ * @pdOid ed3a2148-7b7a-4a09-a24a-3df8fa0f223c
+ */
 @Entity
 @Table(name = "PROJECT")
 @Data
