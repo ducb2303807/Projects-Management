@@ -20,7 +20,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.shape.Circle?>
 
-<ScrollPane fitToWidth="true" style="-fx-background-color:transparent;" stylesheets="@../assets/css/dashboard.css" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.group4.projects_management_fe.features.dashboard.DashboardController">
+<ScrollPane fitToWidth="true" style="-fx-background-color:transparent;" stylesheets="@../assets/css/dashboard.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.group4.projects_management_fe.features.dashboard.DashboardController">
     <content>
 <StackPane alignment="CENTER" maxWidth="1500.0">
 
@@ -47,22 +47,22 @@
 
                 <VBox maxHeight="70.0" prefWidth="350" styleClass="card">
                     <Label styleClass="card-title" text="Total Project" />
-                    <Label prefHeight="23.0" prefWidth="27.0" styleClass="card-number" text="64" />
+                    <Label fx:id="totalProjectLabel" styleClass="card-number" text="0" />
                 </VBox>
 
                 <VBox maxHeight="70.0" prefWidth="350" styleClass="card">
                     <Label styleClass="card-title" text="Total Tasks" />
-                    <Label styleClass="card-number" text="95" />
+                    <Label fx:id="totalTaskLabel" styleClass="card-number" text="0" />
                 </VBox>
 
                 <VBox maxHeight="70.0" prefWidth="350" styleClass="card">
                     <Label styleClass="card-title" text="Assigned Tasks" />
-                    <Label styleClass="card-number" text="12" />
+                    <Label fx:id="assignedTaskLabel" styleClass="card-number" text="0" />
                 </VBox>
 
                 <VBox maxHeight="70.0" prefWidth="350" styleClass="card">
                     <Label styleClass="card-title" text="Completed Tasks" />
-                    <Label styleClass="card-number" text="30" />
+                    <Label fx:id="completedTaskLabel" styleClass="card-number" text="0" />
                 </VBox>
 
             </HBox>
@@ -98,13 +98,13 @@
 
                 </HBox>
 
-                <TableView prefHeight="200" prefWidth="620" styleClass="project-table">
+                <TableView fx:id="projectTable" prefHeight="200" prefWidth="620" styleClass="project-table">
 
                     <columns>
-                        <TableColumn maxWidth="220" minWidth="220" prefWidth="220" text="Project name" />
-                        <TableColumn maxWidth="140" minWidth="140" prefWidth="140" text="Project manager" />
-                        <TableColumn maxWidth="140" minWidth="140" prefWidth="140" text="Due date" />
-                        <TableColumn maxWidth="120" minWidth="120" prefWidth="120" text="Status" />
+                        <TableColumn fx:id="colName" text="Project name"/>
+                        <TableColumn fx:id="colManager" text="Project manager"/>
+                        <TableColumn fx:id="colDueDate" text="Due date"/>
+                        <TableColumn fx:id="colStatus" text="Status"/>
                     </columns>
 
                 </TableView>
