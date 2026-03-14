@@ -18,7 +18,7 @@ import lombok.NoArgsConstructor;
 
 @AttributeOverrides({
         @AttributeOverride(name = "id", column = @Column(name = "PROJECT_MEMBER_STATUS_ID")),
-        @AttributeOverride(name = "name", column = @Column(name = "PROJECT_MEMBER_STATUS_NAME", length = 50, nullable = false)),
+        @AttributeOverride(name = "name", column = @Column(name = "SYSTEM_NAME", length = 50, nullable = false)),
         @AttributeOverride(name = "description", column = @Column(name = "PROJECT_MEMBER_STATUS_DESCRIPTION"))
 })
 @EqualsAndHashCode(callSuper = true)

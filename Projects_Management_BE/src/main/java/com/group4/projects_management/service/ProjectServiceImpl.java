@@ -9,6 +9,7 @@ import com.group4.projects_management.core.exception.ResourceNotFoundException;
 import com.group4.projects_management.entity.Project;
 import com.group4.projects_management.entity.ProjectMember;
 import com.group4.projects_management.entity.ProjectMemberStatus;
+import com.group4.projects_management.entity.ProjectStatus;
 import com.group4.projects_management.mapper.ProjectMapper;
 import com.group4.projects_management.mapper.ProjectMemberMapper;
 import com.group4.projects_management.repository.*;
@@ -49,7 +50,7 @@ public class ProjectServiceImpl extends BaseServiceImpl<Project, Long> implement
 
     @Override
     public List<ProjectResponseDTO> getAllProjects() {
-        return projectRepository.findAll()
+        return projectRepository.findAllWithMembers()
                 .stream()
                 .map(projectMapper::toDto)
                 .toList();
@@ -64,17 +65,16 @@ public class ProjectServiceImpl extends BaseServiceImpl<Project, Long> implement
         var invitee = userRepository.findById(inviteeId)
                 .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy user được mời"));
 
-        var inviterMember = projectMemberRepository.findByProject_IdAndUser_Id(projectId, inviterId)
-                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy ProjectMember của inviter"));
+        var inviter = userRepository.findById(inviterId)
+                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy user mời"));
 
         var role = projectRoleRepository.findById(roleId)
                 .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy role"));
 
         var pendingStatus = projectMemberStatusRepository.findBySystemCode("PENDING")
                 .orElseThrow(() -> new RuntimeException("Hệ thống chưa cấu hình ProjectMemberStatus systemCode=PENDING"));
-      
-        boolean exists = projectMemberRepository.existsByProject_IdAndUser_Id(projectId, inviteeId);
 
+        boolean exists = projectMemberRepository.existsByProject_IdAndUser_Id(projectId, inviteeId);
         if (exists) {
             throw new RuntimeException("User đã thuộc project này rồi");
         }
@@ -84,7 +84,7 @@ public class ProjectServiceImpl extends BaseServiceImpl<Project, Long> implement
         member.setUser(invitee);
         member.setProjectRole(role);
         member.setProjectMemberStatus(pendingStatus);
-        member.setInvitedBy(inviterMember);
+        member.setInvitedBy(inviter); // gán bằng User thay vì ProjectMember
         member.setInvitedAt(LocalDateTime.now());
 
         projectMemberRepository.save(member);
@@ -183,7 +183,7 @@ public class ProjectServiceImpl extends BaseServiceImpl<Project, Long> implement
     @Override
     @Transactional
     public ProjectResponseDTO updateProject(Long projectId, ProjectUpdateRequestDTO dto) {
-        var project = projectRepository.findById(projectId)
+        Project project = projectRepository.findById(projectId)
                 .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy dự án"));
 
         if (dto.getProjectName() != null) {
@@ -194,9 +194,24 @@ public class ProjectServiceImpl extends BaseServiceImpl<Project, Long> implement
             project.setDescription(dto.getDescription());
         }
 
+        if (dto.getStartDate() != null) {
+            project.setStartDate(dto.getStartDate());
+        }
+
+        if (dto.getEndDate() != null) {
+            project.setEndDate(dto.getEndDate());
+        }
+
+        if (dto.getStatusId() != null) {
+            ProjectStatus status = projectStatusRepository.findById(dto.getStatusId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy trạng thái"));
+            project.setProjectStatus(status);
+        }
+
         Project updated = projectRepository.save(project);
         return projectMapper.toDto(updated);
     }
+
 
     @Override
     @Transactional
@@ -229,15 +244,14 @@ public class ProjectServiceImpl extends BaseServiceImpl<Project, Long> implement
         var creator = userRepository.findById(dto.getCreateByUserId())
                 .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy người tạo dự án"));
 
-        var ownerRole = projectRoleRepository.findBySystemCode("OWNER")
-                .orElseThrow(() -> new RuntimeException("Hệ thống chưa cấu hình ProjectRole systemCode=OWNER"));
+        var ownerRole = projectRoleRepository.findBySystemCode("PM")
+                .orElseThrow(() -> new RuntimeException("Hệ thống chưa cấu hình ProjectRole systemCode=PM"));
 
-        // If you have a different default project status code in DB, change it here.
         var defaultProjectStatus = projectStatusRepository.findBySystemCode("ACTIVE")
                 .orElseThrow(() -> new RuntimeException("Hệ thống chưa cấu hình ProjectStatus systemCode=ACTIVE"));
 
-        var activeMemberStatus = projectMemberStatusRepository.findBySystemCode("ACCEPTED")
-                .orElseThrow(() -> new RuntimeException("Hệ thống chưa cấu hình ProjectMemberStatus systemCode=ACCEPTED"));
+        var activeMemberStatus = projectMemberStatusRepository.findBySystemCode("ACTIVE")
+                .orElseThrow(() -> new RuntimeException("Hệ thống chưa cấu hình ProjectMemberStatus systemCode=ACTIVE"));
 
         Project project = projectMapper.toCreateEntity(dto);
 
@@ -260,11 +274,9 @@ public class ProjectServiceImpl extends BaseServiceImpl<Project, Long> implement
 
     @Override
     public ProjectResponseDTO getProjectDetail(Long projectId) {
-        var project = projectRepository.findById(projectId)
+        var project = projectRepository.findByIdWithMembers(projectId)
                 .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy dự án"));
-
-        var response = projectMapper.toDto(project);
-        return response;
+        return projectMapper.toDto(project);
     }
 
     private void handleAccept(ProjectMember member, ProjectMemberStatus statusEntity) {
