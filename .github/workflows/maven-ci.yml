@@ -20,8 +20,8 @@ jobs:
       - uses: dorny/paths-filter@v3
         id: filter
         with:
-          filters:
-            backend: |
+          filters: |
+            backend:
               - 'Projects_Management_BE/**'
               - 'common/**'
             frontend:
