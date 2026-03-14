@@ -1,8 +1,10 @@
 package com.group4.projects_management_fe.features.auth;
 
 import com.group4.common.dto.LoginRequest;
-import com.group4.projects_management_fe.core.api.AuthApi;
 import com.group4.common.dto.UserRegistrationDTO;
+import com.group4.projects_management_fe.core.api.AuthApi;
+import com.group4.projects_management_fe.core.navigation.AppStageManager;
+import io.reactivex.rxjava3.disposables.CompositeDisposable;
 import javafx.animation.FadeTransition;
 import javafx.animation.Interpolator;
 import javafx.animation.TranslateTransition;
@@ -14,13 +16,17 @@ import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import javafx.util.Duration;
+import org.pdfsam.rxjavafx.observables.JavaFxObservable;
 
 import java.util.regex.Pattern;
 
 public class AuthController {
+    private final CompositeDisposable disposables = new CompositeDisposable();
 
     @FXML
     private VBox signInForm;
@@ -63,6 +69,7 @@ public class AuthController {
 
     private final AuthApi authApi = new AuthApi();
 
+
     @FXML
     private void initialize() {
         bgArea.setTranslateX(0);
@@ -74,7 +81,40 @@ public class AuthController {
         signUpForm.setVisible(false);
         signUpForm.setManaged(false);
         signUpForm.setOpacity(0);
+
+        keyBindingInitialize();
     }
+
+    private void keyBindingInitialize() {
+        var stage = AppStageManager.getInstance().getStage();
+
+        Platform.runLater(() -> {
+            var enterBinding = JavaFxObservable.eventsOf(stage.getScene(), KeyEvent.KEY_PRESSED)
+                    .filter(e -> e.getCode() == KeyCode.ENTER)
+                    .subscribe(e -> {
+                        System.out.println("Enter key pressed");
+                        if (signInForm.isVisible()) {
+                            handleLogin();
+                        } else if (signUpForm.isVisible()) {
+                            handleRegister();
+                        } else {
+                            System.out.println("No form is visible");
+                        }
+                    });
+
+            disposables.add(enterBinding);
+
+            JavaFxObservable.valuesOf(stage.sceneProperty())
+                    .skip(1)
+                    .take(1)
+                    .subscribe(scene -> {
+                        if (!disposables.isDisposed())
+                            disposables.dispose();
+                        System.out.println("Auth controller Disposed");
+                    });
+        });
+    }
+
 
     @FXML
     private void showSignUp() {
