@@ -41,7 +41,7 @@ public class ProjectMember {
    @ManyToOne
    @JoinColumn(name = "PROJECT_MEMBER_INVITE_ID") // Tự tham chiếu để biết ai mời
    @ToString.Exclude
-   private ProjectMember invitedBy;
+   private User invitedBy;
 
    @ManyToOne
    @JoinColumn(name = "PROJECT_MEMBER_STATUS_ID", nullable = false)

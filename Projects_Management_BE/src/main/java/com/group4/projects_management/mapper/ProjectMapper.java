@@ -11,7 +11,7 @@ public abstract class ProjectMapper
 {
     @Mapping(source = "name", target = "projectName")
     @Mapping(source = "projectStatus.name", target = "statusName")
-    @Mapping(target = "memberCount", expression = "java(project.getMemberCount())")
+    @Mapping(target = "memberCount", expression = "java(project.getMembers() != null ? project.getMembers().size() : 0)")
     @Mapping(target = "userCreatedUsername", expression = "java(project.getCreatedBy().getUsername())")
     @Mapping(target = "userCreatedFullName", expression = "java(project.getCreatedBy().getFullName())")
     public abstract ProjectResponseDTO toDto(Project project);
