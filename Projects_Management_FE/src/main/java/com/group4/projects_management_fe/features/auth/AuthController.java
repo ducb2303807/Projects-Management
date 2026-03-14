@@ -17,6 +17,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import javafx.util.Duration;
+import com.group4.projects_management_fe.core.session.AppSessionManager;
 
 import java.util.regex.Pattern;
 
@@ -180,6 +181,9 @@ public class AuthController {
                 .password(password).build();
 
         authApi.login(loginRequest).thenAccept(response -> {
+            AppSessionManager.getInstance()
+                    .createSession(response.getToken(), response.getUser());
+
             Platform.runLater(() -> {
                 showAlert("Login successful", "Welcome back!");
                 openMainLayout();

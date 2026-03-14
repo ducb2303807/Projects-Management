@@ -7,15 +7,14 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
 @Mapper(componentModel = "spring")
-public abstract class ProjectMapper
-{
+public abstract class ProjectMapper {
+
     @Mapping(source = "name", target = "projectName")
     @Mapping(source = "projectStatus.name", target = "statusName")
-    @Mapping(target = "memberCount", expression = "java(project.getMemberCount())")
     @Mapping(target = "userCreatedUsername", expression = "java(project.getCreatedBy().getUsername())")
     @Mapping(target = "userCreatedFullName", expression = "java(project.getCreatedBy().getFullName())")
+    @Mapping(target = "memberCount", ignore = true)
     public abstract ProjectResponseDTO toDto(Project project);
-
 
     @Mapping(source = "projectName", target = "name")
     @Mapping(target = "id", ignore = true)

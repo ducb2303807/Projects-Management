@@ -48,6 +48,7 @@ public class ProjectServiceImpl extends BaseServiceImpl<Project, Long> implement
     }
 
     @Override
+    @Transactional
     public List<ProjectResponseDTO> getAllProjects() {
         return projectRepository.findAll()
                 .stream()
@@ -173,10 +174,17 @@ public class ProjectServiceImpl extends BaseServiceImpl<Project, Long> implement
 
         final String activeMemberStatusCode = "ACCEPTED";
 
-        return projectMemberRepository.findByUser_IdAndLeftAtIsNullAndProjectMemberStatus_SystemCode(userId, activeMemberStatusCode)
+        return projectMemberRepository
+                .findByUser_IdAndLeftAtIsNullAndProjectMemberStatus_SystemCode(userId, activeMemberStatusCode)
                 .stream()
                 .map(ProjectMember::getProject)
-                .map(projectMapper::toDto)
+                .map(project -> {
+                    ProjectResponseDTO dto = projectMapper.toDto(project);
+                    dto.setMemberCount(
+                            projectMemberRepository.countMembers(project.getId()).intValue()
+                    );
+                    return dto;
+                })
                 .toList();
     }
 
