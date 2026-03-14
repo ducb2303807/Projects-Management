@@ -81,11 +81,10 @@ public class RxSseManager extends AbstractSseManager<SseNotificationDTO> {
         }
     }
 
-
     private Observable<SseNotificationDTO> createSseObservable() {
         return Observable.create(emitter -> {
             Request request = new Request.Builder()
-                    .url(this.getUrl())
+                    .url(this.buildUrl(this.endpoint))
                     .build();
 
             EventSourceListener listener = createSseListener(emitter);
@@ -113,7 +112,7 @@ public class RxSseManager extends AbstractSseManager<SseNotificationDTO> {
                 }
 
                 try {
-                    var dto = parseData(data);
+                    var dto = parseData(data, SseNotificationDTO.class);
                     emitter.onNext(dto);
                 } catch (Exception e) {
                     System.err.println("Lỗi parse JSON: " + e.getMessage());
@@ -143,6 +142,4 @@ public class RxSseManager extends AbstractSseManager<SseNotificationDTO> {
                     return Observable.timer(delay, TimeUnit.MILLISECONDS);
                 });
     }
-
-
 }
