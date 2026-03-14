@@ -6,6 +6,7 @@ import javafx.fxml.Initializable;
 import javafx.scene.Node;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.HBox;
+import javafx.event.ActionEvent;
 
 import java.io.IOException;
 import java.net.URL;
@@ -49,5 +50,11 @@ public class ProjectController implements Initializable {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    @FXML
+    void openNewProjectPopup(ActionEvent event) {
+        // Tạm thời để rỗng hoặc in ra một dòng log để test giao diện
+        System.out.println("Nút + New đã được bấm! Giao diện load thành công!");
     }
 }
