@@ -1,8 +1,12 @@
 package com.group4.projects_management_fe.features.dashboard;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.group4.common.dto.ProjectResponseDTO;
+import com.group4.common.dto.TaskResponseDTO;
 import javafx.animation.FadeTransition;
 import javafx.animation.ParallelTransition;
 import javafx.animation.ScaleTransition;
+import javafx.beans.property.SimpleStringProperty;
 import javafx.fxml.FXML;
 import javafx.geometry.Side;
 import javafx.scene.Node;
@@ -11,6 +15,14 @@ import javafx.scene.control.skin.DatePickerSkin;
 import javafx.scene.layout.*;
 import javafx.geometry.Pos;
 import javafx.util.Duration;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.util.List;
+import com.group4.projects_management_fe.core.session.AppSessionManager;
 
 public class DashboardController {
 
@@ -33,9 +45,259 @@ public class DashboardController {
 
     private ContextMenu statusMenu;
 
+    //service
+    @FXML
+    private Label totalProjectLabel;
+
+    @FXML
+    private Label totalTaskLabel;
+
+    @FXML
+    private Label assignedTaskLabel;
+
+    @FXML
+    private Label completedTaskLabel;
+
+    @FXML
+    private TableView<ProjectResponseDTO> projectTable;
+
+    @FXML
+    private TableColumn<ProjectResponseDTO, String> colName;
+
+    @FXML
+    private TableColumn<ProjectResponseDTO, String> colManager;
+
+    @FXML
+    private TableColumn<ProjectResponseDTO, String> colDueDate;
+
+    @FXML
+    private TableColumn<ProjectResponseDTO, String> colStatus;
+
+    private void loadProjects() {
+
+        try {
+
+            URL url = new URL("http://localhost:8080/api/projects/me");
+
+            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            conn.setRequestMethod("GET");
+
+            String token = AppSessionManager
+                    .getInstance()
+                    .getValidToken();
+
+            conn.setRequestProperty("Authorization", "Bearer " + token);
+            conn.setRequestProperty("Content-Type", "application/json");
+
+            BufferedReader reader =
+                    new BufferedReader(new InputStreamReader(conn.getInputStream()));
+
+            StringBuilder response = new StringBuilder();
+            String line;
+
+            while ((line = reader.readLine()) != null) {
+                response.append(line);
+            }
+
+            reader.close();
+
+            ObjectMapper mapper = new ObjectMapper();
+            mapper.registerModule(new JavaTimeModule());
+
+            List<ProjectResponseDTO> projects =
+                    mapper.readValue(
+                            response.toString(),
+                            new TypeReference<List<ProjectResponseDTO>>() {}
+                    );
+
+            projectTable.getItems().setAll(projects);
+            // set total project
+            totalProjectLabel.setText(String.valueOf(projects.size()));
+
+            System.out.println("TOKEN = " + token);
+            System.out.println("HTTP CODE = " + conn.getResponseCode());
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+//    private void loadTasks() {
+//
+//        try {
+//
+//            URL url = new URL("http://localhost:8080/api/my-tasks/count");
+//
+//            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+//            conn.setRequestMethod("GET");
+//
+//            String token = AppSessionManager
+//                    .getInstance()
+//                    .getValidToken();
+//
+//            conn.setRequestProperty("Authorization", "Bearer " + token);
+//            conn.setRequestProperty("Content-Type", "application/json");
+//
+//            BufferedReader reader =
+//                    new BufferedReader(new InputStreamReader(conn.getInputStream()));
+//
+//            StringBuilder response = new StringBuilder();
+//            String line;
+//
+//            while ((line = reader.readLine()) != null) {
+//                response.append(line);
+//            }
+//
+//            reader.close();
+//
+//            ObjectMapper mapper = new ObjectMapper();
+//            mapper.registerModule(new JavaTimeModule());
+//
+//            List<TaskResponseDTO> tasks =
+//                    mapper.readValue(
+//                            response.toString(),
+//                            new TypeReference<List<TaskResponseDTO>>() {}
+//                    );
+//
+//            int total = tasks.size();
+//            int assigned = 0;
+//            int completed = 0;
+//
+//            for (TaskResponseDTO t : tasks) {
+//
+//                if ("Completed".equalsIgnoreCase(t.getStatusName())) {
+//                    completed++;
+//                }
+//
+//                if ("Assigned".equalsIgnoreCase(t.getStatusName())
+//                        || "On going".equalsIgnoreCase(t.getStatusName())) {
+//                    assigned++;
+//                }
+//            }
+//
+//            totalTaskLabel.setText(String.valueOf(total));
+//            assignedTaskLabel.setText(String.valueOf(assigned));
+//            completedTaskLabel.setText(String.valueOf(completed));
+//
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
+//    }
+
+    //service
+
     @FXML
     private void showStatusMenu() {
         statusMenu.show(statusBtn, Side.BOTTOM, 0, 5);
+    }
+
+    @FXML
+    public void initialize() {
+        projectTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+
+        colName.setCellValueFactory(data ->
+                new SimpleStringProperty(data.getValue().getProjectName()));
+
+        colManager.setCellValueFactory(data ->
+                new SimpleStringProperty(data.getValue().getUserCreatedFullName()));
+
+        colDueDate.setCellValueFactory(data ->
+                new SimpleStringProperty(
+                        data.getValue().getCreatedAt().toLocalDate().toString()
+                ));
+
+        colStatus.setCellValueFactory(data ->
+                new SimpleStringProperty(data.getValue().getStatusName()));
+
+        colStatus.setCellFactory(column -> new TableCell<>() {
+
+            @Override
+            protected void updateItem(String status, boolean empty) {
+                super.updateItem(status, empty);
+
+                if (empty || status == null) {
+                    setGraphic(null);
+                    return;
+                }
+
+                Label badge = new Label(status);
+
+                // SO TRẠNG THÁI Ở ĐÂY
+                switch (status.toLowerCase()) {
+
+                    case "completed":
+                        badge.getStyleClass().add("status-completed");
+                        break;
+
+                    case "delayed":
+                        badge.getStyleClass().add("status-delayed");
+                        break;
+
+                    case "risk":
+                        badge.getStyleClass().add("status-risk");
+                        break;
+
+                    case "on going":
+                    case "ongoing":
+                        badge.getStyleClass().add("status-ongoing");
+                        break;
+                }
+
+                setGraphic(badge);
+                setText(null);
+            }
+        });
+
+        loadProjects();
+//        loadTasks();
+
+        /* ---------------- CALENDAR ---------------- */
+
+        DatePicker datePicker = new DatePicker();
+
+        DatePickerSkin skin = new DatePickerSkin(datePicker);
+        Node calendar = skin.getPopupContent();
+
+        calendarBox.getChildren().add(calendar);
+
+        /* ---------------- TODAY TASK LIST ---------------- */
+
+        taskListView.getItems().add(createTask(
+                "Create a user flow of social application design",
+                "Completed"
+        ));
+
+        taskListView.getItems().add(createTask(
+                "Create a user flow of social application design",
+                "In review"
+        ));
+
+        taskListView.getItems().add(createTask(
+                "Landing page design for Fintech project of singapore",
+                "In review"
+        ));
+
+        taskListView.getItems().add(createTask(
+                "Interactive prototype for app screens of deltamime project",
+                "On going"
+        ));
+
+        taskListView.getItems().add(createTask(
+                "Interactive prototype for app screens of deltamime project",
+                "Completed"
+        ));
+
+        MenuItem completed = new MenuItem("Completed");
+        MenuItem ongoing = new MenuItem("On going");
+        MenuItem review = new MenuItem("In review");
+        MenuItem delayed = new MenuItem("Delayed");
+
+        completed.setOnAction(e -> statusBtn.setText("Completed"));
+        ongoing.setOnAction(e -> statusBtn.setText("On going"));
+        review.setOnAction(e -> statusBtn.setText("In review"));
+        delayed.setOnAction(e -> statusBtn.setText("Delayed"));
+
+        statusMenu = new ContextMenu(completed, ongoing, review, delayed);
     }
 
     @FXML
@@ -101,58 +363,6 @@ public class DashboardController {
     }
 
     /* -------- INIT -------- */
-
-    @FXML
-    public void initialize() {
-
-        /* ---------------- CALENDAR ---------------- */
-
-        DatePicker datePicker = new DatePicker();
-
-        DatePickerSkin skin = new DatePickerSkin(datePicker);
-        Node calendar = skin.getPopupContent();
-
-        calendarBox.getChildren().add(calendar);
-
-        /* ---------------- TODAY TASK LIST ---------------- */
-
-        taskListView.getItems().add(createTask(
-                "Create a user flow of social application design",
-                "Completed"
-        ));
-
-        taskListView.getItems().add(createTask(
-                "Create a user flow of social application design",
-                "In review"
-        ));
-
-        taskListView.getItems().add(createTask(
-                "Landing page design for Fintech project of singapore",
-                "In review"
-        ));
-
-        taskListView.getItems().add(createTask(
-                "Interactive prototype for app screens of deltamime project",
-                "On going"
-        ));
-
-        taskListView.getItems().add(createTask(
-                "Interactive prototype for app screens of deltamime project",
-                "Completed"
-        ));
-
-        MenuItem completed = new MenuItem("Completed");
-        MenuItem ongoing = new MenuItem("On going");
-        MenuItem review = new MenuItem("In review");
-        MenuItem delayed = new MenuItem("Delayed");
-
-        completed.setOnAction(e -> statusBtn.setText("Completed"));
-        ongoing.setOnAction(e -> statusBtn.setText("On going"));
-        review.setOnAction(e -> statusBtn.setText("In review"));
-        delayed.setOnAction(e -> statusBtn.setText("Delayed"));
-
-        statusMenu = new ContextMenu(completed, ongoing, review, delayed);
-    }
 
     private HBox createTask(String title, String status) {
 
