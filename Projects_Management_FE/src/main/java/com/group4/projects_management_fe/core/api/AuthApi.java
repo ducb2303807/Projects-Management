@@ -5,50 +5,28 @@ import com.group4.common.dto.LoginRequest;
 import com.group4.common.dto.UserDTO;
 import com.group4.common.dto.UserRegistrationDTO;
 import com.group4.projects_management_fe.core.api.base.BaseApi;
-import okhttp3.MediaType;
-import okhttp3.Request;
-import okhttp3.RequestBody;
 
 import java.util.concurrent.CompletableFuture;
 
 public class AuthApi extends BaseApi {
+    private static final String LOGIN_ENPOINT = "/auth/login";
+    private static final String REGISTER_ENPOINT = "/auth/register";
     public CompletableFuture<AuthResponse> login(LoginRequest loginReq) {
-        try {
-            String json = jsonMapper.writeValueAsString(loginReq);
-
-            RequestBody body = RequestBody.create(
-                    json, MediaType.get("application/json; charset=utf-8")
-            );
-
-            Request request = new Request.Builder()
-                    .url(BASE_URL + "/auth/login")
-                    .post(body)
-                    .build();
-
-            return this.sendRequest(request, AuthResponse.class);
-        } catch (Exception e) {
-            return CompletableFuture.failedFuture(e);
-        }
+       return this.sendPostRequest(
+               LOGIN_ENPOINT,
+               loginReq,
+               AuthResponse.class,
+               null
+       );
     }
 
     public CompletableFuture<UserDTO> register(UserRegistrationDTO registrationData) {
-        try {
-            String json = jsonMapper.writeValueAsString(registrationData);
-
-            RequestBody body = RequestBody.create(
-                    json, MediaType.get("application/json; charset=utf-8")
-            );
-
-            Request request = new Request.Builder()
-                    .url(BASE_URL + "/auth/register")
-                    .post(body)
-                    .build();
-
-            return this.sendRequest(request, UserDTO.class);
-        }
-        catch (Exception e) {
-            return CompletableFuture.failedFuture(e);
-        }
+       return this.sendPostRequest(
+               REGISTER_ENPOINT,
+               registrationData,
+               UserDTO.class,
+               null
+       );
     }
 }
 
