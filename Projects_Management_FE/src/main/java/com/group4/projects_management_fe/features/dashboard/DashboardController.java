@@ -14,12 +14,11 @@ import javafx.scene.control.skin.DatePickerSkin;
 import javafx.scene.layout.*;
 import javafx.geometry.Pos;
 import javafx.util.Duration;
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.util.List;
 import com.group4.projects_management_fe.core.session.AppSessionManager;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.core.type.TypeReference;
+import tools.jackson.datatype.jsr310.JavaTimeModule;
 
 public class DashboardController {
 
@@ -71,7 +70,44 @@ public class DashboardController {
     private TableColumn<ProjectResponseDTO, String> colStatus;
 
     private void loadProjects() {
-
+//
+//        try {
+//
+//            String token = AppSessionManager
+//                    .getInstance()
+//                    .getValidToken();
+//
+//            okhttp3.OkHttpClient client = new okhttp3.OkHttpClient();
+//
+//            okhttp3.Request request = new okhttp3.Request.Builder()
+//                    .url("http://localhost:8080/api/projects/me")
+//                    .addHeader("Authorization", "Bearer " + token)
+//                    .addHeader("Content-Type", "application/json")
+//                    .get()
+//                    .build();
+//
+//            okhttp3.Response response = client.newCall(request).execute();
+//
+//            String json = response.body().string();
+//            System.out.println(json);
+//
+//            ObjectMapper mapper = new ObjectMapper();
+//
+//            List<ProjectResponseDTO> projects =
+//                    mapper.readValue(
+//                            json,
+//                            new TypeReference<List<ProjectResponseDTO>>() {}
+//                    );
+//
+//            projectTable.getItems().setAll(projects);
+//            totalProjectLabel.setText(String.valueOf(projects.size()));
+//
+//            System.out.println("TOKEN = " + token);
+//            System.out.println("HTTP CODE = " + response.code());
+//
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
     }
     //service
 
