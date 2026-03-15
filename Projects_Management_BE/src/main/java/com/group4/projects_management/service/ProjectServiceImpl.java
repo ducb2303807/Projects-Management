@@ -178,13 +178,8 @@ public class ProjectServiceImpl extends BaseServiceImpl<Project, Long> implement
                 .findByUser_IdAndLeftAtIsNullAndProjectMemberStatus_SystemCode(userId, activeMemberStatusCode)
                 .stream()
                 .map(ProjectMember::getProject)
-                .map(project -> {
-                    ProjectResponseDTO dto = projectMapper.toDto(project);
-                    dto.setMemberCount(
-                            projectMemberRepository.countMembers(project.getId()).intValue()
-                    );
-                    return dto;
-                })
+                .map(projectMapper::toDto
+                )
                 .toList();
     }
 

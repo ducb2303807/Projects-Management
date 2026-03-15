@@ -1,6 +1,5 @@
 package com.group4.projects_management_fe.features.dashboard;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.group4.common.dto.ProjectResponseDTO;
 import com.group4.common.dto.TaskResponseDTO;
 import javafx.animation.FadeTransition;
@@ -15,8 +14,6 @@ import javafx.scene.control.skin.DatePickerSkin;
 import javafx.scene.layout.*;
 import javafx.geometry.Pos;
 import javafx.util.Duration;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
@@ -75,115 +72,7 @@ public class DashboardController {
 
     private void loadProjects() {
 
-        try {
-
-            URL url = new URL("http://localhost:8080/api/projects/me");
-
-            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-            conn.setRequestMethod("GET");
-
-            String token = AppSessionManager
-                    .getInstance()
-                    .getValidToken();
-
-            conn.setRequestProperty("Authorization", "Bearer " + token);
-            conn.setRequestProperty("Content-Type", "application/json");
-
-            BufferedReader reader =
-                    new BufferedReader(new InputStreamReader(conn.getInputStream()));
-
-            StringBuilder response = new StringBuilder();
-            String line;
-
-            while ((line = reader.readLine()) != null) {
-                response.append(line);
-            }
-
-            reader.close();
-
-            ObjectMapper mapper = new ObjectMapper();
-            mapper.registerModule(new JavaTimeModule());
-
-            List<ProjectResponseDTO> projects =
-                    mapper.readValue(
-                            response.toString(),
-                            new TypeReference<List<ProjectResponseDTO>>() {}
-                    );
-
-            projectTable.getItems().setAll(projects);
-            // set total project
-            totalProjectLabel.setText(String.valueOf(projects.size()));
-
-            System.out.println("TOKEN = " + token);
-            System.out.println("HTTP CODE = " + conn.getResponseCode());
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
     }
-
-//    private void loadTasks() {
-//
-//        try {
-//
-//            URL url = new URL("http://localhost:8080/api/my-tasks/count");
-//
-//            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-//            conn.setRequestMethod("GET");
-//
-//            String token = AppSessionManager
-//                    .getInstance()
-//                    .getValidToken();
-//
-//            conn.setRequestProperty("Authorization", "Bearer " + token);
-//            conn.setRequestProperty("Content-Type", "application/json");
-//
-//            BufferedReader reader =
-//                    new BufferedReader(new InputStreamReader(conn.getInputStream()));
-//
-//            StringBuilder response = new StringBuilder();
-//            String line;
-//
-//            while ((line = reader.readLine()) != null) {
-//                response.append(line);
-//            }
-//
-//            reader.close();
-//
-//            ObjectMapper mapper = new ObjectMapper();
-//            mapper.registerModule(new JavaTimeModule());
-//
-//            List<TaskResponseDTO> tasks =
-//                    mapper.readValue(
-//                            response.toString(),
-//                            new TypeReference<List<TaskResponseDTO>>() {}
-//                    );
-//
-//            int total = tasks.size();
-//            int assigned = 0;
-//            int completed = 0;
-//
-//            for (TaskResponseDTO t : tasks) {
-//
-//                if ("Completed".equalsIgnoreCase(t.getStatusName())) {
-//                    completed++;
-//                }
-//
-//                if ("Assigned".equalsIgnoreCase(t.getStatusName())
-//                        || "On going".equalsIgnoreCase(t.getStatusName())) {
-//                    assigned++;
-//                }
-//            }
-//
-//            totalTaskLabel.setText(String.valueOf(total));
-//            assignedTaskLabel.setText(String.valueOf(assigned));
-//            completedTaskLabel.setText(String.valueOf(completed));
-//
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
-//    }
-
     //service
 
     @FXML
