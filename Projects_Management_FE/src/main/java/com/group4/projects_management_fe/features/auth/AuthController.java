@@ -1,11 +1,16 @@
 package com.group4.projects_management_fe.features.auth;
 
 import com.group4.common.dto.LoginRequest;
+import com.group4.common.dto.UserExistsRequestDTO;
 import com.group4.common.dto.UserRegistrationDTO;
 import com.group4.projects_management_fe.core.api.AuthApi;
+import com.group4.projects_management_fe.core.api.UserApi;
 import com.group4.projects_management_fe.core.navigation.AppStageManager;
 import com.group4.projects_management_fe.core.session.AppSessionManager;
+import com.group4.projects_management_fe.core.session.AuthSessionProvider;
+import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.disposables.CompositeDisposable;
+import io.reactivex.rxjava3.schedulers.Schedulers;
 import javafx.animation.FadeTransition;
 import javafx.animation.Interpolator;
 import javafx.animation.TranslateTransition;
@@ -23,7 +28,9 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 import org.pdfsam.rxjavafx.observables.JavaFxObservable;
+import org.pdfsam.rxjavafx.schedulers.JavaFxScheduler;
 
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 
 public class AuthController {
@@ -71,8 +78,12 @@ public class AuthController {
     private final AuthApi authApi = new AuthApi();
 
 
+    private UserApi userApi;
+
     @FXML
     private void initialize() {
+        AuthSessionProvider authSessionProvider = AppSessionManager.getInstance();
+        this.userApi = new UserApi(authSessionProvider);
         bgArea.setTranslateX(0);
 
         signInForm.setVisible(true);
@@ -83,12 +94,70 @@ public class AuthController {
         signUpForm.setManaged(false);
         signUpForm.setOpacity(0);
 
-        keyBindingInitialize();
+        var stage = AppStageManager.getInstance().getStage();
+        keyBindingInitialize(stage);
+        UsernameValidationInitialize(stage);
     }
 
-    private void keyBindingInitialize() {
-        var stage = AppStageManager.getInstance().getStage();
+    private void UsernameValidationInitialize(Stage stage) {
+        Platform.runLater(() -> {
+            var usernameValidation = JavaFxObservable.valuesOf(signUpForm.visibleProperty())
+                    .switchMap(isVisible -> isVisible
+                            ? Observable.combineLatest(
+                            JavaFxObservable.valuesOf(registerName.textProperty()),
+                            JavaFxObservable.valuesOf(registerEmail.textProperty()),
+                            UserExistsRequestDTO::new)
+                            : Observable.empty()
+                    )
+                    .debounce(500, TimeUnit.MILLISECONDS)
+                    .distinctUntilChanged()
+                    .switchMap(dto -> {
+                        boolean isValidLocal = true;
 
+                        if (!dto.getEmail().isEmpty() && !eReg.matcher(dto.getEmail()).matches()) {
+                            registerEmail.setStyle("-fx-border-color: red");
+                            isValidLocal = false;
+                        }
+
+                        if (!dto.getUsername().isEmpty() && dto.getUsername().length() < 5) {
+                            registerName.setStyle("-fx-border-color: red");
+                            isValidLocal = false;
+                        }
+
+                        if (!isValidLocal)
+                            return Observable.empty();
+
+                        return Observable.just(dto);
+                    })
+                    .observeOn(Schedulers.io())
+                    .switchMap(dto -> Observable.fromCompletionStage(userApi.existsByUsernameOrEmail(dto))
+                            .onErrorResumeNext(ex -> {
+                                System.err.println("validation error: " + ex.getMessage());
+                                return Observable.empty();
+                            }))
+                    .observeOn(JavaFxScheduler.platform())
+                    .subscribe(
+                            response -> {
+                                updateValidationStyle(registerName, response.isUsernameExists());
+                                updateValidationStyle(registerEmail, response.isEmailExists());
+                            },
+                            ex -> System.err.println("CHẾT LUỒNG usernameValidation " + ex.getMessage())
+                    );
+
+            disposables.add(usernameValidation);
+        });
+    }
+
+    private void updateValidationStyle(TextField field, boolean isExists) {
+        if (field.getText().isEmpty()) {
+            field.setStyle("");
+            return;
+        }
+
+        field.setStyle(isExists ? "-fx-border-color: red" : "-fx-border-color: green");
+    }
+
+    private void keyBindingInitialize(Stage stage) {
         Platform.runLater(() -> {
             var enterBinding = JavaFxObservable.eventsOf(stage.getScene(), KeyEvent.KEY_PRESSED)
                     .filter(e -> e.getCode() == KeyCode.ENTER)
@@ -104,7 +173,11 @@ public class AuthController {
                     });
 
             disposables.add(enterBinding);
+        });
+    }
 
+    private void disposeInitialize(Stage stage) {
+        Platform.runLater(() -> {
             JavaFxObservable.valuesOf(stage.sceneProperty())
                     .skip(1)
                     .take(1)
@@ -222,15 +295,6 @@ public class AuthController {
 
         authApi.login(loginRequest).thenAccept(response -> {
             Platform.runLater(() -> {
-                // --- BƯỚC QUAN TRỌNG: Lưu thông tin vào Session ---
-                // Giả sử response của bạn có chứa token và user info
-                // Bạn cần kiểm tra xem object 'response' của bạn có các getter này không
-                AppSessionManager.getInstance().createSession(
-                        response.getToken(),
-                        response.getUser()
-                );
-                // ------------------------------------------------
-
                 showAlert("Login successful", "Welcome back!");
                 openMainLayout();
             });
@@ -336,7 +400,6 @@ public class AuthController {
 
     private void openMainLayout() {
         try {
-
             FXMLLoader loader = new FXMLLoader(
                     getClass().getResource(
                             "/com/group4/projects_management_fe/features/mainlayout/MainLayoutView.fxml"
@@ -345,8 +408,7 @@ public class AuthController {
 
             Parent root = loader.load();
 
-            Stage stage = AppStageManager.getInstance().getStage();
-
+            Stage stage = (Stage) signInForm.getScene().getWindow();
             stage.setScene(new Scene(root, 1200, 800));
             stage.setResizable(true);
             stage.setTitle("Nexus");
