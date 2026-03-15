@@ -8,6 +8,7 @@ import com.group4.common.dto.*;
 import com.group4.projects_management.service.ProjectService;
 import com.group4.projects_management.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -17,6 +18,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/users")
+@SecurityRequirement(name = "bearerAuth")
 public class UserController {
    @Autowired
    private UserService userService;
@@ -29,11 +31,11 @@ public class UserController {
       return ResponseEntity.ok(userService.getAllUsers());
    }
 
-//   @Operation(summary = "Tạo người dùng mới trong hệ thống")
-//   @PostMapping
-//   public ResponseEntity<UserDTO> register(@Valid @RequestBody UserRegistrationDTO request) {
-//      return ResponseEntity.ok(userService.register(request));
-//   }
+   @Operation(summary = "Tạo người dùng mới trong hệ thống")
+   @PostMapping
+   public ResponseEntity<UserDTO> register(@Valid @RequestBody UserRegistrationDTO request) {
+      return ResponseEntity.ok(userService.register(request));
+   }
 
    @Operation(summary = "Lấy tất cả project của người dùng")
    @GetMapping("/{userId}/projects")
