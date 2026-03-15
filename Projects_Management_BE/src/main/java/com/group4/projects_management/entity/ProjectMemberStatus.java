@@ -19,7 +19,8 @@ import lombok.NoArgsConstructor;
 @AttributeOverrides({
         @AttributeOverride(name = "id", column = @Column(name = "PROJECT_MEMBER_STATUS_ID")),
         @AttributeOverride(name = "name", column = @Column(name = "PROJECT_MEMBER_STATUS_NAME", length = 50, nullable = false)),
-        @AttributeOverride(name = "description", column = @Column(name = "PROJECT_MEMBER_STATUS_DESCRIPTION"))
+        @AttributeOverride(name = "description", column = @Column(name = "PROJECT_MEMBER_STATUS_DESCRIPTION")),
+        @AttributeOverride(name = "systemCode", column = @Column(name = "SYSTEM_CODE", nullable = false))
 })
 @EqualsAndHashCode(callSuper = true)
 public class ProjectMemberStatus extends BaseLookup<Long> {
