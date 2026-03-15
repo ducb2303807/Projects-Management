@@ -129,6 +129,18 @@ public class Project {
       return result;
    }
 
+   public int getActiveMemberCount() {
+      if (members == null) return 0;
+      int count = 0;
+      for (ProjectMember m : members) {
+         if (m.isActive()) {
+            count++;
+         }
+      }
+      return count;
+   }
+
+
    public boolean isCompleted() {
        return this.projectStatus != null && "COMPLETED".equalsIgnoreCase(this.projectStatus.getSystemCode());
    }

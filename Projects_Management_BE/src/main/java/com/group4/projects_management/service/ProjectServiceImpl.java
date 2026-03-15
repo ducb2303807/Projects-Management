@@ -84,7 +84,7 @@ public class ProjectServiceImpl extends BaseServiceImpl<Project, Long> implement
         member.setUser(invitee);
         member.setProjectRole(role);
         member.setProjectMemberStatus(pendingStatus);
-        member.setInvitedBy(inviterMember); // ✅ gán bằng ProjectMember
+        member.setInvitedBy(inviterMember);
         member.setInvitedAt(LocalDateTime.now());
 
         projectMemberRepository.save(member);
