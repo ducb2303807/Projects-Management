@@ -58,15 +58,15 @@ public class ProjectServiceImpl extends BaseServiceImpl<Project, Long> implement
 
     @Override
     @Transactional
-    public void inviteMember(Long projectId, Long inviteeId, Long inviterId, Long roleId) {
+    public void inviteMember(Long projectId, Long inviteeId, Long inviterMemberId, Long roleId) {
         var project = projectRepository.findById(projectId)
                 .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy project"));
 
         var invitee = userRepository.findById(inviteeId)
                 .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy user được mời"));
 
-        var inviter = userRepository.findById(inviterId)
-                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy user mời"));
+        var inviterMember = projectMemberRepository.findById(inviterMemberId)
+                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy thành viên mời"));
 
         var role = projectRoleRepository.findById(roleId)
                 .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy role"));
@@ -84,7 +84,7 @@ public class ProjectServiceImpl extends BaseServiceImpl<Project, Long> implement
         member.setUser(invitee);
         member.setProjectRole(role);
         member.setProjectMemberStatus(pendingStatus);
-        member.setInvitedBy(inviter); // gán bằng User thay vì ProjectMember
+        member.setInvitedBy(inviterMember); // ✅ gán bằng ProjectMember
         member.setInvitedAt(LocalDateTime.now());
 
         projectMemberRepository.save(member);
