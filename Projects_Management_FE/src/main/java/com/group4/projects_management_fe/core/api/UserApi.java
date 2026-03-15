@@ -21,4 +21,5 @@ public class UserApi extends AbstractAuthenticatedApi {
                 null
         ).thenApply(List::of);
     }
+
 }
