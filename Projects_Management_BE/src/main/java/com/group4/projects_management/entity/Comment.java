@@ -34,18 +34,17 @@ public class Comment {
    @JoinColumn(name = "PARENT_ID")
    @ToString.Exclude
    private Comment parent;
-   /** @pdRoleInfo migr=no name=ProjectMember assc=association15 mult=1..1 side=A */
+
    @ManyToOne
    @JoinColumn(name = "PROJECT_MEMBER_ID")
    @ToString.Exclude
    public ProjectMember member;
-   /** @pdRoleInfo migr=no name=Task assc=association21 mult=1..1 side=A */
+
    @ManyToOne
    @JoinColumn(name = "TASK_ID")
    @ToString.Exclude
    public Task task;
-   
-   /** @pdOid 56e051eb-9d50-4eff-a19d-b65586bb8caa */
+
    public boolean isReply() {
      return this.parent != null;
    }

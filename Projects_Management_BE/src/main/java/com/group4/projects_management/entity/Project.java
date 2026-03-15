@@ -78,11 +78,10 @@ public class Project {
 
     public double calculateProgress() {
         if (tasks == null || tasks.isEmpty()) {
-            return 0;
+            return 100;
         }
         long completed = tasks.stream()
-                // TODO
-                .filter(x -> true)
+                .filter(Task::isCompleted)
                 .count();
         return (completed * 100.0) / tasks.size();
     }
@@ -94,7 +93,7 @@ public class Project {
         return LocalDateTime.now().isAfter(endDate);
     }
 
-    public int getMemberCount() {
+    public int getActiveMemberCount() {
         if (members == null) return 0;
         int count = 0;
         for (ProjectMember member : members) {

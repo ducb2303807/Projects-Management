@@ -12,12 +12,12 @@ public class AuthApi extends BaseApi {
     private static final String LOGIN_ENPOINT = "/auth/login";
     private static final String REGISTER_ENPOINT = "/auth/register";
     public CompletableFuture<AuthResponse> login(LoginRequest loginReq) {
-       return this.sendPostRequest(
-               LOGIN_ENPOINT,
-               loginReq,
-               AuthResponse.class,
-               null
-       );
+        return this.sendPostRequest(
+                LOGIN_ENPOINT,
+                loginReq,
+                AuthResponse.class,
+                null
+        );
     }
 
     public CompletableFuture<UserDTO> register(UserRegistrationDTO registrationData) {
