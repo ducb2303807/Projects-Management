@@ -48,7 +48,6 @@ public class ProjectServiceImpl extends BaseServiceImpl<Project, Long> implement
     }
 
     @Override
-    @Transactional
     public List<ProjectResponseDTO> getAllProjects() {
         return projectRepository.findAll()
                 .stream()
