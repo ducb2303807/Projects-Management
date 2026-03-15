@@ -6,6 +6,8 @@ package com.group4.projects_management.repository; /****************************
 
 import com.group4.projects_management.entity.ProjectMember;
 import com.group4.projects_management.repository.Base.BaseRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 import java.util.Optional;
@@ -22,4 +24,7 @@ public interface ProjectMemberRepository extends BaseRepository<ProjectMember, L
     List<ProjectMember> findAllByUser_IdAndProjectMemberStatus_SystemCode(Long userId, String projectMemberStatusSystemCode);
 
     Optional<ProjectMember> findByProject_IdAndUser_Id(Long projectId, Long userId);
+
+    @Query("SELECT COUNT(m) FROM ProjectMember m WHERE m.project.id = :projectId AND m.projectMemberStatus.systemCode = 'ACCEPTED'")
+    int countActiveMembersByProjectId(@Param("projectId") Long projectId);
 }
