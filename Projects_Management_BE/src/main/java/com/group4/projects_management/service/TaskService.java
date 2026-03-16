@@ -39,7 +39,6 @@ public interface TaskService {
    void updateTaskStatus(Long taskId, Long taskStatusId);
 
    void removeMemberFromTask(Long taskAssignmentId);
-
    void removeMembersFromTask(Long taskId, List<Long> membersId);
    /** @param taskId 
     * @param dto

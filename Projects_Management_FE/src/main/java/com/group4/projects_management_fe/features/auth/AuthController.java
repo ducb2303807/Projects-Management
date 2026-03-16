@@ -291,6 +291,15 @@ public class AuthController {
 
         authApi.login(loginRequest).thenAccept(response -> {
             Platform.runLater(() -> {
+                // --- BƯỚC QUAN TRỌNG: Lưu thông tin vào Session ---
+                // Giả sử response của bạn có chứa token và user info
+                // Bạn cần kiểm tra xem object 'response' của bạn có các getter này không
+                AppSessionManager.getInstance().createSession(
+                        response.getToken(),
+                        response.getUser()
+                );
+                // ------------------------------------------------
+
                 showAlert("Login successful", "Welcome back!");
                 openMainLayout();
             });
@@ -396,6 +405,7 @@ public class AuthController {
 
     private void openMainLayout() {
         try {
+
             FXMLLoader loader = new FXMLLoader(
                     getClass().getResource(
                             "/com/group4/projects_management_fe/features/mainlayout/MainLayoutView.fxml"
@@ -404,7 +414,8 @@ public class AuthController {
 
             Parent root = loader.load();
 
-            Stage stage = (Stage) signInForm.getScene().getWindow();
+            Stage stage = AppStageManager.getInstance().getStage();
+
             stage.setScene(new Scene(root, 1200, 800));
             stage.setResizable(true);
             stage.setTitle("Nexus");
