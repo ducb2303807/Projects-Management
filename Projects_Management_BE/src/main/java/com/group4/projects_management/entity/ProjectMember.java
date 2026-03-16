@@ -85,9 +85,9 @@ public class ProjectMember {
               && roleId.equals(this.projectRole.getId());
    }
 
-   public boolean hasRoleCode(String roleName) {
+   public boolean hasRoleCode(String roleCode) {
       return this.projectRole != null
-              && roleName != null
-              && roleName.equalsIgnoreCase(this.projectRole.getName());
+              && roleCode != null
+              && roleCode.equalsIgnoreCase(this.projectRole.getSystemCode());
    }
 }

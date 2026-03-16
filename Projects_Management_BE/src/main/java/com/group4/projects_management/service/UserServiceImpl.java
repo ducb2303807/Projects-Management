@@ -7,6 +7,7 @@ package com.group4.projects_management.service; /*******************************
 import com.group4.common.dto.*;
 import com.group4.common.enums.BusinessErrorCode;
 import com.group4.projects_management.core.exception.BusinessException;
+import com.group4.projects_management.core.exception.ResourceNotFoundException;
 import com.group4.projects_management.core.security.JwtUtils;
 import com.group4.projects_management.entity.User;
 import com.group4.projects_management.mapper.UserMapper;
@@ -42,14 +43,14 @@ public class UserServiceImpl extends BaseServiceImpl<User, Long> implements User
     @Override
     public AuthResponse login(LoginRequest request) {
         User user = userRepository.findByUsername(request.getUsername())
-                .orElseThrow(() -> new BusinessException("Tài khoản không tồn tại", BusinessErrorCode.USER_NOT_FOUND));
+                .orElseThrow(() -> new BusinessException("Tài khoản không tồn tại", BusinessErrorCode.AUTH_USER_NOT_FOUND));
 
         if (!user.isActive()) {
-            throw new BusinessException("Tài khoản của bạn đã bị khóa!", BusinessErrorCode.ACCOUNT_LOCKED);
+            throw new BusinessException("Tài khoản của bạn đã bị khóa!", BusinessErrorCode.AUTH_ACCOUNT_LOCKED);
         }
 
         if (!passwordEncoder.matches(request.getPassword(), user.getHashedPassword())) {
-            throw new BusinessException("Sai mật khẩu", BusinessErrorCode.INVALID_PASSWORD);
+            throw new BusinessException("Sai mật khẩu", BusinessErrorCode.AUTH_INVALID_PASSWORD);
         }
 
         var token = jwtUtils.generateToken(user.getUsername());
@@ -61,10 +62,10 @@ public class UserServiceImpl extends BaseServiceImpl<User, Long> implements User
     @Transactional
     public UserDTO register(UserRegistrationDTO dto) {
         if (this.existsByUsername(dto.getUsername())) {
-            throw new BusinessException("Username đã tồn tại!", BusinessErrorCode.USERNAME_ALREADY_EXISTS);
+            throw new BusinessException("Username đã tồn tại!", BusinessErrorCode.AUTH_USERNAME_ALREADY_EXISTS);
         }
         if (this.existsByEmail(dto.getEmail())) {
-            throw new BusinessException("Email đã tồn tại", BusinessErrorCode.EMAIL_ALREADY_EXISTS);
+            throw new BusinessException("Email đã tồn tại", BusinessErrorCode.AUTH_EMAIL_ALREADY_EXISTS);
         }
 
         var role = appRoleRepository.getAppRoleBySystemCode("user");
@@ -79,12 +80,12 @@ public class UserServiceImpl extends BaseServiceImpl<User, Long> implements User
     @Transactional
     public UserDTO updateProfile(Long userId, UserUpdateDTO dto) {
         var user = userRepository.findById(userId)
-                .orElseThrow(() -> new BusinessException("User not found", BusinessErrorCode.USER_NOT_FOUND));
+                .orElseThrow(() -> new BusinessException("User not found", BusinessErrorCode.AUTH_USER_NOT_FOUND));
 
         if (dto.getEmail() != null
                 && !dto.getEmail().equals(user.getEmail())
                 && existsByEmail(dto.getEmail())) {
-            throw new BusinessException("Email đã tồn tại", BusinessErrorCode.EMAIL_ALREADY_EXISTS);
+            throw new BusinessException("Email đã tồn tại", BusinessErrorCode.AUTH_EMAIL_ALREADY_EXISTS);
         }
 
         userMapper.updateEntityFromDto(dto, user);
@@ -93,28 +94,19 @@ public class UserServiceImpl extends BaseServiceImpl<User, Long> implements User
         return userMapper.toDto(user);
     }
 
-//    @Override
-//    @Transactional
-//    public void changePassword(Long userId, String oldPassword, String newPassword) {
-//        var user = userRepository.findById(userId)
-//                .orElseThrow(() -> new BusinessException("User not found", BusinessErrorCode.USER_NOT_FOUND));
-//
-//        if (!passwordEncoder.matches(oldPassword, user.getHashedPassword())) {
-//            throw new BusinessException("old password is incorrect", BusinessErrorCode.INVALID_PASSWORD);
-//        }
-//        user.setHashedPassword(passwordEncoder.encode(newPassword));
-//        userRepository.save(user);
-//    }
-
     @Override
     @Transactional
-    public void changePassword(Long userId, String newPassword) {
+    public void changePassword(Long userId, ChangePasswordRequestDTO dto) {
         var user = userRepository.findById(userId)
-                .orElseThrow(() -> new BusinessException("User not found", BusinessErrorCode.USER_NOT_FOUND));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
-        user.setHashedPassword(passwordEncoder.encode(newPassword));
+        if (!passwordEncoder.matches(dto.getOldPassword(), user.getHashedPassword())) {
+            throw new BusinessException("old password is incorrect", BusinessErrorCode.AUTH_INVALID_PASSWORD);
+        }
+        user.setHashedPassword(passwordEncoder.encode(dto.getNewPassword()));
         userRepository.save(user);
     }
+
 
     @Override
     public List<UserDTO> searchUsers(String keyword) {

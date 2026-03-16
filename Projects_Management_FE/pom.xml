@@ -39,6 +39,13 @@
             <version>3.15.0</version>
             <scope>compile</scope>
         </dependency>
+        <!-- Source: https://mvnrepository.com/artifact/org.slf4j/slf4j-simple -->
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-simple</artifactId>
+            <version>2.0.17</version>
+            <scope>compile</scope>
+        </dependency>
         <!-- Source: https://mvnrepository.com/artifact/io.reactivex.rxjava3/rxjava -->
         <dependency>
             <groupId>io.reactivex.rxjava3</groupId>
@@ -51,20 +58,6 @@
             <groupId>org.pdfsam.rxjava3</groupId>
             <artifactId>rxjavafx</artifactId>
             <version>3.0.3</version>
-            <scope>compile</scope>
-        </dependency>
-        <!-- Source: https://mvnrepository.com/artifact/tools.jackson.core/jackson-databind -->
-        <dependency>
-            <groupId>tools.jackson.core</groupId>
-            <artifactId>jackson-databind</artifactId>
-            <version>3.0.4</version>
-            <scope>compile</scope>
-        </dependency>
-        <!-- Source: https://mvnrepository.com/artifact/tools.jackson.datatype/jackson-datatype-jsr310 -->
-        <dependency>
-            <groupId>tools.jackson.datatype</groupId>
-            <artifactId>jackson-datatype-jsr310</artifactId>
-            <version>3.0.0-rc2</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
@@ -91,6 +84,20 @@
             <groupId>org.controlsfx</groupId>
             <artifactId>controlsfx</artifactId>
             <version>11.2.1</version>
+        </dependency>
+        <!-- Source: https://mvnrepository.com/artifact/tools.jackson.core/jackson-databind -->
+        <dependency>
+            <groupId>tools.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>3.0.4</version>
+            <scope>compile</scope>
+        </dependency>
+        <!-- Source: https://mvnrepository.com/artifact/tools.jackson.datatype/jackson-datatype-jsr310 -->
+        <dependency>
+            <groupId>tools.jackson.datatype</groupId>
+            <artifactId>jackson-datatype-jsr310</artifactId>
+            <version>3.0.0-rc2</version>
+            <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>net.synedra</groupId>
@@ -134,7 +141,6 @@
             <groupId>com.group4</groupId>
             <artifactId>common</artifactId>
             <version>1.0-SNAPSHOT</version>
-            <scope>compile</scope>
         </dependency>
         <!-- Source: https://mvnrepository.com/artifact/io.github.cdimascio/dotenv-java -->
         <dependency>
@@ -166,7 +172,7 @@
                         <id>default-cli</id>
                         <configuration>
                             <mainClass>
-                               com.group4.projects_management_fe.MainWindow
+                                com.group4.projects_management_fe.MainWindow
                             </mainClass>
                             <launcher>app</launcher>
                             <jlinkZipName>app</jlinkZipName>

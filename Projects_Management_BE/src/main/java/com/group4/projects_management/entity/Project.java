@@ -41,7 +41,21 @@ public class Project {
 
    @Column(name = "PROJECT_CREATED_AT", nullable = false)
    private LocalDateTime createdAt;
-   
+
+   @Column(name = "PROJECT_UPDATE_AT", nullable = false)
+   private LocalDateTime updateAt;
+
+   @PrePersist
+   public void onCreate() {
+      this.createdAt = LocalDateTime.now();
+      this.updateAt = this.createdAt;
+   }
+
+   @PreUpdate
+   public void onUpdate() {
+      this.updateAt = LocalDateTime.now();
+   }
+
    @OneToMany(mappedBy = "project")
    @ToString.Exclude
    private java.util.Collection<Task> tasks = new HashSet<>();
@@ -55,16 +69,10 @@ public class Project {
    @ToString.Exclude
    private ProjectStatus projectStatus;
 
-
    @ManyToOne
-   @JoinColumn(name = "createdBy", nullable = false)
+   @JoinColumn(name = "PROJECT_CREATE_BY_ID", nullable = false)
    @ToString.Exclude
    private User createdBy;
-
-   @PrePersist
-   public void createAt() {
-      this.createdAt = LocalDateTime.now();
-   }
 
    public void removeMember(ProjectMember member) {
       if (member == null) return;
@@ -120,6 +128,18 @@ public class Project {
       }
       return result;
    }
+
+   public int getActiveMemberCount() {
+      if (members == null) return 0;
+      int count = 0;
+      for (ProjectMember m : members) {
+         if (m.isActive()) {
+            count++;
+         }
+      }
+      return count;
+   }
+
 
    public boolean isCompleted() {
        return this.projectStatus != null && "COMPLETED".equalsIgnoreCase(this.projectStatus.getSystemCode());

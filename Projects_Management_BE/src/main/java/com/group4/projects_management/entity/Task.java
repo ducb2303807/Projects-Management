@@ -19,18 +19,18 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Task {
-   /** @pdOid c19f764e-b01e-4035-b8e4-fc859bd0c93b */
+
    @Id
    @GeneratedValue(strategy = GenerationType.IDENTITY)
    @Column(name = "TASK_ID")
    private Long id;
-   /** @pdOid 36d9b294-70bd-4088-85c9-9387cdfe5c18 */
+
    @Column(name = "TASK_NAME", nullable = false, length = 50)
    private java.lang.String name;
-   /** @pdOid 25c2d70b-15dc-44c0-b482-ae4fe639c31a */
+
    @Column(name = "TASK_DESCRIPTION", columnDefinition = "TEXT")
    private java.lang.String description;
-   /** @pdOid 5ed148b6-5071-447e-8a13-e7f6c42e5bfd */
+
    @Column(name = "TASK_DEADLINE")
    private LocalDateTime deadline;
 
@@ -83,10 +83,16 @@ public class Task {
    }
 
    public boolean isUrgent() {
-     return this.priority.getSystemCode().equals("Urgent");
+     return "Urgent".equalsIgnoreCase(this.priority.getSystemCode());
+   }
+
+   public boolean isCompleted() {
+      return this.taskStatus != null
+              && "COMPLETED".equalsIgnoreCase(this.taskStatus.getSystemCode());
    }
 
    public long getRemainingDays() {
+      if (this.isCompleted()) return 0;
       return deadline.until(LocalDateTime.now(), java.time.temporal.ChronoUnit.DAYS);
    }
 

@@ -1,8 +1,4 @@
-package com.group4.projects_management_fe.core.plugin; /***********************************************************************
- * Module:  HostContextRemoteImpl.java
- * Author:  Lenovo
- * Purpose: Defines the Class HostContextRemoteImpl
- ***********************************************************************/
+package com.group4.projects_management_fe.core.plugin;
 
 import com.group4.common.dto.ProjectResponseDTO;
 import com.group4.common.dto.TaskResponseDTO;
@@ -10,7 +6,7 @@ import com.group4.common.interfaces.HostContext;
 
 import java.util.List;
 
-/** @pdOid b143ae7a-e68d-4634-83bc-7d84084e2e8c */
+
 public class HostContextRemoteImpl implements HostContext {
     @Override
     public List<ProjectResponseDTO> getAllProjects() {
@@ -24,7 +20,7 @@ public class HostContextRemoteImpl implements HostContext {
 
     @Override
     public void publishNotification(String msg, String type) {
-
+        System.out.println("Notification published: " + msg);
     }
 
     @Override

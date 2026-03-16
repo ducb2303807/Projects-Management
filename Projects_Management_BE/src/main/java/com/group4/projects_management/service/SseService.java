@@ -55,7 +55,7 @@ public class SseService {
 
     /**
      * @param userId ID người nhận
-     * @param eventName Tên sự kiện (ví dụ: "task", "comment", "system")
+     * @param eventName Tên sự kiện
      * @param data Dữ liệu bất kỳ
      */
     public void send(Long userId, String eventName, Object data) {

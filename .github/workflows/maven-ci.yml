@@ -3,11 +3,36 @@
 on:
   pull_request:
     branches: [ "main", "develop" ]
+    paths:
+      - 'Projects_Management_BE/**'
+      - 'Projects_Management_FE/**'
+      - 'common/**'
+      - '.github/workflows/**'
 
 jobs:
-  backend-test:
+  changes:
     runs-on: ubuntu-latest
+    outputs:
+      backend: ${{ steps.filter.outputs.backend }}
+      frontend: ${{ steps.filter.outputs.frontend }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            backend:
+              - 'Projects_Management_BE/**'
+              - 'common/**'
+            frontend:
+              - 'Projects_Management_FE/**'
+              - 'common/**'
 
+
+  backend-test:
+    needs: changes
+    if: ${{ needs.changes.outputs.backend == 'true' }}
+    runs-on: ubuntu-latest
     #    services:
     #      mysql:
     #        image: mysql:8.0
@@ -43,6 +68,8 @@ jobs:
 #          SPRING_DATASOURCE_PASSWORD: root
 
 #  frontend-test:
+#    needs: changes
+#    if: ${{needs.changes.outputs.frontend == 'true'}}
 #    runs-on: ubuntu-latest
 #    steps:
 #      - name: Checkout code
