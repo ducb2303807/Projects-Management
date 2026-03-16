@@ -4,9 +4,15 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.HBox;
 import javafx.event.ActionEvent;
+import javafx.scene.paint.Color;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
+import javafx.stage.StageStyle;
 
 import java.io.IOException;
 import java.net.URL;
@@ -52,9 +58,34 @@ public class ProjectController implements Initializable {
         }
     }
 
+//    @FXML
+//    void openNewProjectPopup(ActionEvent event) {
+//        // Tạm thời để rỗng hoặc in ra một dòng log để test giao diện
+//        System.out.println("Nút + New đã được bấm! Giao diện load thành công!");
+//    }
+
     @FXML
-    void openNewProjectPopup(ActionEvent event) {
-        // Tạm thời để rỗng hoặc in ra một dòng log để test giao diện
-        System.out.println("Nút + New đã được bấm! Giao diện load thành công!");
+    public void openNewProjectPopup(ActionEvent event) {
+        try {
+            // Đã đổi tên file thành NewProjectForm.fxml
+            FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("NewProjectForm.fxml"));
+            Parent root = fxmlLoader.load();
+
+            Stage stage = new Stage();
+            stage.setTitle("New Project");
+
+            // Làm nền popup trong suốt để thấy được drop shadow
+            Scene scene = new Scene(root);
+            scene.setFill(Color.TRANSPARENT);
+            stage.setScene(scene);
+
+            // Cấu hình cửa sổ dạng Popup chuẩn (không viền, khóa màn hình phía sau)
+            stage.initStyle(StageStyle.TRANSPARENT);
+            stage.initModality(Modality.APPLICATION_MODAL);
+
+            stage.showAndWait();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }
