@@ -1,10 +1,13 @@
 package com.group4.projects_management.service;
 
-import com.group4.common.dto.*;
+import com.group4.common.dto.TaskCeateRequestDTO;
+import com.group4.common.dto.TaskHistoryDTO;
+import com.group4.common.dto.TaskResponseDTO;
+import com.group4.common.dto.TaskUpdateDTO;
 import com.group4.projects_management.entity.*;
 import com.group4.projects_management.repository.*;
 import com.group4.projects_management.service.base.BaseServiceImpl;
-import org.springframework.beans.factory.annotation.Autowired;
+import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -42,6 +45,7 @@ public class TaskServiceImpl extends BaseServiceImpl<Task, Long> implements Task
    }
 
    @Override
+   @Transactional
    public void assignMember(Long taskId, Long assigneeId, Long assignerId) {
       System.out.println("assignerId = " + assignerId);
       Task task = taskRepository.findById(taskId)
@@ -64,6 +68,7 @@ public class TaskServiceImpl extends BaseServiceImpl<Task, Long> implements Task
    }
 
    @Override
+   @Transactional
    public void assignMembers(Long taskId, List<Long> assigneeIdList, Long assignerId) {
 
       for (Long assigneeId : assigneeIdList) {
@@ -131,6 +136,7 @@ public class TaskServiceImpl extends BaseServiceImpl<Task, Long> implements Task
    }
 
    @Override
+   @Transactional
    public void updateTaskPriority(Long taskId, Long taskPriorityId) {
 
       Task task = taskRepository.findById(taskId)
@@ -145,6 +151,7 @@ public class TaskServiceImpl extends BaseServiceImpl<Task, Long> implements Task
    }
 
    @Override
+   @Transactional
    public void updateTaskStatus(Long taskId, Long taskStatusId) {
 
       Task task = taskRepository.findById(taskId)
@@ -159,13 +166,13 @@ public class TaskServiceImpl extends BaseServiceImpl<Task, Long> implements Task
    }
 
    @Override
+   @Transactional
    public void removeMemberFromTask(Long taskAssignmentId) {
-
       taskAssignmentRepository.deleteById(taskAssignmentId);
-
    }
 
    @Override
+   @Transactional
    public void removeMembersFromTask(Long taskId, List<Long> membersId) {
 
       Task task = taskRepository.findById(taskId)
@@ -184,6 +191,7 @@ public class TaskServiceImpl extends BaseServiceImpl<Task, Long> implements Task
    }
 
    @Override
+   @Transactional
    public TaskResponseDTO updateTask(Long taskId, TaskUpdateDTO dto) {
 
       Task task = taskRepository.findById(taskId)
@@ -215,6 +223,7 @@ public class TaskServiceImpl extends BaseServiceImpl<Task, Long> implements Task
    }
 
    @Override
+   @Transactional
    public TaskResponseDTO createTask(TaskCeateRequestDTO dto) {
 
       Task task = new Task();
@@ -222,7 +231,6 @@ public class TaskServiceImpl extends BaseServiceImpl<Task, Long> implements Task
       task.setName(dto.getTaskName());
       task.setDescription(dto.getDescription());
       task.setDeadline(dto.getDeadline());
-      task.setCreatedAt(LocalDateTime.now());
 
       Priority priority = priorityRepository.findById(dto.getPriorityId())
               .orElseThrow(() -> new RuntimeException("Priority not found"));

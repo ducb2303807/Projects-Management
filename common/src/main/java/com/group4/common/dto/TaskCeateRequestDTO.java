@@ -16,7 +16,10 @@ import lombok.experimental.SuperBuilder;
 @AllArgsConstructor
 @SuperBuilder
 public class TaskCeateRequestDTO extends TaskBaseDTO {
+    @NonNull
     private Long projectId;
+    @NonNull
     private Long priorityId;
+    @NonNull
     private Long taskStatusId;
 }
