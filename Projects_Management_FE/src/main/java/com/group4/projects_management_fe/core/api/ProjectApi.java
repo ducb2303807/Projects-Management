@@ -1,9 +1,16 @@
 package com.group4.projects_management_fe.core.api;
 
-import com.group4.common.dto.*;
+import com.group4.common.dto.ProjectResponseDTO;
+import com.group4.common.dto.ProjectCreateRequestDTO;
+import com.group4.common.dto.ProjectUpdateRequestDTO;
+import com.group4.common.dto.ProjectMemberDTO;
+import com.group4.common.dto.ProjectStatsDTO;
+import com.group4.common.dto.TaskResponseDTO;
+import com.group4.common.dto.ProjectMemberUpdateDTO;
 import com.group4.projects_management_fe.core.api.base.AbstractAuthenticatedApi;
 import com.group4.projects_management_fe.core.session.AuthSessionProvider;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
@@ -15,13 +22,15 @@ public class ProjectApi extends AbstractAuthenticatedApi {
     }
 
     // GET /api/projects
-    public CompletableFuture<List> getAllProjects() {
-        return this.sendGetRequest(BASE_ENDPOINT, List.class, null);
+    public CompletableFuture<List<ProjectResponseDTO>> getAllProjects() {
+        return this.sendGetRequest(BASE_ENDPOINT, ProjectResponseDTO[].class, null)
+                .thenApply(Arrays::asList);
     }
 
     // GET /api/projects/me
-    public CompletableFuture<List> getMyProjects() {
-        return this.sendGetRequest(BASE_ENDPOINT + "/me", List.class, null);
+    public CompletableFuture<List<ProjectResponseDTO>> getMyProjects() {
+        return this.sendGetRequest(BASE_ENDPOINT + "/me", ProjectResponseDTO[].class, null)
+                .thenApply(Arrays::asList);
     }
 
     // POST /api/projects
@@ -35,8 +44,9 @@ public class ProjectApi extends AbstractAuthenticatedApi {
     }
 
     // GET /api/projects/{projectId}/tasks
-    public CompletableFuture<List> getTasksByProjectId(Long projectId) {
-        return this.sendGetRequest(BASE_ENDPOINT + "/" + projectId + "/tasks", List.class, null);
+    public CompletableFuture<List<TaskResponseDTO>> getTasksByProjectId(Long projectId) {
+        return this.sendGetRequest(BASE_ENDPOINT + "/" + projectId + "/tasks", TaskResponseDTO[].class, null)
+                .thenApply(Arrays::asList);
     }
 
     // PUT /api/projects/{projectId}
@@ -45,8 +55,9 @@ public class ProjectApi extends AbstractAuthenticatedApi {
     }
 
     // GET /api/projects/{projectId}/members
-    public CompletableFuture<List> getMembersOfProject(Long projectId) {
-        return this.sendGetRequest(BASE_ENDPOINT + "/" + projectId + "/members", List.class, null);
+    public CompletableFuture<List<ProjectMemberDTO>> getMembersOfProject(Long projectId) {
+        return this.sendGetRequest(BASE_ENDPOINT + "/" + projectId + "/members", ProjectMemberDTO[].class, null)
+                .thenApply(Arrays::asList);
     }
 
     // POST /api/projects/{projectId}/invitations
