@@ -11,6 +11,7 @@ import lombok.NoArgsConstructor;
 import lombok.ToString;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
 
 /** @pdOid f521481c-a646-4bde-bb82-baf28d561b0f */
 @Entity
@@ -39,7 +40,7 @@ public class Task {
 
    @OneToMany(mappedBy = "task")
    @ToString.Exclude
-   public java.util.Collection<TaskAssignment> assignments;
+   public java.util.Collection<TaskAssignment> assignments = new HashSet<>();
 
    @ManyToOne
    @JoinColumn(name = "PRIORITY_ID", nullable = false)
@@ -48,7 +49,7 @@ public class Task {
 
    @OneToMany(mappedBy = "task")
    @ToString.Exclude
-   public java.util.Collection<TaskHistory> historys;
+   public java.util.Collection<TaskHistory> historys = new HashSet<>();
 
    @ManyToOne
    @JoinColumn(name = "TASK_STATUS_ID", nullable = false)
@@ -57,12 +58,17 @@ public class Task {
 
    @OneToMany(mappedBy = "task")
    @ToString.Exclude
-   public java.util.Collection<Comment> comments;
+   public java.util.Collection<Comment> comments = new HashSet<>();
 
    @ManyToOne
    @JoinColumn(name = "PROJECT_ID", nullable = false)
    @ToString.Exclude
    public Project project;
+
+   @PrePersist
+   protected void onCreate() {
+      this.createdAt = LocalDateTime.now();
+   }
 
    public boolean isOverdue() {
       if (this.taskStatus != null

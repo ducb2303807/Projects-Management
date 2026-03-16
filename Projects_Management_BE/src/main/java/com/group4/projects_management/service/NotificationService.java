@@ -10,17 +10,15 @@ import java.util.List;
 
 
 public interface NotificationService {
-
    List<NotificationDTO> getNotificationsForUser(Long userId);
-
    void markAsRead(Long notificationId, Long userId);
-
-   void sendNotification(Long userId, java.lang.String text, java.lang.String type, Long referenceId);
-
-   void sendNotification(List<Long> usersId, java.lang.String text, java.lang.String type, Long referenceId);
 
    int countUnreadNotifications(Long userId);
 
    void markAllAsRead(Long userId);
+
+   <T> void send(Long receiverId, T contextData, Long referenceId);
+
+   <T> void send(List<Long> receiverIds, T contextData, Long referenceId);
 
 }
