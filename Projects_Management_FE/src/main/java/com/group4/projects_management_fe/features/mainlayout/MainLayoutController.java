@@ -2,6 +2,7 @@ package com.group4.projects_management_fe.features.mainlayout;
 
 import com.group4.projects_management_fe.MainWindow;
 import javafx.animation.FadeTransition;
+import javafx.animation.ScaleTransition;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -18,7 +19,6 @@ import javafx.scene.layout.VBox;
 import javafx.scene.shape.Circle;
 import javafx.stage.Stage;
 import javafx.util.Duration;
-import javafx.animation.ScaleTransition;
 
 import java.io.IOException;
 
@@ -60,6 +60,7 @@ public class MainLayoutController {
         avatarImage.setClip(clip);
         userBox.setOnMouseClicked(e -> showProfile());
         overlayBackground.setOnMouseClicked(e -> closeProfile());
+
     }
 
     @FXML
