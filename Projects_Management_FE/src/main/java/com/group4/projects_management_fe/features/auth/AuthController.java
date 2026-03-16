@@ -97,55 +97,54 @@ public class AuthController {
         var stage = AppStageManager.getInstance().getStage();
         keyBindingInitialize(stage);
         UsernameValidationInitialize(stage);
+        disposeInitialize(stage);
     }
 
     private void UsernameValidationInitialize(Stage stage) {
-        Platform.runLater(() -> {
-            var usernameValidation = JavaFxObservable.valuesOf(signUpForm.visibleProperty())
-                    .switchMap(isVisible -> isVisible
-                            ? Observable.combineLatest(
-                            JavaFxObservable.valuesOf(registerName.textProperty()),
-                            JavaFxObservable.valuesOf(registerEmail.textProperty()),
-                            UserExistsRequestDTO::new)
-                            : Observable.empty()
-                    )
-                    .debounce(500, TimeUnit.MILLISECONDS)
-                    .distinctUntilChanged()
-                    .switchMap(dto -> {
-                        boolean isValidLocal = true;
+        var usernameValidation = JavaFxObservable.valuesOf(signUpForm.visibleProperty())
+                .switchMap(isVisible -> isVisible
+                        ? Observable.combineLatest(
+                        JavaFxObservable.valuesOf(registerName.textProperty()),
+                        JavaFxObservable.valuesOf(registerEmail.textProperty()),
+                        UserExistsRequestDTO::new)
+                        : Observable.empty()
+                )
+                .debounce(500, TimeUnit.MILLISECONDS)
+                .distinctUntilChanged()
+                .switchMap(dto -> {
+                    boolean isValidLocal = true;
 
-                        if (!dto.getEmail().isEmpty() && !eReg.matcher(dto.getEmail()).matches()) {
-                            registerEmail.setStyle("-fx-border-color: red");
-                            isValidLocal = false;
-                        }
+                    if (!dto.getEmail().isEmpty() && !eReg.matcher(dto.getEmail()).matches()) {
+                        registerEmail.setStyle("-fx-border-color: red");
+                        isValidLocal = false;
+                    }
 
-                        if (!dto.getUsername().isEmpty() && dto.getUsername().length() < 5) {
-                            registerName.setStyle("-fx-border-color: red");
-                            isValidLocal = false;
-                        }
+                    if (!dto.getUsername().isEmpty() && dto.getUsername().length() < 5) {
+                        registerName.setStyle("-fx-border-color: red");
+                        isValidLocal = false;
+                    }
 
-                        if (!isValidLocal)
+                    if (!isValidLocal)
+                        return Observable.empty();
+
+                    return Observable.just(dto);
+                })
+                .observeOn(Schedulers.io())
+                .switchMap(dto -> Observable.fromCompletionStage(userApi.existsByUsernameOrEmail(dto))
+                        .onErrorResumeNext(ex -> {
+                            System.err.println("validation error: " + ex.getMessage());
                             return Observable.empty();
+                        }))
+                .observeOn(JavaFxScheduler.platform())
+                .subscribe(
+                        response -> {
+                            updateValidationStyle(registerName, response.isUsernameExists());
+                            updateValidationStyle(registerEmail, response.isEmailExists());
+                        },
+                        ex -> System.err.println("CHẾT LUỒNG usernameValidation " + ex.getMessage())
+                );
 
-                        return Observable.just(dto);
-                    })
-                    .observeOn(Schedulers.io())
-                    .switchMap(dto -> Observable.fromCompletionStage(userApi.existsByUsernameOrEmail(dto))
-                            .onErrorResumeNext(ex -> {
-                                System.err.println("validation error: " + ex.getMessage());
-                                return Observable.empty();
-                            }))
-                    .observeOn(JavaFxScheduler.platform())
-                    .subscribe(
-                            response -> {
-                                updateValidationStyle(registerName, response.isUsernameExists());
-                                updateValidationStyle(registerEmail, response.isEmailExists());
-                            },
-                            ex -> System.err.println("CHẾT LUỒNG usernameValidation " + ex.getMessage())
-                    );
-
-            disposables.add(usernameValidation);
-        });
+        disposables.add(usernameValidation);
     }
 
     private void updateValidationStyle(TextField field, boolean isExists) {
@@ -158,35 +157,32 @@ public class AuthController {
     }
 
     private void keyBindingInitialize(Stage stage) {
-        Platform.runLater(() -> {
-            var enterBinding = JavaFxObservable.eventsOf(stage.getScene(), KeyEvent.KEY_PRESSED)
-                    .filter(e -> e.getCode() == KeyCode.ENTER)
-                    .subscribe(e -> {
-                        System.out.println("Enter key pressed");
-                        if (signInForm.isVisible()) {
-                            handleLogin();
-                        } else if (signUpForm.isVisible()) {
-                            handleRegister();
-                        } else {
-                            System.out.println("No form is visible");
-                        }
-                    });
-
-            disposables.add(enterBinding);
-        });
+        var enterBinding = JavaFxObservable.valuesOf(stage.sceneProperty())
+                .filter(scene -> scene != null)
+                .switchMap(scene -> JavaFxObservable.eventsOf(scene, KeyEvent.KEY_PRESSED))
+                .filter(e -> e.getCode() == KeyCode.ENTER)
+                .subscribe(e -> {
+                    if (signInForm.isVisible()) {
+                        handleLogin();
+                    } else if (signUpForm.isVisible()) {
+                        handleRegister();
+                    } else {
+                        System.out.println("No form is visible");
+                    }
+                });
+        disposables.add(enterBinding);
     }
 
     private void disposeInitialize(Stage stage) {
-        Platform.runLater(() -> {
-            JavaFxObservable.valuesOf(stage.sceneProperty())
-                    .skip(1)
-                    .take(1)
-                    .subscribe(scene -> {
-                        if (!disposables.isDisposed())
-                            disposables.dispose();
-                        System.out.println("Auth controller Disposed");
-                    });
-        });
+        JavaFxObservable.valuesOf(stage.sceneProperty())
+                .filter(scene -> scene != null)
+                .skip(1)
+                .take(1)
+                .subscribe(scene -> {
+                    if (!disposables.isDisposed())
+                        disposables.dispose();
+                    System.out.println("Auth controller Disposed");
+                });
     }
 
 
