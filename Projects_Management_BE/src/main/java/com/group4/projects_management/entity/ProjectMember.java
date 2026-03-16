@@ -29,7 +29,7 @@ public class ProjectMember {
    @Column(name = "PROJECT_MEMBER_ID")
    private Long id;
 
-   @Column(name = "PROJECT_MEMBER_JOIN_AT", nullable = false)
+   @Column(name = "PROJECT_MEMBER_JOIN_AT")
    private LocalDateTime joinAt;
 
    @Column(name = "PROJECT_MEMBER_LEFT_AT")
@@ -39,7 +39,7 @@ public class ProjectMember {
    private LocalDateTime invitedAt;
 
    @ManyToOne
-   @JoinColumn(name = "PROJECT_MEMBER_INVITE_ID") // Tự tham chiếu để biết ai mời
+   @JoinColumn(name = "PROJECT_MEMBER_INVITER_ID") // Tự tham chiếu để biết ai mời
    @ToString.Exclude
    private ProjectMember invitedBy;
 
@@ -65,7 +65,7 @@ public class ProjectMember {
 
    @PrePersist
    protected void onJoin() {
-      this.joinAt = LocalDateTime.now();
+      this.invitedAt = LocalDateTime.now();
       this.leftAt = null;
    }
 

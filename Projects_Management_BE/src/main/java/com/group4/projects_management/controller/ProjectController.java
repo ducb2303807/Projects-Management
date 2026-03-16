@@ -33,12 +33,14 @@ public class ProjectController {
     @GetMapping("/me")
     public ResponseEntity<List<ProjectResponseDTO>> getMyProjects() {
         Long currentUserId = SecurityUtils.getCurrentUserId();
+        System.out.println(currentUserId);
         return ResponseEntity.ok(projectService.getProjectsByUserId(currentUserId));
     }
 
     @PostMapping
     public ResponseEntity<ProjectResponseDTO> createProject(@Valid @RequestBody ProjectCreateRequestDTO request) {
-        return ResponseEntity.ok(projectService.createProject(request));
+        var userId = SecurityUtils.getCurrentUserId();
+        return ResponseEntity.ok(projectService.createProject(userId,request));
     }
 
     @GetMapping("/{projectId}")
@@ -64,11 +66,9 @@ public class ProjectController {
 
     @PostMapping("/{projectId}/invitations")
     public ResponseEntity<Void> inviteMember(
-            @PathVariable Long projectId,
-            @RequestParam Long inviteeId,
-            @RequestParam Long inviterId,
-            @RequestParam Long roleId) {
-        projectService.inviteMember(projectId, inviteeId, inviterId, roleId);
+            @Valid @RequestBody ProjectInvitationRequestDTO dto) {
+        var inviterId = SecurityUtils.getCurrentUserId();
+        projectService.inviteMember(dto.getProjectId(), dto.getInviteeId(), inviterId, dto.getRoleId());
         return ResponseEntity.ok().build();
     }
 

@@ -2,6 +2,7 @@ package com.group4.projects_management.service;
 
 import com.group4.common.dto.NotificationDTO;
 import com.group4.projects_management.core.exception.ResourceNotFoundException;
+import com.group4.projects_management.core.strategy.notification.NotificationStrategy;
 import com.group4.projects_management.entity.Notification;
 import com.group4.projects_management.entity.UserNotification;
 import com.group4.projects_management.mapper.UserNotificationMapper;
@@ -12,7 +13,10 @@ import com.group4.projects_management.service.base.BaseServiceImpl;
 import jakarta.transaction.Transactional;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.ObjectMapper;
 
+import java.util.Collections;
 import java.util.List;
 
 @Service
@@ -22,15 +26,20 @@ public class NotificationServiceImp extends BaseServiceImpl<Notification, Long> 
     private final UserNotificationRepository userNotificationRepository;
     private final UserNotificationMapper userNotificationMapper;
     private final UserRepository userRepository;
+    private final ObjectMapper objectMapper;
+
+    private final List<NotificationStrategy<?>> strategies;
 
 
-    public NotificationServiceImp(NotificationRepository notificationRepository, UserNotificationRepository userNotificationRepository, UserNotificationMapper userNotificationMapper, UserRepository userRepository, ApplicationEventPublisher eventPublisher) {
+    public NotificationServiceImp(NotificationRepository notificationRepository, UserNotificationRepository userNotificationRepository, UserNotificationMapper userNotificationMapper, UserRepository userRepository, ApplicationEventPublisher eventPublisher, ObjectMapper objectMapper, List<NotificationStrategy<?>> strategies) {
         super(notificationRepository);
         this.notificationRepository = notificationRepository;
         this.userNotificationRepository = userNotificationRepository;
         this.userNotificationMapper = userNotificationMapper;
         this.userRepository = userRepository;
         this.eventPublisher = eventPublisher;
+        this.objectMapper = objectMapper;
+        this.strategies = strategies;
     }
 
     @Override
@@ -83,58 +92,53 @@ public class NotificationServiceImp extends BaseServiceImpl<Notification, Long> 
         this.userNotificationRepository.saveAll(unreadNotifications);
     }
 
-    @Override
     @Transactional
-    public void sendNotification(Long userId, String text, String type, Long referenceId) {
+    @SuppressWarnings("unchecked")
+    public <T> void send(List<Long> receiverIds, T contextData, Long referenceId) {
+        if (receiverIds == null || receiverIds.isEmpty()) return;
+
+        NotificationStrategy<T> strategy = (NotificationStrategy<T>) strategies.stream()
+                .filter(s -> s.supports(contextData.getClass()))
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy Strategy hỗ trợ loại dữ liệu này!"));
 
 
-        var user = this.userRepository.findById(userId)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+        Notification notif = new Notification();
+        notif.setReferenceId(referenceId.toString());
+        notif.setType(strategy.getType().name());
+        notif.setTitle(strategy.buildTitle(contextData));
 
-        var notification = Notification.create(text, type, referenceId.toString());
-        notificationRepository.save(notification);
-
-        var userNotification = new UserNotification();
-        userNotification.setUser(user);
-        userNotification.setNotification(notification);
-        userNotificationRepository.save(userNotification);
-
-        var dto = userNotificationMapper.toDto(userNotification);
-        this.eventPublisher.publishEvent(dto);
-    }
-
-    @Override
-    @Transactional
-    public void sendNotification(List<Long> usersId, String text, String type, Long referenceId) {
-        if (usersId == null || usersId.isEmpty())
-            return;
-
-        if (text == null || text.isBlank())
-            throw new IllegalArgumentException("Notification text cannot be empty");
-
-        var notification = Notification.create(text, type, referenceId.toString());
-        notificationRepository.save(notification);
-
-        var users = this.userRepository.findAllById(usersId);
-
-        if (users.size() != usersId.size()) {
-            // Check chuyên sâu nếu cần
-            System.out.println("Warning: Some user IDs were not found in database.");
+        try {
+            String jsonMetadata = objectMapper.writeValueAsString(strategy.buildMetadata(contextData));
+            notif.setMetadata(jsonMetadata);
+        } catch (JacksonException e) {
+            notif.setMetadata("{}");
         }
 
-        var userNotifications = users.stream().map(user -> {
-                    var userNotification = new UserNotification();
-                    userNotification.setUser(user);
-                    userNotification.setNotification(notification);
+        notificationRepository.save(notif);
 
-                    this.eventPublisher.publishEvent(userNotificationMapper.toDto(userNotification));
-                    return userNotification;
-                })
-                .toList();
+
+        var users = userRepository.findAllById(receiverIds);
+
+        var userNotifications = users.stream().map(user -> {
+            var un = new UserNotification();
+            un.setUser(user);
+            un.setNotification(notif);
+
+            var dto = userNotificationMapper.toDto(un);
+            this.eventPublisher.publishEvent(dto);
+
+            return un;
+        }).toList();
 
         if (!userNotifications.isEmpty()) {
             userNotificationRepository.saveAll(userNotifications);
         }
+    }
+
+    @Transactional
+    public <T> void send(Long receiverId, T contextData, Long referenceId) {
+        this.send(Collections.singletonList(receiverId), contextData, referenceId);
     }
 
     @Override

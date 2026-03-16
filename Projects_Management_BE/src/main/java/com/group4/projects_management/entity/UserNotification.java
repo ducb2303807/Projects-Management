@@ -15,8 +15,8 @@ import java.time.LocalDateTime;
 
 @Data
 class UserNotificationId implements Serializable {
-   private Long user;
-   private Long notification;
+    private Long user;
+    private Long notification;
 }
 
 @Entity
@@ -26,34 +26,39 @@ class UserNotificationId implements Serializable {
 @NoArgsConstructor
 @AllArgsConstructor
 public class UserNotification {
-   @Column(name = "USER_NOTIFICATION_IS_READ")
-   private boolean isRead;
-   @Column(name = "USER_NOTIFICATION_READ_AT")
-   private LocalDateTime readAt;
+    @Column(name = "USER_NOTIFICATION_IS_READ")
+    private boolean isRead;
+    @Column(name = "USER_NOTIFICATION_READ_AT")
+    private LocalDateTime readAt;
 
-   @Id
-   @ManyToOne
-   @JoinColumn(name = "NOTIFICATION_ID")
-   @ToString.Exclude
-   private Notification notification;
+    @Id
+    @ManyToOne
+    @JoinColumn(name = "NOTIFICATION_ID")
+    @ToString.Exclude
+    private Notification notification;
 
-   @Id
-   @ManyToOne
-   @JoinColumn(name = "USER_ID")
-   @ToString.Exclude
-   private User user;
-   
-   public void markAsRead() {
-      if (!this.isRead) {
-         this.isRead = true;
-         this.readAt = LocalDateTime.now();
-      }
-   }
+    @Id
+    @ManyToOne
+    @JoinColumn(name = "USER_ID")
+    @ToString.Exclude
+    private User user;
 
-   public void markAsUnread() {
-      if (this.isRead) {
-         this.isRead = false;
-         this.readAt = null;
-      }
-   }
+    @PrePersist
+    protected void onCreate() {
+        this.isRead = false;
+    }
+
+    public void markAsRead() {
+        if (!this.isRead) {
+            this.isRead = true;
+            this.readAt = LocalDateTime.now();
+        }
+    }
+
+    public void markAsUnread() {
+        if (this.isRead) {
+            this.isRead = false;
+            this.readAt = null;
+        }
+    }
 }
