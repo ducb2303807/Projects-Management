@@ -1,0 +1,140 @@
+.popup-background {
+    -fx-background-color: transparent;
+}
+
+.popup-container {
+    -fx-background-color: #FFFFFF;
+    -fx-background-radius: 12px;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.2), 20, 0, 0, 5);
+}
+
+.title-input {
+    -fx-font-size: 28px;
+    -fx-font-weight: 900;
+    -fx-text-fill: #34495E;
+    -fx-prompt-text-fill: #9CA3AF;
+    -fx-background-color: transparent;
+    -fx-padding: 0;
+}
+
+.title-input:focused {
+    -fx-prompt-text-fill: transparent;
+}
+
+.field-label {
+    -fx-text-fill: #7D8EA3;
+    -fx-font-size: 13px;
+}
+
+.icon-muted {
+    -fx-icon-color: #BDC3C7;
+    -fx-icon-size: 14px;
+}
+
+/* Các ô input sạch, không viền cho đến khi hover/focus */
+.clean-input, .clean-textarea {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-prompt-text-fill: #BDC3C7;
+    -fx-text-fill: #2C3E50;
+}
+.clean-input:hover, .clean-textarea:hover {
+    -fx-background-color: #F8F9FA;
+    -fx-border-radius: 4px;
+}
+.clean-input:focused, .clean-textarea:focused {
+    -fx-background-color: #FFFFFF;
+    -fx-border-color: #E0E0E0;
+    -fx-border-radius: 4px;
+}
+
+.section-title-small {
+    -fx-font-size: 13px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #34495E;
+}
+
+.info-text {
+    -fx-font-size: 12px;
+    -fx-text-fill: #34495E;
+}
+
+/* Nút + hình tròn */
+.btn-add-circle {
+    -fx-background-color: #F0F0F0;
+    -fx-text-fill: #7F8C8D;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-background-radius: 15px;
+    -fx-min-width: 30px;
+    -fx-min-height: 30px;
+    -fx-cursor: hand;
+}
+.btn-add-circle:hover {
+    -fx-background-color: #E0E0E0;
+}
+
+/* Chip/Tag chứa tên user */
+.user-tag {
+    -fx-background-color: #F4F0FF; /* Tím nhạt */
+    -fx-background-radius: 12px;
+    -fx-padding: 4 8 4 10;
+    -fx-spacing: 5;
+    -fx-alignment: center;
+}
+.user-tag-text {
+    -fx-text-fill: #5B2C6F;
+    -fx-font-size: 12px;
+    -fx-font-weight: bold;
+}
+.user-tag-close {
+    -fx-background-color: transparent;
+    -fx-text-fill: #9B59B6;
+    -fx-font-size: 10px;
+    -fx-cursor: hand;
+    -fx-padding: 0 2 0 2;
+}
+.user-tag-close:hover {
+    -fx-text-fill: #E74C3C;
+}
+
+.btn-cancel {
+    -fx-background-color: transparent;
+    -fx-background-radius: 20px;
+    -fx-text-fill: #7F8C8D;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-cursor: hand;
+    -fx-padding: 8px 15px;
+}
+.btn-cancel:hover {
+    -fx-text-fill: #2C3E50;
+    -fx-background-color: #F2F2F2;
+    -fx-background-radius: 20px;
+}
+
+.btn-create {
+    -fx-background-color: #7f559f;
+    -fx-background-radius: 20px;
+    -fx-text-fill: white;
+    -fx-font-family: "Segoe UI", sans-serif;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-padding: 8px 20px;
+    -fx-cursor: hand;
+}
+
+.btn-create:hover {
+    -fx-background-color: #5c3f81;
+}
+
+.user-name {
+    -fx-font-size: 13px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #000000;
+}
+
+.date-time {
+    -fx-font-size: 12px;
+    -fx-text-fill: #6E7DF2;
+}
