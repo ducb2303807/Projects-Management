@@ -75,11 +75,11 @@ public class UserController {
 
 
    @Operation(summary = "Thay đổi mật khẩu của người dùng")
-   @PatchMapping("/{userId}/change-password")
+   @PatchMapping("/{userId}/password")
    public ResponseEntity<Void> changePassword(
            @PathVariable Long userId,
-           @RequestParam String newPassword) {
-      userService.changePassword(userId, newPassword);
+           @Valid @RequestBody ChangePasswordRequestDTO dto) {
+      userService.changePassword(userId, dto);
       return ResponseEntity.ok().build();
    }
 
