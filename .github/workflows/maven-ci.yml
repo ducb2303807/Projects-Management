@@ -3,11 +3,6 @@
 on:
   pull_request:
     branches: [ "main", "develop" ]
-    paths:
-      - 'Projects_Management_BE/**'
-      - 'Projects_Management_FE/**'
-      - 'common/**'
-      - '.github/workflows/**'
 
 jobs:
   changes:
