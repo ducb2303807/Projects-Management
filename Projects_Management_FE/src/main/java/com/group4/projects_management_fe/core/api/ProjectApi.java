@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 public class ProjectApi extends AbstractAuthenticatedApi {
-    private static final String BASE_ENDPOINT = "/api/projects";
+    private static final String BASE_ENDPOINT = "/projects";
 
     public ProjectApi(AuthSessionProvider sessionProvider) {
         super(sessionProvider);
