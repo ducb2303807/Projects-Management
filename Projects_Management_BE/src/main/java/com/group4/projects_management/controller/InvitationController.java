@@ -1,6 +1,7 @@
 package com.group4.projects_management.controller;
 
 import com.group4.common.dto.InvitationDTO;
+import com.group4.projects_management.core.security.SecurityUtils;
 import com.group4.projects_management.service.ProjectService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +22,12 @@ public class InvitationController {
 
     @GetMapping("/{userId}")
     public ResponseEntity<List<InvitationDTO>> getInvitation(@PathVariable Long userId) {
+        return ResponseEntity.ok(projectService.getPendingInvitations(userId));
+    }
+
+    @GetMapping("/me")
+    public ResponseEntity<List<InvitationDTO>> getInvitation() {
+        var userId = SecurityUtils.getCurrentUserId();
         return ResponseEntity.ok(projectService.getPendingInvitations(userId));
     }
 }
