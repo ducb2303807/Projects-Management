@@ -28,15 +28,6 @@ public class TaskController {
    @Autowired
    private CommentService commentService;
 
-   @PostMapping("/projects/{projectId}/tasks")
-   public ResponseEntity<TaskResponseDTO> createTaskInProject(
-           @PathVariable Long projectId,
-           @Valid @RequestBody TaskCeateRequestDTO request) {
-
-      request.setProjectId(projectId);
-      return ResponseEntity.ok(taskService.createTask(request));
-   }
-
    @PostMapping("/{taskId}/assignments")
    public ResponseEntity<Void> assignMember(
            @PathVariable Long taskId,

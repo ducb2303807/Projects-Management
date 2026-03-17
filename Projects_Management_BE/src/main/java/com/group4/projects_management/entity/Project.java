@@ -30,14 +30,14 @@ public class Project {
    @Column(name = "PROJECT_NAME", nullable = false, length = 100)
    private java.lang.String name;
 
+   @Column(name = "PROJECT_DESCRIPTION", columnDefinition = "TEXT")
+   private java.lang.String description;
+
    @Column(name = "PROJECT_START_AT", nullable = false)
    private LocalDateTime startDate;
 
    @Column(name = "PROJECT_END_AT", nullable = false)
    private LocalDateTime endDate;
-
-   @Column(name = "PROJECT_DESCRIPTION", columnDefinition = "TEXT")
-   private java.lang.String description;
 
    @Column(name = "PROJECT_CREATED_AT", nullable = false)
    private LocalDateTime createdAt;

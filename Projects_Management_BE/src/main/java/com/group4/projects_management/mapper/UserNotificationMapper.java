@@ -8,7 +8,7 @@ import org.mapstruct.Mapping;
 @Mapper(componentModel = "spring")
 public abstract class UserNotificationMapper {
     @Mapping(source = "notification.id", target = "id")
-    @Mapping(source = "notification.text",target = "text")
+    @Mapping(source = "notification.title",target = "text")
     @Mapping(source = "notification.type", target = "type")
     @Mapping(source = "notification.referenceId", target = "referenceId")
     @Mapping(source = "notification.createdAt", target = "createdDate")

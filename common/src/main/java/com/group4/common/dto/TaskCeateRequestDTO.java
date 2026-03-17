@@ -4,7 +4,11 @@ package com.group4.common.dto; /************************************************
  * Purpose: Defines the Class TaskCeateRequestDTO
  ***********************************************************************/
 
-import lombok.*;
+import jakarta.validation.constraints.NotNull;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
 /**
@@ -16,7 +20,10 @@ import lombok.experimental.SuperBuilder;
 @AllArgsConstructor
 @SuperBuilder
 public class TaskCeateRequestDTO extends TaskBaseDTO {
+    @NotNull
     private Long projectId;
+    @NotNull
     private Long priorityId;
+    @NotNull
     private Long taskStatusId;
 }

@@ -13,8 +13,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-
 /**
  * @pdOid 98320d4a-632b-4031-ac14-b0d540fb9dfd
  */
@@ -24,11 +22,6 @@ import java.util.List;
 public class CommentController {
     @Autowired
     private CommentService commentService;
-
-    @GetMapping("/task/{taskId}")
-    public ResponseEntity<List<CommentDTO>> getCommentsByTask(@PathVariable Long taskId) {
-        return ResponseEntity.ok(commentService.getCommentsByTask(taskId));
-    }
 
     @PostMapping
     public ResponseEntity<CommentDTO> createComment(@Valid @RequestBody CommentCreateRequestDTO request) {

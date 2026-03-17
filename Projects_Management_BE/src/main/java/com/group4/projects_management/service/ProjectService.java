@@ -14,6 +14,7 @@ public interface ProjectService {
    void inviteMember(Long projectId, Long inviteeId, Long inviterId, Long roleId);
 
    void updateMemberStatus(Long memberId, ProjectMemberUpdateDTO request);
+   void handleInvitation(Long invitationId, InvitationRequestDTO request);
    List<InvitationDTO> getPendingInvitations(Long userId);
    /** @param projectMemberId
     * @pdOid ad492c45-0123-4365-a116-0a463d36ca71 */
@@ -38,7 +39,7 @@ public interface ProjectService {
    void leaveProject(Long projectMemberId);
    /** @param dto
     * @pdOid ee12b686-f872-4abd-9cf7-9d4c19372716 */
-   ProjectResponseDTO createProject(ProjectCreateRequestDTO dto);
+   ProjectResponseDTO createProject(Long userId, ProjectCreateRequestDTO dto);
    /** @pdOid 5b3db6cf-258b-47e2-a668-c04294cf5ac2 */
    ProjectResponseDTO getProjectDetail(Long projectId);
 

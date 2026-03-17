@@ -1,7 +1,10 @@
 package com.group4.projects_management_fe.features.mainlayout;
 
 import com.group4.projects_management_fe.MainWindow;
+import com.group4.projects_management_fe.core.api.NotificationApi;
+import com.group4.projects_management_fe.core.session.AppSessionManager;
 import javafx.animation.FadeTransition;
+import javafx.animation.ScaleTransition;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -18,7 +21,6 @@ import javafx.scene.layout.VBox;
 import javafx.scene.shape.Circle;
 import javafx.stage.Stage;
 import javafx.util.Duration;
-import javafx.animation.ScaleTransition;
 
 import java.io.IOException;
 
@@ -60,6 +62,17 @@ public class MainLayoutController {
         avatarImage.setClip(clip);
         userBox.setOnMouseClicked(e -> showProfile());
         overlayBackground.setOnMouseClicked(e -> closeProfile());
+
+
+        var a = new NotificationApi(AppSessionManager.getInstance());
+        a.getNotificationsForUser()
+                .thenAccept(notificationDTOS -> {
+                    System.out.println(notificationDTOS);
+                })
+                .exceptionally(ex -> {
+                    ex.printStackTrace();
+                    return null;
+                });
     }
 
     @FXML
