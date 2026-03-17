@@ -1,4 +1,4 @@
-﻿package com.group4.common.dto;
+package com.group4.common.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
