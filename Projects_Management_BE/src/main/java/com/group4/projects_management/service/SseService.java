@@ -42,13 +42,15 @@ public class SseService {
             return null;
         }
 
-        // chỉ 1 user id kết nối sse 1 lúc
-        if (emitters.containsKey(userId)) {
-            SseEmitter oldEmitter = emitters.get(userId);
-            oldEmitter.complete();
+        SseEmitter oldEmitter = emitters.put(userId, emitter);
+        if (oldEmitter != null) {
+            try {
+                oldEmitter.complete();
+            } catch (Exception e) {
+                log.warn("Error completing old emitter for user {}", userId);
+            }
         }
 
-        emitters.put(userId, emitter);
         log.info("SSE connection established for user {}", userId);
         return emitter;
     }
