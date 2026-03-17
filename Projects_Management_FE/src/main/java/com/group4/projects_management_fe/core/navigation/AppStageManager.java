@@ -1,4 +1,4 @@
-﻿package com.group4.projects_management_fe.core.navigation;
+package com.group4.projects_management_fe.core.navigation;
 
 import javafx.stage.Stage;
 

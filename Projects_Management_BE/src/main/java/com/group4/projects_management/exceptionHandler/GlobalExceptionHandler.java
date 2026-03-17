@@ -28,6 +28,22 @@ import java.util.stream.Collectors;
 @Slf4j
 public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
+
+    // lỗi Not Found 404
+    @ExceptionHandler(ResourceNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleNotFoundException(ResourceNotFoundException ex) {
+        log.error(ex.getMessage());
+        return buildErrorResponse(ex.getMessage(), BusinessErrorCode.SYSTEM_RESOURCE_NOT_FOUND.getCode(), HttpStatus.NOT_FOUND);
+    }
+
+    // Business Exception (400)
+    @ExceptionHandler(BusinessException.class)
+    public ResponseEntity<ErrorResponse> handleBusinessException(BusinessException ex) {
+        log.error(ex.getMessage());
+        log.error("Business Exception: {}", ex.getErrorCode().getCode());
+        return buildErrorResponse(ex.getMessage(), ex.getErrorCode().getCode(), HttpStatus.BAD_REQUEST);
+    }
+
     // Token hết hạn
     @ExceptionHandler(ExpiredJwtException.class)
     public ResponseEntity<ErrorResponse> handleExpiredJwtException(ExpiredJwtException ex) {
@@ -72,20 +88,6 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         );
     }
 
-    // lỗi Not Found 404
-    @ExceptionHandler(ResourceNotFoundException.class)
-    public ResponseEntity<ErrorResponse> handleNotFoundException(ResourceNotFoundException ex) {
-        log.error(ex.getMessage());
-        return buildErrorResponse(ex.getMessage(), BusinessErrorCode.SYSTEM_RESOURCE_NOT_FOUND.getCode(), HttpStatus.NOT_FOUND);
-    }
-
-    // Business Exception (400)
-    @ExceptionHandler(BusinessException.class)
-    public ResponseEntity<ErrorResponse> handleBusinessException(BusinessException ex) {
-        log.error(ex.getMessage());
-        return buildErrorResponse(ex.getMessage(), ex.getErrorCode().getCode(), HttpStatus.BAD_REQUEST);
-    }
-
     // Server Exception (500)
     @ExceptionHandler(RuntimeException.class)
     public ResponseEntity<ErrorResponse> handleRuntimeException(RuntimeException ex) {
@@ -103,11 +105,11 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
                 .map(error -> error.getField() + ": " + error.getDefaultMessage())
                 .collect(Collectors.joining(", "));
 
-        return (ResponseEntity) buildErrorResponse(
-                "Dữ liệu không hợp lệ: " + errors,
-                BusinessErrorCode.SYSTEM_VALIDATION_ERROR.getCode(),
-                HttpStatus.BAD_REQUEST
-        );
+        return new ResponseEntity<>(
+                createErrorBody(status.value(),
+                        BusinessErrorCode.SYSTEM_VALIDATION_ERROR.getCode(),
+                        "Dữ liệu không hợp lệ: " + errors),
+                HttpStatus.BAD_REQUEST);
     }
 
     // Unhandled Exception (500)

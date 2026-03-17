@@ -7,6 +7,7 @@ package com.group4.projects_management.service; /*******************************
 import com.group4.common.dto.*;
 import com.group4.common.enums.BusinessErrorCode;
 import com.group4.projects_management.core.exception.BusinessException;
+import com.group4.projects_management.core.exception.ResourceNotFoundException;
 import com.group4.projects_management.core.security.JwtUtils;
 import com.group4.projects_management.entity.User;
 import com.group4.projects_management.mapper.UserMapper;
@@ -93,28 +94,19 @@ public class UserServiceImpl extends BaseServiceImpl<User, Long> implements User
         return userMapper.toDto(user);
     }
 
-//    @Override
-//    @Transactional
-//    public void changePassword(Long userId, String oldPassword, String newPassword) {
-//        var user = userRepository.findById(userId)
-//                .orElseThrow(() -> new BusinessException("User not found", BusinessErrorCode.USER_NOT_FOUND));
-//
-//        if (!passwordEncoder.matches(oldPassword, user.getHashedPassword())) {
-//            throw new BusinessException("old password is incorrect", BusinessErrorCode.INVALID_PASSWORD);
-//        }
-//        user.setHashedPassword(passwordEncoder.encode(newPassword));
-//        userRepository.save(user);
-//    }
-
     @Override
     @Transactional
-    public void changePassword(Long userId, String newPassword) {
+    public void changePassword(Long userId, ChangePasswordRequestDTO dto) {
         var user = userRepository.findById(userId)
-                .orElseThrow(() -> new BusinessException("User not found", BusinessErrorCode.AUTH_USER_NOT_FOUND));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
-        user.setHashedPassword(passwordEncoder.encode(newPassword));
+        if (!passwordEncoder.matches(dto.getOldPassword(), user.getHashedPassword())) {
+            throw new BusinessException("old password is incorrect", BusinessErrorCode.AUTH_INVALID_PASSWORD);
+        }
+        user.setHashedPassword(passwordEncoder.encode(dto.getNewPassword()));
         userRepository.save(user);
     }
+
 
     @Override
     public List<UserDTO> searchUsers(String keyword) {

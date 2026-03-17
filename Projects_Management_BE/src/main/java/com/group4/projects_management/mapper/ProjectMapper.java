@@ -11,7 +11,7 @@ public abstract class ProjectMapper
 {
     @Mapping(source = "name", target = "projectName")
     @Mapping(source = "projectStatus.name", target = "statusName")
-    @Mapping(target = "memberCount", expression = "java(project.getMemberCount())")
+    @Mapping(target = "memberCount", expression = "java(project.getActiveMemberCount())")
     @Mapping(target = "userCreatedUsername", expression = "java(project.getCreatedBy().getUsername())")
     @Mapping(target = "userCreatedFullName", expression = "java(project.getCreatedBy().getFullName())")
     public abstract ProjectResponseDTO toDto(Project project);
@@ -22,5 +22,6 @@ public abstract class ProjectMapper
     @Mapping(target = "tasks", ignore = true)
     @Mapping(target = "members", ignore = true)
     @Mapping(target = "projectStatus", ignore = true)
+    @Mapping(target = "createdBy", ignore = true)
     public abstract Project toCreateEntity(ProjectCreateRequestDTO dto);
 }

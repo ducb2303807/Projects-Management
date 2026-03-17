@@ -8,6 +8,7 @@ import com.group4.common.dto.*;
 import com.group4.projects_management.core.security.SecurityUtils;
 import com.group4.projects_management.service.ProjectService;
 import com.group4.projects_management.service.TaskService;
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,12 +34,14 @@ public class ProjectController {
     @GetMapping("/me")
     public ResponseEntity<List<ProjectResponseDTO>> getMyProjects() {
         Long currentUserId = SecurityUtils.getCurrentUserId();
+        System.out.println(currentUserId);
         return ResponseEntity.ok(projectService.getProjectsByUserId(currentUserId));
     }
 
     @PostMapping
     public ResponseEntity<ProjectResponseDTO> createProject(@Valid @RequestBody ProjectCreateRequestDTO request) {
-        return ResponseEntity.ok(projectService.createProject(request));
+        var userId = SecurityUtils.getCurrentUserId();
+        return ResponseEntity.ok(projectService.createProject(userId,request));
     }
 
     @GetMapping("/{projectId}")
@@ -49,6 +52,14 @@ public class ProjectController {
     @GetMapping("/{projectId}/tasks")
     public ResponseEntity<List<TaskResponseDTO>> getTasksByProjectId(@PathVariable Long projectId) {
         return ResponseEntity.ok(taskService.getTasksByProject(projectId));
+    }
+
+    @PostMapping("/{projectId}/tasks")
+    public ResponseEntity<TaskResponseDTO> createTaskInProject(
+            @PathVariable Long projectId,
+            @Valid @RequestBody TaskCeateRequestDTO request) {
+        request.setProjectId(projectId);
+        return ResponseEntity.ok(taskService.createTask(request));
     }
 
     @PutMapping("/{projectId}")
@@ -64,14 +75,16 @@ public class ProjectController {
 
     @PostMapping("/{projectId}/invitations")
     public ResponseEntity<Void> inviteMember(
-            @PathVariable Long projectId,
-            @RequestParam Long inviteeId,
-            @RequestParam Long inviterId,
-            @RequestParam Long roleId) {
-        projectService.inviteMember(projectId, inviteeId, inviterId, roleId);
+            @Valid @RequestBody ProjectInvitationRequestDTO dto) {
+        var inviterId = SecurityUtils.getCurrentUserId();
+        projectService.inviteMember(dto.getProjectId(), dto.getInviteeId(), inviterId, dto.getRoleId());
         return ResponseEntity.ok().build();
     }
 
+    @Operation(
+            summary = "Cập nhật trạng thái member trong project",
+            description = "Như cập nhật trạng thái member từ ACTIVE sang LEFT hoặc REMOVE"
+    )
     @PatchMapping("/members/{projectMemberId}")
     public ResponseEntity<Void> updateMemberStatus(
             @PathVariable Long projectMemberId,

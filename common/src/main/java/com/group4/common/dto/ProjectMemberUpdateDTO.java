@@ -10,9 +10,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class ProjectMemberUpdateDTO {
     public enum MemberStatus {
-        ACCEPTED,
-        DECLINED,
-        PENDING,
         LEFT,
         REMOVED
     }

@@ -27,9 +27,10 @@ create table NOTIFICATION
 (
     NOTIFICATION_ID           int         not null auto_increment  comment '',
     NOTIFICATION_CREATED_AT   timestamp   not null DEFAULT CURRENT_TIMESTAMP comment '',
-    NOTIFICATION_TEXT         text        not null comment '',
+    NOTIFICATION_TITLE         text        not null comment '',
     NOTIFICATION_TYPE         varchar(50) not null comment '',
-    NOTIFICATION_REFERENCE_ID int         not null comment '',
+    NOTIFICATION_REFERENCE_ID int         comment '',
+    NOTIFICATION_METADATA TEXT,
     primary key (NOTIFICATION_ID)
 );
 
@@ -103,10 +104,10 @@ create table PROJECT_MEMBER
     PROJECT_ID               int       not null comment '',
     PROJECT_ROLE_ID          int       not null comment '',
     PROJECT_MEMBER_STATUS_ID int       not null comment '',
-    PROJECT_MEMBER_INVITE_ID int comment '',
-    PROJECT_MEMBER_JOIN_AT   timestamp not null comment '',
+    PROJECT_MEMBER_INVITER_ID int comment '',
+    PROJECT_MEMBER_JOIN_AT   timestamp  comment '',
     PROJECT_MEMBER_LEFT_AT   timestamp comment '',
-    PROJECT_MEMBER_INVITED_AT timestamp not null DEFAULT CURRENT_TIMESTAMP,
+    PROJECT_MEMBER_INVITED_AT timestamp DEFAULT CURRENT_TIMESTAMP,
     primary key (PROJECT_MEMBER_ID),
     key                      AK_IDENTIFIER_2 (USER_ID, PROJECT_ID)
 );
@@ -302,7 +303,7 @@ alter table PROJECT_MEMBER
         references PROJECT_ROLE (PROJECT_ROLE_ID) on delete restrict on update restrict;
 
 alter table PROJECT_MEMBER
-    add constraint FK_PROJECT__INVITED_B_PROJECT_ foreign key (PROJECT_MEMBER_INVITE_ID)
+    add constraint FK_PROJECT__INVITED_B_PROJECT_ foreign key (PROJECT_MEMBER_INVITER_ID)
         references PROJECT_MEMBER (PROJECT_MEMBER_ID) on delete restrict on update restrict;
 
 alter table PROJECT_MEMBER

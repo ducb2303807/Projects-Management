@@ -1,7 +1,10 @@
 package com.group4.projects_management_fe.features.mainlayout;
 
 import com.group4.projects_management_fe.MainWindow;
+import com.group4.projects_management_fe.core.api.NotificationApi;
+import com.group4.projects_management_fe.core.session.AppSessionManager;
 import javafx.animation.FadeTransition;
+import javafx.animation.ScaleTransition;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -12,12 +15,12 @@ import javafx.scene.control.Button;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.shape.Circle;
 import javafx.stage.Stage;
 import javafx.util.Duration;
-import javafx.animation.ScaleTransition;
 
 import java.io.IOException;
 
@@ -59,6 +62,17 @@ public class MainLayoutController {
         avatarImage.setClip(clip);
         userBox.setOnMouseClicked(e -> showProfile());
         overlayBackground.setOnMouseClicked(e -> closeProfile());
+
+
+        var a = new NotificationApi(AppSessionManager.getInstance());
+        a.getNotificationsForUser()
+                .thenAccept(notificationDTOS -> {
+                    System.out.println(notificationDTOS);
+                })
+                .exceptionally(ex -> {
+                    ex.printStackTrace();
+                    return null;
+                });
     }
 
     @FXML
@@ -84,12 +98,12 @@ public class MainLayoutController {
             FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
             Node view = loader.load();
 
-            contentPane.getChildren().setAll(view);
+            VBox wrapper = new VBox(view);
+            wrapper.setMaxWidth(1200);
 
-            FadeTransition fade = new FadeTransition(Duration.millis(250), view);
-            fade.setFromValue(0);
-            fade.setToValue(1);
-            fade.play();
+            VBox.setVgrow(view, Priority.ALWAYS);
+
+            contentPane.getChildren().setAll(wrapper);
 
         } catch (IOException e) {
             e.printStackTrace();

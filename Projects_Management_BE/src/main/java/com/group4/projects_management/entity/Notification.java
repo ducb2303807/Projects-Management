@@ -4,6 +4,7 @@ package com.group4.projects_management.entity; /********************************
  * Purpose: Defines the Class Notification
  ***********************************************************************/
 
+import com.fasterxml.jackson.annotation.JsonRawValue;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -25,8 +26,8 @@ public class Notification {
     @Column(name = "NOTIFICATION_ID")
     private Long id;
 
-    @Column(name = "NOTIFICATION_TEXT", nullable = false, columnDefinition = "TEXT")
-    private java.lang.String text;
+    @Column(name = "NOTIFICATION_TITLE", nullable = false, columnDefinition = "TEXT")
+    private java.lang.String title;
 
     @Column(name = "NOTIFICATION_TYPE", nullable = false, length = 50)
     private java.lang.String type;
@@ -37,6 +38,10 @@ public class Notification {
     @Column(name = "NOTIFICATION_CREATED_AT", nullable = false)
     private LocalDateTime createdAt;
 
+    @Column(name = "NOTIFICATION_METADATA", columnDefinition = "TEXT")
+    @JsonRawValue
+    private String metadata;
+
     @PrePersist
     protected void onCreate() {
         this.createdAt = LocalDateTime.now();
@@ -44,9 +49,18 @@ public class Notification {
 
     public static Notification create(String text, String type, String referenceId) {
         var notification = new Notification();
-        notification.setText(text);
+        notification.setTitle(text);
         notification.setType(type);
         notification.setReferenceId(referenceId);
         return notification;
+    }
+
+    public static Notification build(String text, String type, String referenceId, String jsonMetadata) {
+        Notification n = new Notification();
+        n.title = text;
+        n.type = type;
+        n.referenceId = referenceId;
+        n.metadata = jsonMetadata;
+        return n;
     }
 }

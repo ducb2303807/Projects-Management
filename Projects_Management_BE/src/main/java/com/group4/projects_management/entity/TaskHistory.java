@@ -1,4 +1,5 @@
-package com.group4.projects_management.entity; /***********************************************************************
+package com.group4.projects_management.entity;
+/***********************************************************************
  * Module:  TaskHistory.java
  * Author:  Lenovo
  * Purpose: Defines the Class TaskHistory
@@ -31,7 +32,8 @@ public class TaskHistory {
    @Column(name = "TASK_HISTORY_OLD_VALUE", columnDefinition = "TEXT")
    private java.lang.String oldValue;
    /** @pdOid 6d4682f9-266e-4c75-bf9e-776e7246d7ab */
-   @Column(name = "TASK_HISTORY_NEW_VALUE", nullable = false, columnDefinition = "TEXT")   private java.lang.String newValue;
+   @Column(name = "TASK_HISTORY_NEW_VALUE", nullable = false, columnDefinition = "TEXT")
+   private java.lang.String newValue;
    /** @pdOid 543f4f41-1b2e-428d-b132-57c71e75245e */
    @Column(name = "TASK_HISTORY_CHANGED_AT", nullable = false)
    private LocalDateTime changedAt;

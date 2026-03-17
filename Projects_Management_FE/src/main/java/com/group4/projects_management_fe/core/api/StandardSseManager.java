@@ -40,7 +40,7 @@ public class StandardSseManager extends AbstractSseManager<SseNotificationDTO> {
         this.globalOnUnauthorized = onUnauthorized;
 
         Request request = new Request.Builder()
-                .url(this.getUrl())
+                .url(this.buildUrl(this.endpoint))
                 .build();
 
         EventSourceListener listener = new EventSourceListener() {
@@ -59,7 +59,7 @@ public class StandardSseManager extends AbstractSseManager<SseNotificationDTO> {
                 }
 
                 try {
-                    var dto = parseData(data);
+                    var dto = parseData(data, SseNotificationDTO.class);
                     dataSubscribers.forEach(subscriber -> subscriber.accept(dto));
                 } catch (Exception e) {
                     System.err.println("Lỗi parse JSON: " + e.getMessage());
