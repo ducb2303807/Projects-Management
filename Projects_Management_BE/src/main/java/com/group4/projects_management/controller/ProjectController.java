@@ -53,6 +53,14 @@ public class ProjectController {
         return ResponseEntity.ok(taskService.getTasksByProject(projectId));
     }
 
+    @PostMapping("/{projectId}/tasks")
+    public ResponseEntity<TaskResponseDTO> createTaskInProject(
+            @PathVariable Long projectId,
+            @Valid @RequestBody TaskCeateRequestDTO request) {
+        request.setProjectId(projectId);
+        return ResponseEntity.ok(taskService.createTask(request));
+    }
+
     @PutMapping("/{projectId}")
     public ResponseEntity<ProjectResponseDTO> updateProject(@PathVariable Long projectId,
                                                             @Valid @RequestBody ProjectUpdateRequestDTO request) {

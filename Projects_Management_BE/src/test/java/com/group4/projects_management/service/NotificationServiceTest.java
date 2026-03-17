@@ -1,5 +1,7 @@
 package com.group4.projects_management.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.group4.common.dto.NotificationDTO;
 import com.group4.projects_management.core.strategy.notification.NotificationStrategy;
 import com.group4.projects_management.entity.Notification;
@@ -19,8 +21,6 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.context.ApplicationEventPublisher;
-import tools.jackson.core.JacksonException;
-import tools.jackson.databind.ObjectMapper;
 
 import java.util.Collections;
 import java.util.List;
@@ -237,7 +237,7 @@ public class NotificationServiceTest {
             when(mockStrategy.supports(any())).thenReturn(true);
             when(mockStrategy.getType()).thenReturn(NotificationType.PROJECT_INVITATION);
 
-            when(objectMapper.writeValueAsString(any())).thenThrow(JacksonException.class);
+            when(objectMapper.writeValueAsString(any())).thenThrow(JsonProcessingException.class);
             when(userRepository.findAllById(anyList())).thenReturn(List.of(mockUser));
 
             notificationService.send(List.of(1L), dummyContext, 500L);
