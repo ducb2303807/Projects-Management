@@ -8,6 +8,7 @@ import com.group4.common.dto.*;
 import com.group4.projects_management.core.security.SecurityUtils;
 import com.group4.projects_management.service.ProjectService;
 import com.group4.projects_management.service.TaskService;
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -80,6 +81,10 @@ public class ProjectController {
         return ResponseEntity.ok().build();
     }
 
+    @Operation(
+            summary = "Cập nhật trạng thái member trong project",
+            description = "Như cập nhật trạng thái member từ ACTIVE sang LEFT hoặc REMOVE"
+    )
     @PatchMapping("/members/{projectMemberId}")
     public ResponseEntity<Void> updateMemberStatus(
             @PathVariable Long projectMemberId,

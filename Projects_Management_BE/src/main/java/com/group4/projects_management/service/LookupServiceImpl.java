@@ -6,7 +6,9 @@ package com.group4.projects_management.service;
  ***********************************************************************/
 
 import com.group4.common.dto.LookupDTO;
+import com.group4.common.enums.BusinessErrorCode;
 import com.group4.common.enums.LookupType;
+import com.group4.projects_management.core.exception.BusinessException;
 import com.group4.projects_management.core.exception.ResourceNotFoundException;
 import com.group4.projects_management.entity.*;
 import com.group4.projects_management.repository.*;
@@ -70,15 +72,19 @@ public class LookupServiceImpl implements LookupService {
         LookupMetadata<BaseLookup<Serializable>, Serializable> meta =
                 (LookupMetadata<BaseLookup<Serializable>, Serializable>) registry.get(type);
 
-//        if (!meta.editable) throw new BusinessException("Quyền hạn hệ thống không được sửa qua đây!", BusinessErrorCode.SYSTEM_ACCESS_DENIED);
-
         BaseLookup<Serializable> entity;
-        if (dto.getId() != null && !dto.getId().isEmpty()) {
+        boolean isUpdate = dto.getId() != null && !dto.getId().isBlank();
+
+        if (isUpdate) {
+            // LOGIC CHO UPDATE
+            if (!meta.editable()) {
+                throw new BusinessException("Danh mục hệ thống này không được phép chỉnh sửa!", BusinessErrorCode.SYSTEM_ACCESS_DENIED);
+            }
             Serializable id = (Serializable) parseId(dto.getId());
             entity = meta.repository.findById(id)
-                    .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy ID"));
+                    .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy bản ghi để cập nhật"));
         } else {
-            // tạo mơi
+            // LOGIC CHO CREATE
             entity = meta.factory.get();
         }
 
