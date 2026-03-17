@@ -1,5 +1,7 @@
 package com.group4.projects_management.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.group4.common.dto.NotificationDTO;
 import com.group4.projects_management.core.exception.ResourceNotFoundException;
 import com.group4.projects_management.core.strategy.notification.NotificationStrategy;
@@ -13,8 +15,6 @@ import com.group4.projects_management.service.base.BaseServiceImpl;
 import jakarta.transaction.Transactional;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
-import tools.jackson.core.JacksonException;
-import tools.jackson.databind.ObjectMapper;
 
 import java.util.Collections;
 import java.util.List;
@@ -111,7 +111,7 @@ public class NotificationServiceImp extends BaseServiceImpl<Notification, Long> 
         try {
             String jsonMetadata = objectMapper.writeValueAsString(strategy.buildMetadata(contextData));
             notif.setMetadata(jsonMetadata);
-        } catch (JacksonException e) {
+        } catch (JsonProcessingException e) {
             notif.setMetadata("{}");
         }
 

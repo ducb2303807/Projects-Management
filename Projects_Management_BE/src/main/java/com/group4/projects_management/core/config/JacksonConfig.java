@@ -1,15 +1,21 @@
 package com.group4.projects_management.core.config;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import tools.jackson.databind.json.JsonMapper;
+import org.springframework.context.annotation.Primary;
+
 
 @Configuration
 public class JacksonConfig {
     @Bean
-    public JsonMapper jsonMapper() {
-        return JsonMapper.builder()
-                .addModule(new tools.jackson.datatype.jsr310.JavaTimeModule())
-                .build();
+    @Primary
+    public ObjectMapper objectMapper() {
+        ObjectMapper mapper = new ObjectMapper();
+
+        mapper.registerModule(new JavaTimeModule());
+
+        return mapper;
     }
 }
