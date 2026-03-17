@@ -14,6 +14,7 @@ public interface ProjectService {
    void inviteMember(Long projectId, Long inviteeId, Long inviterId, Long roleId);
 
    void updateMemberStatus(Long memberId, ProjectMemberUpdateDTO request);
+   void handleInvitation(Long invitationId, InvitationRequestDTO request);
    List<InvitationDTO> getPendingInvitations(Long userId);
    /** @param projectMemberId
     * @pdOid ad492c45-0123-4365-a116-0a463d36ca71 */

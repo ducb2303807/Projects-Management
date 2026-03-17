@@ -19,7 +19,12 @@ public abstract class ProjectMemberMapper {
     @Mapping(source = "projectMemberStatus.name", target = "statusName")
     public abstract ProjectMemberDTO toDto(ProjectMember projectMember);
 
-    // TODO
+    @Mapping(source = "id", target = "projectMemberId")
+    @Mapping(source = "project.name", target = "projectName")
+    @Mapping(source = "invitedBy.user.fullName", target = "inviterName")
+    @Mapping(source = "invitedAt", target = "sentAt")
+    @Mapping(source = "projectRole.name", target = "roleName")
+    @Mapping(source = "projectMemberStatus.name", target = "statusName")
     public abstract InvitationDTO toInvitationDto(ProjectMember projectMember);
 
 }
