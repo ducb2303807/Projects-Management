@@ -27,4 +27,5 @@ abstract class TaskBaseDTO {
    /** @pdOid 796aae6b-6c2f-4e63-baf2-6753f65f0625 */
    @NotNull ( message = "Deadline cannot be null")
    protected LocalDateTime deadline;
+
 }

@@ -5,9 +5,10 @@ import com.group4.common.dto.TaskHistoryDTO;
 import com.group4.common.dto.TaskResponseDTO;
 import com.group4.common.dto.TaskUpdateDTO;
 import com.group4.projects_management.entity.*;
+import com.group4.projects_management.mapper.TaskAssignmentMapper;
 import com.group4.projects_management.repository.*;
 import com.group4.projects_management.service.base.BaseServiceImpl;
-import jakarta.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -25,6 +26,8 @@ public class TaskServiceImpl extends BaseServiceImpl<Task, Long> implements Task
    private final TaskStatusRepository taskStatusRepository;
    private final ProjectRepository projectRepository;
 
+   private final TaskAssignmentMapper taskAssignmentMapper;
+
    public TaskServiceImpl(
            TaskRepository taskRepository,
            TaskHistoryRepository taskHistoryRepository,
@@ -32,7 +35,7 @@ public class TaskServiceImpl extends BaseServiceImpl<Task, Long> implements Task
            ProjectMemberRepository projectMemberRepository,
            PriorityRepository priorityRepository,
            TaskStatusRepository taskStatusRepository,
-           ProjectRepository projectRepository
+           ProjectRepository projectRepository, TaskAssignmentMapper taskAssignmentMapper
    ) {
       super(taskRepository);
       this.taskRepository = taskRepository;
@@ -42,6 +45,7 @@ public class TaskServiceImpl extends BaseServiceImpl<Task, Long> implements Task
       this.priorityRepository = priorityRepository;
       this.taskStatusRepository = taskStatusRepository;
       this.projectRepository = projectRepository;
+       this.taskAssignmentMapper = taskAssignmentMapper;
    }
 
    @Override
@@ -78,6 +82,7 @@ public class TaskServiceImpl extends BaseServiceImpl<Task, Long> implements Task
    }
 
    @Override
+   @org.springframework.transaction.annotation.Transactional(readOnly = true)
    public List<TaskResponseDTO> getTasksByProject(Long projectId) {
 
       List<Task> tasks = taskRepository.findByProject_Id(projectId);
@@ -93,6 +98,14 @@ public class TaskServiceImpl extends BaseServiceImpl<Task, Long> implements Task
             dto.setDescription(task.getDescription());
             dto.setDeadline(task.getDeadline());
             dto.setCreatedAt(task.getCreatedAt());
+
+
+            var assigneesDTO = task.getAssignments()
+                   .stream()
+                    .map(taskAssignmentMapper::toDTO)
+                    .toList();
+
+            dto.setAssignees(assigneesDTO);
 
             if (task.getPriority() != null) {
                dto.setPriorityName(task.getPriority().getName());
@@ -247,7 +260,7 @@ public class TaskServiceImpl extends BaseServiceImpl<Task, Long> implements Task
 
       task.setTaskStatus(status);
 
-      taskRepository.save(task);
+      var entity = taskRepository.save(task);
 
       TaskResponseDTO response = new TaskResponseDTO();
       response.setTaskId(task.getId());
@@ -256,6 +269,8 @@ public class TaskServiceImpl extends BaseServiceImpl<Task, Long> implements Task
       response.setDeadline(task.getDeadline());
       response.setCreatedAt(task.getCreatedAt());
       response.setPriorityName(priority.getName());
+      response.setStatusName(status.getName());
+      response.setAssignees(List.of());
 
       return response;
    }
