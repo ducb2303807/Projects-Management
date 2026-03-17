@@ -47,12 +47,10 @@ public class CommentServiceImpl extends BaseServiceImpl<Comment, Long> implement
       comment.setContent(text);
       comment.setCreateAt(LocalDateTime.now());
 
-      // set task
       Task task = taskRepository.findById(taskId)
               .orElseThrow(() -> new RuntimeException("Task not found"));
       comment.setTask(task);
 
-      // set member
       ProjectMember member = projectMemberRepository.findById(projectMemberId)
               .orElseThrow(() -> new RuntimeException("Project member not found"));
       comment.setMember(member);
