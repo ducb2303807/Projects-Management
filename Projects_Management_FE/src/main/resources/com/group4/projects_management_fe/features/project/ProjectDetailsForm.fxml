@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import org.kordamp.ikonli.javafx.*?>
+
+<StackPane fx:id="rootPane" styleClass="popup-background" stylesheets="@../assets/css/new-project-form.css" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.group4.projects_management_fe.features.project.ProjectDetailsFormController">
+
+    <VBox minHeight="500.0" prefWidth="750.0" styleClass="popup-container">
+
+        <HBox>
+            <padding>
+                <Insets bottom="15.0" left="30.0" right="30.0" top="25.0" />
+            </padding>
+            <TextField fx:id="projectNameInput" prefHeight="40.0" prefWidth="750.0" promptText="Project name" styleClass="title-input" />
+            <Button fx:id="editBtn" mnemonicParsing="false" onAction="#handleEditMode" prefHeight="35.0" prefWidth="42.0" styleClass="btn-edit-circle">
+                <graphic>
+                    <FontIcon iconColor="#7D8EA3" iconLiteral="fas-pen" iconSize="16" />
+                </graphic>
+            </Button>
+        </HBox>
+
+        <Separator />
+
+        <HBox VBox.vgrow="ALWAYS">
+
+            <VBox spacing="20.0" styleClass="left-column" HBox.hgrow="ALWAYS">
+                <padding>
+                    <Insets bottom="30.0" left="30.0" right="20.0" top="25.0" />
+                </padding>
+
+                <GridPane hgap="15.0" vgap="18.0">
+                    <columnConstraints>
+                        <ColumnConstraints minWidth="100.0" prefWidth="120.0" />
+                        <ColumnConstraints hgrow="ALWAYS" />
+                    </columnConstraints>
+
+                    <HBox alignment="CENTER_LEFT" spacing="10.0" GridPane.columnIndex="0" GridPane.rowIndex="0">
+                        <FontIcon iconLiteral="fas-calendar-alt" styleClass="icon-muted" />
+                        <Label styleClass="field-label" text="Start date" />
+                    </HBox>
+                    <DatePicker fx:id="startDatePicker" promptText="Empty" styleClass="clean-input" GridPane.columnIndex="1" GridPane.rowIndex="0" />
+
+                    <HBox alignment="CENTER_LEFT" spacing="10.0" GridPane.columnIndex="0" GridPane.rowIndex="1">
+                        <FontIcon iconLiteral="fas-calendar-check" styleClass="icon-muted" />
+                        <Label styleClass="field-label" text="End date" />
+                    </HBox>
+                    <DatePicker fx:id="endDatePicker" promptText="Empty" styleClass="clean-input" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+
+                    <HBox alignment="CENTER_LEFT" spacing="10.0" GridPane.columnIndex="0" GridPane.rowIndex="2">
+                        <FontIcon iconLiteral="fas-stream" styleClass="icon-muted" />
+                        <Label styleClass="field-label" text="Status" />
+                    </HBox>
+                    <ComboBox fx:id="statusComboBox" promptText="Empty" styleClass="clean-input" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+
+                    <HBox alignment="CENTER_LEFT" spacing="10.0" GridPane.columnIndex="0" GridPane.columnSpan="2" GridPane.rowIndex="3">
+                        <FontIcon iconLiteral="fas-user-friends" styleClass="icon-muted" />
+                        <Label fx:id="memberCountLabel" styleClass="field-label" text="1 member" />
+                    </HBox>
+
+                    <HBox alignment="TOP_LEFT" spacing="10.0" GridPane.columnIndex="0" GridPane.rowIndex="4">
+                        <FontIcon iconLiteral="fas-align-left" styleClass="icon-muted" />
+                        <Label styleClass="field-label" text="Description:" />
+                    </HBox>
+                    <TextArea fx:id="descriptionInput" prefRowCount="3" promptText="Add a description..." styleClass="clean-textarea" wrapText="true" GridPane.columnIndex="1" GridPane.rowIndex="4" />
+               <rowConstraints>
+                  <RowConstraints />
+                  <RowConstraints />
+                  <RowConstraints />
+                  <RowConstraints />
+                  <RowConstraints />
+               </rowConstraints>
+                </GridPane>
+            </VBox>
+
+            <Separator orientation="VERTICAL" />
+
+            <VBox minWidth="320.0" prefWidth="320.0" spacing="25.0" styleClass="right-column">
+                <padding>
+                    <Insets bottom="30.0" left="20.0" right="30.0" top="25.0" />
+                </padding>
+
+                <VBox spacing="10.0">
+                    <Label styleClass="field-label" text="Created by" />
+                    <HBox alignment="CENTER_LEFT" spacing="10.0">
+                        <Label styleClass="user-name" text="Hunny" />
+                        <Label styleClass="date-time" text="Feb 14, 2026, 11:32 PM" />
+                    </HBox>
+                </VBox>
+
+                <VBox spacing="10.0">
+                    <Label styleClass="field-label" text="Add Co-Manager" />
+                    <HBox alignment="CENTER_LEFT" spacing="10.0">
+                        <Button fx:id="addCoManagerBtn" onAction="#handleAddCoManagerClick" styleClass="btn-add-circle" text="+" />
+                        <TextField fx:id="coManagerInput" managed="false" onAction="#handleCoManagerSubmit" promptText="Enter username" styleClass="clean-input" visible="false" HBox.hgrow="ALWAYS" />
+                    </HBox>
+                    <ScrollPane fitToWidth="true" hbarPolicy="NEVER" vbarPolicy="AS_NEEDED"
+                                 styleClass="tags-scroll-pane"
+                                 minHeight="50.0" prefHeight="100.0" maxHeight="140.0"
+                                 VBox.vgrow="SOMETIMES">
+                        <content>
+                            <FlowPane fx:id="coManagerTagsContainer" hgap="8.0" vgap="8.0" />
+                        </content>
+                    </ScrollPane>
+                </VBox>
+
+                <Region VBox.vgrow="ALWAYS" />
+
+                <VBox spacing="10.0">
+                    <Label styleClass="field-label" text="Last updated by" />
+                    <HBox alignment="CENTER_LEFT" spacing="10.0">
+                        <Label styleClass="user-name" text="Hunny" />
+                        <Label styleClass="date-time" text="Feb 14, 2026, 11:32 PM" />
+                    </HBox>
+                </VBox>
+
+                <Region VBox.vgrow="ALWAYS" />
+
+                <HBox alignment="BOTTOM_RIGHT" spacing="15.0">
+                    <Button cancelButton="true" minHeight="35.0" minWidth="80.0" mnemonicParsing="false" onAction="#handleCancel" styleClass="btn-cancel" text="Cancel" />
+                    <Button fx:id="saveBtn" defaultButton="true" managed="false" minHeight="35.0" minWidth="80.0" mnemonicParsing="false" onAction="#handleSave" styleClass="btn-create" text="Save" visible="false" />
+                </HBox>
+            </VBox>
+
+        </HBox>
+    </VBox>
+</StackPane>

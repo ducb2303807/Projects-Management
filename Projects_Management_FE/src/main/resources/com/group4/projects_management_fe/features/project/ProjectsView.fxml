@@ -4,7 +4,7 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<ScrollPane fitToWidth="true" styleClass="main-view-bg" stylesheets="@../assets/css/project.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.group4.projects_management_fe.features.project.ProjectController">
+<ScrollPane fitToWidth="true" fitToHeight="true" maxWidth="Infinity" maxHeight="Infinity" styleClass="main-view-bg" stylesheets="@../assets/css/project.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.group4.projects_management_fe.features.project.ProjectController">
     <content>
         <VBox spacing="20.0">
             <padding>
@@ -31,8 +31,13 @@
 
                             <HBox alignment="CENTER" spacing="15.0">
                                 <children>
-                                    <Label styleClass="icon-btn" text="🔍" />
-                                    <Label styleClass="icon-btn" text="⇅" />
+                                    <TextField fx:id="searchInput" promptText="Search project..."
+                                               styleClass="search-input" visible="false" managed="false"
+                                               prefWidth="200.0"/>
+
+                                    <Button fx:id="searchBtn" mnemonicParsing="false" onAction="#handleSearchToggle" styleClass="icon-btn" text="🔍" />
+                                    <Button fx:id="sortBtn" mnemonicParsing="false" onAction="#handleSortClick" styleClass="icon-btn" text="⇅" />
+
                                     <Button mnemonicParsing="false" onAction="#openNewProjectPopup" styleClass="btn-new" text="+ New" />
                                 </children>
                             </HBox>

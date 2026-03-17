@@ -138,3 +138,70 @@
     -fx-font-size: 12px;
     -fx-text-fill: #6E7DF2;
 }
+
+/* Nút cây bút */
+.btn-edit-circle {
+    -fx-background-color: transparent;
+    -fx-background-radius: 50%;
+    -fx-min-width: 35px;
+    -fx-min-height: 35px;
+    -fx-cursor: hand;
+}
+.btn-edit-circle:hover {
+    -fx-background-color: #F3F4F6;
+}
+
+/* === GIAO DIỆN READ-ONLY (PHASE 1) === */
+.read-only-mode .text-input {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-padding: 0;
+    -fx-opacity: 1; /* Đảm bảo chữ vẫn đậm và rõ */
+}
+
+/* Ẩn cái nút mũi tên xổ xuống của DatePicker và ComboBox */
+.read-only-mode .date-picker > .arrow-button,
+.read-only-mode .combo-box > .arrow-button {
+    -fx-padding: 0;
+    -fx-opacity: 0;
+    -fx-max-width: 0;
+}
+
+/* Tắt viền focus */
+.read-only-mode .text-input:focused,
+.read-only-mode .date-picker:focused,
+.read-only-mode .combo-box:focused {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+}
+
+/* --- Xóa viền và nền mặc định xấu xí của ScrollPane --- */
+.tags-scroll-pane {
+    -fx-background-color: transparent;
+    -fx-background-insets: 0;
+    -fx-padding: 0;
+}
+.tags-scroll-pane > .viewport {
+    -fx-background-color: transparent;
+}
+
+/* --- Tùy chỉnh thanh cuộn (Scrollbar) cho thanh lịch --- */
+.tags-scroll-pane .scroll-bar:vertical {
+    -fx-background-color: transparent;
+    -fx-pref-width: 6px; /* Bo hẹp thanh cuộn lại */
+}
+.tags-scroll-pane .scroll-bar:vertical .track {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+}
+.tags-scroll-pane .scroll-bar:vertical .thumb {
+    -fx-background-color: #D1D5DB; /* Màu xám nhạt */
+    -fx-background-radius: 10px; /* Bo góc tròn trịa */
+}
+.tags-scroll-pane .scroll-bar:vertical .thumb:hover {
+    -fx-background-color: #9CA3AF; /* Đậm hơn khi di chuột vào */
+}
+.tags-scroll-pane .scroll-bar:vertical .increment-button,
+.tags-scroll-pane .scroll-bar:vertical .decrement-button {
+    -fx-padding: 0; /* Ẩn 2 cái nút mũi tên lên/xuống 2 đầu */
+}
