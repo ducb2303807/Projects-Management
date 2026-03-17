@@ -174,15 +174,17 @@ public class AuthController {
     }
 
     private void disposeInitialize(Stage stage) {
-        JavaFxObservable.valuesOf(stage.sceneProperty())
-                .filter(scene -> scene != null)
-                .skip(1)
-                .take(1)
-                .subscribe(scene -> {
-                    if (!disposables.isDisposed())
-                        disposables.dispose();
-                    System.out.println("Auth controller Disposed");
-                });
+        Platform.runLater(() -> {
+            JavaFxObservable.valuesOf(stage.sceneProperty())
+                    .filter(scene -> scene != null)
+                    .skip(1)
+                    .take(1)
+                    .subscribe(scene -> {
+                        if (!disposables.isDisposed())
+                            disposables.dispose();
+                        System.out.println("Auth controller Disposed");
+                    });
+        });
     }
 
 
