@@ -39,7 +39,7 @@ public class InvitationController {
     public ResponseEntity<Void> handleInvitation(@PathVariable Long projectMemberId,
                                                  @RequestBody InvitationRequestDTO dto)
     {
-        projectService.updateMemberStatus(projectMemberId, dto);
+        projectService.handleInvitation(projectMemberId, dto);
         return ResponseEntity.ok().build();
     }
 }
