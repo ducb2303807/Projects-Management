@@ -200,7 +200,7 @@ public class MainLayoutController {
             Node view = loader.load();
 
             VBox wrapper = new VBox(view);
-            wrapper.setMaxWidth(1200);
+            wrapper.setMaxWidth(Double.MAX_VALUE);
 
             VBox.setVgrow(view, Priority.ALWAYS);
 
