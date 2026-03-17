@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+
+
+<HBox alignment="CENTER_LEFT" stylesheets="@../assets/css/tasks.css" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.group4.projects_management_fe.features.task.TaskController">
+   <children>
+                        <HBox alignment="CENTER_LEFT" HBox.hgrow="ALWAYS">
+                            <children>
+                                <CheckBox mnemonicParsing="false" />
+                                <Label styleClass="task-header" text="Task name">
+                                    <padding>
+                                        <Insets left="10.0" right="10.0" />
+                                    </padding>
+                                </Label>
+                            </children>
+                        </HBox>
+                        <Region maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="23.0" prefWidth="260.0" HBox.hgrow="ALWAYS" />
+                        <HBox alignment="CENTER_LEFT" HBox.hgrow="ALWAYS">
+                            <children>
+                                <Label styleClass="task-header" text="Due date">
+                                    <padding>
+                                        <Insets left="10.0" right="10.0" />
+                                    </padding>
+                                </Label>
+                                <Label styleClass="task-header" text="Assignee">
+                                    <padding>
+                                        <Insets left="10.0" right="10.0" />
+                                    </padding>
+                                </Label>
+                                <Label styleClass="task-header" text="Priority">
+                                    <padding>
+                                        <Insets left="10.0" right="10.0" />
+                                    </padding>
+                                </Label>
+                            </children>
+                            <HBox.margin>
+                                <Insets left="50.0" />
+                            </HBox.margin>
+                        </HBox>
+   </children>
+</HBox>
