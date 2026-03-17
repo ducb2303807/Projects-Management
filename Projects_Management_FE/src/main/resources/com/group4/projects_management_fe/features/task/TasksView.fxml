@@ -1,16 +1,42 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.layout.*?>
-<?import javafx.scene.control.*?>
+<?import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.VBox?>
 
-<VBox spacing="20" alignment="CENTER"
-      fx:controller="com.group4.projects_management_fe.features.task.TaskController"
-      xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml"
-      style="-fx-padding: 40;">
+<ScrollPane fitToWidth="true" hbarPolicy="NEVER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="572.0" prefWidth="909.0" style="-fx-background-color: #F8F9FA;" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.group4.projects_management_fe.features.task.TaskController">
+   <content>
+      <VBox alignment="TOP_CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="516.0" spacing="20" styleClass="task-container" stylesheets="@../assets/css/tasks.css">
+         <children>
+            <HBox alignment="CENTER" styleClass="task-title">
+               <children>
+                  <Label styleClass="task-title" text="My tasks " />
+                  <Region HBox.hgrow="ALWAYS" />
+                  <HBox alignment="CENTER" spacing="15.0">
+                     <children>
+                        <FontAwesomeIcon glyphName="SEARCH" />
+                        <FontAwesomeIcon glyphName="SORT" />
+                        <HBox styleClass="button1">
+                           <children>
+                              <Button onAction="#openPopup" mnemonicParsing="false" styleClass="button2" text="+ New" />
+                           </children>
+                        </HBox>
+                     </children>
+                  </HBox>
+               </children>
+            </HBox>
+            <VBox id="taskCategoryVBox" prefHeight="200.0" prefWidth="100.0" />
 
-    <Label text="Tasks"
-           style="-fx-font-size: 28; -fx-font-weight: bold;"/>
+         </children>
+      </VBox>
+   </content>
 
-    <Label text="Welcome to your task!"/>
-
-</VBox>
+   <padding>
+      <Insets left="100.0" right="100.0" top="40.0" />
+   </padding>
+</ScrollPane>
