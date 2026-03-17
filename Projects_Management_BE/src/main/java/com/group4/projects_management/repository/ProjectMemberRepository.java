@@ -25,6 +25,8 @@ public interface ProjectMemberRepository extends BaseRepository<ProjectMember, L
 
     Optional<ProjectMember> findByProject_IdAndUser_Id(Long projectId, Long userId);
 
+    List<ProjectMember> findAllByProject_IdAndUser_IdIn(Long projectId, List<Long> userIds);
+
     @Query("SELECT COUNT(m) FROM ProjectMember m WHERE m.project.id = :projectId AND m.projectMemberStatus.systemCode = 'ACCEPTED'")
     int countActiveMembersByProjectId(@Param("projectId") Long projectId);
 }

@@ -7,24 +7,28 @@ package com.group4.projects_management.service; /*******************************
 import com.group4.common.dto.*;
 import com.group4.projects_management.core.exception.ResourceNotFoundException;
 import com.group4.projects_management.core.strategy.notification.ProjectInviteContext;
-import com.group4.projects_management.entity.Project;
-import com.group4.projects_management.entity.ProjectMember;
-import com.group4.projects_management.entity.ProjectStatus;
+import com.group4.projects_management.entity.*;
 import com.group4.projects_management.mapper.ProjectMapper;
 import com.group4.projects_management.mapper.ProjectMemberMapper;
 import com.group4.projects_management.repository.*;
 import com.group4.projects_management.service.base.BaseServiceImpl;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * @pdOid 8ed7a716-6d3c-4f74-ae7a-3d4f7734e7a8
  */
 @Service
+@Slf4j
 public class ProjectServiceImpl extends BaseServiceImpl<Project, Long> implements ProjectService {
     private final ProjectRepository projectRepository;
     private final UserRepository userRepository;
@@ -62,50 +66,81 @@ public class ProjectServiceImpl extends BaseServiceImpl<Project, Long> implement
                 .toList();
     }
 
+
     @Override
     @Transactional
-    public void inviteMember(Long projectId, Long inviteeId, Long inviterMemberId, Long roleId) {
-        var project = projectRepository.findById(projectId)
-                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy project"));
-
-        var invitee = userRepository.findById(inviteeId)
-                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy user được mời"));
-
-        var inviterMember = projectMemberRepository.findById(inviterMemberId)
-                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy thành viên mời"));
-
-        var role = projectRoleRepository.findById(roleId)
-                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy role"));
-
-        var pendingStatus = projectMemberStatusRepository.findBySystemCode("PENDING")
-                .orElseThrow(() -> new RuntimeException("Hệ thống chưa cấu hình ProjectMemberStatus systemCode=PENDING"));
-
-        boolean exists = projectMemberRepository.existsByProject_IdAndUser_Id(projectId, inviteeId);
-        if (exists) {
-            throw new RuntimeException("User đã thuộc project này rồi");
+    public void inviteMembers(Long projectId, List<MemberInviteRequest> inviteRequests, Long inviterUserId) {
+        if (inviteRequests == null || inviteRequests.isEmpty()) {
+            throw new IllegalArgumentException("Danh sách mời không được trống.");
         }
 
-        ProjectMember member = new ProjectMember();
-        member.setProject(project);
-        member.setUser(invitee);
-        member.setProjectRole(role);
-        member.setProjectMemberStatus(pendingStatus);
-        member.setInvitedBy(inviterMember);
-        member.setInvitedAt(LocalDateTime.now());
+        // 1. Tiền xử lý Input: Lọc null & Gom nhóm để chống trùng lặp từ chính request gửi lên
+        // Nếu FE gửi lên 2 request cho cùng 1 userId, ta giữ lại role của request đầu tiên
+        Map<Long, Long> validUserRoleMap = inviteRequests.stream()
+                .filter(req -> req.getUserId() != null && req.getRoleId() != null)
+                .collect(Collectors.toMap(
+                        MemberInviteRequest::getUserId,
+                        MemberInviteRequest::getRoleId,
+                        (existingRole, newRole) -> existingRole
+                ));
 
-        var entity = projectMemberRepository.save(member);
+        if (validUserRoleMap.isEmpty()) return;
 
-        ProjectInviteContext context = new ProjectInviteContext(
-                project,
-                inviterMember.getUser(),
-                role
-        );
+        // 2. Fetch dữ liệu dùng chung
+        var inviter = projectMemberRepository.findByProject_IdAndUser_Id(projectId, inviterUserId)
+                .orElseThrow(() -> new ResourceNotFoundException("Inviter not found in project."));
 
-        notificationService.send(
-                inviteeId,
-                context,
-                entity.getId()
-        );
+        var project = projectRepository.findById(projectId)
+                .orElseThrow(() -> new ResourceNotFoundException("Project not found"));
+
+        var pendingStatus = projectMemberStatusRepository.findBySystemCode("PENDING")
+                .orElseThrow(() -> new RuntimeException("Cấu hình hệ thống lỗi: Thiếu status PENDING"));
+
+        // 3. Batch Fetching (Lấy dữ liệu hàng loạt)
+        Set<Long> userIds = validUserRoleMap.keySet();
+        Set<Long> roleIds = new HashSet<>(validUserRoleMap.values());
+
+        Map<Long, User> userMap = userRepository.findAllById(userIds).stream()
+                .collect(Collectors.toMap(User::getId, u -> u));
+
+        Map<Long, ProjectRole> roleMap = projectRoleRepository.findAllById(roleIds).stream()
+                .collect(Collectors.toMap(ProjectRole::getId, r -> r));
+
+        Set<Long> existingUserIdsInDb = projectMemberRepository.findAllByProject_IdAndUser_IdIn(projectId, userIds.stream().toList())
+                .stream()
+                .map(m -> m.getUser().getId())
+                .collect(Collectors.toSet());
+
+        // 4. Lọc điều kiện và Build Entity bằng Stream (Không dùng vòng lặp for & if-continue)
+        LocalDateTime now = LocalDateTime.now();
+        List<ProjectMember> newMembers = validUserRoleMap.entrySet().stream()
+                .filter(entry -> !existingUserIdsInDb.contains(entry.getKey())) // Phải chưa có trong DB
+                .filter(entry -> userMap.containsKey(entry.getKey()))            // User phải tồn tại
+                .filter(entry -> roleMap.containsKey(entry.getValue()))          // Role phải tồn tại
+                .map(entry -> {
+                    ProjectMember member = new ProjectMember();
+                    member.setProject(project);
+                    member.setUser(userMap.get(entry.getKey()));
+                    member.setProjectRole(roleMap.get(entry.getValue()));
+                    member.setProjectMemberStatus(pendingStatus);
+                    member.setInvitedBy(inviter);
+                    member.setInvitedAt(now);
+                    return member;
+                })
+                .toList();
+
+        if (newMembers.isEmpty()) {
+            log.warn("Không có thành viên nào đủ điều kiện để mời trong dự án {}", projectId);
+            return;
+        }
+
+        // 5. Lưu và Gửi thông báo
+        List<ProjectMember> savedMembers = projectMemberRepository.saveAll(newMembers);
+
+        savedMembers.forEach(m -> {
+            ProjectInviteContext context = new ProjectInviteContext(project, inviter.getUser(), m.getProjectRole());
+            notificationService.send(m.getUser().getId(), context, m.getId());
+        });
     }
 
     @Override

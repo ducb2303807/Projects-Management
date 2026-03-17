@@ -75,9 +75,10 @@ public class ProjectController {
 
     @PostMapping("/{projectId}/invitations")
     public ResponseEntity<Void> inviteMember(
-            @Valid @RequestBody ProjectInvitationRequestDTO dto) {
+            @PathVariable Long projectId,
+            @Valid @RequestBody List<MemberInviteRequest> request) {
         var inviterId = SecurityUtils.getCurrentUserId();
-        projectService.inviteMember(dto.getProjectId(), dto.getInviteeId(), inviterId, dto.getRoleId());
+        projectService.inviteMembers(projectId, request, inviterId);
         return ResponseEntity.ok().build();
     }
 
