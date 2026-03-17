@@ -33,7 +33,7 @@ public class InvitationController {
 
     @Operation(
             summary = "Chấp nhận hoặc tự chối lời mời vào project",
-            description = ""
+            description = "ACCEPT / DECLINE"
     )
     @PatchMapping("/{projectMemberId}")
     public ResponseEntity<Void> handleInvitation(@PathVariable Long projectMemberId,

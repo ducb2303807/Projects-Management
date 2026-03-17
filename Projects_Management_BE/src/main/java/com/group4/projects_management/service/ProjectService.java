@@ -11,8 +11,8 @@ import java.util.List;
 /** @pdOid 8bff7f6e-4d91-40f5-85c1-c0b870149bb3 */
 public interface ProjectService {
    List<ProjectResponseDTO> getAllProjects();
-   void inviteMember(Long projectId, Long inviteeId, Long inviterId, Long roleId);
-
+   void inviteMembers(Long projectId, List<MemberInviteRequest> inviteRequests, Long inviterUserId);
+//   void inviteMember(Long projectId, MemberInviteRequest request, Long inviterUserId);
    void updateMemberStatus(Long memberId, ProjectMemberUpdateDTO request);
    void handleInvitation(Long invitationId, InvitationRequestDTO request);
    List<InvitationDTO> getPendingInvitations(Long userId);
