@@ -39,10 +39,12 @@ public abstract class BaseNetworkCore {
         }
 
         try (ResponseBody body = response.body()) {
+
             String responseBodyString = body != null ? body.string() : "";
 
             if (!responseBodyString.isEmpty()) {
                 ErrorResponse errorResponse = jsonMapper.readValue(responseBodyString, ErrorResponse.class);
+
                 String errorCode = errorResponse.getErrorCode();
 
                 if (response.code() == 401 ||
@@ -53,6 +55,8 @@ public abstract class BaseNetworkCore {
                 }
                 return new ApiException(errorResponse.getMessage(), defaultThrowable);
             }
+        } catch (IllegalStateException e) {
+            // ignore
         } catch (Exception e) {
             System.err.println("Không thể parse ErrorResponse từ BE: " + e.getMessage());
         }

@@ -9,6 +9,7 @@ import io.reactivex.rxjava3.core.ObservableEmitter;
 import io.reactivex.rxjava3.core.ObservableSource;
 import io.reactivex.rxjava3.disposables.Disposable;
 import io.reactivex.rxjava3.functions.Function;
+import io.reactivex.rxjava3.plugins.RxJavaPlugins;
 import io.reactivex.rxjava3.schedulers.Schedulers;
 import io.reactivex.rxjava3.subjects.PublishSubject;
 import okhttp3.Request;
@@ -18,6 +19,7 @@ import okhttp3.sse.EventSourceListener;
 import okhttp3.sse.EventSources;
 import org.jetbrains.annotations.NotNull;
 
+import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
@@ -32,7 +34,7 @@ public class RxSseManager extends AbstractSseManager<SseNotificationDTO> {
     }
 
     @Override
-    public synchronized void connect(Runnable onUnauthorized) {
+    public synchronized void connect() {
         if (connectionDisposable != null && !connectionDisposable.isDisposed()) return;
 
         this.connectionDisposable = this.createSseObservable()
@@ -45,11 +47,7 @@ public class RxSseManager extends AbstractSseManager<SseNotificationDTO> {
                 .retryWhen(buildRetryPolicy())
                 .subscribe(
                         eventPublisher::onNext,
-                        fatalError -> {
-                            if (fatalError instanceof UnauthorizedException && onUnauthorized != null) {
-                                onUnauthorized.run();
-                            }
-                        }
+                        RxJavaPlugins::onError
                 );
     }
 
@@ -61,8 +59,8 @@ public class RxSseManager extends AbstractSseManager<SseNotificationDTO> {
                 .subscribe(onError::accept);
 
         return () -> {
-            receivedSubscription.dispose();
-            errorSubscription.dispose();
+            if (!receivedSubscription.isDisposed()) receivedSubscription.dispose();
+            if (!errorSubscription.isDisposed()) errorSubscription.dispose();
         };
     }
 
@@ -122,6 +120,10 @@ public class RxSseManager extends AbstractSseManager<SseNotificationDTO> {
             @Override
             public void onFailure(@NotNull EventSource eventSource, Throwable t, Response response) {
                 Throwable parsedError = parseHttpError(response, t);
+                if (t instanceof IOException && "canceled".equalsIgnoreCase(t.getMessage())) {
+                    // ignore vì user đóng
+                    return;
+                }
                 emitter.onError(parsedError);
             }
         };
