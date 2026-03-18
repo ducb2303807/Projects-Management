@@ -36,6 +36,7 @@
                                                prefWidth="200.0"/>
 
                                     <Button fx:id="searchBtn" mnemonicParsing="false" onAction="#handleSearchToggle" styleClass="icon-btn" text="🔍" />
+                                    <ComboBox fx:id="sortCriteriaComboBox" visible="false" managed="false" promptText="Sort by" styleClass="clean-input" prefWidth="120.0"/>
                                     <Button fx:id="sortBtn" mnemonicParsing="false" onAction="#handleSortClick" styleClass="icon-btn" text="⇅" />
 
                                     <Button mnemonicParsing="false" onAction="#openNewProjectPopup" styleClass="btn-new" text="+ New" />

@@ -192,3 +192,69 @@
     /* Tỏa ánh sáng tím nhẹ xung quanh ô nhập */
     -fx-effect: dropshadow(three-pass-box, rgba(139, 92, 246, 0.2), 8, 0, 0, 0);
 }
+
+/* =======================================================
+   TÙY CHỈNH GIAO DIỆN COMBOBOX (Đã Fix lỗi không nhận CSS)
+   ======================================================= */
+
+/* 1. Nút ComboBox chính (Đã bo tròn 20px để đồng bộ với thanh Search) */
+.combo-box.clean-input {
+    -fx-background-color: #FFFFFF;
+    -fx-border-color: #E5E7EB;
+    -fx-border-radius: 20px;
+    -fx-background-radius: 20px;
+    -fx-padding: 4px 10px;
+    -fx-cursor: hand;
+}
+
+/* Khi Focus hoặc click mở ComboBox -> Viền sáng màu tím giống Search */
+.combo-box.clean-input:showing,
+.combo-box.clean-input:focused {
+    -fx-border-color: #8B5CF6;
+    -fx-background-color: #FFFFFF;
+    -fx-effect: dropshadow(three-pass-box, rgba(139, 92, 246, 0.2), 8, 0, 0, 0);
+}
+
+/* Ẩn nền bao quanh mũi tên và đổi màu mũi tên thành xám */
+.combo-box.clean-input .arrow-button {
+    -fx-background-color: transparent;
+}
+.combo-box.clean-input .arrow {
+    -fx-background-color: #9CA3AF;
+}
+
+/* =======================================================
+   2. DANH SÁCH DROPDOWN (POPUP)
+   LƯU Ý: Bỏ chữ .clean-input ở đây vì Popup là cửa sổ tách biệt
+   ======================================================= */
+.combo-box-popup > .list-view {
+    -fx-background-color: #ffffff;
+    -fx-background-radius: 12px;
+    -fx-border-color: #E5E7EB;
+    -fx-border-radius: 12px;
+    -fx-padding: 8px;
+    /* Hiệu ứng đổ bóng cho menu nổi */
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.12), 15, 0, 0, 5);
+}
+
+/* Từng mục (Item) bên trong dropdown (Viên thuốc) */
+.combo-box-popup .list-cell {
+    -fx-padding: 6px 15px;
+    -fx-text-fill: #4B5563; /* Màu chữ xám đậm */
+    -fx-font-family: "Segoe UI", sans-serif;
+    -fx-font-size: 13px;
+    -fx-alignment: center;
+
+    -fx-background-color: transparent;
+    -fx-background-radius: 20px;
+    /* Dùng insets để tạo khoảng cách (gap) giữa các mục */
+    -fx-background-insets: 4px;
+    -fx-cursor: hand;
+}
+
+/* Hover chuột hoặc Selected -> Đổi màu nền xám nhạt, chữ đen */
+.combo-box-popup .list-cell:filled:hover,
+.combo-box-popup .list-cell:filled:selected {
+    -fx-background-color: #F3F4F6;
+    -fx-text-fill: #111827;
+}

@@ -64,14 +64,34 @@
                         <Label styleClass="field-label" text="Description:" />
                     </HBox>
                     <TextArea fx:id="descriptionInput" prefRowCount="3" promptText="Add a description..." styleClass="clean-textarea" wrapText="true" GridPane.columnIndex="1" GridPane.rowIndex="4" />
-               <rowConstraints>
-                  <RowConstraints />
-                  <RowConstraints />
-                  <RowConstraints />
-                  <RowConstraints />
-                  <RowConstraints />
-               </rowConstraints>
+
+                    <rowConstraints>
+                        <RowConstraints />
+                        <RowConstraints />
+                        <RowConstraints />
+                        <RowConstraints />
+                        <RowConstraints />
+                    </rowConstraints>
                 </GridPane>
+
+                <VBox spacing="10.0" VBox.vgrow="SOMETIMES">
+                    <Label text="Members" styleClass="field-label"/>
+
+                    <HBox alignment="CENTER_LEFT" spacing="10.0">
+                        <Button fx:id="addMemberBtn" text="+" onAction="#handleAddMemberClick" styleClass="btn-add-circle"/>
+                        <TextField fx:id="memberInput" promptText="Enter username..." onAction="#handleMemberSubmit"
+                                   styleClass="clean-input" visible="false" managed="false" HBox.hgrow="ALWAYS"/>
+                    </HBox>
+
+                    <ScrollPane fitToWidth="true" hbarPolicy="NEVER" vbarPolicy="AS_NEEDED"
+                                styleClass="tags-scroll-pane" minHeight="50.0" prefHeight="100.0" maxHeight="140.0"
+                                VBox.vgrow="SOMETIMES">
+                        <content>
+                            <FlowPane fx:id="memberTagsContainer" hgap="8.0" vgap="8.0" />
+                        </content>
+                    </ScrollPane>
+                </VBox>
+
             </VBox>
 
             <Separator orientation="VERTICAL" />

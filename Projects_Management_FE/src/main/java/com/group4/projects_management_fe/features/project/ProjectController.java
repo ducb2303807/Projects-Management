@@ -1,6 +1,9 @@
 package com.group4.projects_management_fe.features.project;
 
+import com.group4.common.dto.ProjectResponseDTO;
 import com.group4.projects_management_fe.core.navigation.AppStageManager;
+import javafx.application.Platform;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
@@ -8,20 +11,23 @@ import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.HBox;
-import javafx.event.ActionEvent;
 import javafx.scene.paint.Color;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 
-import java.io.IOException;
 import java.net.URL;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Locale;
 import java.util.ResourceBundle;
 import java.util.stream.Collectors;
 
@@ -30,145 +36,231 @@ public class ProjectController implements Initializable {
     @FXML private HBox recentCardsContainer;
     @FXML private FlowPane mainCardsContainer;
 
-    // UI Elements cho Search & Sort
     @FXML private TextField searchInput;
-    @FXML private Button searchBtn;
     @FXML private Button sortBtn;
+    @FXML private ComboBox<String> sortCriteriaComboBox;
 
-    // --- CẤU TRÚC LƯU TRỮ CARD ---
-    // Class nội bộ dùng để map giữa Giao diện (Node) và Dữ liệu (Title)
-    private static class ProjectItem {
-        String title;
-        Node cardNode;
+    private final ProjectViewModel viewModel = new ProjectViewModel();
 
-        public ProjectItem(String title, Node cardNode) {
-            this.title = title;
-            this.cardNode = cardNode;
-        }
-    }
+    private boolean isSortAscending = true;
+    private String currentSortCriteria = "Name";
+    private final DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("MMM dd, yyyy", Locale.ENGLISH);
 
-    // Danh sách gốc chứa TẤT CẢ các project đã load
+    // ==========================================
+    // LOGIC LƯU TRỮ RECENT PROJECTS VÀ MAIN PROJECTS
+    // ==========================================
+
+    // Dùng LinkedList static để giữ lại danh sách khi người dùng chuyển trang
+    private static final LinkedList<ProjectResponseDTO> recentProjectsList = new LinkedList<>();
     private final List<ProjectItem> allProjectItems = new ArrayList<>();
 
-    // Trạng thái sắp xếp (true = A-Z, false = Z-A)
-    private boolean isSortAscending = true;
+    private static class ProjectItem {
+        Node cardNode;
+        String title;
+        LocalDateTime date;
+        String status;
+
+        public ProjectItem(Node cardNode, String title, LocalDateTime date, String status) {
+            this.cardNode = cardNode;
+            this.title = title != null ? title : "";
+            this.date = date != null ? date : LocalDateTime.MIN;
+            this.status = status != null ? status : "";
+        }
+    }
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        loadRecentProjects();
-        loadMainProjects();
-        setupSearchListener();
-    }
+        // 1. Setup ComboBox Sắp xếp
+        if (sortCriteriaComboBox != null) {
+            sortCriteriaComboBox.getItems().addAll("Name", "Date", "Status");
+            sortCriteriaComboBox.setValue("Name");
+            sortCriteriaComboBox.setOnAction(e -> {
+                currentSortCriteria = sortCriteriaComboBox.getValue();
+                updateFlowPaneDisplay();
+            });
+        }
 
-    private void setupSearchListener() {
-        // Lắng nghe từng chữ người dùng gõ vào ô tìm kiếm
-        searchInput.textProperty().addListener((observable, oldValue, newValue) -> {
-            updateFlowPaneDisplay();
-        });
+        // 2. Lắng nghe ô Search
+        if (searchInput != null) {
+            searchInput.textProperty().addListener((obs, oldV, newV) -> updateFlowPaneDisplay());
+        }
+
+        // 3. Render danh sách Recent (Lần đầu mở trang)
+        renderRecentProjects();
+
+        // 4. Lắng nghe dữ liệu API từ ViewModel
+        viewModel.projectsObservable().subscribe(projects -> {
+            Platform.runLater(() -> renderProjectsToUI(projects));
+        }, Throwable::printStackTrace);
+
+        // 5. Bắt đầu gọi API
+        viewModel.fetchMyProjects();
     }
 
     // ==========================================
-    // LOGIC LOAD DỮ LIỆU (MOCK DATA)
+    // RECENT PROJECTS (DỰ ÁN XEM GẦN ĐÂY)
     // ==========================================
 
-    private void loadRecentProjects() {
+    private void handleProjectClicked(ProjectResponseDTO clickedProject) {
+        // 1. Xóa nếu project này đã tồn tại trong list (để đưa nó lên lại đầu tiên)
+        recentProjectsList.removeIf(p -> p.getId().equals(clickedProject.getId()));
+
+        // 2. Thêm vào vị trí đầu tiên
+        recentProjectsList.addFirst(clickedProject);
+
+        // 3. Giữ tối đa 6 projects, nếu dư thì cắt bỏ cái cũ nhất ở cuối danh sách
+        if (recentProjectsList.size() > 6) {
+            recentProjectsList.removeLast();
+        }
+
+        // 4. Vẽ lại danh sách Recent
+        renderRecentProjects();
+    }
+
+    private void renderRecentProjects() {
+        recentCardsContainer.getChildren().clear();
+
         try {
-            for (int i = 0; i < 6; i++) {
-                // Sửa lại đường dẫn nạp FXML cho đúng với cấu trúc thư mục của project bạn
+            for (ProjectResponseDTO dto : recentProjectsList) {
+                // Tải file FXML của Recent Card
                 FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/group4/projects_management_fe/features/project/RecentProjectCard.fxml"));
                 Node recentCard = loader.load();
+
+                // 1. Lấy controller của thẻ Recent vừa load
+                RecentProjectCardController ctrl = loader.getController();
+
+                // 2. Gắn tên dự án vào thẻ
+                if (ctrl != null) {
+                    ctrl.bindData(dto.getProjectName());
+                }
+
                 recentCardsContainer.getChildren().add(recentCard);
             }
-        } catch (IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    private void loadMainProjects() {
-        allProjectItems.clear();
-        mainCardsContainer.getChildren().clear();
+    // ==========================================
+    // MAIN PROJECTS (DANH SÁCH CHÍNH)
+    // ==========================================
 
-        // Tạo danh sách tên dự án giả lập để test Sort & Search
-        String[] mockTitles = {
-                "Website Redesign",
-                "Mobile App Dev",
-                "Alpha Testing Phase",
-                "SEO Optimization",
-                "Marketing Campaign"
-        };
+    private void renderProjectsToUI(List<ProjectResponseDTO> apiProjects) {
+        allProjectItems.clear();
 
         try {
-            for (String title : mockTitles) {
+            for (ProjectResponseDTO dto : apiProjects) {
                 FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/group4/projects_management_fe/features/project/ProjectCard.fxml"));
                 Node projectCard = loader.load();
+                ProjectCardController cardCtrl = loader.getController();
 
-                // Nếu ProjectCardController của bạn đã có hàm bindData thì gọi ở đây để gán tên lên UI
-                // ProjectCardController cardCtrl = loader.getController();
-                // cardCtrl.bindData("1", title, "On going", "Hunny", "Feb 2026");
+                LocalDateTime projectDate = dto.getStartDate();
+                String dateStr = projectDate != null ? projectDate.format(dateFormatter) : "N/A";
+                String creatorName = dto.getUserCreatedFullName() != null ? dto.getUserCreatedFullName() : dto.getUserCreatedUsername();
 
-                // Lưu vào danh sách gốc
-                allProjectItems.add(new ProjectItem(title, projectCard));
+                // Đổ data vào giao diện Card
+                cardCtrl.bindData(String.valueOf(dto.getId()), dto.getProjectName(), dto.getStatusName(), creatorName, dateStr);
+
+                // GẮN SỰ KIỆN CLICK CHO THẺ CARD CHÍNH ĐỂ THÊM VÀO RECENT
+                projectCard.setOnMouseClicked(event -> {
+                    handleProjectClicked(dto);
+                });
+
+                // Lưu lại nội bộ để hỗ trợ Sort và Search
+                allProjectItems.add(new ProjectItem(projectCard, dto.getProjectName(), projectDate, dto.getStatusName()));
             }
 
-            // Hiển thị ra màn hình lần đầu tiên
             updateFlowPaneDisplay();
 
-        } catch (IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
     // ==========================================
-    // LOGIC SEARCH VÀ SORT
+    // TÌM KIẾM VÀ SẮP XẾP
     // ==========================================
 
     @FXML
-    private void handleSearchToggle(ActionEvent event) {
-        boolean isVisible = searchInput.isVisible();
+    public void handleSortClick(ActionEvent event) {
+        if (sortCriteriaComboBox != null) {
+            boolean isCurrentlyVisible = sortCriteriaComboBox.isVisible();
 
-        searchInput.setVisible(!isVisible);
-        searchInput.setManaged(!isVisible);
+            // Đảo ngược trạng thái bật/tắt của ComboBox
+            sortCriteriaComboBox.setVisible(!isCurrentlyVisible);
+            sortCriteriaComboBox.setManaged(!isCurrentlyVisible);
 
-        if (!isVisible) {
-            searchInput.requestFocus(); // Tự động focus để gõ
-        } else {
-            searchInput.clear(); // Tắt search thì xóa text -> Tự động reset list
+            if (!isCurrentlyVisible) {
+                // Nếu vừa được bật lên -> tự động xổ danh sách ra luôn cho tiện (UX tốt hơn)
+                sortCriteriaComboBox.show();
+            } else {
+                // (Tùy chọn) Nếu ẩn đi thì có muốn reset về mặc định không?
+                // Nếu không thì cứ để nguyên dòng này trống.
+            }
         }
     }
 
-    @FXML
-    private void handleSortClick(ActionEvent event) {
-        isSortAscending = !isSortAscending; // Đảo chiều Sort
-        updateFlowPaneDisplay(); // Render lại
-    }
-
-    /**
-     * Hàm cốt lõi: Lọc (Search), Sắp xếp (Sort) và Vẽ lại lên FlowPane
-     */
     private void updateFlowPaneDisplay() {
-        String keyword = searchInput.getText().toLowerCase().trim();
+        String keyword = searchInput != null ? searchInput.getText().toLowerCase().trim() : "";
 
-        // 1. Lọc theo tên (Search)
+        // 1. Filter
         List<ProjectItem> filteredList = allProjectItems.stream()
                 .filter(item -> item.title.toLowerCase().contains(keyword))
                 .collect(Collectors.toList());
 
-        // 2. Sắp xếp (Sort)
-        if (isSortAscending) {
-            filteredList.sort(Comparator.comparing(item -> item.title, String.CASE_INSENSITIVE_ORDER));
-        } else {
-            filteredList.sort(Comparator.comparing((ProjectItem item) -> item.title, String.CASE_INSENSITIVE_ORDER).reversed());
+        // 2. Sort
+        Comparator<ProjectItem> comparator;
+        switch (currentSortCriteria) {
+            case "Date":
+                comparator = Comparator.comparing(item -> item.date, Comparator.nullsLast(Comparator.naturalOrder()));
+                break;
+            case "Status":
+                comparator = Comparator.comparing(item -> item.status, String.CASE_INSENSITIVE_ORDER);
+                break;
+            case "Name":
+            default:
+                comparator = Comparator.comparing(item -> item.title, String.CASE_INSENSITIVE_ORDER);
+                break;
         }
 
-        // 3. Xóa các card cũ trong FlowPane và add lại các card đã lọc/sắp xếp
+        if (!isSortAscending) {
+            comparator = comparator.reversed();
+        }
+        filteredList.sort(comparator);
+
+        // 3. Render
         mainCardsContainer.getChildren().clear();
         for (ProjectItem item : filteredList) {
             mainCardsContainer.getChildren().add(item.cardNode);
         }
     }
 
+
     // ==========================================
-    // POPUP NEW PROJECT
+    // XỬ LÝ NÚT TÌM KIẾM (SEARCH)
+    // ==========================================
+    @FXML
+    public void handleSearchToggle(ActionEvent event) {
+        if (searchInput != null) {
+            boolean isCurrentlyVisible = searchInput.isVisible();
+
+            // Đảo ngược trạng thái bật/tắt của ô nhập chữ
+            searchInput.setVisible(!isCurrentlyVisible);
+            searchInput.setManaged(!isCurrentlyVisible);
+
+            if (!isCurrentlyVisible) {
+                // Nếu vừa được bật lên -> Đưa con trỏ chuột vào luôn để người dùng gõ ngay
+                searchInput.requestFocus();
+            } else {
+                // Nếu bị tắt đi -> Xóa sạch text bên trong.
+                // Do mình đã cài Listener ở hàm initialize, việc clear() này sẽ tự động báo cho UI vẽ lại danh sách gốc.
+                searchInput.clear();
+            }
+        }
+    }
+
+    // ==========================================
+    // POPUP TẠO DỰ ÁN MỚI
     // ==========================================
 
     @FXML
@@ -176,26 +268,20 @@ public class ProjectController implements Initializable {
         try {
             FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("NewProjectForm.fxml"));
             Parent root = fxmlLoader.load();
-
             Stage popupStage = new Stage();
             popupStage.setTitle("New Project");
-
             Scene scene = new Scene(root);
             scene.setFill(Color.TRANSPARENT);
             popupStage.setScene(scene);
-
             popupStage.initStyle(StageStyle.TRANSPARENT);
             popupStage.initModality(Modality.APPLICATION_MODAL);
-
             Stage mainStage = AppStageManager.getInstance().getStage();
             if (mainStage != null) {
                 popupStage.initOwner(mainStage);
             }
-
             popupStage.showAndWait();
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 }
-
