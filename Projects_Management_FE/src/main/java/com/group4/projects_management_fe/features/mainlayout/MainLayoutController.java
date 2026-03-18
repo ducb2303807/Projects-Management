@@ -54,6 +54,7 @@ public class MainLayoutController {
 
     private final CompositeDisposable disposables = new CompositeDisposable();
     private final SseClientManager<SseNotificationDTO> sseClientManager = new RxSseManager(AppSessionManager.getInstance());
+
     @FXML
     public void initialize() {
         showDashboard();
