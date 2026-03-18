@@ -1,4 +1,4 @@
-package com.group4.projects_management.core.strategy.notification;
+package com.group4.projects_management.core.strategy.notification.invitation;
 
 import com.group4.projects_management.entity.Project;
 import com.group4.projects_management.entity.ProjectRole;

@@ -1,9 +1,11 @@
-package com.group4.projects_management.core.strategy.notification;
+package com.group4.projects_management.core.strategy.notification.invitation;
 
+import com.group4.projects_management.core.strategy.notification.NotificationStrategy;
 import com.group4.projects_management.enums.NotificationType;
 import org.springframework.stereotype.Component;
 
 import java.util.Map;
+
 @Component
 public class ProjectInvitationStrategy implements NotificationStrategy<ProjectInviteContext> {
     @Override
@@ -19,7 +21,7 @@ public class ProjectInvitationStrategy implements NotificationStrategy<ProjectIn
     @Override
     public String buildTitle(ProjectInviteContext ctx) {
         return String.format("%s đã mời bạn vào dự án %s",
-                ctx.getInviter().getFullName(),
+                ctx.getInviter().getUsername(),
                 ctx.getProject().getName());
     }
 
@@ -29,7 +31,7 @@ public class ProjectInvitationStrategy implements NotificationStrategy<ProjectIn
                 "projectId", ctx.getProject().getId(),
                 "projectName", ctx.getProject().getName(),
                 "roleName", ctx.getRole().getName(),
-                "inviterName", ctx.getInviter().getFullName()
+                "inviterName", ctx.getInviter().getUsername()
         );
     }
 }
