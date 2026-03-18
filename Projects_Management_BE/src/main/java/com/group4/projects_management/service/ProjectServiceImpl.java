@@ -5,6 +5,7 @@ package com.group4.projects_management.service; /*******************************
  ***********************************************************************/
 
 import com.group4.common.dto.*;
+import com.group4.common.enums.MemberStatus;
 import com.group4.projects_management.core.exception.ResourceNotFoundException;
 import com.group4.projects_management.core.strategy.notification.ProjectInviteContext;
 import com.group4.projects_management.entity.*;
@@ -155,9 +156,14 @@ public class ProjectServiceImpl extends BaseServiceImpl<Project, Long> implement
         var statusEntity = projectMemberStatusRepository.findBySystemCode(targetCode)
                 .orElseThrow(() -> new RuntimeException("Hệ thống chưa cấu hình trạng thái: " + targetCode));
 
+        if (statusEntity.getSystemCode().equalsIgnoreCase(MemberStatus.ACTIVE.name())) {
+            member.setLeftAt(null);
+            member.setJoinAt(LocalDateTime.now());
+        }
+        if (statusEntity.getSystemCode().equalsIgnoreCase(MemberStatus.REMOVED.name())) {
+            member.leave();
+        }
         member.setProjectMemberStatus(statusEntity);
-
-        member.setLeftAt(LocalDateTime.now());
 
         projectMemberRepository.save(member);
     }
@@ -168,7 +174,7 @@ public class ProjectServiceImpl extends BaseServiceImpl<Project, Long> implement
         var invitation = projectMemberRepository.findById(invitationId)
                 .orElseThrow(() -> new ResourceNotFoundException("Project invitation not found"));
 
-        switch (request.getType()) {
+        switch (request.getAction()) {
             case ACCEPT -> handleAccept(invitation);
             case DECLINE -> handleDecline(invitation);
             default -> throw new IllegalArgumentException("Invalid invitation type");
@@ -192,6 +198,10 @@ public class ProjectServiceImpl extends BaseServiceImpl<Project, Long> implement
         var member = projectMemberRepository.findById(projectMemberId)
                 .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy thành viên trong project"));
 
+        var leftStatus = projectMemberStatusRepository.findBySystemCode(MemberStatus.LEFT.name())
+                        .orElseThrow(() -> new RuntimeException("System code not found: " + MemberStatus.LEFT.name()));
+
+        member.setProjectMemberStatus(leftStatus);
         member.leave();
 
         projectMemberRepository.save(member);
