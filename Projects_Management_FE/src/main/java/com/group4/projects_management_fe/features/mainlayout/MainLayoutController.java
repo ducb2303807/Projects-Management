@@ -11,14 +11,15 @@ import javafx.animation.ScaleTransition;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.geometry.Bounds;
 import javafx.scene.Node;
+import javafx.scene.Parent;
 import javafx.scene.control.Button;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Priority;
-import javafx.scene.layout.StackPane;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
 import javafx.scene.shape.Circle;
+import javafx.stage.Popup;
+import javafx.stage.Stage;
 import javafx.util.Duration;
 
 import java.io.IOException;
@@ -52,6 +53,11 @@ public class MainLayoutController {
     @FXML
     private VBox profilePanel;
 
+    @FXML
+    private Button notifBtn;
+
+    private Popup notificationsPopup;
+
     private final CompositeDisposable disposables = new CompositeDisposable();
     private final SseClientManager<SseNotificationDTO> sseClientManager = new RxSseManager(AppSessionManager.getInstance());
 
@@ -65,6 +71,7 @@ public class MainLayoutController {
         userBox.setOnMouseClicked(e -> showProfile());
         overlayBackground.setOnMouseClicked(e -> closeProfile());
 
+        notifBtn.setOnAction(e -> showNotificationsPopup());
         // SSE test
 //        sseClientManager.connect();
 //        disposables.add(SseRxBridge.toObservable(sseClientManager)
@@ -169,5 +176,34 @@ public class MainLayoutController {
         System.out.println("Logged out");
     }
 
+    private void showNotificationsPopup() {
+        try {
+            if (notificationsPopup != null && notificationsPopup.isShowing()) {
+                notificationsPopup.hide();
+                return;
+            }
 
+            FXMLLoader loader = new FXMLLoader(getClass().getResource(
+                    "/com/group4/projects_management_fe/features/dashboard/NotificationsView.fxml"
+            ));
+            Parent root = loader.load();
+
+            double popupWidth = ((Region) root).prefWidth(-1);
+
+            notificationsPopup = new Popup();
+            notificationsPopup.getContent().add(root);
+            notificationsPopup.setAutoHide(true);
+
+            Stage stage = (Stage) notifBtn.getScene().getWindow();
+            Bounds bounds = notifBtn.localToScreen(notifBtn.getBoundsInLocal());
+
+            double x = bounds.getMinX() + (notifBtn.getWidth() / 2) - (popupWidth / 2);
+            double y = bounds.getMaxY();
+
+            notificationsPopup.show(stage, x, y);
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 }
