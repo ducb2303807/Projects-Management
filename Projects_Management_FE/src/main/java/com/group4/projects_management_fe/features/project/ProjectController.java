@@ -280,6 +280,9 @@ public class ProjectController implements Initializable {
                 popupStage.initOwner(mainStage);
             }
             popupStage.showAndWait();
+            if (viewModel != null) {
+                viewModel.fetchMyProjects();
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }

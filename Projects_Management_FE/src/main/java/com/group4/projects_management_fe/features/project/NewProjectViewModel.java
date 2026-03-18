@@ -1,53 +1,41 @@
 package com.group4.projects_management_fe.features.project;
 
+import com.group4.common.dto.ProjectCreateRequestDTO;
+import com.group4.common.dto.ProjectResponseDTO;
+import com.group4.projects_management_fe.core.api.ProjectApi;
+import com.group4.projects_management_fe.core.session.AppSessionManager;
+
 import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.subjects.BehaviorSubject;
+import io.reactivex.rxjava3.subjects.PublishSubject;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 
 public class NewProjectViewModel {
 
-    // --- 1. STATE (Trạng thái của Form) ---
+    private final ProjectApi projectApi = new ProjectApi(AppSessionManager.getInstance());
+
+    // --- 1. STATE ---
     private final BehaviorSubject<String> projectName = BehaviorSubject.createDefault("");
     private final BehaviorSubject<LocalDate> startDate = BehaviorSubject.createDefault(LocalDate.MIN);
     private final BehaviorSubject<LocalDate> endDate = BehaviorSubject.createDefault(LocalDate.MIN);
-    private final BehaviorSubject<String> status = BehaviorSubject.createDefault("");
     private final BehaviorSubject<String> description = BehaviorSubject.createDefault("");
-    private final BehaviorSubject<List<String>> coManagers = BehaviorSubject.createDefault(new ArrayList<>());
 
-    // --- 2. INPUT (View đẩy dữ liệu xuống) ---
+    private final PublishSubject<ProjectResponseDTO> createSuccess = PublishSubject.create();
+    private final PublishSubject<String> createError = PublishSubject.create();
+
+    // --- 2. INPUT ---
     public void setProjectName(String name) { projectName.onNext(name); }
     public void setStartDate(LocalDate date) { startDate.onNext(date != null ? date : LocalDate.MIN); }
     public void setEndDate(LocalDate date) { endDate.onNext(date != null ? date : LocalDate.MIN); }
-    public void setStatus(String stat) { status.onNext(stat); }
     public void setDescription(String desc) { description.onNext(desc); }
 
-    // Logic thêm Co-Manager
-    public void addCoManager(String username) {
-        if (username == null || username.trim().isEmpty()) return;
-        List<String> current = new ArrayList<>(coManagers.getValue());
-        if (!current.contains(username.trim())) {
-            current.add(username.trim());
-            coManagers.onNext(current); // Phát tín hiệu đã có danh sách mới
-        }
-    }
+    // --- 3. OUTPUT ---
+    public Observable<ProjectResponseDTO> onCreateSuccess() { return createSuccess.hide(); }
+    public Observable<String> onCreateError() { return createError.hide(); }
 
-    // Logic xóa Co-Manager
-    public void removeCoManager(String username) {
-        List<String> current = new ArrayList<>(coManagers.getValue());
-        current.remove(username);
-        coManagers.onNext(current);
-    }
-
-    // --- 3. OUTPUT (Cung cấp Observable để View lắng nghe) ---
-    public Observable<List<String>> coManagersObservable() {
-        return coManagers.hide();
-    }
-
-    // Logic kết hợp: Kiểm tra Form hợp lệ (Tên không rỗng và có chọn Start Date)
-    // Sẽ dùng để Bật/Tắt nút Create trên giao diện
     public Observable<Boolean> isFormValidObservable() {
         return Observable.combineLatest(
                 projectName,
@@ -56,12 +44,42 @@ public class NewProjectViewModel {
         );
     }
 
-    // Hàm gom dữ liệu chuẩn bị gọi API (Sẽ dùng ở bước sau)
+    // --- 4. GỌI API ---
     public void submitProject() {
-        System.out.println("--- CALL API TẠO PROJECT ---");
-        System.out.println("Name: " + projectName.getValue());
-        System.out.println("Start Date: " + startDate.getValue());
-        System.out.println("Co-Managers: " + coManagers.getValue());
-        // TODO: Gọi Service -> Retrofit API ở đây
+        ProjectCreateRequestDTO dto = new ProjectCreateRequestDTO();
+
+        // Gắn 4 trường cơ bản
+        dto.setProjectName(projectName.getValue());
+        dto.setDescription(description.getValue());
+
+        if (!startDate.getValue().equals(LocalDate.MIN)) {
+            dto.setStartDate(LocalDateTime.of(startDate.getValue(), LocalTime.MIDNIGHT));
+        }
+
+        if (!endDate.getValue().equals(LocalDate.MIN)) {
+            dto.setEndDate(LocalDateTime.of(endDate.getValue(), LocalTime.MAX));
+        }
+
+        // ==========================================
+        // WORKAROUND CHO DATABASE:
+        // Cố định status khi Create là Active (ID 2).
+        // (Bạn hãy mở comment dùng hàm set tương ứng có trong ProjectBaseDTO của bạn)
+        // ==========================================
+
+        // Nếu dùng ID:
+        // dto.setStatusId(2L);
+
+        // Nếu dùng System Code:
+        // dto.setSystemCode("ACTIVE");
+
+        // Nếu dùng enum:
+        // dto.setStatus("ON_GOING");
+
+        projectApi.createProject(dto).thenAccept(response -> {
+            createSuccess.onNext(response);
+        }).exceptionally(ex -> {
+            createError.onNext(ex.getMessage());
+            return null;
+        });
     }
 }
