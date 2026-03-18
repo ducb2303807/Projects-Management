@@ -19,10 +19,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -346,7 +343,12 @@ public class ProjectServiceImpl extends BaseServiceImpl<Project, Long> implement
         creatorMember.setInvitedBy(null);
         creatorMember.setJoinAt(LocalDateTime.now());
 
-        projectMemberRepository.save(creatorMember);
+        var saved = projectMemberRepository.save(creatorMember);
+
+        if (savedProject.getMembers() == null) {
+            savedProject.setMembers(new ArrayList<>());
+        }
+        savedProject.getMembers().add(saved);
 
         return projectMapper.toDto(savedProject);
     }
