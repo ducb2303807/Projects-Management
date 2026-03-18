@@ -2,12 +2,12 @@ package com.group4.projects_management.mapper;
 
 import com.group4.common.dto.TaskCeateRequestDTO;
 import com.group4.common.dto.TaskResponseDTO;
+import com.group4.common.dto.TaskUpdateDTO;
 import com.group4.projects_management.entity.Priority;
 import com.group4.projects_management.entity.Project;
 import com.group4.projects_management.entity.Task;
 import com.group4.projects_management.entity.TaskStatus;
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
+import org.mapstruct.*;
 
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -36,6 +36,15 @@ public abstract class TaskMapper {
     @Mapping(target = "statusName", source = "taskStatus.name")
     @Mapping(target = "assignees", source = "assignments")
     public abstract TaskResponseDTO toDto(Task task);
+
+    @Mapping(target = "name", source = "dto.name")
+    @Mapping(target = "description", source = "dto.description")
+    @Mapping(target = "deadline", expression = "java(fixMidnightDeadline(dto.getDeadline()))")
+    @Mapping(target = "priority", source = "priority")
+    @Mapping(target = "taskStatus", source = "status")
+    @Mapping(target = "id", ignore = true)
+    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+    public abstract void updateEntityFromDto(TaskUpdateDTO dto, @MappingTarget Task task, Priority priority, TaskStatus status);
 
 
     // --- 3. Hàm tiện ích xử lý "Bẫy 0 giờ sáng" giấu ngay trong Mapper ---

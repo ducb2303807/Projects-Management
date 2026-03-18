@@ -10,6 +10,7 @@ import com.group4.projects_management.core.exception.ResourceNotFoundException;
 import com.group4.projects_management.core.strategy.notification.taskassignment.TaskAssignContext;
 import com.group4.projects_management.entity.*;
 import com.group4.projects_management.mapper.TaskAssignmentMapper;
+import com.group4.projects_management.mapper.TaskHistoryMapper;
 import com.group4.projects_management.mapper.TaskMapper;
 import com.group4.projects_management.repository.*;
 import com.group4.projects_management.service.base.BaseServiceImpl;
@@ -34,6 +35,8 @@ public class TaskServiceImpl extends BaseServiceImpl<Task, Long> implements Task
     private final TaskAssignmentMapper taskAssignmentMapper;
     private final TaskMapper taskMapper;
     private final NotificationService notificationService;
+    private final TaskHistoryMapper taskHistoryMapper;
+    private final UserRepository userRepository;
 
 
     public TaskServiceImpl(
@@ -43,7 +46,7 @@ public class TaskServiceImpl extends BaseServiceImpl<Task, Long> implements Task
             ProjectMemberRepository projectMemberRepository,
             PriorityRepository priorityRepository,
             TaskStatusRepository taskStatusRepository,
-            ProjectRepository projectRepository, TaskAssignmentMapper taskAssignmentMapper, TaskMapper taskMapper, NotificationService notificationService
+            ProjectRepository projectRepository, TaskAssignmentMapper taskAssignmentMapper, TaskMapper taskMapper, NotificationService notificationService, TaskHistoryMapper taskHistoryMapper, UserRepository userRepository
     ) {
         super(taskRepository);
         this.taskRepository = taskRepository;
@@ -56,6 +59,8 @@ public class TaskServiceImpl extends BaseServiceImpl<Task, Long> implements Task
         this.taskAssignmentMapper = taskAssignmentMapper;
         this.taskMapper = taskMapper;
         this.notificationService = notificationService;
+        this.taskHistoryMapper = taskHistoryMapper;
+        this.userRepository = userRepository;
     }
 
     @Override
@@ -142,29 +147,12 @@ public class TaskServiceImpl extends BaseServiceImpl<Task, Long> implements Task
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<TaskHistoryDTO> getTaskHistory(Long taskId) {
-
-        List<TaskHistory> histories = taskHistoryRepository.findByTaskId(taskId);
-
-        List<TaskHistoryDTO> result = new ArrayList<>();
-
-        for (TaskHistory history : histories) {
-
-            TaskHistoryDTO dto = new TaskHistoryDTO();
-
-            dto.setChangedAt(history.getChangedAt());
-            dto.setColumnName(history.getColumnName());
-            dto.setOldValue(history.getOldValue());
-            dto.setNewValue(history.getNewValue());
-
-            if (history.getChangedBy() != null) {
-                dto.setChangeBy(history.getChangedBy().getUser().getUsername());
-            }
-
-            result.add(dto);
-        }
-
-        return result;
+        return taskHistoryRepository.findByTaskId(taskId)
+                .stream()
+                .map(taskHistoryMapper::toDto)
+                .toList();
     }
 
     @Override
@@ -197,29 +185,20 @@ public class TaskServiceImpl extends BaseServiceImpl<Task, Long> implements Task
         taskRepository.save(task);
     }
 
-    @Override
-    @Transactional
-    public void removeMemberFromTask(Long taskAssignmentId) {
-        taskAssignmentRepository.deleteById(taskAssignmentId);
-    }
 
     @Override
     @Transactional
-    public void removeMembersFromTask(Long taskId, List<Long> membersId) {
-
+    public void removeMembersFromTask(Long taskId, List<Long> projectMemberIds, Long requesterId) {
+        if (projectMemberIds == null || projectMemberIds.isEmpty()) return;
         Task task = taskRepository.findById(taskId)
-                .orElseThrow(() -> new RuntimeException("Task not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Task not found"));
 
-        if (task.getAssignments() == null) return;
+        User user = userRepository.findById(requesterId)
+                .orElseThrow(() -> new ResourceNotFoundException("Requester not found"));
 
-        for (TaskAssignment assignment : task.getAssignments()) {
+        // Kiểm tra xem requesterId có phải là PM của project này không, nếu không ném Exception 403.
 
-            if (membersId.contains(assignment.getId())) {
-                taskAssignmentRepository.delete(assignment);
-            }
-
-        }
-
+        taskAssignmentRepository.deleteByTaskIdAndProjectMemberIdIn(taskId, projectMemberIds);
     }
 
     @Override
@@ -229,29 +208,14 @@ public class TaskServiceImpl extends BaseServiceImpl<Task, Long> implements Task
         Task task = taskRepository.findById(taskId)
                 .orElseThrow(() -> new RuntimeException("Task not found"));
 
-        task.setName(dto.getName());
-        task.setDescription(dto.getDescription());
-        task.setDeadline(dto.getDeadline());
+        Priority priority = priorityRepository.findById(dto.getPriorityId())
+                .orElseThrow(() -> new ResourceNotFoundException("Priority not found"));
 
-        taskRepository.save(task);
+        TaskStatus status = taskStatusRepository.findById(dto.getStatusId())
+                .orElseThrow(() -> new ResourceNotFoundException("Status not found"));
+        taskMapper.updateEntityFromDto(dto, task, priority, status);
 
-        TaskResponseDTO response = new TaskResponseDTO();
-
-        response.setTaskId(task.getId());
-        response.setName(task.getName());
-        response.setDescription(task.getDescription());
-        response.setDeadline(task.getDeadline());
-        response.setCreatedAt(task.getCreatedAt());
-
-        if (task.getPriority() != null) {
-            response.setPriorityName(task.getPriority().getName());
-        }
-
-        if (task.getTaskStatus() != null) {
-            response.setStatusName(task.getTaskStatus().getName());
-        }
-
-        return response;
+        return taskMapper.toDto(task);
     }
 
     @Override
@@ -279,32 +243,11 @@ public class TaskServiceImpl extends BaseServiceImpl<Task, Long> implements Task
     @Override
     public List<TaskResponseDTO> getTasksByStatus(Long projectId, Long statusId) {
 
-        List<Task> tasks =
-                taskRepository.findByProject_IdAndTaskStatus_Id(projectId, statusId);
+        List<Task> tasks = taskRepository.findByProject_IdAndTaskStatus_Id(projectId, statusId);
 
-        List<TaskResponseDTO> result = new ArrayList<>();
-
-        for (Task task : tasks) {
-
-            TaskResponseDTO dto = new TaskResponseDTO();
-            dto.setTaskId(task.getId());
-            dto.setName(task.getName());
-            dto.setDescription(task.getDescription());
-            dto.setDeadline(task.getDeadline());
-            dto.setCreatedAt(task.getCreatedAt());
-
-            if (task.getPriority() != null) {
-                dto.setPriorityName(task.getPriority().getName());
-            }
-
-            if (task.getTaskStatus() != null) {
-                dto.setStatusName(task.getTaskStatus().getName());
-            }
-
-            result.add(dto);
-        }
-
-        return result;
+        return tasks.stream()
+                .map(taskMapper::toDto)
+                .toList();
     }
 
 }

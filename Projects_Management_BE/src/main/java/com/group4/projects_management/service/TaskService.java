@@ -22,7 +22,7 @@ public interface TaskService {
     * @param assigneeIdList 
     * @param assignerId
     * @pdOid 63705ccc-6b8d-432b-9873-0e7eca6df851 */
-   void assignMembers(Long taskId, List<Long> assigneeIdList, Long assignerId);
+   void assignMembers(Long taskId, List<Long> assigneeIdList, Long requesterId);
    /** @param projectId
     * @pdOid d174b4c9-a28a-426a-aa1c-ff79f514f6ab */
    List<TaskResponseDTO> getTasksByProject(Long projectId);
@@ -38,8 +38,7 @@ public interface TaskService {
     * @pdOid 2875ea94-938f-41c2-8fb9-b822d7e83ed5 */
    void updateTaskStatus(Long taskId, Long taskStatusId);
 
-   void removeMemberFromTask(Long taskAssignmentId);
-   void removeMembersFromTask(Long taskId, List<Long> membersId);
+   void removeMembersFromTask(Long taskId, List<Long> projectMemberId, Long userId);
    /** @param taskId 
     * @param dto
     * @pdOid 19ffe925-d5b2-40a5-ad6d-d6ea1d48f65e */

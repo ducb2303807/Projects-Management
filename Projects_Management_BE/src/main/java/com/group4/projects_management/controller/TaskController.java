@@ -28,7 +28,7 @@ public class TaskController {
    @Autowired
    private CommentService commentService;
 
-   @PostMapping("/{taskId}/assignments")
+   @PostMapping("/{taskId}/members")
    public ResponseEntity<Void> assignMember(
            @PathVariable Long taskId,
            @RequestParam List<Long> projectMemberId) {
@@ -37,9 +37,12 @@ public class TaskController {
       return ResponseEntity.ok().build();
    }
 
-   @DeleteMapping("/assignments/{taskAssignmentId}")
-   public ResponseEntity<Void> removeMemberFromTask(@PathVariable Long taskAssignmentId) {
-      taskService.removeMemberFromTask(taskAssignmentId);
+   @DeleteMapping("/{taskId}/members/{projectMemberIds}")
+   public ResponseEntity<Void> removeMemberFromTask(@PathVariable Long taskId,
+           @PathVariable List<Long> projectMemberIds)
+   {
+      var userId = SecurityUtils.getCurrentUserId();
+      taskService.removeMembersFromTask(taskId,projectMemberIds,userId);
       return ResponseEntity.ok().build();
    }
 
