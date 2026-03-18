@@ -220,6 +220,12 @@ public class TaskServiceImpl extends BaseServiceImpl<Task, Long> implements Task
         task.setDescription(dto.getDescription());
         task.setDeadline(dto.getDeadline());
 
+        if (dto.getStatusId() != null) {
+            TaskStatus status = taskStatusRepository.findById(dto.getStatusId())
+                    .orElseThrow(() -> new RuntimeException("Status not found"));
+            task.setTaskStatus(status);
+        }
+
         taskRepository.save(task);
 
         TaskResponseDTO response = new TaskResponseDTO();
