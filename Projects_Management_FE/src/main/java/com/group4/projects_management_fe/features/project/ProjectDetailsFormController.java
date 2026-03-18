@@ -54,8 +54,8 @@ public class ProjectDetailsFormController {
 
         // MÔ PHỎNG DỮ LIỆU
         viewModel.setProjectName("Hệ thống quản lý nhóm 4");
-        viewModel.setStatus("IN_PROGRESS");
-        viewModel.addCoManager("Thanh");
+//        viewModel.setStatus("IN_PROGRESS");
+//        viewModel.addCoManager("Thanh");
         viewModel.addMember("Nam");
         viewModel.addMember("Binh");
 
@@ -110,9 +110,9 @@ public class ProjectDetailsFormController {
             Platform.runLater(() -> updateUIForEditMode(isEditing));
         }));
 
-        disposables.add(viewModel.coManagersObservable().subscribe(coManagers -> {
-            Platform.runLater(() -> renderCoManagerTags(coManagers));
-        }));
+//        disposables.add(viewModel.coManagersObservable().subscribe(coManagers -> {
+//            Platform.runLater(() -> renderCoManagerTags(coManagers));
+//        }));
 
         // BINDING CHO MEMBERS
         disposables.add(viewModel.membersObservable().subscribe(members -> {
@@ -167,7 +167,7 @@ public class ProjectDetailsFormController {
         coManagerInput.setVisible(true); coManagerInput.setManaged(true); coManagerInput.requestFocus();
     }
     @FXML private void handleCoManagerSubmit(ActionEvent event) {
-        viewModel.addCoManager(coManagerInput.getText());
+//        viewModel.addCoManager(coManagerInput.getText());
         coManagerInput.clear(); coManagerInput.setVisible(false); coManagerInput.setManaged(false);
     }
 
@@ -191,7 +191,7 @@ public class ProjectDetailsFormController {
             Label tag = new Label(username + "  ✕");
             tag.getStyleClass().add("co-manager-tag");
             tag.setOnMouseClicked(e -> {
-                if (saveBtn.isVisible()) viewModel.removeCoManager(username); // Chỉ xóa khi đang Edit
+//                if (saveBtn.isVisible()) viewModel.removeCoManager(username); // Chỉ xóa khi đang Edit
             });
             coManagerTagsContainer.getChildren().add(tag);
         }

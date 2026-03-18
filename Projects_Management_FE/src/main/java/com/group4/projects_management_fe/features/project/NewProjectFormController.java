@@ -1,50 +1,82 @@
 package com.group4.projects_management_fe.features.project;
 
+import com.group4.projects_management_fe.core.session.AppSessionManager;
 import io.reactivex.rxjava3.disposables.CompositeDisposable;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
-import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 
 import java.time.LocalDate;
-import java.util.List;
 
 public class NewProjectFormController {
+
     @FXML private StackPane rootPane;
     @FXML private TextField projectNameInput;
     @FXML private DatePicker startDatePicker;
     @FXML private DatePicker endDatePicker;
-    @FXML private ComboBox<String> statusComboBox;
     @FXML private TextArea descriptionInput;
-
-    @FXML private Label memberCountLabel; // Bổ sung lại Label đếm số member
-    @FXML private TextField coManagerInput;
-    @FXML private Button addCoManagerBtn;
-    @FXML private FlowPane coManagerTagsContainer;
-
     @FXML private Button createBtn;
+    @FXML private Label creatorUsernameLabel;
 
-    // Khởi tạo ViewModel và Dọn dẹp RxJava
     private final NewProjectViewModel viewModel = new NewProjectViewModel();
     private final CompositeDisposable disposables = new CompositeDisposable();
+    private Runnable onSuccessCallback;
+
+//    public void setOnSuccessCallback(Runnable onSuccessCallback) {
+//        this.onSuccessCallback = onSuccessCallback;
+//    }
 
     @FXML
     public void initialize() {
-        // Setup ComboBox (Tạm thời)
-        statusComboBox.getItems().addAll("NEW", "IN_PROGRESS", "DONE");
+        // 1. Setup logic giao diện cho DatePicker
+        setupUIDateLogic();
 
-        setupUIDateLogic(); // Khôi phục logic Ngày tháng
-        setupBindings();
-        rootPane.setFocusTraversable(true);
-        Platform.runLater(() -> {
-            rootPane.requestFocus();
-        });
+        // 2. Chống auto-focus vào ô nhập liệu đầu tiên
+        Platform.runLater(() -> rootPane.requestFocus());
+
+        // 3. Lấy Username của người đăng nhập hiển thị lên form
+        if (AppSessionManager.getInstance().isLoggedIn() && AppSessionManager.getInstance().getCurrentUser() != null) {
+            String currentUsername = AppSessionManager.getInstance().getCurrentUser().getUsername();
+            creatorUsernameLabel.setText(currentUsername);
+        } else {
+            creatorUsernameLabel.setText("System");
+        }
+
+        // ==========================================
+        // 4. RÀNG BUỘC DỮ LIỆU TỪ UI XUỐNG VIEW_MODEL
+        // ==========================================
+        projectNameInput.textProperty().addListener((obs, oldV, newV) -> viewModel.setProjectName(newV));
+        startDatePicker.valueProperty().addListener((obs, oldV, newV) -> viewModel.setStartDate(newV));
+        endDatePicker.valueProperty().addListener((obs, oldV, newV) -> viewModel.setEndDate(newV));
+        descriptionInput.textProperty().addListener((obs, oldV, newV) -> viewModel.setDescription(newV));
+
+        // 5. Ràng buộc trạng thái nút Create (Chỉ bật khi Tên và Start Date hợp lệ)
+        disposables.add(viewModel.isFormValidObservable().subscribe(isValid -> {
+            Platform.runLater(() -> createBtn.setDisable(!isValid));
+        }));
+
+        // 6. Lắng nghe kết quả API thành công
+        disposables.add(viewModel.onCreateSuccess().subscribe(response -> {
+            Platform.runLater(() -> {
+                if (onSuccessCallback != null) onSuccessCallback.run();
+                closeForm();
+            });
+        }));
+
+        // 7. Lắng nghe kết quả API thất bại
+        disposables.add(viewModel.onCreateError().subscribe(errorMessage -> {
+            Platform.runLater(() -> {
+                Alert alert = new Alert(Alert.AlertType.ERROR, errorMessage);
+                alert.showAndWait();
+                createBtn.setDisable(false);
+                createBtn.setText("Create");
+            });
+        }));
     }
 
-    // --- KHÔI PHỤC LOGIC UI CŨ (Ngày tháng) ---
     private void setupUIDateLogic() {
         // ==========================================
         // 1. RÀNG BUỘC HIỂN THỊ TRÊN LỊCH (UI RENDER)
@@ -95,73 +127,13 @@ public class NewProjectFormController {
                 startDatePicker.setValue(null);
             }
         });
-
-        // ==========================================
-        // 3. KHÓA BÀN PHÍM (BẢO MẬT GIAO DIỆN)
-        // ==========================================
-
-        // Không cho phép gõ ngày tháng bằng tay để tránh việc người dùng gõ lách luật
-        startDatePicker.setEditable(false);
-        endDatePicker.setEditable(false);
-    }
-
-    private void setupBindings() {
-        // ==========================================
-        // 1. BINDING TỪ VIEW -> VIEWMODEL (Input)
-        // ==========================================
-        projectNameInput.textProperty().addListener((obs, oldVal, newVal) -> viewModel.setProjectName(newVal));
-        startDatePicker.valueProperty().addListener((obs, oldVal, newVal) -> viewModel.setStartDate(newVal));
-        endDatePicker.valueProperty().addListener((obs, oldVal, newVal) -> viewModel.setEndDate(newVal));
-        descriptionInput.textProperty().addListener((obs, oldVal, newVal) -> viewModel.setDescription(newVal));
-        statusComboBox.valueProperty().addListener((obs, oldVal, newVal) -> viewModel.setStatus(newVal));
-
-        // ==========================================
-        // 2. BINDING TỪ VIEWMODEL -> VIEW (Output)
-        // ==========================================
-
-        // Lắng nghe trạng thái Form để Bật/Tắt nút Create
-        disposables.add(
-                viewModel.isFormValidObservable()
-                        .subscribe(isValid -> Platform.runLater(() -> {
-                            createBtn.setDisable(!isValid);
-                        }))
-        );
-
-        // Lắng nghe danh sách Co-Manager để vẽ Tag và CẬP NHẬT SỐ MEMBER
-        disposables.add(
-                viewModel.coManagersObservable()
-                        .subscribe(coManagers -> {
-                            Platform.runLater(() -> {
-                                renderCoManagerTags(coManagers);
-                            });
-                        })
-        );
-    }
-
-    // --- Các Action UI ---
-
-    @FXML
-    private void handleAddCoManagerClick(ActionEvent event) {
-        coManagerInput.setVisible(true);
-        coManagerInput.setManaged(true);
-        coManagerInput.requestFocus();
-    }
-
-    @FXML
-    private void handleCoManagerSubmit(ActionEvent event) {
-        String username = coManagerInput.getText();
-        viewModel.addCoManager(username); // Đẩy xuống ViewModel xử lý
-
-        coManagerInput.clear();
-        coManagerInput.setVisible(false);
-        coManagerInput.setManaged(false);
     }
 
     @FXML
     private void handleCreate(ActionEvent event) {
-        // Bảo ViewModel thực hiện logic gọi API
+        createBtn.setDisable(true);
+        createBtn.setText("Creating...");
         viewModel.submitProject();
-        closeForm();
     }
 
     @FXML
@@ -169,35 +141,9 @@ public class NewProjectFormController {
         closeForm();
     }
 
-    // --- Helper Methods ---
-
-    private void renderCoManagerTags(List<String> coManagers) {
-        coManagerTagsContainer.getChildren().clear();
-        for (String username : coManagers) {
-            Label tag = new Label(username + "  ✕");
-            tag.getStyleClass().add("co-manager-tag"); // Bạn nhớ đảm bảo trong CSS có class này giống file cũ nhé
-
-            // Click vào tag thì báo ViewModel xóa Co-manager
-            tag.setOnMouseClicked(e -> viewModel.removeCoManager(username));
-
-            coManagerTagsContainer.getChildren().add(tag);
-        }
-
-        // --- KHÔI PHỤC LOGIC CẬP NHẬT SỐ MEMBER ---
-        // Tổng số member = Số co-manager + 1 (Người tạo mặc định)
-        int totalMembers = coManagers.size() + 1;
-        if (totalMembers <= 1) {
-            memberCountLabel.setText("1 member");
-        } else {
-            memberCountLabel.setText(totalMembers + " members");
-        }
-    }
-
     private void closeForm() {
-        // Dọn dẹp RxJava Subscription trước khi đóng để tránh Memory Leak
         disposables.clear();
-
-        Stage stage = (Stage) projectNameInput.getScene().getWindow();
+        Stage stage = (Stage) rootPane.getScene().getWindow();
         stage.close();
     }
 }
