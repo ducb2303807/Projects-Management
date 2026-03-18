@@ -10,6 +10,7 @@ public class ProjectDetailsViewModel extends NewProjectViewModel {
 
     // --- STATE MỚI: Đang ở Phase 1 (false) hay Phase 2 (true)? ---
     private final BehaviorSubject<Boolean> isEditing = BehaviorSubject.createDefault(false);
+    private final BehaviorSubject<List<String>> members = BehaviorSubject.createDefault(new ArrayList<>());
 
     // Hàm kích hoạt chế độ chỉnh sửa
     public void enableEditMode() {
@@ -30,5 +31,23 @@ public class ProjectDetailsViewModel extends NewProjectViewModel {
         System.out.println("--- GỌI API UPDATE PROJECT ---");
         // Gọi API lưu dữ liệu, sau khi lưu thành công thì quay về View Mode
         isEditing.onNext(false);
+    }
+    public void addMember(String username) {
+        if (username == null || username.trim().isEmpty()) return;
+        List<String> current = new ArrayList<>(members.getValue());
+        if (!current.contains(username.trim())) {
+            current.add(username.trim());
+            members.onNext(current);
+        }
+    }
+
+    public void removeMember(String username) {
+        List<String> current = new ArrayList<>(members.getValue());
+        current.remove(username);
+        members.onNext(current);
+    }
+
+    public Observable<List<String>> membersObservable() {
+        return members.hide();
     }
 }

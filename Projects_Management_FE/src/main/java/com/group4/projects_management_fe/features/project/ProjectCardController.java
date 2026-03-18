@@ -36,10 +36,13 @@ public class ProjectCardController {
      */
     public void bindData(String id, String title, String status, String creator, String date) {
         this.currentProjectId = id;
-        int MAX_LENGTH = 40; // Bạn có thể chỉnh con số này cho phù hợp với độ rộng của Card
+
+        int MAX_LENGTH = 40;
         if (title != null && title.length() > MAX_LENGTH) {
             title = title.substring(0, MAX_LENGTH) + "...";
         }
+
+        // Gán vào các Label trong FXML Card của bạn
         this.projectTitleLabel.setText(title);
         this.statusLabel.setText(status);
         this.creatorNameLabel.setText(creator);
