@@ -65,33 +65,19 @@
     -fx-background-color: transparent;
 }
 
-.status-completed{
-    -fx-background-color: #dff5e6;
-    -fx-text-fill: #1f9254;
-    -fx-padding: 4 10 4 10;
+.status-badge {
+    -fx-font-size: 11px;
+    -fx-font-weight: 600;
+    -fx-padding: 4 12 4 12;
     -fx-background-radius: 20;
+    -fx-alignment: center;
 }
 
-.status-delayed{
-    -fx-background-color: #fff4db;
-    -fx-text-fill: #c58a00;
-    -fx-padding: 4 10 4 10;
-    -fx-background-radius: 20;
-}
-
-.status-risk{
-    -fx-background-color: #ffe3e3;
-    -fx-text-fill: #d93025;
-    -fx-padding: 4 10 4 10;
-    -fx-background-radius: 20;
-}
-
-.status-ongoing{
-    -fx-background-color: #ffe8dc;
-    -fx-text-fill: #e25a2d;
-    -fx-padding: 4 10 4 10;
-    -fx-background-radius: 20;
-}
+.status-planning { -fx-background-color: #f0f0f0; -fx-text-fill: #333333; }
+.status-active { -fx-background-color: #fff9c4; -fx-text-fill: #fbc02d; }
+.status-on-hold { -fx-background-color: #fff6e0; -fx-text-fill: red; }
+.status-completed { -fx-background-color: #e6f7ee; -fx-text-fill: #1f9254; }
+.status-cancelled { -fx-background-color: #fff6e0; -fx-text-fill: red; }
 
 .box-title{
     -fx-font-size:16px;
@@ -272,4 +258,21 @@
 
 .scroll-pane > .viewport {
     -fx-background-color: transparent;
+}
+
+.task-item {
+    -fx-padding: 10 12;
+    -fx-background-color: white;
+    -fx-background-radius: 10;
+    -fx-border-color: #f0f0f0;
+    -fx-border-radius: 10;
+}
+
+.task-item:hover {
+    -fx-background-color: #eeeeee;
+}
+
+.task-name {
+    -fx-font-size: 13px;
+    -fx-font-weight: 500;
 }
