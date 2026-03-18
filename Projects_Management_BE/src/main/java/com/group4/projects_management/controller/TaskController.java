@@ -31,16 +31,9 @@ public class TaskController {
    @PostMapping("/{taskId}/assignments")
    public ResponseEntity<Void> assignMember(
            @PathVariable Long taskId,
-           @RequestParam Long projectMemberId) {
-
-      var auth = org.springframework.security.core.context.SecurityContextHolder
-              .getContext().getAuthentication();
-
+           @RequestParam List<Long> projectMemberId) {
       var userId = SecurityUtils.getCurrentUserId();
-      System.out.println("Current userId = " + userId);
-
-      taskService.assignMember(taskId, projectMemberId, userId);
-
+      taskService.assignMembers(taskId, projectMemberId, userId);
       return ResponseEntity.ok().build();
    }
 

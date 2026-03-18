@@ -7,6 +7,7 @@ import com.group4.common.dto.TaskUpdateDTO;
 import com.group4.common.enums.BusinessErrorCode;
 import com.group4.projects_management.core.exception.BusinessException;
 import com.group4.projects_management.core.exception.ResourceNotFoundException;
+import com.group4.projects_management.core.strategy.notification.taskassignment.TaskAssignContext;
 import com.group4.projects_management.entity.*;
 import com.group4.projects_management.mapper.TaskAssignmentMapper;
 import com.group4.projects_management.mapper.TaskMapper;
@@ -32,6 +33,7 @@ public class TaskServiceImpl extends BaseServiceImpl<Task, Long> implements Task
     private final ProjectRepository projectRepository;
     private final TaskAssignmentMapper taskAssignmentMapper;
     private final TaskMapper taskMapper;
+    private final NotificationService notificationService;
 
 
     public TaskServiceImpl(
@@ -41,7 +43,7 @@ public class TaskServiceImpl extends BaseServiceImpl<Task, Long> implements Task
             ProjectMemberRepository projectMemberRepository,
             PriorityRepository priorityRepository,
             TaskStatusRepository taskStatusRepository,
-            ProjectRepository projectRepository, TaskAssignmentMapper taskAssignmentMapper, TaskMapper taskMapper
+            ProjectRepository projectRepository, TaskAssignmentMapper taskAssignmentMapper, TaskMapper taskMapper, NotificationService notificationService
     ) {
         super(taskRepository);
         this.taskRepository = taskRepository;
@@ -53,6 +55,7 @@ public class TaskServiceImpl extends BaseServiceImpl<Task, Long> implements Task
         this.projectRepository = projectRepository;
         this.taskAssignmentMapper = taskAssignmentMapper;
         this.taskMapper = taskMapper;
+        this.notificationService = notificationService;
     }
 
     @Override
@@ -75,17 +78,56 @@ public class TaskServiceImpl extends BaseServiceImpl<Task, Long> implements Task
         assignment.setAssigner(assigner);
         assignment.setAssignAt(LocalDateTime.now());
 
+        TaskAssignContext context = TaskAssignContext.builder()
+                .task(task)
+                .assigner(assigner.getUser())
+                .build();
+
+        Long receiverId = assignee.getUser().getId();
+        Long referenceId = task.getId();
+
+        notificationService.send(receiverId, context, referenceId);
+
         taskAssignmentRepository.save(assignment);
     }
 
     @Override
     @Transactional
     public void assignMembers(Long taskId, List<Long> assigneeIdList, Long assignerId) {
+        if (assigneeIdList == null || assigneeIdList.isEmpty()) return;
 
-        for (Long assigneeId : assigneeIdList) {
-            assignMember(taskId, assigneeId, assignerId);
+        Task task = taskRepository.findById(taskId)
+                .orElseThrow(() -> new ResourceNotFoundException("Task not found"));
+
+        ProjectMember assigner = projectMemberRepository
+                .findByUser_IdAndProject_Id(assignerId, task.getProject().getId())
+                .orElseThrow(() -> new ResourceNotFoundException("Assigner not in project"));
+
+
+        List<ProjectMember> assignees = projectMemberRepository.findAllById(assigneeIdList);
+
+        List<TaskAssignment> assignments = new ArrayList<>();
+        List<Long> receiverIds = new ArrayList<>();
+
+        for (ProjectMember assignee : assignees) {
+            TaskAssignment assignment = new TaskAssignment();
+            assignment.setTask(task);
+            assignment.setAssignee(assignee);
+            assignment.setAssigner(assigner);
+
+            assignments.add(assignment);
+
+            receiverIds.add(assignee.getUser().getId());
         }
 
+        taskAssignmentRepository.saveAll(assignments);
+
+        TaskAssignContext context = TaskAssignContext.builder()
+                .task(task)
+                .assigner(assigner.getUser())
+                .build();
+
+        notificationService.send(receiverIds, context, task.getId());
     }
 
     @Override
@@ -93,39 +135,10 @@ public class TaskServiceImpl extends BaseServiceImpl<Task, Long> implements Task
     public List<TaskResponseDTO> getTasksByProject(Long projectId) {
 
         List<Task> tasks = taskRepository.findByProject_Id(projectId);
-        List<TaskResponseDTO> result = new ArrayList<>();
 
-        for (Task task : tasks) {
-            if (task.getProject().getId().equals(projectId)) {
-
-                TaskResponseDTO dto = new TaskResponseDTO();
-                dto.setTaskId(task.getId());
-                dto.setName(task.getName());
-                dto.setDescription(task.getDescription());
-                dto.setDeadline(task.getDeadline());
-                dto.setCreatedAt(task.getCreatedAt());
-
-
-                var assigneesDTO = task.getAssignments()
-                        .stream()
-                        .map(taskAssignmentMapper::toDTO)
-                        .toList();
-
-                dto.setAssignees(assigneesDTO);
-
-                if (task.getPriority() != null) {
-                    dto.setPriorityName(task.getPriority().getName());
-                }
-
-                if (task.getTaskStatus() != null) {
-                    dto.setStatusName(task.getTaskStatus().getName());
-                }
-
-                result.add(dto);
-            }
-        }
-
-        return result;
+        return tasks.stream()
+                .map(taskMapper::toDto)
+                .toList();
     }
 
     @Override

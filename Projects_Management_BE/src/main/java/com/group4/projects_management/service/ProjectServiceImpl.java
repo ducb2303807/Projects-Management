@@ -7,7 +7,7 @@ package com.group4.projects_management.service; /*******************************
 import com.group4.common.dto.*;
 import com.group4.common.enums.MemberStatus;
 import com.group4.projects_management.core.exception.ResourceNotFoundException;
-import com.group4.projects_management.core.strategy.notification.ProjectInviteContext;
+import com.group4.projects_management.core.strategy.notification.invitation.ProjectInviteContext;
 import com.group4.projects_management.entity.*;
 import com.group4.projects_management.mapper.ProjectMapper;
 import com.group4.projects_management.mapper.ProjectMemberMapper;
