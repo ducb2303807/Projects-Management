@@ -1,25 +1,24 @@
 package com.group4.projects_management_fe.features.mainlayout;
 
-import com.group4.projects_management_fe.MainWindow;
-import com.group4.projects_management_fe.core.api.NotificationApi;
+import com.group4.common.dto.SseNotificationDTO;
+import com.group4.projects_management_fe.core.api.RxSseManager;
+import com.group4.projects_management_fe.core.api.base.SseClientManager;
+import com.group4.projects_management_fe.core.navigation.AppStageManager;
 import com.group4.projects_management_fe.core.session.AppSessionManager;
+import io.reactivex.rxjava3.disposables.CompositeDisposable;
 import javafx.animation.FadeTransition;
 import javafx.animation.ScaleTransition;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.scene.control.Button;
-import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.shape.Circle;
-import javafx.stage.Stage;
 import javafx.util.Duration;
 
 import java.io.IOException;
@@ -53,6 +52,8 @@ public class MainLayoutController {
     @FXML
     private VBox profilePanel;
 
+    private final CompositeDisposable disposables = new CompositeDisposable();
+    private final SseClientManager<SseNotificationDTO> sseClientManager = new RxSseManager(AppSessionManager.getInstance());
     @FXML
     public void initialize() {
         showDashboard();
@@ -63,16 +64,18 @@ public class MainLayoutController {
         userBox.setOnMouseClicked(e -> showProfile());
         overlayBackground.setOnMouseClicked(e -> closeProfile());
 
-
-        var a = new NotificationApi(AppSessionManager.getInstance());
-        a.getNotificationsForUser()
-                .thenAccept(notificationDTOS -> {
-                    System.out.println(notificationDTOS);
-                })
-                .exceptionally(ex -> {
-                    ex.printStackTrace();
-                    return null;
-                });
+        // SSE test
+//        sseClientManager.connect();
+//        disposables.add(SseRxBridge.toObservable(sseClientManager)
+//                .subscribe(System.out::println
+//                        , RxJavaPlugins::onError));
+//
+//        var projectApi = new ProjectApi(AppSessionManager.getInstance());
+//        disposables.add(
+//                Observable.interval(5, TimeUnit.SECONDS)
+//                        .switchMap(i -> Observable.fromCompletionStage(projectApi.getMyProjects()))
+//                        .subscribe(System.out::println, RxJavaPlugins::onError)
+//        );
     }
 
     @FXML
@@ -158,37 +161,12 @@ public class MainLayoutController {
 
     @FXML
     private void handleLogout(ActionEvent event) {
-        try {
-            FXMLLoader loader = new FXMLLoader(
-                    getClass().getResource("/com/group4/projects_management_fe/features/auth/AuthView.fxml")
-            );
-
-            Parent root = loader.load();
-
-            Stage stage = (Stage) ((Node) event.getSource())
-                    .getScene()
-                    .getWindow();
-
-            Scene scene = new Scene(root, 900, 650);
-            scene.getStylesheets().add(
-                    MainWindow.class.getResource(
-                            "/com/group4/projects_management_fe/features/assets/css/auth.css"
-                    ).toExternalForm()
-            );
-
-            Image logo = new Image(
-                    getClass().getResourceAsStream("/com/group4/projects_management_fe/features/assets/image/app_icon_v6.png")
-                    );
-
-            stage.getIcons().add(logo);
-            stage.setTitle("Login");
-            stage.setScene(scene);
-            stage.centerOnScreen();
-            stage.setResizable(false);
-            stage.show();
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        AppStageManager.getInstance().navigateToLogin();
+        AppSessionManager.getInstance().destroySession();
+        if (!disposables.isDisposed()) disposables.dispose();
+        sseClientManager.shutdown();
+        System.out.println("Logged out");
     }
+
+
 }

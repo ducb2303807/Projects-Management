@@ -2,6 +2,7 @@ package com.group4.projects_management_fe.core.api;
 
 import com.group4.common.dto.SseNotificationDTO;
 import com.group4.projects_management_fe.core.api.base.AbstractSseManager;
+import com.group4.projects_management_fe.core.exception.GlobalExceptionHandler;
 import com.group4.projects_management_fe.core.exception.UnauthorizedException;
 import com.group4.projects_management_fe.core.session.AuthSessionProvider;
 import okhttp3.Request;
@@ -21,7 +22,6 @@ import java.util.function.Consumer;
 public class StandardSseManager extends AbstractSseManager<SseNotificationDTO> {
     private EventSource eventSource;
     private int retryCount = 0;
-    private Runnable globalOnUnauthorized;
     // Đang kết nối
     private boolean isConnecting = false;
     private final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
@@ -34,10 +34,9 @@ public class StandardSseManager extends AbstractSseManager<SseNotificationDTO> {
     }
 
     @Override
-    public synchronized void connect(Runnable onUnauthorized) {
+    public synchronized void connect() {
         if (this.eventSource != null || this.isConnecting) return;
         this.isConnecting = true;
-        this.globalOnUnauthorized = onUnauthorized;
 
         Request request = new Request.Builder()
                 .url(this.buildUrl(this.endpoint))
@@ -73,9 +72,9 @@ public class StandardSseManager extends AbstractSseManager<SseNotificationDTO> {
                 StandardSseManager.this.isConnecting = false;
 
                 Throwable parsedError = parseHttpError(response, t);
-                if (parsedError instanceof UnauthorizedException &&
-                        globalOnUnauthorized != null) {
-                    globalOnUnauthorized.run();
+
+                if (parsedError instanceof UnauthorizedException) {
+                    GlobalExceptionHandler.handleException(parsedError);
                     return;
                 }
 
@@ -85,7 +84,7 @@ public class StandardSseManager extends AbstractSseManager<SseNotificationDTO> {
                 retryCount++;
 
                 System.err.println("Thử lại sau " + delay);
-                scheduler.schedule(() -> connect(onUnauthorized), delay, TimeUnit.MILLISECONDS);
+                scheduler.schedule(() -> connect(), delay, TimeUnit.MILLISECONDS);
             }
         };
         this.eventSource = EventSources.createFactory(this.client).newEventSource(request, listener);
@@ -96,7 +95,7 @@ public class StandardSseManager extends AbstractSseManager<SseNotificationDTO> {
             this.eventSource.cancel();
             this.eventSource = null;
         }
-        this.globalOnUnauthorized = null;
+
         this.isConnecting = false;
     }
 
