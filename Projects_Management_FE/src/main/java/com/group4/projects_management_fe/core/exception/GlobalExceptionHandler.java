@@ -42,12 +42,14 @@ public class GlobalExceptionHandler {
             return;
         }
 
+        log.error(rootCause.getMessage(), rootCause);
+
         if (notifier != null) {
             if (rootCause instanceof UnauthorizedException) {
                 notifier.showWarning("Hết phiên làm việc", "Vui lòng đăng nhập lại để tiếp tục.");
                 notifier.navigateToLogin();
             } else if (rootCause instanceof ApiException) {
-                notifier.showError("Thông báo", rootCause.getMessage());
+                notifier.showError("Thông báo lỗi từ API", rootCause.getMessage());
             } else {
                 // Các lỗi kỹ thuật không mong muốn (NullPointer, Sql, v.v.)
                 notifier.showCrashReport("Hệ thống gặp sự cố bất ngờ", rootCause);
