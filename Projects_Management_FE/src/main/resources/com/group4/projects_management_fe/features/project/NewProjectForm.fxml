@@ -35,8 +35,8 @@
                 </VBox>
 
                 <HBox spacing="10.0" alignment="CENTER_LEFT" style="-fx-padding: 15 0 0 0;">
-                    <Label text="Created by" styleClass="field-label" style="-fx-font-weight: bold;"/>
-                    <Label fx:id="creatorUsernameLabel" text="[Username]" styleClass="field-label" style="-fx-text-fill: #7f8c8d;"/>
+                    <Label text="Created by" styleClass="field-label"/>
+                    <Label fx:id="creatorUsernameLabel" text="[Username]" styleClass="field-label" style="-fx-text-fill: #7f8c8d;-fx-font-weight: bold;" />
                 </HBox>
 
                 <Region VBox.vgrow="ALWAYS" />
