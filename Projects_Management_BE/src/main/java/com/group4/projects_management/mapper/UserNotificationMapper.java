@@ -8,9 +8,11 @@ import org.mapstruct.Mapping;
 @Mapper(componentModel = "spring")
 public abstract class UserNotificationMapper {
     @Mapping(source = "notification.id", target = "id")
-    @Mapping(source = "notification.title",target = "text")
+    @Mapping(source = "notification.title",target = "title")
     @Mapping(source = "notification.type", target = "type")
     @Mapping(source = "notification.referenceId", target = "referenceId")
     @Mapping(source = "notification.createdAt", target = "createdDate")
+    @Mapping(source = "read", target = "isRead")
+    @Mapping(source = "notification.metadata", target = "metadata")
     public abstract NotificationDTO toDto(UserNotification notification);
 }

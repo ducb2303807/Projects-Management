@@ -4,6 +4,7 @@ package com.group4.common.dto; /************************************************
  * Purpose: Defines the Class NotificationDTO
  ***********************************************************************/
 
+import com.fasterxml.jackson.annotation.JsonRawValue;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -17,9 +18,11 @@ import java.time.LocalDateTime;
 @Builder
 public class NotificationDTO {
    private Long id;
-   private java.lang.String text;
+   private String title;
    private java.lang.String type;
    private Long referenceId;
    private LocalDateTime createdDate;
    private boolean isRead;
+   @JsonRawValue
+   private String metadata;
 }

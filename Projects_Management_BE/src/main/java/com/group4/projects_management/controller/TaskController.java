@@ -16,53 +16,51 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-/** @pdOid ce9b19d3-3ddd-449d-8d79-b270923a5f2d */
+/**
+ * @pdOid ce9b19d3-3ddd-449d-8d79-b270923a5f2d
+ */
 @RestController
 @RequestMapping("/api/tasks")
 @SecurityRequirement(name = "bearerAuth")
 public class TaskController {
 
-   @Autowired
-   private TaskService taskService;
+    @Autowired
+    private TaskService taskService;
 
-   @Autowired
-   private CommentService commentService;
+    @Autowired
+    private CommentService commentService;
 
-   @PostMapping("/{taskId}/assignments")
-   public ResponseEntity<Void> assignMember(
-           @PathVariable Long taskId,
-           @RequestParam Long projectMemberId) {
+    @PostMapping("/{taskId}/members")
+    public ResponseEntity<Void> assignMember(
+            @PathVariable Long taskId,
+            @RequestBody List<Long> projectMemberId) {
+        var userId = SecurityUtils.getCurrentUserId();
+        taskService.assignMembers(taskId, projectMemberId, userId);
+        return ResponseEntity.ok().build();
+    }
 
-      var auth = org.springframework.security.core.context.SecurityContextHolder
-              .getContext().getAuthentication();
+    @DeleteMapping("/{taskId}/members/{projectMemberIds}")
+    public ResponseEntity<Void> removeMemberFromTask(
+            @PathVariable Long taskId,
+            @RequestParam List<Long> projectMemberIds) {
+        var userId = SecurityUtils.getCurrentUserId();
+        taskService.removeMembersFromTask(taskId, projectMemberIds, userId);
+        return ResponseEntity.ok().build();
+    }
 
-      var userId = SecurityUtils.getCurrentUserId();
-      System.out.println("Current userId = " + userId);
+    @GetMapping("/{taskId}/histories")
+    public ResponseEntity<List<TaskHistoryDTO>> getTaskHistory(@PathVariable Long taskId) {
+        return ResponseEntity.ok(taskService.getTaskHistory(taskId));
+    }
 
-      taskService.assignMember(taskId, projectMemberId, userId);
+    @PutMapping("/{taskId}")
+    public ResponseEntity<TaskResponseDTO> updateTask(@PathVariable Long taskId,
+                                                      @Valid @RequestBody TaskUpdateDTO request) {
+        return ResponseEntity.ok(taskService.updateTask(taskId, request));
+    }
 
-      return ResponseEntity.ok().build();
-   }
-
-   @DeleteMapping("/assignments/{taskAssignmentId}")
-   public ResponseEntity<Void> removeMemberFromTask(@PathVariable Long taskAssignmentId) {
-      taskService.removeMemberFromTask(taskAssignmentId);
-      return ResponseEntity.ok().build();
-   }
-
-   @GetMapping("/{taskId}/histories")
-   public ResponseEntity<List<TaskHistoryDTO>> getTaskHistory(@PathVariable Long taskId) {
-      return ResponseEntity.ok(taskService.getTaskHistory(taskId));
-   }
-
-   @PutMapping("/{taskId}")
-   public ResponseEntity<TaskResponseDTO> updateTask(@PathVariable Long taskId,
-                                                     @Valid @RequestBody TaskUpdateDTO request) {
-      return ResponseEntity.ok(taskService.updateTask(taskId, request));
-   }
-
-   @GetMapping("/{taskId}/comments")
-   public ResponseEntity<List<CommentDTO>> getTaskComment(@PathVariable Long taskId) {
-      return ResponseEntity.ok(commentService.getCommentsByTask(taskId));
-   }
+    @GetMapping("/{taskId}/comments")
+    public ResponseEntity<List<CommentDTO>> getTaskComment(@PathVariable Long taskId) {
+        return ResponseEntity.ok(commentService.getCommentsByTask(taskId));
+    }
 }
