@@ -23,5 +23,7 @@ public abstract class ProjectMapper
     @Mapping(target = "members", ignore = true)
     @Mapping(target = "projectStatus", ignore = true)
     @Mapping(target = "createdBy", ignore = true)
+    @Mapping(target = "createdAt", ignore = true)
+    @Mapping(target = "updateAt", ignore = true)
     public abstract Project toCreateEntity(ProjectCreateRequestDTO dto);
 }

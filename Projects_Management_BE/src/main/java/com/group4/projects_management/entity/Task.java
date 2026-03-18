@@ -9,6 +9,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
+import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
 import java.util.HashSet;
@@ -35,6 +36,7 @@ public class Task {
    @Column(name = "TASK_DEADLINE")
    private LocalDateTime deadline;
 
+   @CreationTimestamp
    @Column(name = "TASK_CREATED_AT", nullable = false)
    private LocalDateTime createdAt;
 
@@ -65,10 +67,6 @@ public class Task {
    @ToString.Exclude
    public Project project;
 
-   @PrePersist
-   protected void onCreate() {
-      this.createdAt = LocalDateTime.now();
-   }
 
    public boolean isOverdue() {
       if (this.taskStatus != null

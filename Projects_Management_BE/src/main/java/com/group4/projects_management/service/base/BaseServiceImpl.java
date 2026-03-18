@@ -14,6 +14,7 @@ public class BaseServiceImpl <T,ID> implements BaseService<T,ID> {
    /** @pdOid 3c9e246f-bfad-442a-8e68-1a86a2466ce7 */
    protected JpaRepository<T, ID> repository;
 
+
    public BaseServiceImpl(JpaRepository<T, ID> repository) {
       this.repository = repository;
    }
