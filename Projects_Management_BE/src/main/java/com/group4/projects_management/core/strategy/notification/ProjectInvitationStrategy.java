@@ -19,7 +19,7 @@ public class ProjectInvitationStrategy implements NotificationStrategy<ProjectIn
     @Override
     public String buildTitle(ProjectInviteContext ctx) {
         return String.format("%s đã mời bạn vào dự án %s",
-                ctx.getInviter().getFullName(),
+                ctx.getInviter().getUsername(),
                 ctx.getProject().getName());
     }
 

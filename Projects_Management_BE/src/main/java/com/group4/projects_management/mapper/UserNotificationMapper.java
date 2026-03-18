@@ -12,5 +12,6 @@ public abstract class UserNotificationMapper {
     @Mapping(source = "notification.type", target = "type")
     @Mapping(source = "notification.referenceId", target = "referenceId")
     @Mapping(source = "notification.createdAt", target = "createdDate")
+    @Mapping(source = "read", target = "isRead")
     public abstract NotificationDTO toDto(UserNotification notification);
 }

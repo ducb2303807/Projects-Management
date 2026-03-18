@@ -15,7 +15,9 @@ public abstract class UserMapper {
 
     @Autowired
     protected PasswordEncoder passwordEncoder;
+
     @Mapping(source = "appRole.name", target = "systemRoleName")
+    @Mapping(source = "active", target = "isActive")
     public abstract UserDTO toDto(User user);
 
     @Mapping(target = "id", ignore = true)
