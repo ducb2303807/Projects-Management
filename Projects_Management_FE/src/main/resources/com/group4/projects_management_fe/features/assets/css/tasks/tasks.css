@@ -112,7 +112,7 @@
 }
 /*SCROLL PANE*/
 
-/*CHECK BOX*/
+
 .check-box > .box{
     -fx-background-color: no;
     -fx-border-color: #dcdcdc;
@@ -122,6 +122,7 @@
 /*CHECK BOX*/
 
 /*TASK STATUS*/
+
 .status-container {
     -fx-font-family: Montserrat;
     -fx-font-size: 14px;
