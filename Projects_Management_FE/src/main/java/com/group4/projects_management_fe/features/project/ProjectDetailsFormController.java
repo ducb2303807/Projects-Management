@@ -10,12 +10,10 @@ import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 
 import java.time.LocalDate;
-import java.util.List;
 
 public class ProjectDetailsFormController {
 
     @FXML private StackPane rootPane;
-
     @FXML private TextField projectNameInput;
     @FXML private DatePicker startDatePicker;
     @FXML private DatePicker endDatePicker;
@@ -23,202 +21,160 @@ public class ProjectDetailsFormController {
     @FXML private TextArea descriptionInput;
     @FXML private Label memberCountLabel;
 
-    // Nút điều khiển chính
     @FXML private Button editBtn;
     @FXML private Button saveBtn;
     @FXML private Button cancelBtn;
 
-    // Co-manager
     @FXML private TextField coManagerInput;
     @FXML private Button addCoManagerBtn;
     @FXML private FlowPane coManagerTagsContainer;
 
-    // Members (MỚI THÊM)
     @FXML private TextField memberInput;
     @FXML private Button addMemberBtn;
     @FXML private FlowPane memberTagsContainer;
+
+    @FXML private Label createdByLabel;
+    @FXML private Label createdDateLabel;
+    @FXML private Label lastUpdatedByLabel;
+    @FXML private Label lastUpdatedDateLabel;
 
     private final ProjectDetailsViewModel viewModel = new ProjectDetailsViewModel();
     private final CompositeDisposable disposables = new CompositeDisposable();
 
     @FXML
     public void initialize() {
-        statusComboBox.getItems().addAll("NEW", "IN_PROGRESS", "DONE");
-
-        setupUIDateLogic();
         setupBindings();
-
-        // Chặn auto-focus vào ô nhập Tên dự án lúc vừa mở lên
-        rootPane.setFocusTraversable(true);
-        Platform.runLater(() -> rootPane.requestFocus());
-
-        // MÔ PHỎNG DỮ LIỆU
-        viewModel.setProjectName("Hệ thống quản lý nhóm 4");
-//        viewModel.setStatus("IN_PROGRESS");
-//        viewModel.addCoManager("Thanh");
-        viewModel.addMember("Nam");
-        viewModel.addMember("Binh");
-
-        viewModel.cancelEditMode(); // Bắt đầu ở chế độ chỉ xem
+        if (rootPane != null) Platform.runLater(() -> rootPane.requestFocus());
     }
 
-    private void setupUIDateLogic() {
-        endDatePicker.setDayCellFactory(picker -> new DateCell() {
-            @Override
-            public void updateItem(LocalDate date, boolean empty) {
-                super.updateItem(date, empty);
-                LocalDate startDate = startDatePicker.getValue();
-                if (startDate != null && date.isBefore(startDate)) {
-                    setDisable(true);
-                    setStyle("-fx-background-color: #ffc0cb;");
-                }
-            }
-        });
-
-        startDatePicker.setDayCellFactory(picker -> new DateCell() {
-            @Override
-            public void updateItem(LocalDate date, boolean empty) {
-                super.updateItem(date, empty);
-                LocalDate endDate = endDatePicker.getValue();
-                if (endDate != null && date.isAfter(endDate)) {
-                    setDisable(true);
-                    setStyle("-fx-background-color: #ffc0cb;");
-                }
-            }
-        });
-
-        startDatePicker.valueProperty().addListener((ov, oldVal, newVal) -> {
-            if (endDatePicker.getValue() != null && newVal != null && endDatePicker.getValue().isBefore(newVal)) {
-                endDatePicker.setValue(null);
-            }
-        });
-
-        endDatePicker.valueProperty().addListener((ov, oldVal, newVal) -> {
-            if (startDatePicker.getValue() != null && newVal != null && newVal.isBefore(startDatePicker.getValue())) {
-                startDatePicker.setValue(null);
-            }
-        });
-
-        startDatePicker.setEditable(false);
-        endDatePicker.setEditable(false);
+    public void initData(Long projectId) {
+        if (projectId != null) {
+            viewModel.loadProjectDetails(projectId);
+        }
     }
 
     private void setupBindings() {
-        // ... (Bạn tự thêm binding cho input như cũ nếu cần) ...
+        // --- 1. TEXT BINDINGS ---
+        disposables.add(viewModel.projectNameObservable().distinctUntilChanged()
+                .subscribe(val -> Platform.runLater(() -> {
+                    if (projectNameInput != null) projectNameInput.setText(val != null ? val : "");
+                })));
 
+        disposables.add(viewModel.descriptionObservable().distinctUntilChanged()
+                .subscribe(val -> Platform.runLater(() -> {
+                    if (descriptionInput != null) descriptionInput.setText(val != null ? val : "");
+                })));
+
+        // --- 2. DATE BINDINGS (Lọc bỏ LocalDate.MIN và chống loop tuyệt đối) ---
+        disposables.add(viewModel.startDateObservable()
+                .filter(val -> val != null && !val.equals(LocalDate.MIN))
+                .distinctUntilChanged()
+                .subscribe(val -> Platform.runLater(() -> {
+                    if (startDatePicker != null && !val.equals(startDatePicker.getValue())) {
+                        startDatePicker.setValue(val);
+                    }
+                })));
+
+        disposables.add(viewModel.endDateObservable()
+                .filter(val -> val != null && !val.equals(LocalDate.MIN))
+                .distinctUntilChanged()
+                .subscribe(val -> Platform.runLater(() -> {
+                    if (endDatePicker != null && !val.equals(endDatePicker.getValue())) {
+                        endDatePicker.setValue(val);
+                    }
+                })));
+
+        disposables.add(viewModel.createdByObservable().subscribe(name ->
+                Platform.runLater(() -> { if (createdByLabel != null) createdByLabel.setText(name); })
+        ));
+
+        disposables.add(viewModel.createdDateObservable().subscribe(date ->
+                Platform.runLater(() -> { if (createdDateLabel != null) createdDateLabel.setText(date); })
+        ));
+
+        disposables.add(viewModel.lastUpdatedByObservable().subscribe(name ->
+                Platform.runLater(() -> { if (lastUpdatedByLabel != null) lastUpdatedByLabel.setText(name); })
+        ));
+
+        disposables.add(viewModel.lastUpdatedDateObservable().subscribe(date ->
+                Platform.runLater(() -> { if (lastUpdatedDateLabel != null) lastUpdatedDateLabel.setText(date); })
+        ));
+
+        // --- UI -> VIEWMODEL ---
+        if (projectNameInput != null) {
+            projectNameInput.textProperty().addListener((obs, oldV, newV) -> viewModel.setProjectName(newV));
+        }
+        if (descriptionInput != null) {
+            descriptionInput.textProperty().addListener((obs, oldV, newV) -> viewModel.setDescription(newV));
+        }
+        if (startDatePicker != null) {
+            startDatePicker.valueProperty().addListener((obs, oldV, newV) -> {
+                if (newV != null && !newV.equals(oldV)) viewModel.setStartDate(newV);
+            });
+        }
+        if (endDatePicker != null) {
+            endDatePicker.valueProperty().addListener((obs, oldV, newV) -> {
+                if (newV != null && !newV.equals(oldV)) viewModel.setEndDate(newV);
+            });
+        }
+
+        // --- 3. QUẢN LÝ TRẠNG THÁI EDIT/VIEW (AN TOÀN NULL-CHECK) ---
         disposables.add(viewModel.isEditingObservable().subscribe(isEditing -> {
-            Platform.runLater(() -> updateUIForEditMode(isEditing));
-        }));
+            Platform.runLater(() -> {
+                if (projectNameInput != null) projectNameInput.setEditable(isEditing);
+                if (descriptionInput != null) descriptionInput.setEditable(isEditing);
+                if (startDatePicker != null) startDatePicker.setDisable(!isEditing);
+                if (endDatePicker != null) endDatePicker.setDisable(!isEditing);
+                if (statusComboBox != null) statusComboBox.setDisable(!isEditing);
 
-//        disposables.add(viewModel.coManagersObservable().subscribe(coManagers -> {
-//            Platform.runLater(() -> renderCoManagerTags(coManagers));
-//        }));
+                if (editBtn != null) {
+                    editBtn.setVisible(!isEditing);
+                    editBtn.setManaged(!isEditing);
+                }
+                if (saveBtn != null) {
+                    saveBtn.setVisible(isEditing);
+                    saveBtn.setManaged(isEditing);
+                }
+                if (cancelBtn != null) {
+//                    cancelBtn.setVisible(isEditing);
+//                    cancelBtn.setManaged(isEditing);
+                    cancelBtn.setText(isEditing ? "Cancel" : "Close");
+                }
 
-        // BINDING CHO MEMBERS
-        disposables.add(viewModel.membersObservable().subscribe(members -> {
-            Platform.runLater(() -> renderMemberTags(members));
+                if (coManagerInput != null) coManagerInput.setDisable(!isEditing);
+                if (addCoManagerBtn != null) addCoManagerBtn.setDisable(!isEditing);
+                if (memberInput != null) memberInput.setDisable(!isEditing);
+                if (addMemberBtn != null) addMemberBtn.setDisable(!isEditing);
+
+                if (projectNameInput != null) {
+                    projectNameInput.getStyleClass().removeAll("view-mode", "edit-mode");
+                    projectNameInput.getStyleClass().add(isEditing ? "edit-mode" : "view-mode");
+                }
+            });
         }));
     }
 
-    private void updateUIForEditMode(boolean isEditing) {
-        projectNameInput.setEditable(isEditing);
-        descriptionInput.setEditable(isEditing);
-
-        startDatePicker.setMouseTransparent(!isEditing);
-        endDatePicker.setMouseTransparent(!isEditing);
-        statusComboBox.setMouseTransparent(!isEditing);
-
-        // Bật tắt các nút thêm người
-        addCoManagerBtn.setVisible(isEditing);
-        addMemberBtn.setVisible(isEditing); // MỚI: Chỉ hiện nút thêm Member khi đang Edit
-
-        editBtn.setVisible(!isEditing);
-        saveBtn.setVisible(isEditing);
-        saveBtn.setManaged(isEditing);
-        cancelBtn.setText(isEditing ? "Cancel Edit" : "Close");
-
-        if (isEditing) {
-            rootPane.getStyleClass().remove("read-only-mode");
-            projectNameInput.requestFocus();
-        } else {
-            if (!rootPane.getStyleClass().contains("read-only-mode")) {
-                rootPane.getStyleClass().add("read-only-mode");
-            }
-            // Ẩn thanh input đi lỡ người dùng đang gõ dở mà bấm Cancel Edit
-            coManagerInput.setVisible(false); coManagerInput.setManaged(false);
-            memberInput.setVisible(false); memberInput.setManaged(false);
-        }
-    }
-
-    // ==========================================
-    // ON ACTION NÚT CHÍNH
-    // ==========================================
     @FXML private void handleEditMode(ActionEvent event) { viewModel.enableEditMode(); }
+    @FXML
+    private void handleCancel(ActionEvent event) {
+        if ("Close".equals(cancelBtn.getText())) {
+            closeForm(); // Nếu đang ở chế độ xem -> Đóng popup
+        } else {
+            viewModel.cancelEditMode(); // Nếu đang sửa -> Hủy sửa, quay về chế độ xem
+        }
+    }
     @FXML private void handleSave(ActionEvent event) { viewModel.saveChanges(); }
-    @FXML private void handleCancel(ActionEvent event) {
-        if (saveBtn.isVisible()) viewModel.cancelEditMode();
-        else closeForm();
-    }
 
-    // ==========================================
-    // ON ACTION CO-MANAGER
-    // ==========================================
-    @FXML private void handleAddCoManagerClick(ActionEvent event) {
-        coManagerInput.setVisible(true); coManagerInput.setManaged(true); coManagerInput.requestFocus();
-    }
-    @FXML private void handleCoManagerSubmit(ActionEvent event) {
-//        viewModel.addCoManager(coManagerInput.getText());
-        coManagerInput.clear(); coManagerInput.setVisible(false); coManagerInput.setManaged(false);
-    }
+    @FXML private void handleAddCoManagerClick(ActionEvent event) {}
+    @FXML private void handleCoManagerSubmit(ActionEvent event) {}
+    @FXML private void handleAddMemberClick(ActionEvent event) {}
+    @FXML private void handleMemberSubmit(ActionEvent event) {}
 
-    // ==========================================
-    // ON ACTION MEMBERS (MỚI)
-    // ==========================================
-    @FXML private void handleAddMemberClick(ActionEvent event) {
-        memberInput.setVisible(true); memberInput.setManaged(true); memberInput.requestFocus();
-    }
-    @FXML private void handleMemberSubmit(ActionEvent event) {
-        viewModel.addMember(memberInput.getText());
-        memberInput.clear(); memberInput.setVisible(false); memberInput.setManaged(false);
-    }
-
-    // ==========================================
-    // RENDER TAGS
-    // ==========================================
-    private void renderCoManagerTags(List<String> coManagers) {
-        coManagerTagsContainer.getChildren().clear();
-        for (String username : coManagers) {
-            Label tag = new Label(username + "  ✕");
-            tag.getStyleClass().add("co-manager-tag");
-            tag.setOnMouseClicked(e -> {
-//                if (saveBtn.isVisible()) viewModel.removeCoManager(username); // Chỉ xóa khi đang Edit
-            });
-            coManagerTagsContainer.getChildren().add(tag);
-        }
-    }
-
-    private void renderMemberTags(List<String> membersList) {
-        memberTagsContainer.getChildren().clear();
-        for (String username : membersList) {
-            Label tag = new Label(username + "  ✕");
-            // Tái sử dụng CSS class của Co-manager để giao diện đồng bộ
-            tag.getStyleClass().add("co-manager-tag");
-            tag.setOnMouseClicked(e -> {
-                if (saveBtn.isVisible()) viewModel.removeMember(username); // Chỉ xóa khi đang Edit
-            });
-            memberTagsContainer.getChildren().add(tag);
-        }
-
-        // Tổng số thành viên (Bao gồm cả Co-manager và Member)
-        if (memberCountLabel != null) {
-            int total = membersList.size() + coManagerTagsContainer.getChildren().size() + 1; // +1 là chủ dự án
-            memberCountLabel.setText(total <= 1 ? "1 member" : total + " members");
-        }
-    }
-
-    private void closeForm() {
+    public void closeForm() {
         disposables.clear();
-        Stage stage = (Stage) rootPane.getScene().getWindow();
-        stage.close();
+        if (rootPane != null && rootPane.getScene() != null) {
+            Stage stage = (Stage) rootPane.getScene().getWindow();
+            stage.close();
+        }
     }
 }

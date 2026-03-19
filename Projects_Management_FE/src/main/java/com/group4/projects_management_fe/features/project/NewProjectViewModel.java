@@ -15,27 +15,26 @@ import java.time.LocalTime;
 
 public class NewProjectViewModel {
 
-    private final ProjectApi projectApi = new ProjectApi(AppSessionManager.getInstance());
+    protected final ProjectApi projectApi = new ProjectApi(AppSessionManager.getInstance());
 
-    // --- 1. STATE ---
-    private final BehaviorSubject<String> projectName = BehaviorSubject.createDefault("");
-    private final BehaviorSubject<LocalDate> startDate = BehaviorSubject.createDefault(LocalDate.MIN);
-    private final BehaviorSubject<LocalDate> endDate = BehaviorSubject.createDefault(LocalDate.MIN);
-    private final BehaviorSubject<String> description = BehaviorSubject.createDefault("");
+    // --- ĐỔI SANG PROTECTED ĐỂ PROJECT_DETAILS_VIEW_MODEL CÓ THỂ DÙNG ---
+    protected final BehaviorSubject<String> projectName = BehaviorSubject.createDefault("");
+    protected final BehaviorSubject<LocalDate> startDate = BehaviorSubject.createDefault(LocalDate.MIN);
+    protected final BehaviorSubject<LocalDate> endDate = BehaviorSubject.createDefault(LocalDate.MIN);
+    protected final BehaviorSubject<String> description = BehaviorSubject.createDefault("");
 
     private final PublishSubject<ProjectResponseDTO> createSuccess = PublishSubject.create();
     private final PublishSubject<String> createError = PublishSubject.create();
 
-    // --- 2. INPUT ---
     public void setProjectName(String name) { projectName.onNext(name); }
-    public void setStartDate(LocalDate date) { startDate.onNext(date != null ? date : LocalDate.MIN); }
-    public void setEndDate(LocalDate date) { endDate.onNext(date != null ? date : LocalDate.MIN); }
+    public void setStartDate(LocalDate date) { startDate.onNext(date); }
+    public void setEndDate(LocalDate date) { endDate.onNext(date); }
     public void setDescription(String desc) { description.onNext(desc); }
 
-    // --- 3. OUTPUT ---
     public Observable<ProjectResponseDTO> onCreateSuccess() { return createSuccess.hide(); }
     public Observable<String> onCreateError() { return createError.hide(); }
 
+    // --- 3. VALIDATION ---
     public Observable<Boolean> isFormValidObservable() {
         return Observable.combineLatest(
                 projectName,
@@ -44,36 +43,17 @@ public class NewProjectViewModel {
         );
     }
 
-    // --- 4. GỌI API ---
     public void submitProject() {
         ProjectCreateRequestDTO dto = new ProjectCreateRequestDTO();
-
-        // Gắn 4 trường cơ bản
         dto.setProjectName(projectName.getValue());
         dto.setDescription(description.getValue());
 
         if (!startDate.getValue().equals(LocalDate.MIN)) {
             dto.setStartDate(LocalDateTime.of(startDate.getValue(), LocalTime.MIDNIGHT));
         }
-
         if (!endDate.getValue().equals(LocalDate.MIN)) {
             dto.setEndDate(LocalDateTime.of(endDate.getValue(), LocalTime.MAX));
         }
-
-        // ==========================================
-        // WORKAROUND CHO DATABASE:
-        // Cố định status khi Create là Active (ID 2).
-        // (Bạn hãy mở comment dùng hàm set tương ứng có trong ProjectBaseDTO của bạn)
-        // ==========================================
-
-        // Nếu dùng ID:
-        // dto.setStatusId(2L);
-
-        // Nếu dùng System Code:
-        // dto.setSystemCode("ACTIVE");
-
-        // Nếu dùng enum:
-        // dto.setStatus("ON_GOING");
 
         projectApi.createProject(dto).thenAccept(response -> {
             createSuccess.onNext(response);
