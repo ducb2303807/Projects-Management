@@ -9,13 +9,13 @@
 <?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.VBox?>
 
-<VBox stylesheets="@../assets/css/tasks.css" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.group4.projects_management_fe.features.task.TaskController">
+<VBox stylesheets="@../assets/css/tasks/tasks.css" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.group4.projects_management_fe.features.task.TasksViewController">
    <children>
-              <TitledPane id="groupTitledPane" animated="false" prefHeight="201.0" prefWidth="826.0" styleClass="task-category" text="On going">
+              <TitledPane id="groupTitledPane" animated="false" styleClass="task-category" text="On going">
                   <content>
-                      <VBox id="taskListVBox" prefHeight="200.0" prefWidth="100.0">
+                      <VBox id="taskListVBox" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308">
                           <children>
-                              <HBox alignment="CENTER_LEFT" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" VBox.vgrow="ALWAYS">
+                              <HBox alignment="CENTER_LEFT" VBox.vgrow="ALWAYS">
                                   <children>
                                       <HBox HBox.hgrow="ALWAYS">
                                           <children>
@@ -27,7 +27,7 @@
                                               </Label>
                                           </children>
                                       </HBox>
-                                      <Region maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="23.0" prefWidth="265.0" HBox.hgrow="ALWAYS" />
+                                      <Region maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" HBox.hgrow="ALWAYS" />
                                       <HBox HBox.hgrow="ALWAYS">
                                           <children>
                                               <Label styleClass="task-header" text="Due date">
@@ -52,10 +52,14 @@
                                       </HBox>
                                   </children>
                               </HBox>
-                              <ScrollPane prefHeight="65.0" prefWidth="782.0">
+                              <ScrollPane fitToWidth="true">
                                   <VBox.margin>
                                       <Insets top="20.0" />
                                   </VBox.margin>
+                     <content>
+                        <VBox />
+                     </content>
+<!--                                  <fx:include source="TaskItem.fxml" />-->
                               </ScrollPane>
                           </children>
                           <padding>
@@ -63,9 +67,6 @@
                           </padding>
                       </VBox>
                   </content>
-                  <padding>
-                      <Insets top="5.0" />
-                  </padding>
               </TitledPane>
    </children>
 </VBox>
