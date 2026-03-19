@@ -18,7 +18,6 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import javafx.stage.Window;
-import javafx.application.Platform;
 
 import java.io.IOException;
 import java.util.List;
@@ -29,22 +28,29 @@ public class TasksViewController {
 
     @FXML private VBox taskCategoryVBox;
 
+    private Long projectId;
     private TaskApi taskApi;
-    private LookupApi lookupApi;
+    private LookupApi lookupApi;          // === THÊM ===
     private AuthSessionProvider sessionProvider;
+
+    public void setProjectId(Long projectId) {
+        this.projectId = projectId;
+        loadTasksData();
+    }
 
     public void setSessionProvider(AuthSessionProvider sessionProvider) {
         this.sessionProvider = sessionProvider;
-        if (sessionProvider != null) {
-            this.taskApi = new TaskApi(sessionProvider);
-            this.lookupApi = new LookupApi(sessionProvider);
-            loadTasksData();                    // ← Luôn gọi khi có session
-        }
     }
 
     private void loadTasksData() {
+        if (projectId == null) return;
+
+        taskApi = new TaskApi(sessionProvider);
+        lookupApi = new LookupApi(sessionProvider);
+
+        // === SỬA: Dùng LookupApi + TaskApi đúng ===
         lookupApi.getAll(LookupType.TASK_STATUS)
-                .thenCombine(taskApi.getMyTasks(), (statuses, tasks) -> {   // ← Dùng getMyTasks()
+                .thenCombine(taskApi.getTasksByProject(projectId), (statuses, tasks) -> {
                     Platform.runLater(() -> renderDynamicGroups(statuses, tasks));
                     return null;
                 })
@@ -57,11 +63,9 @@ public class TasksViewController {
     private void renderDynamicGroups(List<LookupDTO> statuses, List<TaskResponseDTO> tasks) {
         taskCategoryVBox.getChildren().clear();
 
-        // Nhóm task theo statusName
         Map<String, List<TaskResponseDTO>> groupedTasks = tasks.stream()
                 .collect(Collectors.groupingBy(t -> t.getStatusName() != null ? t.getStatusName() : "UNKNOWN"));
 
-        // === LUÔN TẠO 5 NHÓM (kể cả trống) ===
         for (LookupDTO status : statuses) {
             String systemName = status.getName();
             String displayName = getDisplayName(systemName);
@@ -75,7 +79,6 @@ public class TasksViewController {
 
                 TaskGroupController groupCtrl = loader.getController();
                 groupCtrl.setGroupName(displayName);
-                groupCtrl.setSessionProvider(sessionProvider);   // ← Truyền session xuống
                 groupCtrl.loadTasks(groupTasks);
 
                 taskCategoryVBox.getChildren().add(groupRoot);
@@ -85,18 +88,14 @@ public class TasksViewController {
         }
     }
 
-    public void reloadData() {
-        loadTasksData();
-    }
-
     private String getDisplayName(String systemName) {
         return switch (systemName.toUpperCase()) {
-            case "TODO"        -> "To do";
-            case "IN_PROGRESS" -> "On going";
-            case "REVIEW"      -> "In review";
-            case "DONE"        -> "Done";
-            case "CANCELLED"   -> "Cancelled";
-            default            -> systemName;
+            case "TODO"       -> "To do";
+            case "IN_PROGRESS"-> "On going";
+            case "REVIEW"     -> "In review";
+            case "DONE"       -> "Done";
+            case "CANCELLED"  -> "Cancelled";
+            default           -> systemName;
         };
     }
 
