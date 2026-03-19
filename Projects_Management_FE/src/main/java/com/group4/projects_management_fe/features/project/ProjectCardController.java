@@ -7,12 +7,9 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.input.MouseEvent;
-import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.scene.paint.Color;
 import javafx.stage.StageStyle;
-
-import java.io.IOException;
 
 public class ProjectCardController {
 
@@ -22,61 +19,51 @@ public class ProjectCardController {
     @FXML private Label dateLabel;
     @FXML private Label creatorNameLabel;
 
-    // Biến lưu trữ ID của project để truyền sang màn hình Detail
     private String currentProjectId;
 
     @FXML
-    public void initialize() {
-        // Có thể setup hiệu ứng hover cho dấu ••• ở đây nếu muốn
-    }
+    public void initialize() {}
 
-    /**
-     * Hàm này sẽ được gọi từ màn hình Danh sách (ProjectListController)
-     * Mục đích: Bơm dữ liệu thật vào Card
-     */
     public void bindData(String id, String title, String status, String creator, String date) {
         this.currentProjectId = id;
-
         int MAX_LENGTH = 40;
         if (title != null && title.length() > MAX_LENGTH) {
             title = title.substring(0, MAX_LENGTH) + "...";
         }
-
-        // Gán vào các Label trong FXML Card của bạn
         this.projectTitleLabel.setText(title);
         this.statusLabel.setText(status);
         this.creatorNameLabel.setText(creator);
         this.dateLabel.setText(date);
     }
-    /**
-     * Xử lý sự kiện khi bấm vào dấu •••
-     */
+
     @FXML
     private void handleOpenDetails(MouseEvent event) {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/group4/projects_management_fe/features/project/ProjectDetailsForm.fxml"));
             Parent root = loader.load();
 
-            Stage popupStage = new Stage();
+            // LẤY CONTROLLER VÀ TRUYỀN ID SANG
+            ProjectDetailsFormController detailsController = loader.getController();
+            if (this.currentProjectId != null && !this.currentProjectId.trim().isEmpty()) {
+                detailsController.initData(Long.valueOf(this.currentProjectId));
+            } else {
+                System.err.println("❌ LỖI: currentProjectId bị null hoặc trống!");
+                return;
+            }
 
-            // 1. Tạo Scene và set nền trong suốt (để bo góc CSS hoạt động được)
+            Stage popupStage = new Stage();
             Scene scene = new Scene(root);
             scene.setFill(Color.TRANSPARENT);
             popupStage.setScene(scene);
-
-            // 2. ẨN THANH TIÊU ĐỀ CỦA HỆ ĐIỀU HÀNH
             popupStage.initStyle(StageStyle.TRANSPARENT);
 
             Stage mainStage = AppStageManager.getInstance().getStage();
             if (mainStage != null) {
                 popupStage.initOwner(mainStage);
             }
-
-            popupStage.initModality(Modality.WINDOW_MODAL);
-
             popupStage.showAndWait();
 
-        } catch (IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }

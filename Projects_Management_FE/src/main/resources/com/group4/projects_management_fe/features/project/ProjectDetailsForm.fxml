@@ -104,8 +104,8 @@
                 <VBox spacing="10.0">
                     <Label styleClass="field-label" text="Created by" />
                     <HBox alignment="CENTER_LEFT" spacing="10.0">
-                        <Label styleClass="user-name" text="Hunny" />
-                        <Label styleClass="date-time" text="Feb 14, 2026, 11:32 PM" />
+                        <Label fx:id="createdByLabel" styleClass="user-name" text="{Creator}" />
+                        <Label fx:id="createdDateLabel" styleClass="date-time" text="{CreateDate}" />
                     </HBox>
                 </VBox>
 
@@ -128,17 +128,17 @@
                 <Region VBox.vgrow="ALWAYS" />
 
                 <VBox spacing="10.0">
-                    <Label styleClass="field-label" text="Last updated by" />
+                    <Label styleClass="field-label" text="Last updated at" />
                     <HBox alignment="CENTER_LEFT" spacing="10.0">
-                        <Label styleClass="user-name" text="Hunny" />
-                        <Label styleClass="date-time" text="Feb 14, 2026, 11:32 PM" />
+<!--                        <Label fx:id="lastUpdatedByLabel" styleClass="user-name" text="{Updater}" />-->
+                        <Label fx:id="lastUpdatedDateLabel" styleClass="date-time" text="{UpdateDate}" />
                     </HBox>
                 </VBox>
 
                 <Region VBox.vgrow="ALWAYS" />
 
                 <HBox alignment="BOTTOM_RIGHT" spacing="15.0">
-                    <Button cancelButton="true" minHeight="35.0" minWidth="80.0" mnemonicParsing="false" onAction="#handleCancel" styleClass="btn-cancel" text="Cancel" />
+                    <Button fx:id="cancelBtn" cancelButton="true" minHeight="35.0" minWidth="80.0" mnemonicParsing="false" onAction="#handleCancel" styleClass="btn-cancel" text="Cancel" />
                     <Button fx:id="saveBtn" defaultButton="true" managed="false" minHeight="35.0" minWidth="80.0" mnemonicParsing="false" onAction="#handleSave" styleClass="btn-create" text="Save" visible="false" />
                 </HBox>
             </VBox>
