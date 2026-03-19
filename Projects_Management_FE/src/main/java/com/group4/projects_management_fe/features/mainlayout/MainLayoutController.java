@@ -184,7 +184,7 @@ public class MainLayoutController {
             }
 
             FXMLLoader loader = new FXMLLoader(getClass().getResource(
-                    "/com/group4/projects_management_fe/features/dashboard/NotificationsView.fxml"
+                    "/com/group4/projects_management_fe/features/mainlayout/NotificationsView.fxml"
             ));
             Parent root = loader.load();
 

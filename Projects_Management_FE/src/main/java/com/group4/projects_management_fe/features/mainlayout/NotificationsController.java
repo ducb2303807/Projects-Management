@@ -1,4 +1,4 @@
-package com.group4.projects_management_fe.features.dashboard;
+package com.group4.projects_management_fe.features.mainlayout;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.ListView;
