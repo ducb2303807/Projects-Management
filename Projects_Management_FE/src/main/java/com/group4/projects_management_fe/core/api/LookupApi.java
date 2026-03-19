@@ -5,6 +5,7 @@ import com.group4.common.enums.LookupType;
 import com.group4.projects_management_fe.core.api.base.AbstractAuthenticatedApi;
 import com.group4.projects_management_fe.core.session.AuthSessionProvider;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
@@ -21,7 +22,7 @@ public class LookupApi extends AbstractAuthenticatedApi {
                 endpoint,
                 LookupDTO[].class,
                 null
-        ).thenApply(List::of);
+        ).thenApply(Arrays::asList);
     }
 
     public CompletableFuture<LookupDTO> createOrUpdate(LookupType type, LookupDTO dto) {
