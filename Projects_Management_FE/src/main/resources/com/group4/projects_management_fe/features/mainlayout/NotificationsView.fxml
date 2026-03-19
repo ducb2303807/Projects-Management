@@ -3,6 +3,7 @@
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ListView?>
 <?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.HBox?>
 
 <VBox xmlns="http://javafx.com/javafx"
       xmlns:fx="http://javafx.com/fxml"
@@ -11,11 +12,11 @@
       styleClass="noti-box"
       stylesheets="@../assets/css/notifications.css">
 
-    <Label text="Notifications" styleClass="noti-title"/>
-
-<!--    <Separator styleClass="noti-separator"/>-->
+    <Label text="Notifications"
+           styleClass="noti-title"
+           maxWidth="Infinity"/>
 
     <ListView fx:id="notificationList"
-              prefHeight="150"
+              prefHeight="200"
               styleClass="noti-list"/>
 </VBox>
