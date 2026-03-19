@@ -48,6 +48,4 @@ public class TaskHistory {
    @JoinColumn(name = "TASK_ID", nullable = false)
    @ToString.Exclude
    private Task task;
-   
-
 }

@@ -26,34 +26,39 @@ public class ProjectController {
     @Autowired
     private TaskService taskService;
 
+    @Operation(summary = "Lấy thông tin tất cả projects")
     @GetMapping
     public ResponseEntity<List<ProjectResponseDTO>> getAllProjects() {
         return ResponseEntity.ok(projectService.getAllProjects());
     }
 
+    @Operation(summary = "Lấy thông tin projects mà tôi tham gia")
     @GetMapping("/me")
     public ResponseEntity<List<ProjectResponseDTO>> getMyProjects() {
         Long currentUserId = SecurityUtils.getCurrentUserId();
-        System.out.println(currentUserId);
         return ResponseEntity.ok(projectService.getProjectsByUserId(currentUserId));
     }
 
+    @Operation(summary = "Tạo project")
     @PostMapping
     public ResponseEntity<ProjectResponseDTO> createProject(@Valid @RequestBody ProjectCreateRequestDTO request) {
         var userId = SecurityUtils.getCurrentUserId();
         return ResponseEntity.ok(projectService.createProject(userId,request));
     }
 
+    @Operation(summary = "lấy thông tin project")
     @GetMapping("/{projectId}")
     public ResponseEntity<ProjectResponseDTO> getProjectDetail(@PathVariable Long projectId) {
         return ResponseEntity.ok(projectService.getProjectDetail(projectId));
     }
 
+    @Operation(summary = "lấy thông tin tasks của project")
     @GetMapping("/{projectId}/tasks")
     public ResponseEntity<List<TaskResponseDTO>> getTasksByProjectId(@PathVariable Long projectId) {
         return ResponseEntity.ok(taskService.getTasksByProject(projectId));
     }
 
+    @Operation(summary = "Tạo task vào project")
     @PostMapping("/{projectId}/tasks")
     public ResponseEntity<TaskResponseDTO> createTaskInProject(
             @PathVariable Long projectId,
@@ -62,17 +67,20 @@ public class ProjectController {
         return ResponseEntity.ok(taskService.createTask(request));
     }
 
+    @Operation(summary = "Cập nhật thông tin project")
     @PutMapping("/{projectId}")
     public ResponseEntity<ProjectResponseDTO> updateProject(@PathVariable Long projectId,
                                                             @Valid @RequestBody ProjectUpdateRequestDTO request) {
         return ResponseEntity.ok(projectService.updateProject(projectId, request));
     }
 
+    @Operation(summary = "lấy thông tin các member của project")
     @GetMapping("/{projectId}/members")
     public ResponseEntity<List<ProjectMemberDTO>> getMembersOfProject(@PathVariable Long projectId) {
         return ResponseEntity.ok(projectService.getMembersOfProject(projectId));
     }
 
+    @Operation(summary = "Tạo lời mời thêm members vào project")
     @PostMapping("/{projectId}/invitations")
     public ResponseEntity<Void> inviteMember(
             @PathVariable Long projectId,
@@ -95,12 +103,14 @@ public class ProjectController {
         return ResponseEntity.ok().build();
     }
 
+    @Operation(summary = "Xóa members khỏi project")
     @DeleteMapping("/members/{projectMemberId}")
     public ResponseEntity<Void> removeMemberFormProject(@PathVariable Long projectMemberId) {
         projectService.removeMemberFromProject(projectMemberId);
         return ResponseEntity.ok().build();
     }
 
+    @Operation(summary = "Các thông số cơ bản của project")
     @GetMapping("/{projectId}/statistics")
     public ResponseEntity<ProjectStatsDTO> getProjectStatistics(@PathVariable Long projectId) {
         return ResponseEntity.ok(projectService.getProjectStatistics(projectId));

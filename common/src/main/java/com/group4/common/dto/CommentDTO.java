@@ -29,5 +29,4 @@ public class CommentDTO extends CommentBaseDTO {
    private java.lang.String fullName;
    /** @pdOid d239f4e4-a523-4a92-994a-c3f689a41057 */
    private LocalDateTime createAt;
-
 }

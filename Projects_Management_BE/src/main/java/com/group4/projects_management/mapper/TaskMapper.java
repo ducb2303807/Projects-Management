@@ -12,7 +12,7 @@ import org.mapstruct.*;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 
-@Mapper(componentModel = "spring", uses = {TaskAssignmentMapper.class})
+@Mapper(componentModel = "spring", uses = {TaskAssignmentMapper.class, CommentMapper.class})
 public abstract class TaskMapper {
 
     // --- 1. Map từ DTO và các Entity phụ sang Task ---
@@ -35,6 +35,7 @@ public abstract class TaskMapper {
     @Mapping(target = "priorityName", source = "priority.name")
     @Mapping(target = "statusName", source = "taskStatus.name")
     @Mapping(target = "assignees", source = "assignments")
+    @Mapping(target = "comments", source = "comments")
     public abstract TaskResponseDTO toDto(Task task);
 
     @Mapping(target = "name", source = "dto.name")
