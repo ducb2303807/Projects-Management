@@ -9,10 +9,10 @@
 }
 
 .title-input {
-    -fx-font-size: 28px;
+    -fx-font-size: 40px;
     -fx-font-weight: 900;
     -fx-text-fill: #34495E;
-    -fx-prompt-text-fill: #9CA3AF;
+    -fx-prompt-text-fill: rgba(121, 121, 121, 1);
     -fx-background-color: transparent;
     -fx-padding: 0;
 }
@@ -22,30 +22,39 @@
 }
 
 .field-label {
-    -fx-text-fill: #7D8EA3;
-    -fx-font-size: 13px;
+    -fx-text-fill: #797979;
+    -fx-font-size: 20px;
 }
 
 .icon-muted {
-    -fx-icon-color: #BDC3C7;
-    -fx-icon-size: 14px;
+    -fx-icon-color: #797979;
+    -fx-icon-size: 16px;
 }
 
 /* Các ô input sạch, không viền cho đến khi hover/focus */
 .clean-input, .clean-textarea {
-    -fx-background-color: transparent;
-    -fx-border-color: transparent;
-    -fx-prompt-text-fill: #BDC3C7;
-    -fx-text-fill: #2C3E50;
+    -fx-background-color: #FFFFFF;
+    -fx-border-color: #E5E7EB;
+    /*-fx-prompt-text-fill: #BDC3C7;*/
+    /*-fx-text-fill: #2C3E50;*/
+    -fx-text-fill: #374151;
+    -fx-font-size: 16px;
+    -fx-prompt-text-fill: #9CA3AF;
 }
 .clean-input:hover, .clean-textarea:hover {
     -fx-background-color: #F8F9FA;
     -fx-border-radius: 4px;
 }
 .clean-input:focused, .clean-textarea:focused {
-    -fx-background-color: #FFFFFF;
-    -fx-border-color: #E0E0E0;
+    -fx-focus-color: transparent;
+    -fx-faint-focus-color: transparent;
+    /*-fx-background-color: #FFFFFF;*/
+    /*-fx-border-color: #bec1c4;*/
     -fx-border-radius: 4px;
+    -fx-border-color: #8B5CF6; /* Viền sáng màu tím */
+    -fx-background-color: #FFFFFF;
+    /* Tỏa ánh sáng tím nhẹ xung quanh ô nhập */
+    -fx-effect: dropshadow(three-pass-box, rgba(139, 92, 246, 0.2), 8, 0, 0, 0);
 }
 
 .section-title-small {
@@ -129,14 +138,14 @@
 }
 
 .user-name {
-    -fx-font-size: 13px;
+    -fx-font-size: 15px;
     -fx-font-weight: bold;
     -fx-text-fill: #000000;
 }
 
 .date-time {
     -fx-font-size: 12px;
-    -fx-text-fill: #6E7DF2;
+    -fx-text-fill: #2B5CE6;
 }
 
 /* Nút cây bút */
@@ -156,7 +165,19 @@
     -fx-background-color: transparent;
     -fx-border-color: transparent;
     -fx-padding: 0;
-    -fx-opacity: 1; /* Đảm bảo chữ vẫn đậm và rõ */
+}
+
+.read-only-mode .text-input:disabled,
+.read-only-mode .date-picker:disabled,
+.read-only-mode .combo-box:disabled {
+    -fx-opacity: 1.0 !important; /* Ép hiển thị rõ nét 100%, không bị mờ nhạt */
+}
+
+/* Đảm bảo màu chữ bên trong DatePicker và ComboBox vẫn đen/đậm, không bị xám đi */
+.read-only-mode .date-picker:disabled > .text-field,
+.read-only-mode .combo-box:disabled > .list-cell {
+    -fx-text-fill: #0F172A; /* Màu chữ đen sắc nét */
+    -fx-opacity: 1.0 !important;
 }
 
 /* Ẩn cái nút mũi tên xổ xuống của DatePicker và ComboBox */
@@ -174,7 +195,6 @@
     -fx-background-color: transparent;
     -fx-border-color: transparent;
 }
-
 /* --- Xóa viền và nền mặc định xấu xí của ScrollPane --- */
 .tags-scroll-pane {
     -fx-background-color: transparent;

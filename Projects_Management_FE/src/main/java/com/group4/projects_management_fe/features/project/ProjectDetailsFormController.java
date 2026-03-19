@@ -55,15 +55,27 @@ public class ProjectDetailsFormController {
 
     private void setupBindings() {
         // --- 1. TEXT BINDINGS ---
-        disposables.add(viewModel.projectNameObservable().distinctUntilChanged()
-                .subscribe(val -> Platform.runLater(() -> {
-                    if (projectNameInput != null) projectNameInput.setText(val != null ? val : "");
-                })));
+        // --- BINDING TỪ VIEWMODEL XUỐNG VIEW ---
 
-        disposables.add(viewModel.descriptionObservable().distinctUntilChanged()
-                .subscribe(val -> Platform.runLater(() -> {
-                    if (descriptionInput != null) descriptionInput.setText(val != null ? val : "");
-                })));
+        // 1. Sửa cho ô Project Name
+        disposables.add(viewModel.projectNameObservable().subscribe(val -> {
+            Platform.runLater(() -> {
+                // THÊM ĐIỀU KIỆN CHẶN LOOP Ở ĐÂY:
+                if (projectNameInput != null && val != null && !val.equals(projectNameInput.getText())) {
+                    projectNameInput.setText(val);
+                }
+            });
+        }));
+
+        // 2. Sửa cho ô Description
+        disposables.add(viewModel.descriptionObservable().subscribe(val -> {
+            Platform.runLater(() -> {
+                // THÊM ĐIỀU KIỆN CHẶN LOOP Ở ĐÂY:
+                if (descriptionInput != null && val != null && !val.equals(descriptionInput.getText())) {
+                    descriptionInput.setText(val);
+                }
+            });
+        }));
 
         // --- 2. DATE BINDINGS (Lọc bỏ LocalDate.MIN và chống loop tuyệt đối) ---
         disposables.add(viewModel.startDateObservable()
@@ -92,9 +104,9 @@ public class ProjectDetailsFormController {
                 Platform.runLater(() -> { if (createdDateLabel != null) createdDateLabel.setText(date); })
         ));
 
-        disposables.add(viewModel.lastUpdatedByObservable().subscribe(name ->
-                Platform.runLater(() -> { if (lastUpdatedByLabel != null) lastUpdatedByLabel.setText(name); })
-        ));
+//        disposables.add(viewModel.lastUpdatedByObservable().subscribe(name ->
+//                Platform.runLater(() -> { if (lastUpdatedByLabel != null) lastUpdatedByLabel.setText(name); })
+//        ));
 
         disposables.add(viewModel.lastUpdatedDateObservable().subscribe(date ->
                 Platform.runLater(() -> { if (lastUpdatedDateLabel != null) lastUpdatedDateLabel.setText(date); })
@@ -152,6 +164,31 @@ public class ProjectDetailsFormController {
                 }
             });
         }));
+
+        // --- 4. LẮNG NGHE KẾT QUẢ SAVE API ---
+        disposables.add(viewModel.onSaveSuccess().subscribe(success -> {
+            Platform.runLater(() -> {
+                if (saveBtn != null) {
+                    saveBtn.setText("Save");
+                    saveBtn.setDisable(false);
+                }
+                // (Tùy chọn) Hiện thông báo Alert thành công ở đây nếu muốn
+            });
+        }));
+
+        disposables.add(viewModel.onSaveError().subscribe(errorMsg -> {
+            Platform.runLater(() -> {
+                if (saveBtn != null) {
+                    saveBtn.setText("Save");
+                    saveBtn.setDisable(false);
+                }
+                Alert alert = new Alert(Alert.AlertType.ERROR);
+                alert.setTitle("Lỗi");
+                alert.setHeaderText("Không thể cập nhật dự án");
+                alert.setContentText(errorMsg);
+                alert.showAndWait();
+            });
+        }));
     }
 
     @FXML private void handleEditMode(ActionEvent event) { viewModel.enableEditMode(); }
@@ -163,7 +200,14 @@ public class ProjectDetailsFormController {
             viewModel.cancelEditMode(); // Nếu đang sửa -> Hủy sửa, quay về chế độ xem
         }
     }
-    @FXML private void handleSave(ActionEvent event) { viewModel.saveChanges(); }
+    @FXML
+    private void handleSave(ActionEvent event) {
+        if (saveBtn != null) {
+            saveBtn.setText("Saving...");
+            saveBtn.setDisable(true); // Disable nút tránh bấm 2 lần
+        }
+        viewModel.saveChanges();
+    }
 
     @FXML private void handleAddCoManagerClick(ActionEvent event) {}
     @FXML private void handleCoManagerSubmit(ActionEvent event) {}
