@@ -8,7 +8,7 @@
 <VBox xmlns="http://javafx.com/javafx"
       xmlns:fx="http://javafx.com/fxml"
       fx:controller="com.group4.projects_management_fe.features.mainlayout.NotificationsController"
-      prefWidth="300" prefHeight="200"
+      prefWidth="400" prefHeight="200"
       styleClass="noti-box"
       stylesheets="@../assets/css/notifications.css">
 

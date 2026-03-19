@@ -2,6 +2,7 @@ package com.group4.projects_management_fe.features.mainlayout;
 
 import javafx.application.Platform;
 import javafx.fxml.FXML;
+import javafx.scene.control.*;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import com.group4.common.dto.NotificationDTO;
@@ -12,6 +13,7 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Optional;
 
 public class NotificationsController {
     @FXML
@@ -24,11 +26,9 @@ public class NotificationsController {
     }
 
     public void initialize() {
-        // Gọi API lấy danh sách thông báo
         notificationApi.getNotificationsForUser().thenAccept(notifications -> {
             Platform.runLater(() -> {
                 if (notifications == null || notifications.isEmpty()) {
-                    // Tạo một item giả để hiển thị "No new notifications"
                     NotificationDTO empty = new NotificationDTO();
                     empty.setTitle("No new notifications");
                     empty.setRead(true);
@@ -40,7 +40,7 @@ public class NotificationsController {
         }).exceptionally(ex -> {
             Platform.runLater(() -> {
                 NotificationDTO error = new NotificationDTO();
-                error.setTitle("Lỗi tải thông báo");
+                error.setTitle("Error loading notifications");
                 error.setRead(true);
                 notificationList.getItems().add(error);
             });
@@ -49,7 +49,6 @@ public class NotificationsController {
             return null;
         });
 
-        // Gắn cell factory để custom UI cho từng item
         notificationList.setCellFactory(listView -> new ListCell<>() {
             @Override
             protected void updateItem(NotificationDTO item, boolean empty) {
@@ -58,22 +57,18 @@ public class NotificationsController {
                     setText(null);
                     setStyle("");
                 } else {
-                    // Format thời gian
                     String timeText = item.getCreatedDate() != null
                             ? formatDate(item.getCreatedDate())
                             : "";
 
-                    // Hiển thị title + thời gian
                     setText(item.getTitle() + (timeText.isEmpty() ? "" : " - " + timeText));
 
-                    // CSS theo trạng thái read
                     if (!item.isRead()) {
-                        setStyle("-fx-font-weight: bold; -fx-background-color: #e6f7ff; -fx-text-fill: black;");
+                        setStyle("-fx-font-weight: bold; -fx-background-color: cyan; -fx-text-fill: black;");
                     } else {
                         setStyle("-fx-font-weight: normal; -fx-text-fill: gray;");
                     }
 
-                    // Sự kiện click
                     setOnMouseClicked(event -> {
                         if (event.getClickCount() == 1) {
                             handleNotificationClick(item);
@@ -86,22 +81,60 @@ public class NotificationsController {
 
     private String formatDate(LocalDateTime createdAt) {
         Duration duration = Duration.between(createdAt, LocalDateTime.now());
-        if (duration.toMinutes() < 1) return "Vừa xong";
-        if (duration.toMinutes() < 60) return duration.toMinutes() + " phút trước";
-        if (duration.toHours() < 24) return "Hôm nay lúc " + createdAt.format(DateTimeFormatter.ofPattern("HH:mm"));
+        if (duration.toMinutes() < 1) return "Just now";
+        if (duration.toMinutes() < 60) return duration.toMinutes() + " minutes ago";
+        if (duration.toHours() < 24) return "Today at " + createdAt.format(DateTimeFormatter.ofPattern("HH:mm"));
         return createdAt.format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"));
     }
 
     private void handleNotificationClick(NotificationDTO item) {
-        // Ví dụ xử lý theo type
         if ("PROJECT_INVITATION".equals(item.getType())) {
             if (!item.isRead()) {
                 notificationApi.markAsRead(item.getId());
-                // TODO: hiện popup mời tham gia dự án, dùng metadata.roleName + metadata.projectName
-            } else {
-                // TODO: điều hướng sang trang dự án, lấy projectId từ metadata
+            }
+            showInvitationPopup(item);
+        }
+        // TODO: thêm các type khác như TASK_ASSIGNED, COMMENT_ADDED...
+    }
+
+    private void showInvitationPopup(NotificationDTO item) {
+        NotificationDTO.Metadata meta = item.getMetadata();
+
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.setTitle("Thư mời tham gia dự án");
+        alert.setHeaderText("Bạn được " + meta.getInviterName() +
+                " mời tham gia dự án " + meta.getProjectName() +
+                " với vai trò " + meta.getRoleName());
+
+        ButtonType acceptBtn = new ButtonType("Chấp nhận", ButtonBar.ButtonData.OK_DONE);
+        ButtonType declineBtn = new ButtonType("Từ chối", ButtonBar.ButtonData.CANCEL_CLOSE);
+
+        alert.getButtonTypes().setAll(acceptBtn, declineBtn);
+
+        Optional<ButtonType> result = alert.showAndWait();
+        if (result.isPresent()) {
+            if (result.get() == acceptBtn) {
+                handleInvitationAction(item.getReferenceId(), "ACCEPT", item);
+            } else if (result.get() == declineBtn) {
+                handleInvitationAction(item.getReferenceId(), "DECLINE", item);
             }
         }
-        // Có thể thêm các type khác ở đây
+    }
+
+    private void handleInvitationAction(Long projectMemberId, String action, NotificationDTO item) {
+        notificationApi.respondToInvitation(projectMemberId, action)
+                .thenAccept(success -> Platform.runLater(() -> {
+                    Alert info = new Alert(Alert.AlertType.INFORMATION);
+                    if (success) {
+                        info.setHeaderText(action.equals("ACCEPT")
+                                ? "Bạn đã tham gia dự án thành công!"
+                                : "Bạn đã từ chối lời mời.");
+                        item.setRead(true);
+                        notificationList.refresh();
+                    } else {
+                        info.setHeaderText("Có lỗi xảy ra khi xử lý lời mời.");
+                    }
+                    info.show();
+                }));
     }
 }

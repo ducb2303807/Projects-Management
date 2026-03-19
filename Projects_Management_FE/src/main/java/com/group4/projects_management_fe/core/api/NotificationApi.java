@@ -10,6 +10,7 @@ import java.util.concurrent.CompletableFuture;
 
 public class NotificationApi extends AbstractAuthenticatedApi {
     private static final String ENDPOINT = "/notifications";
+
     public NotificationApi(AuthSessionProvider sessionProvider) {
         super(sessionProvider);
     }
@@ -43,4 +44,27 @@ public class NotificationApi extends AbstractAuthenticatedApi {
                 null
         );
     }
+
+    /**
+     * Tương ứng với @PatchMapping("/api/projects/members/{memberId}")
+     * Xử lý lời mời tham gia dự án (ACCEPT hoặc DECLINE)
+     */
+    public CompletableFuture<Boolean> respondToInvitation(Long projectMemberId, String action) {
+        String endpoint = "/invitations/" + projectMemberId;
+
+        String bodyJson = "{\"action\":\"" + action + "\"}";
+        RequestBody body = RequestBody.create(bodyJson, okhttp3.MediaType.parse("application/json"));
+
+        return this.sendPatchRequest(
+                        endpoint,
+                        body,
+                        Void.class,
+                        null
+                ).thenApply(result -> true)
+                .exceptionally(ex -> {
+                    ex.printStackTrace();
+                    return false;
+                });
+    }
+    
 }
