@@ -30,19 +30,20 @@ public class TaskGroupController implements Initializable {
         groupTitledPane.setText(name);
     }
 
-    // === CHỈ GIỮ 1 METHOD NÀY (xóa cái cũ trùng lặp) ===
+    @FXML private VBox taskGroupContentVBox; // Vùng chứa list task bên trong ScrollPane
+
     public void loadTasks(List<TaskResponseDTO> tasks) {
-        taskItemsVBox.getChildren().clear();
+        taskGroupContentVBox.getChildren().clear();
+
         for (TaskResponseDTO task : tasks) {
             try {
-                FXMLLoader loader = new FXMLLoader(
-                        getClass().getResource("/com/group4/projects_management_fe/features/task/TaskItem.fxml"));
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/group4/projects_management_fe/features/task/TaskItem.fxml"));
                 HBox itemNode = loader.load();
 
                 TaskItemController itemCtrl = loader.getController();
-                itemCtrl.bindTask(task);
+                itemCtrl.bindTask(task); // Gắn dữ liệu vào UI
 
-                taskItemsVBox.getChildren().add(itemNode);
+                taskGroupContentVBox.getChildren().add(itemNode);
             } catch (IOException e) {
                 e.printStackTrace();
             }
