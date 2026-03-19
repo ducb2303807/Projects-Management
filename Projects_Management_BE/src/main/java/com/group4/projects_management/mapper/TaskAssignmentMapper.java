@@ -11,5 +11,6 @@ public abstract class TaskAssignmentMapper {
     @Mapping(source = "assignee.id", target = "projectMemberId")
     @Mapping(source = "assignee.user.id", target = "userId")
     @Mapping(source = "assignee.user.fullName", target = "fullName")
+    @Mapping(source = "assignee.user.username", target = "username")
     public abstract TaskAssigneeDTO toDTO(TaskAssignment taskAssignment);
 }

@@ -7,6 +7,10 @@ import org.mapstruct.Mapping;
 
 @Mapper(componentModel = "spring")
 public abstract class TaskHistoryMapper {
-    @Mapping(source = "changedBy.user.username", target = "changedBy")
+
+    @Mapping(target = "taskId", source = "task.id")
+    @Mapping(target = "changedById", source = "changedBy.id")
+    @Mapping(target = "changedByUsername", source = "changedBy.user.username")
+    @Mapping(target = "changedByFullName", source = "changedBy.user.fullName")
     public abstract TaskHistoryDTO toDto(TaskHistory taskHistory);
 }

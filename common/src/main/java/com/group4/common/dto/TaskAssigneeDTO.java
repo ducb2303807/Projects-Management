@@ -20,4 +20,6 @@ public class TaskAssigneeDTO {
    /** @pdOid 8ea4acfe-6d1d-4f66-8fe5-d2845a9fad74 */
    private java.lang.String fullName;
 
+   private java.lang.String username;
+
 }

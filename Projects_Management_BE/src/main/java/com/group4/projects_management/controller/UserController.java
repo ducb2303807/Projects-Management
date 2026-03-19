@@ -43,6 +43,7 @@ public class UserController {
       return ResponseEntity.ok(projectService.getProjectsByUserId(userId));
    }
 
+
    @Operation(summary = "Kiểm tra tồn tại của username/email trong hệ thống")
    @PostMapping("/exists")
    public ResponseEntity<UserExistsResponseDTO> existsByUsername(@Valid @RequestBody UserExistsRequestDTO request) {

@@ -2,6 +2,7 @@ package com.group4.projects_management.controller;
 
 import com.group4.projects_management.core.security.SecurityUtils;
 import com.group4.projects_management.service.SseService;
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -17,6 +18,7 @@ public class NotificationStreamController {
     @Autowired
     private SseService sseService;
 
+    @Operation(summary = "Đăng ký lắng nghe thông báo từ server")
     @GetMapping(value = "/subscribe/me", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public SseEmitter subscribe() {
         Long userId = SecurityUtils.getCurrentUserId();

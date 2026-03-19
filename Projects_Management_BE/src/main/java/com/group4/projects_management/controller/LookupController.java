@@ -7,6 +7,7 @@ package com.group4.projects_management.controller; /****************************
 import com.group4.common.dto.LookupDTO;
 import com.group4.common.enums.LookupType;
 import com.group4.projects_management.service.LookupService;
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,11 +23,13 @@ public class LookupController {
    @Autowired
    private LookupService lookupService;
 
+   @Operation(summary = "Lấy các danh mục combobox")
    @GetMapping("/{type}")
    public ResponseEntity<List<LookupDTO>> getAll(@PathVariable LookupType type) {
       return ResponseEntity.ok(lookupService.getAll(type));
    }
 
+   @Operation(summary = "Khoan hã sài combobox")
    @PostMapping("/{type}")
    public ResponseEntity<LookupDTO> createOrUpdate(@PathVariable LookupType type,
                                                          @Valid @RequestBody LookupDTO dto)

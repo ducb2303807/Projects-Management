@@ -19,13 +19,21 @@ public interface TaskService {
     * @pdOid 176a4cb2-afb9-4eda-b2dd-bcafc0447754 */
    void assignMember(Long taskId, Long assigneeId, Long assignerId);
    /** @param taskId 
-    * @param assigneeIdList 
-    * @param assignerId
+    * @param assigneeIdList
     * @pdOid 63705ccc-6b8d-432b-9873-0e7eca6df851 */
    void assignMembers(Long taskId, List<Long> assigneeIdList, Long requesterId);
    /** @param projectId
     * @pdOid d174b4c9-a28a-426a-aa1c-ff79f514f6ab */
    List<TaskResponseDTO> getTasksByProject(Long projectId);
+
+   List<TaskResponseDTO> getAllTasks();
+
+   /**
+    * lấy các task do user có tham gia làm
+    * @param userId
+    * @return List<TaskResponseDTO>
+    */
+   List<TaskResponseDTO> getTasksByUserId(Long userId);
    /** @param taskId
     * @pdOid 4eec4cea-792f-4ab2-bd99-05642a7da919 */
    List<TaskHistoryDTO> getTaskHistory(Long taskId);
