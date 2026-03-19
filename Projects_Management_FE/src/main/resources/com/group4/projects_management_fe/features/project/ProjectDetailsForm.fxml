@@ -3,20 +3,24 @@
 <?import javafx.geometry.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
 <?import org.kordamp.ikonli.javafx.*?>
 
 <StackPane fx:id="rootPane" styleClass="popup-background" stylesheets="@../assets/css/new-project-form.css" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.group4.projects_management_fe.features.project.ProjectDetailsFormController">
 
-    <VBox minHeight="500.0" prefWidth="750.0" styleClass="popup-container">
+    <VBox minHeight="550.0" prefWidth="940.0" styleClass="popup-container">
 
         <HBox>
             <padding>
                 <Insets bottom="15.0" left="30.0" right="30.0" top="25.0" />
             </padding>
-            <TextField fx:id="projectNameInput" prefHeight="40.0" prefWidth="750.0" promptText="Project name" styleClass="title-input" />
-            <Button fx:id="editBtn" mnemonicParsing="false" onAction="#handleEditMode" prefHeight="35.0" prefWidth="42.0" styleClass="btn-edit-circle">
+            <TextField fx:id="projectNameInput" prefHeight="55.0" prefWidth="930.0" promptText="Project name" styleClass="title-input">
+            <font>
+               <Font size="30.0" />
+            </font></TextField>
+            <Button fx:id="editBtn" minWidth="20.0" mnemonicParsing="false" onAction="#handleEditMode" prefHeight="35.0" prefWidth="10.0" styleClass="btn-edit-circle">
                 <graphic>
-                    <FontIcon iconColor="#7D8EA3" iconLiteral="fas-pen" iconSize="16" />
+                    <FontIcon iconColor="#7D8EA3" iconLiteral="fas-pen" iconSize="20" wrappingWidth="20.0" />
                 </graphic>
             </Button>
         </HBox>
@@ -32,8 +36,8 @@
 
                 <GridPane hgap="15.0" vgap="18.0">
                     <columnConstraints>
-                        <ColumnConstraints minWidth="100.0" prefWidth="120.0" />
-                        <ColumnConstraints hgrow="ALWAYS" />
+                        <ColumnConstraints maxWidth="164.00000762939453" minWidth="100.0" prefWidth="129.2" />
+                        <ColumnConstraints hgrow="ALWAYS" maxWidth="425.2" minWidth="385.19999237060546" prefWidth="420.4" />
                     </columnConstraints>
 
                     <HBox alignment="CENTER_LEFT" spacing="10.0" GridPane.columnIndex="0" GridPane.rowIndex="0">
@@ -63,7 +67,7 @@
                         <FontIcon iconLiteral="fas-align-left" styleClass="icon-muted" />
                         <Label styleClass="field-label" text="Description:" />
                     </HBox>
-                    <TextArea fx:id="descriptionInput" prefRowCount="3" promptText="Add a description..." styleClass="clean-textarea" wrapText="true" GridPane.columnIndex="1" GridPane.rowIndex="4" />
+                    <TextArea fx:id="descriptionInput" prefHeight="70.0" prefRowCount="3" prefWidth="431.0" promptText="Add a description..." styleClass="clean-textarea" wrapText="true" GridPane.columnIndex="1" GridPane.rowIndex="4" />
 
                     <rowConstraints>
                         <RowConstraints />
@@ -75,17 +79,14 @@
                 </GridPane>
 
                 <VBox spacing="10.0" VBox.vgrow="SOMETIMES">
-                    <Label text="Members" styleClass="field-label"/>
+                    <Label styleClass="field-label" text="Members" />
 
                     <HBox alignment="CENTER_LEFT" spacing="10.0">
-                        <Button fx:id="addMemberBtn" text="+" onAction="#handleAddMemberClick" styleClass="btn-add-circle"/>
-                        <TextField fx:id="memberInput" promptText="Enter username..." onAction="#handleMemberSubmit"
-                                   styleClass="clean-input" visible="false" managed="false" HBox.hgrow="ALWAYS"/>
+                        <Button fx:id="addMemberBtn" onAction="#handleAddMemberClick" styleClass="btn-add-circle" text="+" />
+                        <TextField fx:id="memberInput" managed="false" onAction="#handleMemberSubmit" promptText="Enter username..." styleClass="clean-input" visible="false" HBox.hgrow="ALWAYS" />
                     </HBox>
 
-                    <ScrollPane fitToWidth="true" hbarPolicy="NEVER" vbarPolicy="AS_NEEDED"
-                                styleClass="tags-scroll-pane" minHeight="50.0" prefHeight="100.0" maxHeight="140.0"
-                                VBox.vgrow="SOMETIMES">
+                    <ScrollPane fitToWidth="true" hbarPolicy="NEVER" maxHeight="140.0" minHeight="50.0" prefHeight="100.0" styleClass="tags-scroll-pane" vbarPolicy="AS_NEEDED" VBox.vgrow="SOMETIMES">
                         <content>
                             <FlowPane fx:id="memberTagsContainer" hgap="8.0" vgap="8.0" />
                         </content>
@@ -115,10 +116,7 @@
                         <Button fx:id="addCoManagerBtn" onAction="#handleAddCoManagerClick" styleClass="btn-add-circle" text="+" />
                         <TextField fx:id="coManagerInput" managed="false" onAction="#handleCoManagerSubmit" promptText="Enter username" styleClass="clean-input" visible="false" HBox.hgrow="ALWAYS" />
                     </HBox>
-                    <ScrollPane fitToWidth="true" hbarPolicy="NEVER" vbarPolicy="AS_NEEDED"
-                                 styleClass="tags-scroll-pane"
-                                 minHeight="50.0" prefHeight="100.0" maxHeight="140.0"
-                                 VBox.vgrow="SOMETIMES">
+                    <ScrollPane fitToWidth="true" hbarPolicy="NEVER" maxHeight="140.0" minHeight="50.0" prefHeight="100.0" styleClass="tags-scroll-pane" vbarPolicy="AS_NEEDED" VBox.vgrow="SOMETIMES">
                         <content>
                             <FlowPane fx:id="coManagerTagsContainer" hgap="8.0" vgap="8.0" />
                         </content>

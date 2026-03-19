@@ -3,40 +3,44 @@
 <?import javafx.geometry.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
 
-<StackPane fx:id="rootPane" styleClass="popup-background" stylesheets="@../assets/css/new-project-form.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.group4.projects_management_fe.features.project.NewProjectFormController">
+<StackPane fx:id="rootPane" styleClass="popup-background" stylesheets="@../assets/css/new-project-form.css" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.group4.projects_management_fe.features.project.NewProjectFormController">
 
-    <VBox prefWidth="750.0" minHeight="420.0" styleClass="popup-container">
+    <VBox minHeight="550.0" prefWidth="940.0" styleClass="popup-container">
 
         <VBox>
             <padding>
-                <Insets top="25.0" right="30.0" bottom="15.0" left="30.0"/>
+                <Insets bottom="15.0" left="30.0" right="30.0" top="25.0" />
             </padding>
-            <TextField fx:id="projectNameInput" promptText="Project name" styleClass="title-input" />
+            <TextField fx:id="projectNameInput" prefHeight="56.0" prefWidth="690.0" promptText="Project name" styleClass="title-input">
+            <font>
+               <Font size="30.0" />
+            </font></TextField>
         </VBox>
 
         <Separator />
 
         <HBox VBox.vgrow="ALWAYS">
 
-            <VBox HBox.hgrow="ALWAYS" spacing="20.0" styleClass="left-column" prefWidth="350.0">
+            <VBox prefWidth="350.0" spacing="20.0" styleClass="left-column" HBox.hgrow="ALWAYS">
                 <padding>
-                    <Insets top="25.0" right="20.0" bottom="30.0" left="30.0"/>
+                    <Insets bottom="30.0" left="30.0" right="20.0" top="25.0" />
                 </padding>
 
                 <VBox spacing="10.0">
-                    <Label text="Start date" styleClass="field-label"/>
-                    <DatePicker fx:id="startDatePicker" promptText="Select date" styleClass="clean-input" prefWidth="200.0"/>
+                    <Label styleClass="field-label" text="Start date" />
+                    <DatePicker fx:id="startDatePicker" prefHeight="28.0" prefWidth="200.0" promptText="Select date" styleClass="clean-input" />
                 </VBox>
 
                 <VBox spacing="10.0">
-                    <Label text="End date" styleClass="field-label"/>
-                    <DatePicker fx:id="endDatePicker" promptText="Select date" styleClass="clean-input" prefWidth="200.0"/>
+                    <Label styleClass="field-label" text="End date" />
+                    <DatePicker fx:id="endDatePicker" prefHeight="27.0" prefWidth="200.0" promptText="Select date" styleClass="clean-input" />
                 </VBox>
 
-                <HBox spacing="10.0" alignment="CENTER_LEFT" style="-fx-padding: 15 0 0 0;">
-                    <Label text="Created by" styleClass="field-label"/>
-                    <Label fx:id="creatorUsernameLabel" text="[Username]" styleClass="field-label" style="-fx-text-fill: #7f8c8d;-fx-font-weight: bold;" />
+                <HBox alignment="CENTER_LEFT" spacing="10.0" style="-fx-padding: 15 0 0 0;">
+                    <Label styleClass="field-label" text="Created by" />
+                    <Label fx:id="creatorUsernameLabel" style="-fx-text-fill: #7f8c8d;-fx-font-weight: bold;" styleClass="field-label" text="[Username]" />
                 </HBox>
 
                 <Region VBox.vgrow="ALWAYS" />
@@ -44,19 +48,19 @@
 
             <Separator orientation="VERTICAL" />
 
-            <VBox HBox.hgrow="ALWAYS" spacing="20.0" styleClass="right-column" prefWidth="400.0">
+            <VBox prefWidth="400.0" spacing="20.0" styleClass="right-column" HBox.hgrow="ALWAYS">
                 <padding>
-                    <Insets top="25.0" right="30.0" bottom="30.0" left="20.0"/>
+                    <Insets bottom="30.0" left="20.0" right="30.0" top="25.0" />
                 </padding>
 
-                <VBox VBox.vgrow="ALWAYS" spacing="10.0">
-                    <Label text="Description" styleClass="field-label"/>
-                    <TextArea fx:id="descriptionInput" promptText="Add project description..." wrapText="true" styleClass="clean-textarea" VBox.vgrow="ALWAYS"/>
+                <VBox spacing="10.0" VBox.vgrow="ALWAYS">
+                    <Label styleClass="field-label" text="Description" />
+                    <TextArea fx:id="descriptionInput" promptText="Add project description..." styleClass="clean-textarea" wrapText="true" VBox.vgrow="ALWAYS" />
                 </VBox>
 
                 <HBox alignment="BOTTOM_RIGHT" spacing="15.0">
-                    <Button cancelButton="true" mnemonicParsing="false" onAction="#handleCancel" styleClass="btn-cancel" text="Cancel" minWidth="80.0" minHeight="35.0"/>
-                    <Button fx:id="createBtn" defaultButton="true" mnemonicParsing="false" onAction="#handleCreate" styleClass="btn-create" text="Create" minWidth="80.0" minHeight="35.0"/>
+                    <Button cancelButton="true" minHeight="35.0" minWidth="80.0" mnemonicParsing="false" onAction="#handleCancel" styleClass="btn-cancel" text="Cancel" />
+                    <Button fx:id="createBtn" defaultButton="true" minHeight="35.0" minWidth="80.0" mnemonicParsing="false" onAction="#handleCreate" styleClass="btn-create" text="Create" />
                 </HBox>
             </VBox>
 
