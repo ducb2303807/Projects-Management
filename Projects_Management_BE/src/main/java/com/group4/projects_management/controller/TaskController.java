@@ -8,6 +8,7 @@ import com.group4.common.dto.*;
 import com.group4.projects_management.core.security.SecurityUtils;
 import com.group4.projects_management.service.CommentService;
 import com.group4.projects_management.service.TaskService;
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,6 +31,20 @@ public class TaskController {
     @Autowired
     private CommentService commentService;
 
+    @Operation(summary = "Lấy thông tin tất cả tasks trong hệ thống")
+    @GetMapping
+    public ResponseEntity<List<TaskResponseDTO>> getAllTasks() {
+        return ResponseEntity.ok(taskService.getAllTasks());
+    }
+
+    @Operation(summary = "Lấy thông tin tasks mà tôi tham gia, không lấy task bị CANCELED")
+    @GetMapping("/me")
+    public ResponseEntity<List<TaskResponseDTO>> getMyTasks() {
+        Long currentUserId = SecurityUtils.getCurrentUserId();
+        return ResponseEntity.ok(taskService.getTasksByUserId(currentUserId));
+    }
+
+    @Operation(summary = "Đưa các member đã chọn vào task")
     @PostMapping("/{taskId}/members")
     public ResponseEntity<Void> assignMember(
             @PathVariable Long taskId,
@@ -39,6 +54,7 @@ public class TaskController {
         return ResponseEntity.ok().build();
     }
 
+    @Operation(summary = "Xóa các member đã chọn ra khỏi task")
     @DeleteMapping("/{taskId}/members/{projectMemberIds}")
     public ResponseEntity<Void> removeMemberFromTask(
             @PathVariable Long taskId,
@@ -48,17 +64,20 @@ public class TaskController {
         return ResponseEntity.ok().build();
     }
 
+    @Operation(summary = "Lấy lịch sử thay đổi của task")
     @GetMapping("/{taskId}/histories")
     public ResponseEntity<List<TaskHistoryDTO>> getTaskHistory(@PathVariable Long taskId) {
         return ResponseEntity.ok(taskService.getTaskHistory(taskId));
     }
 
+    @Operation(summary = "Cập nhật task")
     @PutMapping("/{taskId}")
     public ResponseEntity<TaskResponseDTO> updateTask(@PathVariable Long taskId,
                                                       @Valid @RequestBody TaskUpdateDTO request) {
         return ResponseEntity.ok(taskService.updateTask(taskId, request));
     }
 
+    @Operation(summary = "Lấy comments của task")
     @GetMapping("/{taskId}/comments")
     public ResponseEntity<List<CommentDTO>> getTaskComment(@PathVariable Long taskId) {
         return ResponseEntity.ok(commentService.getCommentsByTask(taskId));

@@ -7,6 +7,7 @@ package com.group4.projects_management.controller; /****************************
 import com.group4.common.dto.CommentCreateRequestDTO;
 import com.group4.common.dto.CommentDTO;
 import com.group4.projects_management.service.CommentService;
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,15 +24,9 @@ public class CommentController {
     @Autowired
     private CommentService commentService;
 
+    @Operation(summary = "Thêm comment vào task")
     @PostMapping
     public ResponseEntity<CommentDTO> createComment(@Valid @RequestBody CommentCreateRequestDTO request) {
-        return ResponseEntity.ok(commentService.createComment(request.getTaskId(), request.getProjectMemberId(), request.getContent(), request.getParentId()));
-    }
-
-    @PostMapping("/{parentId}/reply")
-    public ResponseEntity<CommentDTO> replyComment(
-            @PathVariable Long parentId,
-            @Valid @RequestBody CommentCreateRequestDTO request) {
         return ResponseEntity.ok(commentService.createComment(request.getTaskId(), request.getProjectMemberId(), request.getContent(), request.getParentId()));
     }
 }

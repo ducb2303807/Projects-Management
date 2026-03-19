@@ -19,9 +19,15 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Builder
 public class TaskHistoryDTO {
-    private LocalDateTime changedAt;
-    private java.lang.String changedBy;
+    private int id;
+    private Long taskId;
+
+    private Long changedById;
+    private String changedByUsername;
+    private String changedByFullName;
+
     private java.lang.String columnName;
     private java.lang.String oldValue;
     private java.lang.String newValue;
+    private LocalDateTime changedAt;
 }

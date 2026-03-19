@@ -5,6 +5,7 @@ import com.group4.common.dto.TaskHistoryDTO;
 import com.group4.common.dto.TaskResponseDTO;
 import com.group4.common.dto.TaskUpdateDTO;
 import com.group4.common.enums.BusinessErrorCode;
+import com.group4.common.enums.MemberStatus;
 import com.group4.projects_management.core.exception.BusinessException;
 import com.group4.projects_management.core.exception.ResourceNotFoundException;
 import com.group4.projects_management.core.strategy.notification.taskassignment.TaskAssignContext;
@@ -32,6 +33,7 @@ public class TaskServiceImpl extends BaseServiceImpl<Task, Long> implements Task
     private final PriorityRepository priorityRepository;
     private final TaskStatusRepository taskStatusRepository;
     private final ProjectRepository projectRepository;
+    private final ProjectMemberStatusRepository projectMemberStatusRepository;
     private final TaskAssignmentMapper taskAssignmentMapper;
     private final TaskMapper taskMapper;
     private final NotificationService notificationService;
@@ -46,7 +48,7 @@ public class TaskServiceImpl extends BaseServiceImpl<Task, Long> implements Task
             ProjectMemberRepository projectMemberRepository,
             PriorityRepository priorityRepository,
             TaskStatusRepository taskStatusRepository,
-            ProjectRepository projectRepository, TaskAssignmentMapper taskAssignmentMapper, TaskMapper taskMapper, NotificationService notificationService, TaskHistoryMapper taskHistoryMapper, UserRepository userRepository
+            ProjectRepository projectRepository, ProjectMemberStatusRepository projectMemberStatusRepository, TaskAssignmentMapper taskAssignmentMapper, TaskMapper taskMapper, NotificationService notificationService, TaskHistoryMapper taskHistoryMapper, UserRepository userRepository
     ) {
         super(taskRepository);
         this.taskRepository = taskRepository;
@@ -56,6 +58,7 @@ public class TaskServiceImpl extends BaseServiceImpl<Task, Long> implements Task
         this.priorityRepository = priorityRepository;
         this.taskStatusRepository = taskStatusRepository;
         this.projectRepository = projectRepository;
+        this.projectMemberStatusRepository = projectMemberStatusRepository;
         this.taskAssignmentMapper = taskAssignmentMapper;
         this.taskMapper = taskMapper;
         this.notificationService = notificationService;
@@ -142,6 +145,34 @@ public class TaskServiceImpl extends BaseServiceImpl<Task, Long> implements Task
         List<Task> tasks = taskRepository.findByProject_Id(projectId);
 
         return tasks.stream()
+                .map(taskMapper::toDto)
+                .toList();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<TaskResponseDTO> getAllTasks() {
+        return taskRepository.findAll()
+                .stream()
+                .map(taskMapper::toDto)
+                .toList();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<TaskResponseDTO> getTasksByUserId(Long userId) {
+
+        var projectMemberStatus = projectMemberStatusRepository.findBySystemCode(MemberStatus.ACTIVE.name())
+                .orElseThrow(() -> new ResourceNotFoundException("Project member status ACTIVE not found"));
+
+        var taskCancelStatus = taskStatusRepository.findBySystemCode(com.group4.common.enums.TaskStatus.CANCELLED.name())
+                .orElseThrow(() -> new ResourceNotFoundException("Task status CANCELLED not found"));
+
+        return taskAssignmentRepository.findTasksByUserIdAndStatus(
+                        userId,
+                        projectMemberStatus.getSystemCode(),
+                        taskCancelStatus.getSystemCode())
+                .stream()
                 .map(taskMapper::toDto)
                 .toList();
     }
