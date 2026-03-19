@@ -12,7 +12,6 @@
     <HBox alignment="CENTER_LEFT" spacing="8">
         <CheckBox fx:id="taskCheckBox" mnemonicParsing="false"/>
         <Label fx:id="taskNameLabel" styleClass="task-name" text="Task name"/>
-        <Label fx:id="commentCountLabel" styleClass="comment-count" text="💬 0"/>
     </HBox>
 
     <Region HBox.hgrow="ALWAYS"/>
