@@ -57,7 +57,7 @@
                                       <Insets top="20.0" />
                                   </VBox.margin>
                      <content>
-                        <VBox />
+                        <VBox fx:id="taskGroupContentVBox" spacing="10.0" />
                      </content>
 <!--                                  <fx:include source="TaskItem.fxml" />-->
                               </ScrollPane>

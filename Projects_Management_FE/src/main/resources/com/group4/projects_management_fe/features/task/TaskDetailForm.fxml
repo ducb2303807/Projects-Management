@@ -5,7 +5,7 @@
 <?import javafx.scene.layout.*?>
 <?import org.kordamp.ikonli.javafx.*?>
 
-<StackPane fx:id="rootPane" styleClass="popup-background" stylesheets="@../assets/css/tasks/stat-prio.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.group4.projects_management_fe.features.task.TaskDetailFormController">
+<StackPane fx:id="rootPane" styleClass="popup-background" stylesheets="@../assets/css/tasks/stat-prio.css" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.group4.projects_management_fe.features.task.TaskDetailFormController">
 
     <VBox minHeight="480.0" prefWidth="780.0" styleClass="popup-container">
 
@@ -94,7 +94,7 @@
                     <Label styleClass="field-label" text="Last edited by" />
                     <HBox alignment="CENTER_LEFT" spacing="10.0">
                         <Label style="-fx-background-color:#5B3E9E; -fx-text-fill:white; -fx-min-width:28; -fx-min-height:28; -fx-alignment:center; -fx-background-radius:14; -fx-font-weight:bold;" text="H" />
-                        <Label fx:id="usernameLabel" styleClass="user-name" text="Hunny" />
+                        <Label styleClass="user-name" text="Hunny" />
                         <Label fx:id="editedAtLabel" styleClass="date-time" text="Feb 14, 2026, 11:32 PM" />
                     </HBox>
                 </VBox>
@@ -112,7 +112,7 @@
 
                     <!-- Add comment -->
                     <HBox alignment="CENTER_LEFT" spacing="8.0">
-                        <Label fx:id="myAvatarLabel" style="-fx-background-color:#5B3E9E; -fx-text-fill:white; -fx-min-width:28; -fx-min-height:28; -fx-alignment:center; -fx-background-radius:14; -fx-font-weight:bold;" text="H" />
+                        <Label style="-fx-background-color:#5B3E9E; -fx-text-fill:white; -fx-min-width:28; -fx-min-height:28; -fx-alignment:center; -fx-background-radius:14; -fx-font-weight:bold;" text="H" />
                         <TextField fx:id="commentField" onAction="#handleCommentSubmit" promptText="Add a comment..." style="-fx-background-color: #F5F5F5; -fx-background-radius: 20; -fx-padding: 6 14; -fx-border-color: transparent;" HBox.hgrow="ALWAYS" />
                     </HBox>
                 </VBox>

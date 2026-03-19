@@ -18,6 +18,7 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import javafx.stage.Window;
+import javafx.application.Platform;
 
 import java.io.IOException;
 import java.util.List;
@@ -28,29 +29,47 @@ public class TasksViewController {
 
     @FXML private VBox taskCategoryVBox;
 
-    private Long projectId;
+//    private Long projectId;
     private TaskApi taskApi;
     private LookupApi lookupApi;          // === THÊM ===
     private AuthSessionProvider sessionProvider;
 
-    public void setProjectId(Long projectId) {
-        this.projectId = projectId;
-        loadTasksData();
-    }
+//    public void setProjectId(Long projectId) {
+//        this.projectId = projectId;
+//        loadTasksData();
+//    }
+    private Long currentUserId;
 
     public void setSessionProvider(AuthSessionProvider sessionProvider) {
         this.sessionProvider = sessionProvider;
+
+        // Khởi tạo các API
+        this.taskApi = new TaskApi(sessionProvider);
+        this.lookupApi = new LookupApi(sessionProvider);
+
+        if (this.sessionProvider != null) {
+            /* * 2. Lấy userId từ SessionProvider.
+             * LƯU Ý: Tùy vào cách bạn viết interface AuthSessionProvider,
+             * hàm này có thể là .getUserId() hoặc .getCurrentUser().getId()
+             * Bạn hãy tự điều chỉnh tên hàm cho đúng với code của bạn nhé!
+             */
+
+//            this.currentUserId = this.sessionProvider.getUserId(); // <--- CHỈNH LẠI TÊN HÀM NẾU CẦN
+
+            // 3. Gọi hàm tải dữ liệu sau khi đã có userId
+            loadTasksData();
+        }
     }
 
     private void loadTasksData() {
-        if (projectId == null) return;
+        if (currentUserId == null) return;
 
         taskApi = new TaskApi(sessionProvider);
         lookupApi = new LookupApi(sessionProvider);
 
         // === SỬA: Dùng LookupApi + TaskApi đúng ===
         lookupApi.getAll(LookupType.TASK_STATUS)
-                .thenCombine(taskApi.getTasksByProject(projectId), (statuses, tasks) -> {
+                .thenCombine(taskApi.getTasksByProject(currentUserId), (statuses, tasks) -> {
                     Platform.runLater(() -> renderDynamicGroups(statuses, tasks));
                     return null;
                 })
