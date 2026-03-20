@@ -49,7 +49,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     public ResponseEntity<ErrorResponse> handleExpiredJwtException(ExpiredJwtException ex) {
         log.error("Token hết hạn: {}", ex.getMessage());
         return buildErrorResponse(
-                "Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại!",
+                "Your session has expired. Please log in again.",
                 BusinessErrorCode.AUTH_TOKEN_EXPIRED.getCode(),
                 HttpStatus.UNAUTHORIZED
         );
@@ -60,7 +60,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     public ResponseEntity<ErrorResponse> handleJwtException(JwtException ex) {
         log.error("Token không hợp lệ: {}", ex.getMessage());
         return buildErrorResponse(
-                "Token xác thực không hợp lệ!",
+                "Invalid authentication token.",
                 BusinessErrorCode.AUTH_INVALID_TOKEN.getCode(),
                 HttpStatus.UNAUTHORIZED
         );
@@ -71,7 +71,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     public ResponseEntity<ErrorResponse> handleAuthenticationException(AuthenticationException ex) {
         log.error("Lỗi xác thực: {}", ex.getMessage());
         return buildErrorResponse(
-                "Vui lòng đăng nhập để sử dụng chức năng này!",
+                "Authentication required. Please log in.",
                 BusinessErrorCode.AUTH_REQUIRED.getCode(),
                 HttpStatus.UNAUTHORIZED
         );
@@ -82,7 +82,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     public ResponseEntity<ErrorResponse> handleAccessDeniedException(AccessDeniedException ex) {
         log.error("Lỗi phân quyền: {}", ex.getMessage());
         return buildErrorResponse(
-                "Bạn không có quyền thực hiện hành động này!",
+                "You do not have permission to perform this action.",
                 BusinessErrorCode.SYSTEM_ACCESS_DENIED.getCode(),
                 HttpStatus.FORBIDDEN
         );
@@ -108,7 +108,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         return new ResponseEntity<>(
                 createErrorBody(status.value(),
                         BusinessErrorCode.SYSTEM_VALIDATION_ERROR.getCode(),
-                        "Dữ liệu không hợp lệ: " + errors),
+                        "Invalid data: " + errors),
                 HttpStatus.BAD_REQUEST);
     }
 
@@ -116,7 +116,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleGeneralError(Exception ex) {
         log.error("Lỗi hệ thống chưa xác định: ", ex);
-        return buildErrorResponse("Lỗi hệ thống! Vui lòng thử lại sau.", BusinessErrorCode.SYSTEM_INTERNAL_SERVER_ERROR.getCode(), HttpStatus.INTERNAL_SERVER_ERROR);
+        return buildErrorResponse("An unexpected error occurred. Please try again later.", BusinessErrorCode.SYSTEM_INTERNAL_SERVER_ERROR.getCode(), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     private ResponseEntity<ErrorResponse> buildErrorResponse(String message, String errorCode, HttpStatus status) {
