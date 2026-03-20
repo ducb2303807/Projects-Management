@@ -5,61 +5,73 @@
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.TitledPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.HBox?>
-<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.VBox?>
 
-<VBox stylesheets="@../assets/css/tasks/tasks.css" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.group4.projects_management_fe.features.task.TasksViewController">
+<VBox maxHeight="Infinity" prefHeight="-Infinity" spacing="0" stylesheets="@../assets/css/tasks/tasks.css" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.group4.projects_management_fe.features.task.TaskGroupController">
+
    <children>
-              <TitledPane id="groupTitledPane" animated="false" styleClass="task-category" text="On going">
+              <TitledPane fx:id="groupTitledPane" animated="false" maxHeight="200" minHeight="200" prefHeight="200" prefWidth="910.0" styleClass="task-category">
+
                   <content>
-                      <VBox id="taskListVBox" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308">
+                      <VBox id="taskListVBox" maxHeight="-Infinity" prefWidth="573.0">
+
                           <children>
-                              <HBox alignment="CENTER_LEFT" VBox.vgrow="ALWAYS">
+                              <HBox alignment="CENTER_LEFT" spacing="12" VBox.vgrow="ALWAYS">
                                   <children>
-                                      <HBox HBox.hgrow="ALWAYS">
-                                          <children>
-                                              <CheckBox mnemonicParsing="false" />
-                                              <Label styleClass="task-header" text="Task name">
+                        <GridPane>
+                           <columnConstraints>
+                              <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" />
+                              <ColumnConstraints hgrow="ALWAYS" maxWidth="-Infinity" minWidth="10.0" prefWidth="500.0" />
+                              <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" />
+                              <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" />
+                              <ColumnConstraints hgrow="SOMETIMES" maxWidth="1.7976931348623157E308" minWidth="10.0" />
+                           </columnConstraints>
+                           <rowConstraints>
+                              <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
+                           </rowConstraints>
+                           <children>
+                                            <HBox>
+                                                <children>
+                                                    <CheckBox contentDisplay="CENTER" mnemonicParsing="false" />
+                                                    <Label styleClass="task-header" text="Task name">
+                                                        <padding>
+                                                            <Insets left="10.0" right="10.0" />
+                                                        </padding>
+                                                    </Label>
+                                                </children>
+                                            </HBox>
+                                              <Label styleClass="task-header" text="Due date" GridPane.columnIndex="2">
                                                   <padding>
                                                       <Insets left="10.0" right="10.0" />
                                                   </padding>
                                               </Label>
-                                          </children>
-                                      </HBox>
-                                      <Region maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" HBox.hgrow="ALWAYS" />
-                                      <HBox HBox.hgrow="ALWAYS">
-                                          <children>
-                                              <Label styleClass="task-header" text="Due date">
+                                              <Label styleClass="task-header" text="Assignee" GridPane.columnIndex="3">
                                                   <padding>
                                                       <Insets left="10.0" right="10.0" />
                                                   </padding>
                                               </Label>
-                                              <Label styleClass="task-header" text="Assignee">
+                                              <Label styleClass="task-header" text="Priority" GridPane.columnIndex="4">
                                                   <padding>
                                                       <Insets left="10.0" right="10.0" />
                                                   </padding>
                                               </Label>
-                                              <Label styleClass="task-header" text="Priority">
-                                                  <padding>
-                                                      <Insets left="10.0" right="10.0" />
-                                                  </padding>
-                                              </Label>
-                                          </children>
-                                          <HBox.margin>
-                                              <Insets left="50.0" />
-                                          </HBox.margin>
-                                      </HBox>
+                           </children>
+                        </GridPane>
                                   </children>
                               </HBox>
-                              <ScrollPane fitToWidth="true">
+                              <ScrollPane fitToHeight="true" fitToWidth="true" hbarPolicy="NEVER" maxHeight="Infinity" prefHeight="-Infinity" vbarPolicy="AS_NEEDED" VBox.vgrow="ALWAYS">
                                   <VBox.margin>
                                       <Insets top="20.0" />
                                   </VBox.margin>
-                     <content>
-                        <VBox fx:id="taskGroupContentVBox" spacing="10.0" />
-                     </content>
-<!--                                  <fx:include source="TaskItem.fxml" />-->
+
+                                  <content>
+                                      <!-- VBox chứa các TaskItem -->
+                                      <VBox fx:id="taskGroupContentVBox" maxHeight="Infinity" prefHeight="-Infinity" spacing="6.0" />
+                                  </content>
                               </ScrollPane>
                           </children>
                           <padding>
