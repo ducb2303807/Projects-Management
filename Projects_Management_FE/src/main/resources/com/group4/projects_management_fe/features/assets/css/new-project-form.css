@@ -225,3 +225,73 @@
 .tags-scroll-pane .scroll-bar:vertical .decrement-button {
     -fx-padding: 0; /* Ẩn 2 cái nút mũi tên lên/xuống 2 đầu */
 }
+
+/* =========================================
+   STYLE CHO COMBOBOX TRẠNG THÁI (STATUS)
+   ========================================= */
+
+/* 1. Trạng thái 1: Nền #a8d1f7, chữ #0960b0 */
+.status-1, .status-1 .list-cell {
+    -fx-background-color: #a8d1f7;
+    -fx-text-fill: #0960b0;
+}
+
+/* 2. Trạng thái 2: Nền #E2B133 (18%), chữ #DFA510 */
+.status-2, .status-2 .list-cell {
+    -fx-background-color: rgba(226, 177, 51, 0.18);
+    -fx-text-fill: #DFA510;
+}
+
+/* 3. Trạng thái 3: Nền #E65F2B (18%), chữ #E65F2B */
+.status-3, .status-3 .list-cell {
+    -fx-background-color: rgba(230, 95, 43, 0.18);
+    -fx-text-fill: #E65F2B;
+}
+
+/* 4. Trạng thái 4: Nền #1A932E (18%), chữ #1A932E */
+.status-4, .status-4 .list-cell {
+    -fx-background-color: rgba(26, 147, 46, 0.18);
+    -fx-text-fill: #1A932E;
+}
+
+/* 5. Trạng thái 5: Không cần CSS đặc biệt (giữ mặc định) */
+.status-5, .status-5 .list-cell {
+    -fx-background-color: transparent; /* Hoặc màu nền mặc định của app */
+    -fx-text-fill: -fx-text-base-color;
+}
+
+/* Tùy chọn: Thêm bo góc cho ComboBox giống thiết kế badge */
+.combo-box.status-1, .combo-box.status-2,
+.combo-box.status-3, .combo-box.status-4 {
+    -fx-background-radius: 4px;
+    -fx-border-radius: 4px;
+    -fx-font-weight: bold;
+}
+
+/* Tăng khoảng cách và tạo độ bo góc cho các dòng xổ xuống */
+.combo-box-popup .list-cell {
+    -fx-padding: 6px 10px;
+    -fx-background-radius: 4px;
+    -fx-border-color: transparent transparent #f3f4f6 transparent; /* Đường kẻ ngang mờ chia cách */
+    -fx-border-width: 0 0 1px 0;
+}
+
+/* Loại bỏ gạch dưới ở dòng cuối cùng */
+.combo-box-popup .list-cell:empty {
+    -fx-border-color: transparent;
+}
+
+.btn-delete{
+    -fx-background-color: #ff0000;
+    -fx-background-radius: 20px;
+    -fx-text-fill: white;
+    -fx-font-family: "Segoe UI", sans-serif;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-padding: 8px 20px;
+    -fx-cursor: hand;
+}
+
+.btn-delete:hover {
+    -fx-background-color: #780404;
+}

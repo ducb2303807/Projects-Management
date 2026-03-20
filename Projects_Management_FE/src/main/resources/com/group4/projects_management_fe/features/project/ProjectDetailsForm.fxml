@@ -18,11 +18,18 @@
             <font>
                <Font size="30.0" />
             </font></TextField>
-            <Button fx:id="editBtn" minWidth="20.0" mnemonicParsing="false" onAction="#handleEditMode" prefHeight="35.0" prefWidth="10.0" styleClass="btn-edit-circle">
-                <graphic>
-                    <FontIcon iconColor="#7D8EA3" iconLiteral="fas-pen" iconSize="20" wrappingWidth="20.0" />
-                </graphic>
-            </Button>
+            <StackPane>
+                <Button fx:id="editBtn" minWidth="20.0" mnemonicParsing="false" onAction="#handleEditMode" prefHeight="35.0" prefWidth="10.0" styleClass="btn-edit-circle">
+                    <graphic>
+                        <FontIcon iconColor="#7D8EA3" iconLiteral="fas-pen" iconSize="20" wrappingWidth="20.0" />
+                    </graphic>
+                </Button>
+                <Button fx:id="deleteBtn" managed="false" minHeight="35.0" minWidth="40.0" mnemonicParsing="false" styleClass="btn-delete" visible="false">
+                    <graphic>
+                        <FontIcon iconColor="white" iconLiteral="fas-trash" iconSize="20" wrappingWidth="20.0" />
+                    </graphic>
+                </Button>
+            </StackPane>
         </HBox>
 
         <Separator />
