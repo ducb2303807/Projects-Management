@@ -21,8 +21,14 @@ public class ProjectCardController {
 
     private String currentProjectId;
 
+    private Runnable onProjectUpdatedCallback;
+
     @FXML
     public void initialize() {}
+
+    public void setOnProjectUpdatedCallback(Runnable callback) {
+        this.onProjectUpdatedCallback = callback;
+    }
 
     public void bindData(String id, String title, String status, String creator, String date) {
         this.currentProjectId = id;
@@ -62,6 +68,9 @@ public class ProjectCardController {
                 popupStage.initOwner(mainStage);
             }
             popupStage.showAndWait();
+            if (onProjectUpdatedCallback != null) {
+                onProjectUpdatedCallback.run(); // Báo cho ProjectController load lại data
+            }
 
         } catch (Exception e) {
             e.printStackTrace();
