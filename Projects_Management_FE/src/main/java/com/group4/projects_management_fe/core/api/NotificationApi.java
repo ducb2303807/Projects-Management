@@ -66,5 +66,5 @@ public class NotificationApi extends AbstractAuthenticatedApi {
                     return false;
                 });
     }
-    
+
 }

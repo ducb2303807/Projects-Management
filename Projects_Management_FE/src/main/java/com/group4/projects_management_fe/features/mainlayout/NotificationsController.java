@@ -2,17 +2,22 @@ package com.group4.projects_management_fe.features.mainlayout;
 
 import javafx.application.Platform;
 import javafx.fxml.FXML;
+import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import com.group4.common.dto.NotificationDTO;
 import com.group4.projects_management_fe.core.api.NotificationApi;
 import com.group4.projects_management_fe.core.session.AppSessionManager;
+import org.ocpsoft.prettytime.PrettyTime;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 
 public class NotificationsController {
@@ -80,18 +85,15 @@ public class NotificationsController {
     }
 
     private String formatDate(LocalDateTime createdAt) {
-        Duration duration = Duration.between(createdAt, LocalDateTime.now());
-        if (duration.toMinutes() < 1) return "Just now";
-        if (duration.toMinutes() < 60) return duration.toMinutes() + " minutes ago";
-        if (duration.toHours() < 24) return "Today at " + createdAt.format(DateTimeFormatter.ofPattern("HH:mm"));
-        return createdAt.format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"));
+        if (createdAt == null) return "";
+        Date date = Date.from(createdAt.atZone(ZoneId.systemDefault()).toInstant());
+        PrettyTime prettyTime = new PrettyTime(Locale.ENGLISH);
+
+        return prettyTime.format(date);
     }
 
     private void handleNotificationClick(NotificationDTO item) {
         if ("PROJECT_INVITATION".equals(item.getType())) {
-            if (!item.isRead()) {
-                notificationApi.markAsRead(item.getId());
-            }
             showInvitationPopup(item);
         }
         // TODO: thêm các type khác như TASK_ASSIGNED, COMMENT_ADDED...
@@ -107,18 +109,28 @@ public class NotificationsController {
                 " với vai trò " + meta.getRoleName());
 
         ButtonType acceptBtn = new ButtonType("Chấp nhận", ButtonBar.ButtonData.OK_DONE);
-        ButtonType declineBtn = new ButtonType("Từ chối", ButtonBar.ButtonData.CANCEL_CLOSE);
+        ButtonType declineBtn = new ButtonType("Từ chối", ButtonBar.ButtonData.NO);
 
-        alert.getButtonTypes().setAll(acceptBtn, declineBtn);
+        alert.getButtonTypes().setAll(acceptBtn, declineBtn, ButtonType.CANCEL);
+
+        Node cancelButton = alert.getDialogPane().lookupButton(ButtonType.CANCEL);
+        if (cancelButton != null) {
+            cancelButton.setVisible(false);
+            cancelButton.setManaged(false);
+        }
 
         Optional<ButtonType> result = alert.showAndWait();
+
         if (result.isPresent()) {
-            if (result.get() == acceptBtn) {
+            ButtonType chosen = result.get();
+            if (chosen.equals(acceptBtn)) {
                 handleInvitationAction(item.getReferenceId(), "ACCEPT", item);
-            } else if (result.get() == declineBtn) {
+            } else if (chosen.equals(declineBtn)) {
                 handleInvitationAction(item.getReferenceId(), "DECLINE", item);
             }
+            // Nếu là ButtonType.CANCEL (do bấm X hoặc ESC) -> Tự động rơi vào đây và thoát, không làm gì cả
         }
+        // Nếu result không present (trường hợp hiếm) -> cũng không làm gì cả
     }
 
     private void handleInvitationAction(Long projectMemberId, String action, NotificationDTO item) {
@@ -129,6 +141,7 @@ public class NotificationsController {
                         info.setHeaderText(action.equals("ACCEPT")
                                 ? "Bạn đã tham gia dự án thành công!"
                                 : "Bạn đã từ chối lời mời.");
+                        notificationApi.markAsRead(item.getId());
                         item.setRead(true);
                         notificationList.refresh();
                     } else {
@@ -137,4 +150,5 @@ public class NotificationsController {
                     info.show();
                 }));
     }
+
 }
