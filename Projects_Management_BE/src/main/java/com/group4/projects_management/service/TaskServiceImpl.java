@@ -5,7 +5,8 @@ import com.group4.common.dto.TaskHistoryDTO;
 import com.group4.common.dto.TaskResponseDTO;
 import com.group4.common.dto.TaskUpdateDTO;
 import com.group4.common.enums.BusinessErrorCode;
-import com.group4.common.enums.MemberStatus;
+import com.group4.common.enums.MemberStatusCode;
+import com.group4.common.enums.TaskStatusCode;
 import com.group4.projects_management.core.exception.BusinessException;
 import com.group4.projects_management.core.exception.ResourceNotFoundException;
 import com.group4.projects_management.core.strategy.notification.taskassignment.TaskAssignContext;
@@ -162,10 +163,10 @@ public class TaskServiceImpl extends BaseServiceImpl<Task, Long> implements Task
     @Transactional(readOnly = true)
     public List<TaskResponseDTO> getTasksByUserId(Long userId) {
 
-        var projectMemberStatus = projectMemberStatusRepository.findBySystemCode(MemberStatus.ACTIVE.name())
+        var projectMemberStatus = projectMemberStatusRepository.findBySystemCode(MemberStatusCode.ACTIVE.name())
                 .orElseThrow(() -> new ResourceNotFoundException("Project member status ACTIVE not found"));
 
-        var taskCancelStatus = taskStatusRepository.findBySystemCode(com.group4.common.enums.TaskStatus.CANCELLED.name())
+        var taskCancelStatus = taskStatusRepository.findBySystemCode(TaskStatusCode.CANCELLED.name())
                 .orElseThrow(() -> new ResourceNotFoundException("Task status CANCELLED not found"));
 
         return taskAssignmentRepository.findTasksByUserIdAndStatus(

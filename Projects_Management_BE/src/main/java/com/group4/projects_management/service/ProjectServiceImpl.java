@@ -5,7 +5,7 @@ package com.group4.projects_management.service; /*******************************
  ***********************************************************************/
 
 import com.group4.common.dto.*;
-import com.group4.common.enums.MemberStatus;
+import com.group4.common.enums.MemberStatusCode;
 import com.group4.projects_management.core.exception.ResourceNotFoundException;
 import com.group4.projects_management.core.strategy.notification.invitation.ProjectInviteContext;
 import com.group4.projects_management.entity.*;
@@ -153,11 +153,11 @@ public class ProjectServiceImpl extends BaseServiceImpl<Project, Long> implement
         var statusEntity = projectMemberStatusRepository.findBySystemCode(targetCode)
                 .orElseThrow(() -> new RuntimeException("Hệ thống chưa cấu hình trạng thái: " + targetCode));
 
-        if (statusEntity.getSystemCode().equalsIgnoreCase(MemberStatus.ACTIVE.name())) {
+        if (statusEntity.getSystemCode().equalsIgnoreCase(MemberStatusCode.ACTIVE.name())) {
             member.setLeftAt(null);
             member.setJoinAt(LocalDateTime.now());
         }
-        if (statusEntity.getSystemCode().equalsIgnoreCase(MemberStatus.REMOVED.name())) {
+        if (statusEntity.getSystemCode().equalsIgnoreCase(MemberStatusCode.REMOVED.name())) {
             member.leave();
         }
         member.setProjectMemberStatus(statusEntity);
@@ -195,8 +195,8 @@ public class ProjectServiceImpl extends BaseServiceImpl<Project, Long> implement
         var member = projectMemberRepository.findById(projectMemberId)
                 .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy thành viên trong project"));
 
-        var leftStatus = projectMemberStatusRepository.findBySystemCode(MemberStatus.LEFT.name())
-                        .orElseThrow(() -> new RuntimeException("System code not found: " + MemberStatus.LEFT.name()));
+        var leftStatus = projectMemberStatusRepository.findBySystemCode(MemberStatusCode.LEFT.name())
+                        .orElseThrow(() -> new RuntimeException("System code not found: " + MemberStatusCode.LEFT.name()));
 
         member.setProjectMemberStatus(leftStatus);
         member.leave();
