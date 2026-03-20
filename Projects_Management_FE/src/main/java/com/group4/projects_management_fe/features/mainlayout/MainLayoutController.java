@@ -214,7 +214,7 @@ public class MainLayoutController {
                 // Truyền AppSessionManager vào (vì nó implements AuthSessionProvider)
                 tasksController.setSessionProvider(AppSessionManager.getInstance());
 
-                tasksController.setProjectId(null);
+//                tasksController.setProjectId(null);
             }
 
             VBox wrapper = new VBox(view);
