@@ -29,47 +29,22 @@ public class TasksViewController {
 
     @FXML private VBox taskCategoryVBox;
 
-//    private Long projectId;
     private TaskApi taskApi;
-    private LookupApi lookupApi;          // === THÊM ===
+    private LookupApi lookupApi;
     private AuthSessionProvider sessionProvider;
-
-//    public void setProjectId(Long projectId) {
-//        this.projectId = projectId;
-//        loadTasksData();
-//    }
-    private Long currentUserId;
 
     public void setSessionProvider(AuthSessionProvider sessionProvider) {
         this.sessionProvider = sessionProvider;
-
-        // Khởi tạo các API
-        this.taskApi = new TaskApi(sessionProvider);
-        this.lookupApi = new LookupApi(sessionProvider);
-
-        if (this.sessionProvider != null) {
-            /* * 2. Lấy userId từ SessionProvider.
-             * LƯU Ý: Tùy vào cách bạn viết interface AuthSessionProvider,
-             * hàm này có thể là .getUserId() hoặc .getCurrentUser().getId()
-             * Bạn hãy tự điều chỉnh tên hàm cho đúng với code của bạn nhé!
-             */
-
-//            this.currentUserId = this.sessionProvider.getUserId(); // <--- CHỈNH LẠI TÊN HÀM NẾU CẦN
-
-            // 3. Gọi hàm tải dữ liệu sau khi đã có userId
-            loadTasksData();
+        if (sessionProvider != null) {
+            this.taskApi = new TaskApi(sessionProvider);
+            this.lookupApi = new LookupApi(sessionProvider);
+            loadTasksData();                    // ← Luôn gọi khi có session
         }
     }
 
     private void loadTasksData() {
-        if (currentUserId == null) return;
-
-        taskApi = new TaskApi(sessionProvider);
-        lookupApi = new LookupApi(sessionProvider);
-
-        // === SỬA: Dùng LookupApi + TaskApi đúng ===
         lookupApi.getAll(LookupType.TASK_STATUS)
-                .thenCombine(taskApi.getTasksByProject(currentUserId), (statuses, tasks) -> {
+                .thenCombine(taskApi.getMyTasks(), (statuses, tasks) -> {   // ← Dùng getMyTasks()
                     Platform.runLater(() -> renderDynamicGroups(statuses, tasks));
                     return null;
                 })
@@ -82,9 +57,11 @@ public class TasksViewController {
     private void renderDynamicGroups(List<LookupDTO> statuses, List<TaskResponseDTO> tasks) {
         taskCategoryVBox.getChildren().clear();
 
+        // Nhóm task theo statusName
         Map<String, List<TaskResponseDTO>> groupedTasks = tasks.stream()
                 .collect(Collectors.groupingBy(t -> t.getStatusName() != null ? t.getStatusName() : "UNKNOWN"));
 
+        // === LUÔN TẠO 5 NHÓM (kể cả trống) ===
         for (LookupDTO status : statuses) {
             String systemName = status.getName();
             String displayName = getDisplayName(systemName);
@@ -98,6 +75,7 @@ public class TasksViewController {
 
                 TaskGroupController groupCtrl = loader.getController();
                 groupCtrl.setGroupName(displayName);
+                groupCtrl.setSessionProvider(sessionProvider);   // ← Truyền session xuống
                 groupCtrl.loadTasks(groupTasks);
 
                 taskCategoryVBox.getChildren().add(groupRoot);
@@ -107,14 +85,18 @@ public class TasksViewController {
         }
     }
 
+    public void reloadData() {
+        loadTasksData();
+    }
+
     private String getDisplayName(String systemName) {
         return switch (systemName.toUpperCase()) {
-            case "TODO"       -> "To do";
-            case "IN_PROGRESS"-> "On going";
-            case "REVIEW"     -> "In review";
-            case "DONE"       -> "Done";
-            case "CANCELLED"  -> "Cancelled";
-            default           -> systemName;
+            case "TODO"        -> "To do";
+            case "IN_PROGRESS" -> "On going";
+            case "REVIEW"      -> "In review";
+            case "DONE"        -> "Done";
+            case "CANCELLED"   -> "Cancelled";
+            default            -> systemName;
         };
     }
 

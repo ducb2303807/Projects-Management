@@ -120,8 +120,6 @@ public class NewTaskFormController {
     private String getColorStyleForLookup(LookupDTO item) {
         if (item == null || item.getName() == null) return "";
 
-        // Bạn có thể switch theo item.getId() nếu ID là dạng chữ (như "DONE", "HIGH")
-        // Hoặc switch theo item.getName() nếu ID là số. Ở đây tôi ví dụ theo Name:
         return switch (item.getName().toUpperCase()) {
             // Task Status
             case "CẦN LÀM", "TODO" -> "-fx-text-fill: #757575; -fx-font-weight: bold;"; // Xám
@@ -144,6 +142,32 @@ public class NewTaskFormController {
 
     private String slugify(String name) {
         return name.toLowerCase().replace("_", "-").replace(" ", "-");
+    }
+
+    private void setupComboBoxStyling() {
+        // Tạo Factory để tùy chỉnh từng dòng (Cell)
+        Callback<ListView<LookupDTO>, ListCell<LookupDTO>> cellFactory = listView -> new ListCell<>() {
+            @Override
+            protected void updateItem(LookupDTO item, boolean empty) {
+                super.updateItem(item, empty);
+
+                if (empty || item == null) {
+                    setText(null);
+                    setStyle(""); // Xóa style nếu dòng trống
+                } else {
+                    setText(item.getName()); // Hiển thị tên
+                    setStyle(getColorStyleForLookup(item)); // Áp dụng màu sắc đã định nghĩa ở Bước 1
+                }
+            }
+        };
+
+        // 1. Áp dụng cho danh sách xổ xuống (Dropdown List)
+        statusComboBox.setCellFactory(cellFactory);
+        priorityComboBox.setCellFactory(cellFactory);
+
+        // 2. Áp dụng cho ô hiển thị sau khi đã chọn xong (Button Cell)
+        statusComboBox.setButtonCell(cellFactory.call(null));
+        priorityComboBox.setButtonCell(cellFactory.call(null));
     }
 
     // -----------------------------------------------------------------------
@@ -198,32 +222,6 @@ public class NewTaskFormController {
                 viewModel.commentsObservable()
                         .subscribe(list -> Platform.runLater(() -> renderComments(list)))
         );
-    }
-
-    private void setupComboBoxStyling() {
-        // Tạo Factory để tùy chỉnh từng dòng (Cell)
-        Callback<ListView<LookupDTO>, ListCell<LookupDTO>> cellFactory = listView -> new ListCell<>() {
-            @Override
-            protected void updateItem(LookupDTO item, boolean empty) {
-                super.updateItem(item, empty);
-
-                if (empty || item == null) {
-                    setText(null);
-                    setStyle(""); // Xóa style nếu dòng trống
-                } else {
-                    setText(item.getName()); // Hiển thị tên
-                    setStyle(getColorStyleForLookup(item)); // Áp dụng màu sắc đã định nghĩa ở Bước 1
-                }
-            }
-        };
-
-        // 1. Áp dụng cho danh sách xổ xuống (Dropdown List)
-        statusComboBox.setCellFactory(cellFactory);
-        priorityComboBox.setCellFactory(cellFactory);
-
-        // 2. Áp dụng cho ô hiển thị sau khi đã chọn xong (Button Cell)
-        statusComboBox.setButtonCell(cellFactory.call(null));
-        priorityComboBox.setButtonCell(cellFactory.call(null));
     }
 
     // -----------------------------------------------------------------------
