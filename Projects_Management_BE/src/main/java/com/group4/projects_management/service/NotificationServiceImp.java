@@ -148,4 +148,20 @@ public class NotificationServiceImp extends BaseServiceImpl<Notification, Long> 
         }
         return this.userNotificationRepository.countByUser_IdAndIsReadIsFalse(userId);
     }
+
+    @Transactional
+    public void updateMetadataResponseByRef(String refId, String action) {
+        Notification notif = notificationRepository.findByReferenceIdAndType(refId)
+                .orElseThrow(() -> new ResourceNotFoundException("Notification not found"));
+
+        try {
+            NotificationDTO.Metadata meta = objectMapper.readValue(notif.getMetadata(), NotificationDTO.Metadata.class);
+            meta.setResponseAction(action);
+            notif.setMetadata(objectMapper.writeValueAsString(meta));
+
+            notificationRepository.save(notif);
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
+    }
 }

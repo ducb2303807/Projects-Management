@@ -176,6 +176,12 @@ public class ProjectServiceImpl extends BaseServiceImpl<Project, Long> implement
             case DECLINE -> handleDecline(invitation);
             default -> throw new IllegalArgumentException("Invalid invitation type");
         }
+
+        try {
+            notificationService.updateMetadataResponseByRef(invitationId.toString(), request.getAction().name());
+        } catch (Exception e) {
+            System.err.println("Lỗi cập nhật metadata thông báo: " + e.getMessage());
+        }
     }
 
     @Override

@@ -1,9 +1,6 @@
 package com.group4.common.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
@@ -26,5 +23,6 @@ public class NotificationDTO {
       private String projectName;
       private Long projectId;
       private String roleName;
+      private String responseAction;
    }
 }

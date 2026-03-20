@@ -94,9 +94,24 @@ public class NotificationsController {
 
     private void handleNotificationClick(NotificationDTO item) {
         if ("PROJECT_INVITATION".equals(item.getType())) {
+            String action = (item.getMetadata() != null) ? item.getMetadata().getResponseAction() : null;
+
+            if ("DECLINE".equalsIgnoreCase(action)) {
+                Alert info = new Alert(Alert.AlertType.INFORMATION);
+                info.setHeaderText("Bạn đã từ chối lời mời vào dự án này.");
+                info.show();
+                return;
+            }
+
+            if ("ACCEPT".equalsIgnoreCase(action)) {
+                Alert info = new Alert(Alert.AlertType.INFORMATION);
+                info.setHeaderText("Bạn đã chấp nhận tham gia dự án này rồi.");
+                info.show();
+                return;
+            }
+
             showInvitationPopup(item);
         }
-        // TODO: thêm các type khác như TASK_ASSIGNED, COMMENT_ADDED...
     }
 
     private void showInvitationPopup(NotificationDTO item) {
@@ -136,18 +151,28 @@ public class NotificationsController {
     private void handleInvitationAction(Long projectMemberId, String action, NotificationDTO item) {
         notificationApi.respondToInvitation(projectMemberId, action)
                 .thenAccept(success -> Platform.runLater(() -> {
-                    Alert info = new Alert(Alert.AlertType.INFORMATION);
                     if (success) {
-                        info.setHeaderText(action.equals("ACCEPT")
-                                ? "Bạn đã tham gia dự án thành công!"
-                                : "Bạn đã từ chối lời mời.");
+                        Alert info = new Alert(Alert.AlertType.INFORMATION);
+                        if ("ACCEPT".equals(action)) {
+                            info.setHeaderText("Bạn đã tham gia dự án thành công!");
+                        } else {
+                            info.setHeaderText("Bạn đã từ chối lời mời.");
+                        }
+
+                        // Cập nhật Metadata tạm thời ở FE để dùng ngay không cần load lại DB
+                        if (item.getMetadata() != null) {
+                            item.setRead(true);
+                            item.getMetadata().setResponseAction(action); // Set "ACCEPT" hoặc "DECLINE"
+                        }
+
                         notificationApi.markAsRead(item.getId());
-                        item.setRead(true);
                         notificationList.refresh();
+                        info.show();
                     } else {
-                        info.setHeaderText("Có lỗi xảy ra khi xử lý lời mời.");
+                        Alert error = new Alert(Alert.AlertType.ERROR);
+                        error.setHeaderText("Có lỗi xảy ra khi xử lý lời mời.");
+                        error.show();
                     }
-                    info.show();
                 }));
     }
 

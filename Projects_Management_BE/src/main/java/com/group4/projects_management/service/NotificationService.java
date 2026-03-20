@@ -21,4 +21,5 @@ public interface NotificationService {
 
    <T> void send(List<Long> receiverIds, T contextData, Long referenceId);
 
+   void updateMetadataResponseByRef(String refId, String action);
 }
