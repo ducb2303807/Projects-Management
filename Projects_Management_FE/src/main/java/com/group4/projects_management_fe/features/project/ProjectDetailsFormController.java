@@ -4,10 +4,15 @@ import io.reactivex.rxjava3.disposables.CompositeDisposable;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.layout.FlowPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
+import javafx.util.Callback;
 
 import java.time.LocalDate;
 
@@ -24,6 +29,7 @@ public class ProjectDetailsFormController {
     @FXML private Button editBtn;
     @FXML private Button saveBtn;
     @FXML private Button cancelBtn;
+    @FXML private Button deleteBtn;
 
     @FXML private TextField coManagerInput;
     @FXML private Button addCoManagerBtn;
@@ -35,11 +41,12 @@ public class ProjectDetailsFormController {
 
     @FXML private Label createdByLabel;
     @FXML private Label createdDateLabel;
-    @FXML private Label lastUpdatedByLabel;
     @FXML private Label lastUpdatedDateLabel;
 
     private final ProjectDetailsViewModel viewModel = new ProjectDetailsViewModel();
     private final CompositeDisposable disposables = new CompositeDisposable();
+
+    private boolean isUpdatingStatus = false;
 
     @FXML
     public void initialize() {
@@ -60,7 +67,6 @@ public class ProjectDetailsFormController {
         // 1. Sửa cho ô Project Name
         disposables.add(viewModel.projectNameObservable().subscribe(val -> {
             Platform.runLater(() -> {
-                // THÊM ĐIỀU KIỆN CHẶN LOOP Ở ĐÂY:
                 if (projectNameInput != null && val != null && !val.equals(projectNameInput.getText())) {
                     projectNameInput.setText(val);
                 }
@@ -70,7 +76,6 @@ public class ProjectDetailsFormController {
         // 2. Sửa cho ô Description
         disposables.add(viewModel.descriptionObservable().subscribe(val -> {
             Platform.runLater(() -> {
-                // THÊM ĐIỀU KIỆN CHẶN LOOP Ở ĐÂY:
                 if (descriptionInput != null && val != null && !val.equals(descriptionInput.getText())) {
                     descriptionInput.setText(val);
                 }
@@ -104,10 +109,6 @@ public class ProjectDetailsFormController {
                 Platform.runLater(() -> { if (createdDateLabel != null) createdDateLabel.setText(date); })
         ));
 
-//        disposables.add(viewModel.lastUpdatedByObservable().subscribe(name ->
-//                Platform.runLater(() -> { if (lastUpdatedByLabel != null) lastUpdatedByLabel.setText(name); })
-//        ));
-
         disposables.add(viewModel.lastUpdatedDateObservable().subscribe(date ->
                 Platform.runLater(() -> { if (lastUpdatedDateLabel != null) lastUpdatedDateLabel.setText(date); })
         ));
@@ -133,12 +134,27 @@ public class ProjectDetailsFormController {
         // --- 3. QUẢN LÝ TRẠNG THÁI EDIT/VIEW (AN TOÀN NULL-CHECK) ---
         disposables.add(viewModel.isEditingObservable().subscribe(isEditing -> {
             Platform.runLater(() -> {
+                // 1. Các ô TextField bình thường
                 if (projectNameInput != null) projectNameInput.setEditable(isEditing);
                 if (descriptionInput != null) descriptionInput.setEditable(isEditing);
-                if (startDatePicker != null) startDatePicker.setDisable(!isEditing);
-                if (endDatePicker != null) endDatePicker.setDisable(!isEditing);
-                if (statusComboBox != null) statusComboBox.setDisable(!isEditing);
 
+                // 2. CÁCH MỚI CHO DATEPICKER & COMBOBOX (CHỐNG LÀM MỜ)
+                boolean isReadOnly = !isEditing;
+
+                if (startDatePicker != null) {
+                    startDatePicker.setMouseTransparent(isReadOnly);
+                    startDatePicker.setFocusTraversable(isEditing);
+                }
+                if (endDatePicker != null) {
+                    endDatePicker.setMouseTransparent(isReadOnly);
+                    endDatePicker.setFocusTraversable(isEditing);
+                }
+                if (statusComboBox != null) {
+                    statusComboBox.setMouseTransparent(isReadOnly);
+                    statusComboBox.setFocusTraversable(isEditing);
+                }
+
+                // 3. Xử lý ẩn/hiện các nút bấm
                 if (editBtn != null) {
                     editBtn.setVisible(!isEditing);
                     editBtn.setManaged(!isEditing);
@@ -148,16 +164,22 @@ public class ProjectDetailsFormController {
                     saveBtn.setManaged(isEditing);
                 }
                 if (cancelBtn != null) {
-//                    cancelBtn.setVisible(isEditing);
-//                    cancelBtn.setManaged(isEditing);
                     cancelBtn.setText(isEditing ? "Cancel" : "Close");
                 }
 
+                // --- CẬP NHẬT: Ẩn/Hiện nút Delete ---
+                if (deleteBtn != null) {
+                    deleteBtn.setVisible(isEditing);
+                    deleteBtn.setManaged(isEditing);
+                }
+
+                // 4. Các trường nhập liệu phụ
                 if (coManagerInput != null) coManagerInput.setDisable(!isEditing);
                 if (addCoManagerBtn != null) addCoManagerBtn.setDisable(!isEditing);
                 if (memberInput != null) memberInput.setDisable(!isEditing);
                 if (addMemberBtn != null) addMemberBtn.setDisable(!isEditing);
 
+                // 5. Cập nhật class CSS để đổi giao diện
                 if (projectNameInput != null) {
                     projectNameInput.getStyleClass().removeAll("view-mode", "edit-mode");
                     projectNameInput.getStyleClass().add(isEditing ? "edit-mode" : "view-mode");
@@ -165,14 +187,13 @@ public class ProjectDetailsFormController {
             });
         }));
 
-        // --- 4. LẮNG NGHE KẾT QUẢ SAVE API ---
+        // --- 4. LẮNG NGHE KẾT QUẢ SAVE/DELETE API ---
         disposables.add(viewModel.onSaveSuccess().subscribe(success -> {
             Platform.runLater(() -> {
                 if (saveBtn != null) {
                     saveBtn.setText("Save");
                     saveBtn.setDisable(false);
                 }
-                // (Tùy chọn) Hiện thông báo Alert thành công ở đây nếu muốn
             });
         }));
 
@@ -189,22 +210,134 @@ public class ProjectDetailsFormController {
                 alert.showAndWait();
             });
         }));
+
+        // --- BỔ SUNG: Lắng nghe sự kiện Delete thành công ---
+        disposables.add(viewModel.onDeleteSuccess().subscribe(success -> {
+            Platform.runLater(this::closeForm); // Tự động đóng form Details khi xóa mềm xong
+        }));
+
+        // --- BỔ SUNG: Gắn Action cho nút Delete ---
+        if (deleteBtn != null) {
+            deleteBtn.setOnAction(e -> showDeleteConfirmation());
+        }
+
+        // ==========================================================
+        // KHU VỰC BINDING STATUS
+        // ==========================================================
+
+        // --- 1. ĐỔ DANH SÁCH OPTION TỪ API VÀO COMBOBOX ---
+        disposables.add(viewModel.statusListObservable()
+                .filter(list -> list != null && !list.isEmpty())
+                .subscribe(list -> {
+                    Platform.runLater(() -> {
+                        if (statusComboBox != null) {
+                            if (!statusComboBox.getItems().equals(list)) {
+                                isUpdatingStatus = true;
+
+                                String currentVal = statusComboBox.getValue();
+                                statusComboBox.getItems().setAll(list);
+
+                                if (currentVal != null && list.contains(currentVal)) {
+                                    statusComboBox.setValue(currentVal);
+                                }
+
+                                isUpdatingStatus = false;
+                            }
+                        }
+                    });
+                }));
+
+        // --- 2. BINDING: VIEWMODEL -> GIAO DIỆN ---
+        disposables.add(viewModel.statusNameObservable()
+                .distinctUntilChanged()
+                .subscribe(val -> {
+                    Platform.runLater(() -> {
+                        if (statusComboBox != null && val != null && !val.equals(statusComboBox.getValue())) {
+                            isUpdatingStatus = true;
+                            statusComboBox.setValue(val);
+                            isUpdatingStatus = false;
+                        }
+                    });
+                }));
+
+        // --- 3. BINDING: GIAO DIỆN -> VIEWMODEL ---
+        if (statusComboBox != null) {
+            statusComboBox.valueProperty().addListener((obs, oldV, newV) -> {
+                if (isUpdatingStatus) return;
+
+                if (newV != null && !newV.equals(oldV)) {
+                    viewModel.setStatusName(newV);
+
+                    statusComboBox.getStyleClass().removeAll("status-1", "status-2", "status-3", "status-4", "status-5");
+
+                    Long statusId = viewModel.getStatusNameToIdMap().get(newV);
+
+                    if (statusId != null) {
+                        if (statusId == 1L) statusComboBox.getStyleClass().add("status-1");
+                        else if (statusId == 2L) statusComboBox.getStyleClass().add("status-2");
+                        else if (statusId == 3L) statusComboBox.getStyleClass().add("status-3");
+                        else if (statusId == 4L) statusComboBox.getStyleClass().add("status-4");
+                        else statusComboBox.getStyleClass().add("status-5");
+                    }
+                }
+            });
+        }
+
+        // ==========================================================
+        // TÔ MÀU CHO TỪNG DÒNG TRONG DANH SÁCH XỔ XUỐNG CỦA COMBOBOX
+        // ==========================================================
+        Callback<ListView<String>, ListCell<String>> cellFactory = new Callback<>() {
+            @Override
+            public ListCell<String> call(ListView<String> param) {
+                return new ListCell<>() {
+                    @Override
+                    protected void updateItem(String item, boolean empty) {
+                        super.updateItem(item, empty);
+
+                        if (empty || item == null) {
+                            setText(null);
+                            setGraphic(null);
+                            setStyle("-fx-background-color: transparent;");
+                        } else {
+                            Label badge = new Label(item);
+                            badge.setStyle(getBadgeStyle(item));
+
+                            badge.setMinSize(Region.USE_PREF_SIZE, Region.USE_PREF_SIZE);
+                            badge.setMaxSize(Region.USE_PREF_SIZE, Region.USE_PREF_SIZE);
+
+                            HBox container = new HBox(badge);
+                            container.setAlignment(Pos.CENTER_LEFT);
+                            container.setStyle("-fx-background-color: transparent;");
+
+                            setText(null);
+                            setGraphic(container);
+                            setStyle("-fx-background-color: transparent; -fx-padding: 5px 10px;");
+                        }
+                    }
+                };
+            }
+        };
+
+        statusComboBox.setCellFactory(cellFactory);
+        statusComboBox.setButtonCell(cellFactory.call(null));
     }
 
     @FXML private void handleEditMode(ActionEvent event) { viewModel.enableEditMode(); }
+
     @FXML
     private void handleCancel(ActionEvent event) {
         if ("Close".equals(cancelBtn.getText())) {
-            closeForm(); // Nếu đang ở chế độ xem -> Đóng popup
+            closeForm();
         } else {
-            viewModel.cancelEditMode(); // Nếu đang sửa -> Hủy sửa, quay về chế độ xem
+            viewModel.cancelEditMode();
         }
     }
+
     @FXML
     private void handleSave(ActionEvent event) {
         if (saveBtn != null) {
             saveBtn.setText("Saving...");
-            saveBtn.setDisable(true); // Disable nút tránh bấm 2 lần
+            saveBtn.setDisable(true);
         }
         viewModel.saveChanges();
     }
@@ -220,5 +353,72 @@ public class ProjectDetailsFormController {
             Stage stage = (Stage) rootPane.getScene().getWindow();
             stage.close();
         }
+    }
+
+    // --- BỔ SUNG: HÀM HIỂN THỊ POPUP XÁC NHẬN XÓA ---
+    private void showDeleteConfirmation() {
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.setTitle("Delete project?");
+        alert.setHeaderText(null);
+        alert.setContentText("Are you sure you want to delete this project?");
+
+        // Tạo 2 nút Custom
+        ButtonType btnDelete = new ButtonType("Delete", ButtonBar.ButtonData.OK_DONE);
+        ButtonType btnCancel = new ButtonType("Cancel", ButtonBar.ButtonData.CANCEL_CLOSE);
+
+        alert.getButtonTypes().setAll(btnDelete, btnCancel);
+
+        // Lấy object Button thật ra để cấu hình Highlight
+        Node deleteButtonNode = alert.getDialogPane().lookupButton(btnDelete);
+        Node cancelButtonNode = alert.getDialogPane().lookupButton(btnCancel);
+
+        if (cancelButtonNode instanceof Button) {
+            ((Button) cancelButtonNode).setDefaultButton(true);  // Highlight Cancel (Nút mặc định khi nhấn Enter)
+        }
+        if (deleteButtonNode instanceof Button) {
+            ((Button) deleteButtonNode).setDefaultButton(false); // Không highlight Delete
+        }
+
+        // Hiển thị và chờ user phản hồi
+        alert.showAndWait().ifPresent(type -> {
+            if (type == btnDelete) {
+                // Nếu bấm Delete -> Gọi ViewModel xử lý đổi Status
+                viewModel.softDeleteProject();
+            }
+            // Nếu bấm Cancel -> Popup tự tắt, giữ nguyên trạng thái Edit Mode
+        });
+    }
+
+    private String getBadgeStyle(String statusName) {
+        if (statusName == null) return "-fx-background-color: transparent;";
+
+        String bgColor;
+        String textColor;
+
+        switch (statusName.trim()) {
+            case "Lập kế hoạch":
+                bgColor = "#E1F0FF"; textColor = "#0052CC";
+                break;
+            case "Đang thực hiện":
+                bgColor = "#FFF0B3"; textColor = "#FF991F";
+                break;
+            case "Đã hoàn thành":
+                bgColor = "#E3FCEF"; textColor = "#006644";
+                break;
+            case "Tạm dừng":
+                bgColor = "#FFEBE6"; textColor = "#BF2600";
+                break;
+            case "Đã huỷ":
+                bgColor = "#EBECF0"; textColor = "#42526E";
+                break;
+            default:
+                bgColor = "#F4F5F7"; textColor = "#091E42";
+                break;
+        }
+
+        return String.format(
+                "-fx-background-color: %s; -fx-text-fill: %s; -fx-padding: 4px 12px; -fx-background-radius: 12px; -fx-font-weight: bold; -fx-font-size: 12px;",
+                bgColor, textColor
+        );
     }
 }
