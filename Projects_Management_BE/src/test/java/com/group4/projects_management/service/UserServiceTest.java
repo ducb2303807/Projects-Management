@@ -141,7 +141,7 @@ public class UserServiceTest {
 
             assertThatThrownBy(() -> userService.register(dto))
                     .isInstanceOf(BusinessException.class)
-                    .hasMessageContaining("Username đã tồn tại");
+                    .hasFieldOrPropertyWithValue("errorCode", BusinessErrorCode.AUTH_USERNAME_ALREADY_EXISTS);
         }
     }
 
