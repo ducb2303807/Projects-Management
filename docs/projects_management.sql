@@ -458,15 +458,15 @@ ALTER TABLE PLUGIN
 
 -- APP_ROLE (Vai trò hệ thống)
 INSERT INTO APP_ROLE (SYSTEM_CODE, SYSTEM_NAME, SYSTEM_DESCRIPTION)
-VALUES ('ADMIN', 'Quản trị viên', 'Toàn quyền quản lý hệ thống, người dùng và các cấu hình chung.'),
-       ('USER', 'Người dùng', 'Người dùng thông thường, có thể tham gia vào các dự án.');
+VALUES ('ADMIN', 'Administrator', 'Full control over the system, users, and general configurations.'),
+       ('USER', 'User', 'Regular user, can participate in projects.');
 
 -- PROJECT_ROLE (Vai trò trong dự án)
 INSERT INTO PROJECT_ROLE (SYSTEM_CODE, SYSTEM_NAME, SYSTEM_DESCRIPTION)
-VALUES ('PM', 'Quản lý dự án', 'Người chịu trách nhiệm chính về dự án, điều phối công việc.'),
-       ('CO_PM', 'Phó quản lý dự án', 'Người hỗ trợ quản lý dự án, phụ trách các công việc cụ thể trong dự án.'),
-       ('MEMBER', 'Thành viên dự án', 'Người tham gia thực hiện các công việc trong dự án.'),
-       ('VIEWER', 'Người xem', 'Chỉ có quyền xem thông tin dự án, không được chỉnh sửa.');
+VALUES ('PM', 'Project Manager', 'Main person responsible for the project, coordinates work.'),
+       ('CO_PM', 'Co-Project Manager', 'Assists the project manager, in charge of specific tasks within the project.'),
+       ('MEMBER', 'Project Member', 'Person participating in executing project tasks.'),
+       ('VIEWER', 'Viewer', 'Only has permission to view project information, cannot edit.');
 
 -- Region: PERMISSION (Quyền hạn hệ thống), được tách ra thành nhiều nhóm để dễ quản lý và phân quyền cho các Role khác nhau
 
@@ -474,90 +474,86 @@ VALUES ('PM', 'Quản lý dự án', 'Người chịu trách nhiệm chính về
 -- QUẢN LÝ NGƯỜI DÙNG & HỆ THỐNG (User & System Management)
 -- ==============================================================================
 INSERT INTO PERMISSION (SYSTEM_CODE, SYSTEM_NAME, SYSTEM_DESCRIPTION)
-VALUES ('USER_VIEW', 'Xem người dùng', 'Xem danh sách và thông tin chi tiết người dùng hệ thống.'),
-       ('USER_CREATE', 'Tạo người dùng', 'Tạo tài khoản người dùng mới thủ công.'),
-       ('USER_EDIT', 'Sửa người dùng', 'Cập nhật thông tin, trạng thái và đổi Role hệ thống cho người dùng.'),
-       ('USER_DELETE', 'Xóa người dùng', 'Vô hiệu hóa tài khoản người dùng.'),
-       ('LOOKUP_EDIT', 'Quản lý danh mục', 'Chỉnh sửa các bảng trạng thái, độ ưu tiên, phân loại (Lookup tables).'),
-       ('PLUGIN_MANAGE', 'Quản lý Plugin', 'Cài đặt, gỡ bỏ và cấu hình các Plugin/Widget cho toàn hệ thống.');
+VALUES ('USER_VIEW', 'View Users', 'View the list and detailed information of system users.'),
+       ('USER_CREATE', 'Create User', 'Manually create a new user account.'),
+       ('USER_EDIT', 'Edit User', 'Update information, status, and change the system Role for users.'),
+       ('USER_DELETE', 'Delete User', 'Deactivate user accounts.'),
+       ('LOOKUP_EDIT', 'Manage Lookups', 'Edit status, priority, and classification tables (Lookup tables).'),
+       ('PLUGIN_MANAGE', 'Manage Plugins', 'Install, remove, and configure Plugins/Widgets for the entire system.');
 
 -- ==============================================================================
 -- QUẢN LÝ DỰ ÁN (Project Management)
 -- ==============================================================================
 INSERT INTO PERMISSION (SYSTEM_CODE, SYSTEM_NAME, SYSTEM_DESCRIPTION)
-VALUES ('PROJECT_VIEW', 'Xem dự án', 'Xem danh sách các dự án được phép tham gia.'),
-       ('PROJECT_CREATE', 'Tạo dự án', 'Khởi tạo một dự án mới (Người tạo mặc định là PM).'),
-       ('PROJECT_EDIT', 'Sửa dự án', 'Thay đổi thông tin chung, ngày bắt đầu/kết thúc của dự án.'),
-       ('PROJECT_DELETE', 'Xóa dự án', 'Xóa dự án hoặc chuyển vào trạng thái lưu trữ.'),
-       ('PROJECT_STATS', 'Xem thống kê', 'Xem biểu đồ tiến độ và thống kê hiệu suất của dự án.');
-
+VALUES ('PROJECT_VIEW', 'View Projects', 'View the list of projects allowed to participate in.'),
+       ('PROJECT_CREATE', 'Create Project', 'Initialize a new project (Creator is PM by default).'),
+       ('PROJECT_EDIT', 'Edit Project', 'Change general info, start/end dates of the project.'),
+       ('PROJECT_DELETE', 'Delete Project', 'Delete the project or move it to an archived status.'),
+       ('PROJECT_STATS', 'View Statistics', 'View progress charts and project performance statistics.');
 -- ==============================================================================
 -- QUẢN LÝ THÀNH VIÊN DỰ ÁN (Member Management)
 -- ==============================================================================
 INSERT INTO PERMISSION (SYSTEM_CODE, SYSTEM_NAME, SYSTEM_DESCRIPTION)
-VALUES ('MEMBER_VIEW', 'Xem thành viên', 'Xem danh sách thành viên và vai trò trong dự án.'),
-       ('MEMBER_INVITE', 'Mời thành viên', 'Gửi lời mời người dùng khác tham gia vào dự án.'),
-       ('MEMBER_REMOVE', 'Xóa thành viên', 'Loại bỏ thành viên ra khỏi dự án.'),
-       ('MEMBER_ROLE_EDIT', 'Sửa vai trò thành viên', 'Thay đổi quyền hạn/vai trò (PM, Dev, Test) của thành viên.');
-
+VALUES ('MEMBER_VIEW', 'View Members', 'View the member list and their roles in the project.'),
+       ('MEMBER_INVITE', 'Invite Member', 'Send invitations to other users to join the project.'),
+       ('MEMBER_REMOVE', 'Remove Member', 'Remove a member from the project.'),
+       ('MEMBER_ROLE_EDIT', 'Edit Member Role', 'Change the permissions/roles of a member.');
 -- ==============================================================================
 -- QUẢN LÝ CÔNG VIỆC (Task Management)
 -- ==============================================================================
 INSERT INTO PERMISSION (SYSTEM_CODE, SYSTEM_NAME, SYSTEM_DESCRIPTION)
-VALUES ('TASK_VIEW', 'Xem công việc', 'Xem danh sách và chi tiết các task trong dự án.'),
-       ('TASK_CREATE', 'Tạo công việc', 'Tạo mới task và thiết lập deadline.'),
-       ('TASK_EDIT', 'Sửa công việc', 'Chỉnh sửa nội dung mô tả và thời hạn của task.'),
-       ('TASK_DELETE', 'Xóa công việc', 'Xóa task ra khỏi hệ thống.'),
-       ('TASK_ASSIGN', 'Giao việc', 'Chỉ định người thực hiện hoặc người theo dõi task.'),
-       ('TASK_STATUS_EDIT', 'Chuyển trạng thái task', 'Cập nhật tiến độ task (Ví dụ: Từ To-do sang Done).'),
-       ('TASK_PRIORITY_EDIT', 'Sửa độ ưu tiên', 'Thay đổi mức độ khẩn cấp của công việc.'),
-       ('TASK_HISTORY_VIEW', 'Xem lịch sử task', 'Xem nhật ký thay đổi của một công việc (Ai sửa, sửa gì, lúc nào).');
-
+VALUES ('TASK_VIEW', 'View Tasks', 'View the list and details of tasks in the project.'),
+       ('TASK_CREATE', 'Create Task', 'Create a new task and set a deadline.'),
+       ('TASK_EDIT', 'Edit Task', 'Edit the description content and deadline of a task.'),
+       ('TASK_DELETE', 'Delete Task', 'Delete the task or move it to an archived status.'),
+       ('TASK_ASSIGN', 'Assign Task', 'Assign the executor or watcher of a task.'),
+       ('TASK_STATUS_EDIT', 'Change Task Status', 'Update task progress (e.g., from To-do to Done).'),
+       ('TASK_PRIORITY_EDIT', 'Edit Priority', 'Change the urgency level of a task.'),
+       ('TASK_HISTORY_VIEW', 'View Task History', 'View the change log of a task (who edited, what was edited, and when).');
 -- ==============================================================================
 -- TƯƠNG TÁC & THÔNG BÁO (Collaboration & Notifications)
 -- ==============================================================================
 INSERT INTO PERMISSION (SYSTEM_CODE, SYSTEM_NAME, SYSTEM_DESCRIPTION)
-VALUES ('COMMENT_CREATE', 'Gửi bình luận', 'Viết bình luận và đính kèm thông tin trong task.'),
-       ('COMMENT_EDIT_OWN', 'Sửa bình luận cá nhân', 'Chỉnh sửa nội dung bình luận của chính mình.'),
-       ('COMMENT_DELETE_OWN', 'Xóa bình luận cá nhân', 'Xóa bình luận của chính mình.'),
-       ('COMMENT_DELETE_ANY', 'Xóa mọi bình luận', 'Quyền quản trị để xóa bình luận của người khác nếu vi phạm.'),
-       ('NOTIFICATION_VIEW', 'Xem thông báo', 'Nhận và xem danh sách các thông báo cá nhân.');
+VALUES ('COMMENT_CREATE', 'Add Comment', 'Write comments and attach information in a task.'),
+       ('COMMENT_EDIT_OWN', 'Edit Own Comment', 'Edit the content of your own comment.'),
+       ('COMMENT_DELETE_OWN', 'Delete Own Comment', 'Delete your own comment.'),
+       ('COMMENT_DELETE_ANY', 'Delete Any Comment', 'Administrative permission to delete comments of others if they violate rules.'),
+       ('NOTIFICATION_VIEW', 'View Notifications', 'Receive and view the list of personal notifications.');
 
 -- ==============================================================================
 -- CÁ NHÂN HÓA (Dashboard & Widgets)
 -- ==============================================================================
 INSERT INTO PERMISSION (SYSTEM_CODE, SYSTEM_NAME, SYSTEM_DESCRIPTION)
-VALUES ('WIDGET_CONFIG', 'Cấu hình Dashboard', 'Tùy chỉnh vị trí, ẩn/hiện các widget trên màn hình cá nhân.');
-
+VALUES ('WIDGET_CONFIG', 'Configure Dashboard', 'Customize positions, hide/show widgets on the personal dashboard.');
 
 -- PRIORITY (Mức độ ưu tiên)
 INSERT INTO PRIORITY (SYSTEM_CODE, SYSTEM_NAME, SYSTEM_DESCRIPTION)
-VALUES ('URGENT', 'Khẩn cấp', 'Cần giải quyết ngay lập tức, ảnh hưởng nghiêm trọng đến tiến độ.'),
-       ('HIGH', 'Cao', 'Ưu tiên giải quyết sớm.'),
-       ('MEDIUM', 'Trung bình', 'Giải quyết theo trình tự thông thường.'),
-       ('LOW', 'Thấp', 'Có thể giải quyết sau khi rảnh.');
+VALUES ('URGENT', 'Urgent', 'Needs to be resolved immediately, severely affects progress.'),
+       ('HIGH', 'High', 'Priority to resolve early.'),
+       ('MEDIUM', 'Medium', 'Resolve in standard order.'),
+       ('LOW', 'Low', 'Can be resolved when free.');
 
 -- PROJECT_STATUS (Trạng thái dự án)
 INSERT INTO PROJECT_STATUS (SYSTEM_CODE, SYSTEM_NAME, SYSTEM_DESCRIPTION)
-VALUES ('PLANNING', 'Lập kế hoạch', 'Dự án đang trong giai đoạn chuẩn bị và khởi tạo.'),
-       ('ACTIVE', 'Đang thực hiện', 'Dự án đang triển khai các hoạt động nghiệp vụ.'),
-       ('ON_HOLD', 'Tạm dừng', 'Dự án tạm thời ngừng hoạt động vì lý do khách quan.'),
-       ('COMPLETED', 'Đã hoàn thành', 'Dự án đã kết thúc thành công tất cả các mục tiêu.'),
-       ('CANCELLED', 'Đã hủy', 'Dự án bị hủy bỏ và không tiếp tục triển khai.');
+VALUES ('PLANNING', 'Planning', 'Project is in the preparation and initialization phase.'),
+       ('ACTIVE', 'Active', 'Project is deploying business activities.'),
+       ('ON_HOLD', 'On Hold', 'Project is temporarily halted due to objective reasons.'),
+       ('COMPLETED', 'Completed', 'Project has successfully achieved all objectives.'),
+       ('CANCELLED', 'Cancelled', 'Project is cancelled and will not continue deployment.');
 
 -- TASK_STATUS (Trạng thái công việc)
 INSERT INTO TASK_STATUS (SYSTEM_CODE, SYSTEM_NAME, SYSTEM_DESCRIPTION)
-VALUES ('TODO', 'Cần làm', 'Công việc vừa được tạo, chưa có người thực hiện.'),
-       ('IN_PROGRESS', 'Đang làm', 'Công việc đang được xử lý bởi người phụ trách.'),
-       ('REVIEW', 'Đang kiểm tra', 'Công việc đã xong, chờ quản lý hoặc khách hàng duyệt.'),
-       ('DONE', 'Hoàn thành', 'Công việc đã được xác nhận hoàn thành.'),
-       ('CANCELLED', 'Đã hủy', 'Công việc không còn cần thiết hoặc bị hủy bỏ.');
+VALUES ('TODO', 'To Do', 'Task just created, no assignee yet.'),
+       ('IN_PROGRESS', 'In Progress', 'Task is being processed by the assignee.'),
+       ('REVIEW', 'Under Review', 'Task is done, waiting for manager or client approval.'),
+       ('DONE', 'Done', 'Task has been confirmed as completed.'),
+       ('CANCELLED', 'Cancelled', 'Task is no longer needed or has been cancelled.');
 
 -- PROJECT_MEMBER_STATUS (Trạng thái thành viên trong dự án)
 INSERT INTO PROJECT_MEMBER_STATUS (SYSTEM_CODE, SYSTEM_NAME, SYSTEM_DESCRIPTION)
-VALUES ('PENDING', 'Đã mời', 'Người dùng đã được mời nhưng chưa xác nhận tham gia.'),
-       ('ACTIVE', 'Đang tham gia', 'Thành viên đang hoạt động chính thức trong dự án.'),
-       ('LEFT', 'Đã rời đi', 'Thành viên không còn thuộc dự án này.');
+VALUES ('PENDING', 'Pending', 'User has been invited but has not confirmed participation.'),
+       ('ACTIVE', 'Active', 'Member is officially active in the project.'),
+       ('LEFT', 'Left', 'Member no longer belongs to this project.');
 
 
 -- Gán quyền cho APP_ROLE: USER
@@ -666,7 +662,7 @@ INSERT INTO USER (APP_ROLE_ID, USER_NAME, USER_USERNAME, USER_PASSWORD_HASHED, U
 VALUES ((SELECT APP_ROLE_ID FROM APP_ROLE WHERE SYSTEM_CODE = 'USER'),
         'Default User',
         'user01',
-        '$2a$10$4IuCWDtW1UzrJFo.gBoG3ef1qihSpgL47q4n3CEDZ1tnZQU6TFjOW', -- 123456a
+        '$2a$10$9.AW4jb.sMhShHMpOW3g2.KrGNrliWD0mDeyMQbHc8Q3q.GGx3n7W', -- user01
         'user01@system.com',
         TRUE,
         'Cần Thơ');
