@@ -65,6 +65,18 @@
     -fx-background-color: transparent;
 }
 
+.project-table .table-row-cell:filled:hover {
+    -fx-background-color: #f1f7ff;
+}
+
+.project-table .table-row-cell:filled:selected {
+    -fx-background-color: #e3f2fd;
+}
+
+.project-table .table-row-cell:filled:selected .text {
+    -fx-fill: #1565c0; /* xanh đậm */
+}
+
 .status-badge {
     -fx-font-size: 11px;
     -fx-font-weight: 600;
@@ -275,4 +287,20 @@
 .task-name {
     -fx-font-size: 13px;
     -fx-font-weight: 500;
+}
+
+
+/* HOVER */
+.list-view .list-cell:hover {
+    -fx-background-color: #f1f5f9; /* xám xanh nhẹ */
+}
+
+/* SELECTED */
+.list-view .list-cell:filled:selected {
+    -fx-background-color: #dbeafe; /* xanh nhạt */
+}
+
+/* TEXT khi hover */
+.list-view .list-cell:hover .task-name {
+    -fx-text-fill: #2563eb; /* xanh đậm */
 }

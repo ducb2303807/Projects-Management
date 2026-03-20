@@ -2,11 +2,15 @@ package com.group4.projects_management_fe.features.dashboard;
 
 import com.group4.common.dto.ProjectResponseDTO;
 import com.group4.common.dto.TaskResponseDTO;
+import com.group4.projects_management_fe.features.task.TaskDetailFormController;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.geometry.Pos;
 import javafx.geometry.Side;
 import javafx.scene.Node;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.skin.DatePickerSkin;
 import javafx.scene.layout.*;
@@ -21,6 +25,8 @@ import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import com.group4.projects_management_fe.core.session.AppSessionManager;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
 
 public class DashboardController {
 
@@ -28,7 +34,7 @@ public class DashboardController {
     private VBox calendarBox;
 
     @FXML
-    private ListView<HBox> taskListView;
+    private ListView<TaskResponseDTO> taskListView;
 
     /* -------- POPUP -------- */
 
@@ -284,19 +290,75 @@ public class DashboardController {
 
         LocalDate today = LocalDate.now();
 
-        List<HBox> taskItems = allTasks.stream()
+        List<TaskResponseDTO> taskItems = allTasks.stream()
                 .filter(task -> task.getAssignees() != null)
                 .filter(task -> task.getAssignees().stream()
                         .anyMatch(a -> a.getUserId() != null && a.getUserId().equals(currentUserId)))
                 .filter(task -> task.getDeadline() != null)
                 .filter(task -> task.getDeadline().toLocalDate().isEqual(today))
-                .map(this::createTaskItem)
-                .filter(Objects::nonNull)
                 .toList();
 
         Platform.runLater(() -> {
             taskListView.setItems(FXCollections.observableArrayList(taskItems));
         });
+    }
+
+    private void setupTaskListView() {
+
+        // render UI cho từng item
+        taskListView.setCellFactory(listView -> new ListCell<>() {
+            @Override
+            protected void updateItem(TaskResponseDTO task, boolean empty) {
+                super.updateItem(task, empty);
+
+                if (empty || task == null) {
+                    setGraphic(null);
+                } else {
+                    setGraphic(createTaskItem(task));
+                }
+            }
+        });
+
+        // bắt sự kiện click
+        taskListView.setOnMouseClicked(event -> {
+            if (event.getClickCount() == 2) {
+                TaskResponseDTO selectedTask =
+                        taskListView.getSelectionModel().getSelectedItem();
+
+                if (selectedTask != null) {
+                    openTaskDetail(selectedTask);
+                }
+            }
+        });
+    }
+
+    private void openTaskDetail(TaskResponseDTO task) {
+        try {
+            FXMLLoader loader = new FXMLLoader(
+                    getClass().getResource("/com/group4/projects_management_fe/features/task/TaskDetailForm.fxml")
+            );
+
+            Parent root = loader.load();
+
+            TaskDetailFormController controller = loader.getController();
+
+            controller.setSessionProvider(AppSessionManager.getInstance());
+
+            controller.initData(task, null);
+
+            Stage stage = new Stage();
+            stage.setScene(new Scene(root));
+            stage.initModality(Modality.APPLICATION_MODAL);
+            stage.setTitle("Task Detail");
+
+            controller.setPopupStage(stage);
+
+            stage.showAndWait();
+            loadProjects();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
     //service
 
@@ -311,6 +373,7 @@ public class DashboardController {
         projectApi = new ProjectApi(sessionProvider);
         taskApi = new TaskApi(sessionProvider);
 
+        setupTaskListView();
         loadProjects();
         setupProjectTable();
 
@@ -320,6 +383,5 @@ public class DashboardController {
         Node calendar = skin.getPopupContent();
 
         calendarBox.getChildren().add(calendar);
-
     }
 }
