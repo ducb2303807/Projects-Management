@@ -4,10 +4,13 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<ScrollPane fitToHeight="true" fitToWidth="true" hbarPolicy="NEVER" maxHeight="Infinity" maxWidth="Infinity" style="-fx-background-color: #F8F9FA;" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.group4.projects_management_fe.features.task.TasksViewController">
+<ScrollPane fitToHeight="true" fitToWidth="true" hbarPolicy="NEVER" maxHeight="-Infinity" style="-fx-background-color: #F8F9FA;" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.group4.projects_management_fe.features.task.TasksViewController">
+
    <content>
-      <VBox alignment="TOP_CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" spacing="20" styleClass="task-container" stylesheets="@../assets/css/tasks/tasks.css">
+      <VBox alignment="TOP_CENTER" maxHeight="Infinity" maxWidth="Infinity" spacing="20" styleClass="task-container" stylesheets="@../assets/css/tasks/tasks.css">
+
          <children>
+            <!-- TITLE -->
             <HBox alignment="CENTER" styleClass="task-title">
                <children>
                   <Label styleClass="task-title" text="My tasks " />
@@ -26,10 +29,8 @@
                   <Insets top="40.0" />
                </VBox.margin>
             </HBox>
-            <VBox fx:id="taskCategoryVBox" alignment="TOP_CENTER" styleClass="task-category-container" VBox.vgrow="ALWAYS">
-               <children>
+            <VBox fx:id="taskCategoryVBox" alignment="TOP_CENTER" maxHeight="Infinity" spacing="12" styleClass="task-category-container" VBox.vgrow="ALWAYS">
 
-               </children>
                <VBox.margin>
                   <Insets bottom="20.0" />
                </VBox.margin>
