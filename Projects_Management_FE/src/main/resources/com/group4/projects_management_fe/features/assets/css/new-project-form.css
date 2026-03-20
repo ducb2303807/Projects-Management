@@ -123,7 +123,7 @@
 }
 
 .btn-create {
-    -fx-background-color: #7f559f;
+    -fx-background-color:linear-gradient(to right,#7b5cff,#9f7aea);
     -fx-background-radius: 20px;
     -fx-text-fill: white;
     -fx-font-family: "Segoe UI", sans-serif;
