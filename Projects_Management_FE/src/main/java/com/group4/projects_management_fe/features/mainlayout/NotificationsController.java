@@ -11,12 +11,9 @@ import com.group4.projects_management_fe.core.api.NotificationApi;
 import com.group4.projects_management_fe.core.session.AppSessionManager;
 import org.ocpsoft.prettytime.PrettyTime;
 
-import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
 import java.util.Date;
-import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 
@@ -98,14 +95,14 @@ public class NotificationsController {
 
             if ("DECLINE".equalsIgnoreCase(action)) {
                 Alert info = new Alert(Alert.AlertType.INFORMATION);
-                info.setHeaderText("Bạn đã từ chối lời mời vào dự án này.");
+                info.setHeaderText("You have already declined this project invitation.");
                 info.show();
                 return;
             }
 
             if ("ACCEPT".equalsIgnoreCase(action)) {
                 Alert info = new Alert(Alert.AlertType.INFORMATION);
-                info.setHeaderText("Bạn đã chấp nhận tham gia dự án này rồi.");
+                info.setHeaderText("You have already joined this project.");
                 info.show();
                 return;
             }
@@ -118,13 +115,13 @@ public class NotificationsController {
         NotificationDTO.Metadata meta = item.getMetadata();
 
         Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-        alert.setTitle("Thư mời tham gia dự án");
-        alert.setHeaderText("Bạn được " + meta.getInviterName() +
-                " mời tham gia dự án " + meta.getProjectName() +
-                " với vai trò " + meta.getRoleName());
+        alert.setTitle("Project Invitation");
+        alert.setHeaderText("You are invited by " + meta.getInviterName() +
+                " to join project " + meta.getProjectName() +
+                " as a " + meta.getRoleName());
 
-        ButtonType acceptBtn = new ButtonType("Chấp nhận", ButtonBar.ButtonData.OK_DONE);
-        ButtonType declineBtn = new ButtonType("Từ chối", ButtonBar.ButtonData.NO);
+        ButtonType acceptBtn = new ButtonType("Accept", ButtonBar.ButtonData.OK_DONE);
+        ButtonType declineBtn = new ButtonType("Decline", ButtonBar.ButtonData.NO);
 
         alert.getButtonTypes().setAll(acceptBtn, declineBtn, ButtonType.CANCEL);
 
@@ -143,9 +140,7 @@ public class NotificationsController {
             } else if (chosen.equals(declineBtn)) {
                 handleInvitationAction(item.getReferenceId(), "DECLINE", item);
             }
-            // Nếu là ButtonType.CANCEL (do bấm X hoặc ESC) -> Tự động rơi vào đây và thoát, không làm gì cả
         }
-        // Nếu result không present (trường hợp hiếm) -> cũng không làm gì cả
     }
 
     private void handleInvitationAction(Long projectMemberId, String action, NotificationDTO item) {
@@ -154,15 +149,14 @@ public class NotificationsController {
                     if (success) {
                         Alert info = new Alert(Alert.AlertType.INFORMATION);
                         if ("ACCEPT".equals(action)) {
-                            info.setHeaderText("Bạn đã tham gia dự án thành công!");
+                            info.setHeaderText("Successfully joined the project!");
                         } else {
-                            info.setHeaderText("Bạn đã từ chối lời mời.");
+                            info.setHeaderText("Invitation declined successfully.");
                         }
 
-                        // Cập nhật Metadata tạm thời ở FE để dùng ngay không cần load lại DB
                         if (item.getMetadata() != null) {
                             item.setRead(true);
-                            item.getMetadata().setResponseAction(action); // Set "ACCEPT" hoặc "DECLINE"
+                            item.getMetadata().setResponseAction(action);
                         }
 
                         notificationApi.markAsRead(item.getId());
@@ -170,7 +164,7 @@ public class NotificationsController {
                         info.show();
                     } else {
                         Alert error = new Alert(Alert.AlertType.ERROR);
-                        error.setHeaderText("Có lỗi xảy ra khi xử lý lời mời.");
+                        error.setHeaderText("An error occurred while processing the invitation.");
                         error.show();
                     }
                 }));

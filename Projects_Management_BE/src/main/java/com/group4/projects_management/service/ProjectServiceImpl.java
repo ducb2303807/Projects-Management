@@ -180,7 +180,7 @@ public class ProjectServiceImpl extends BaseServiceImpl<Project, Long> implement
         try {
             notificationService.updateMetadataResponseByRef(invitationId.toString(), request.getAction().name());
         } catch (Exception e) {
-            System.err.println("Lỗi cập nhật metadata thông báo: " + e.getMessage());
+            System.err.println("Error updating metadata: " + e.getMessage());
         }
     }
 
