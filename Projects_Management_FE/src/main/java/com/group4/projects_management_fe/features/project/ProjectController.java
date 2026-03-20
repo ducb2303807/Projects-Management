@@ -161,6 +161,13 @@ public class ProjectController implements Initializable {
                 // Đổ data vào giao diện Card
                 cardCtrl.bindData(String.valueOf(dto.getId()), dto.getProjectName(), dto.getStatusName(), creatorName, dateStr);
 
+                // TRUYỀN CALLBACK ĐỂ BẮT SỰ KIỆN SAU KHI ĐÓNG POPUP DETAILS
+                cardCtrl.setOnProjectUpdatedCallback(() -> {
+                    if (viewModel != null) {
+                        viewModel.fetchMyProjects(); // Load lại data từ API
+                    }
+                });
+
                 // GẮN SỰ KIỆN CLICK CHO THẺ CARD CHÍNH ĐỂ THÊM VÀO RECENT
                 projectCard.setOnMouseClicked(event -> {
                     handleProjectClicked(dto);
