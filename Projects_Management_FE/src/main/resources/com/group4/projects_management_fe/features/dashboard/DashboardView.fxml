@@ -74,9 +74,8 @@
         <GridPane hgap="20" vgap="20">
 
             <columnConstraints>
-                <ColumnConstraints percentWidth="50" />
-                <ColumnConstraints percentWidth="25" />
-                <ColumnConstraints percentWidth="25" />
+                <ColumnConstraints percentWidth="65" />
+                <ColumnConstraints percentWidth="35" />
             </columnConstraints>
 
             <!-- PROJECT SUMMARY -->
@@ -106,17 +105,6 @@
             <!-- CALENDAR -->
             <VBox styleClass="box" GridPane.columnIndex="1" GridPane.rowIndex="0">
                 <VBox fx:id="calendarBox" />
-            </VBox>
-
-            <!-- REVIEW -->
-            <VBox spacing="15" styleClass="box" GridPane.columnIndex="2" GridPane.rowIndex="0">
-
-                <Label styleClass="box-title" text="Review" />
-
-                <Pane styleClass="review-box" />
-                <Pane styleClass="review-box" />
-                <Pane styleClass="review-box" />
-
             </VBox>
 
             <!-- TODAY TASK -->
