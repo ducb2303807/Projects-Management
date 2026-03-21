@@ -4,7 +4,7 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<ScrollPane fitToWidth="true" fitToHeight="true" maxWidth="Infinity" maxHeight="Infinity" styleClass="main-view-bg" stylesheets="@../assets/css/project.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.group4.projects_management_fe.features.project.ProjectController">
+<ScrollPane fitToWidth="true" fitToHeight="true" maxWidth="Infinity" maxHeight="Infinity" styleClass="main-view-bg" stylesheets="@../assets/css/project/project.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.group4.projects_management_fe.features.project.ProjectController">
     <content>
         <VBox spacing="20.0">
             <padding>

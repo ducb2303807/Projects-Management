@@ -5,7 +5,7 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
 
-<StackPane fx:id="rootPane" styleClass="popup-background" stylesheets="@../assets/css/new-project-form.css" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.group4.projects_management_fe.features.project.NewProjectFormController">
+<StackPane fx:id="rootPane" styleClass="popup-background" stylesheets="@../assets/css/project/new-project-form.css" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.group4.projects_management_fe.features.project.NewProjectFormController">
 
     <VBox minHeight="550.0" prefWidth="940.0" styleClass="popup-container">
 
