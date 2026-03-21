@@ -26,11 +26,6 @@ public class ProjectController {
     @Autowired
     private TaskService taskService;
 
-    public ProjectController(ProjectService projectService, TaskService taskService) {
-        this.projectService = projectService;
-        this.taskService = taskService;
-    }
-
     @Operation(summary = "Lấy thông tin tất cả projects")
     @GetMapping
     public ResponseEntity<List<ProjectResponseDTO>> getAllProjects() {

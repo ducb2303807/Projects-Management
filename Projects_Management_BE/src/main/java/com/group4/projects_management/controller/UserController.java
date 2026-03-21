@@ -83,5 +83,4 @@ public class UserController {
       userService.changePassword(userId, dto);
       return ResponseEntity.ok().build();
    }
-
 }

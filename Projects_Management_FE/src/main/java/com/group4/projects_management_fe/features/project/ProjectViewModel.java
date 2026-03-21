@@ -18,7 +18,7 @@ public class ProjectViewModel {
     private final BehaviorSubject<List<ProjectResponseDTO>> projectsSubject = BehaviorSubject.createDefault(new ArrayList<>());
 
     public void fetchMyProjects() {
-        projectApi.getMyProjects().thenAccept(projects -> {
+        projectApi.getMyProjects(false).thenAccept(projects -> {
             projectsSubject.onNext(projects);
             System.out.println("Tải thành công " + projects.size() + " dự án.");
         }).exceptionally(ex -> {
