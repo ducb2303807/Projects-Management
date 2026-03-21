@@ -6,6 +6,7 @@ import com.group4.projects_management_fe.core.api.base.SseClientManager;
 import com.group4.projects_management_fe.core.extension.SseRxBridge;
 import com.group4.projects_management_fe.core.navigation.AppStageManager;
 import com.group4.projects_management_fe.core.session.AppSessionManager;
+import com.group4.projects_management_fe.features.toast.Toast;
 import io.reactivex.rxjava3.disposables.CompositeDisposable;
 import io.reactivex.rxjava3.plugins.RxJavaPlugins;
 import javafx.animation.FadeTransition;
@@ -21,6 +22,7 @@ import javafx.scene.layout.Priority;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.shape.Circle;
+import javafx.stage.Stage;
 import javafx.util.Duration;
 import org.pdfsam.rxjavafx.schedulers.JavaFxScheduler;
 
@@ -68,12 +70,16 @@ public class MainLayoutController {
         userBox.setOnMouseClicked(e -> showProfile());
         overlayBackground.setOnMouseClicked(e -> closeProfile());
 
+        Stage stage = AppStageManager.getInstance().getStage();
         /// SSE
         sseClientManager.connect();
         disposables.add(SseRxBridge.toObservable(sseClientManager)
                 .observeOn(JavaFxScheduler.platform())
-                .subscribe(System.out::println
+                .subscribe(sseNotificationDTO ->  {
+                            Toast.showToast(stage, sseNotificationDTO);
+                        }
                         , RxJavaPlugins::onError));
+
     }
 
     @FXML
