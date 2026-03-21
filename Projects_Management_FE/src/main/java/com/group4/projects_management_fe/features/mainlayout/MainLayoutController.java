@@ -154,6 +154,29 @@ public class MainLayoutController {
     }
 
     @FXML
+    private void handleSaveProfile() {
+        if (currentUser == null) return;
+
+        UserUpdateDTO request = new UserUpdateDTO();
+        request.setFullName(fullnameField.getText());
+        request.setEmail(emailField.getText());
+
+        userApi.updateProfile(currentUser.getId(), request)
+                .thenAccept(updatedUser -> {
+                    currentUser = updatedUser;
+
+                    javafx.application.Platform.runLater(() -> {
+                        bindUserToUI(updatedUser);
+                        closeProfile();
+                    });
+                })
+                .exceptionally(ex -> {
+                    ex.printStackTrace();
+                    return null;
+                });
+    }
+
+    @FXML
     private void showDashboard() {
         setActive(dashboardBtn);
         loadView("/com/group4/projects_management_fe/features/dashboard/DashboardView.fxml");
