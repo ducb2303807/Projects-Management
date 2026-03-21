@@ -42,6 +42,12 @@ public class TasksViewController {
         }
     }
 
+//  TasksViewController → TaskGroupController → TaskItemController → TaskDetailFormController
+//  Gọi sau khi TaskDetailFormController.handleSave() thành công
+    public void reloadData() {
+        loadTasksData();
+    }
+
     private void loadTasksData() {
         lookupApi.getAll(LookupType.TASK_STATUS)
                 .thenCombine(taskApi.getMyTasks(), (statuses, tasks) -> {   // ← Dùng getMyTasks()
@@ -78,15 +84,14 @@ public class TasksViewController {
                 groupCtrl.setSessionProvider(sessionProvider);   // ← Truyền session xuống
                 groupCtrl.loadTasks(groupTasks);
 
+                groupCtrl.setReloadCallback(this::reloadData);
+                groupCtrl.loadTasks(groupTasks);
+
                 taskCategoryVBox.getChildren().add(groupRoot);
             } catch (IOException e) {
                 e.printStackTrace();
             }
         }
-    }
-
-    public void reloadData() {
-        loadTasksData();
     }
 
     private String getDisplayName(String systemName) {
