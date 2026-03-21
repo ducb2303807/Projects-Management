@@ -8,6 +8,7 @@ import com.group4.projects_management_fe.core.api.base.SseClientManager;
 import com.group4.projects_management_fe.core.extension.SseRxBridge;
 import com.group4.projects_management_fe.core.navigation.AppStageManager;
 import com.group4.projects_management_fe.core.session.AppSessionManager;
+import com.group4.projects_management_fe.features.toast.Toast;
 import io.reactivex.rxjava3.disposables.CompositeDisposable;
 import io.reactivex.rxjava3.plugins.RxJavaPlugins;
 import javafx.animation.FadeTransition;
