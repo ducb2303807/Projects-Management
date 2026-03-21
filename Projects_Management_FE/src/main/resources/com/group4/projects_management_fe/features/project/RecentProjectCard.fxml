@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox alignment="CENTER" prefHeight="120.0" prefWidth="100.0" spacing="10.0" styleClass="recent-card" stylesheets="@../assets/css/project.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.group4.projects_management_fe.features.project.RecentProjectCardController">
+    <children>
+        <ImageView fx:id="folderIcon" fitHeight="80.0" fitWidth="80.0" pickOnBounds="true" preserveRatio="true" styleClass="recent-folder-icon">
+         <image>
+            <Image url="@../assets/image/folder_v3.png" />
+         </image>
+        </ImageView>
+        <Label fx:id="lblProjectName" styleClass="recent-project-name" text="Project name" />
+    </children>
+    <padding>
+        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+    </padding>
+</VBox>

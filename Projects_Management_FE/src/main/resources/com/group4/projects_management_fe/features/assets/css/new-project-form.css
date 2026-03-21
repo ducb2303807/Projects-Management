@@ -1,0 +1,297 @@
+.popup-background {
+    -fx-background-color: transparent;
+}
+
+.popup-container {
+    -fx-background-color: #FFFFFF;
+    -fx-background-radius: 12px;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.2), 20, 0, 0, 5);
+}
+
+.title-input {
+    -fx-font-size: 40px;
+    -fx-font-weight: 900;
+    -fx-text-fill: #34495E;
+    -fx-prompt-text-fill: rgba(121, 121, 121, 1);
+    -fx-background-color: transparent;
+    -fx-padding: 0;
+}
+
+.title-input:focused {
+    -fx-prompt-text-fill: transparent;
+}
+
+.field-label {
+    -fx-text-fill: #797979;
+    -fx-font-size: 20px;
+}
+
+.icon-muted {
+    -fx-icon-color: #797979;
+    -fx-icon-size: 16px;
+}
+
+/* Các ô input sạch, không viền cho đến khi hover/focus */
+.clean-input, .clean-textarea {
+    -fx-background-color: #FFFFFF;
+    -fx-border-color: #E5E7EB;
+    /*-fx-prompt-text-fill: #BDC3C7;*/
+    /*-fx-text-fill: #2C3E50;*/
+    -fx-text-fill: #374151;
+    -fx-font-size: 16px;
+    -fx-prompt-text-fill: #9CA3AF;
+}
+.clean-input:hover, .clean-textarea:hover {
+    -fx-background-color: #F8F9FA;
+    -fx-border-radius: 4px;
+}
+.clean-input:focused, .clean-textarea:focused {
+    -fx-focus-color: transparent;
+    -fx-faint-focus-color: transparent;
+    /*-fx-background-color: #FFFFFF;*/
+    /*-fx-border-color: #bec1c4;*/
+    -fx-border-radius: 4px;
+    -fx-border-color: #8B5CF6; /* Viền sáng màu tím */
+    -fx-background-color: #FFFFFF;
+    /* Tỏa ánh sáng tím nhẹ xung quanh ô nhập */
+    -fx-effect: dropshadow(three-pass-box, rgba(139, 92, 246, 0.2), 8, 0, 0, 0);
+}
+
+.section-title-small {
+    -fx-font-size: 13px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #34495E;
+}
+
+.info-text {
+    -fx-font-size: 12px;
+    -fx-text-fill: #34495E;
+}
+
+/* Nút + hình tròn */
+.btn-add-circle {
+    -fx-background-color: #F0F0F0;
+    -fx-text-fill: #7F8C8D;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-background-radius: 15px;
+    -fx-min-width: 30px;
+    -fx-min-height: 30px;
+    -fx-cursor: hand;
+}
+.btn-add-circle:hover {
+    -fx-background-color: #E0E0E0;
+}
+
+/* Chip/Tag chứa tên user */
+.user-tag {
+    -fx-background-color: #F4F0FF; /* Tím nhạt */
+    -fx-background-radius: 12px;
+    -fx-padding: 4 8 4 10;
+    -fx-spacing: 5;
+    -fx-alignment: center;
+}
+.user-tag-text {
+    -fx-text-fill: #5B2C6F;
+    -fx-font-size: 12px;
+    -fx-font-weight: bold;
+}
+.user-tag-close {
+    -fx-background-color: transparent;
+    -fx-text-fill: #9B59B6;
+    -fx-font-size: 10px;
+    -fx-cursor: hand;
+    -fx-padding: 0 2 0 2;
+}
+.user-tag-close:hover {
+    -fx-text-fill: #E74C3C;
+}
+
+.btn-cancel {
+    -fx-background-color: transparent;
+    -fx-background-radius: 20px;
+    -fx-text-fill: #7F8C8D;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-cursor: hand;
+    -fx-padding: 8px 15px;
+}
+.btn-cancel:hover {
+    -fx-text-fill: #2C3E50;
+    -fx-background-color: #F2F2F2;
+    -fx-background-radius: 20px;
+}
+
+.btn-create {
+    -fx-background-color:linear-gradient(to right,#7b5cff,#9f7aea);
+    -fx-background-radius: 20px;
+    -fx-text-fill: white;
+    -fx-font-family: "Segoe UI", sans-serif;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-padding: 8px 20px;
+    -fx-cursor: hand;
+}
+
+.btn-create:hover {
+    -fx-background-color: #5c3f81;
+}
+
+.user-name {
+    -fx-font-size: 15px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #000000;
+}
+
+.date-time {
+    -fx-font-size: 12px;
+    -fx-text-fill: #2B5CE6;
+}
+
+/* Nút cây bút */
+.btn-edit-circle {
+    -fx-background-color: transparent;
+    -fx-background-radius: 50%;
+    -fx-min-width: 35px;
+    -fx-min-height: 35px;
+    -fx-cursor: hand;
+}
+.btn-edit-circle:hover {
+    -fx-background-color: #F3F4F6;
+}
+
+/* === GIAO DIỆN READ-ONLY (PHASE 1) === */
+.read-only-mode .text-input {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-padding: 0;
+}
+
+.read-only-mode .text-input:disabled,
+.read-only-mode .date-picker:disabled,
+.read-only-mode .combo-box:disabled {
+    -fx-opacity: 1.0 !important; /* Ép hiển thị rõ nét 100%, không bị mờ nhạt */
+}
+
+/* Đảm bảo màu chữ bên trong DatePicker và ComboBox vẫn đen/đậm, không bị xám đi */
+.read-only-mode .date-picker:disabled > .text-field,
+.read-only-mode .combo-box:disabled > .list-cell {
+    -fx-text-fill: #0F172A; /* Màu chữ đen sắc nét */
+    -fx-opacity: 1.0 !important;
+}
+
+/* Ẩn cái nút mũi tên xổ xuống của DatePicker và ComboBox */
+.read-only-mode .date-picker > .arrow-button,
+.read-only-mode .combo-box > .arrow-button {
+    -fx-padding: 0;
+    -fx-opacity: 0;
+    -fx-max-width: 0;
+}
+
+/* Tắt viền focus */
+.read-only-mode .text-input:focused,
+.read-only-mode .date-picker:focused,
+.read-only-mode .combo-box:focused {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+}
+/* --- Xóa viền và nền mặc định xấu xí của ScrollPane --- */
+.tags-scroll-pane {
+    -fx-background-color: transparent;
+    -fx-background-insets: 0;
+    -fx-padding: 0;
+}
+.tags-scroll-pane > .viewport {
+    -fx-background-color: transparent;
+}
+
+/* --- Tùy chỉnh thanh cuộn (Scrollbar) cho thanh lịch --- */
+.tags-scroll-pane .scroll-bar:vertical {
+    -fx-background-color: transparent;
+    -fx-pref-width: 6px; /* Bo hẹp thanh cuộn lại */
+}
+.tags-scroll-pane .scroll-bar:vertical .track {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+}
+.tags-scroll-pane .scroll-bar:vertical .thumb {
+    -fx-background-color: #D1D5DB; /* Màu xám nhạt */
+    -fx-background-radius: 10px; /* Bo góc tròn trịa */
+}
+.tags-scroll-pane .scroll-bar:vertical .thumb:hover {
+    -fx-background-color: #9CA3AF; /* Đậm hơn khi di chuột vào */
+}
+.tags-scroll-pane .scroll-bar:vertical .increment-button,
+.tags-scroll-pane .scroll-bar:vertical .decrement-button {
+    -fx-padding: 0; /* Ẩn 2 cái nút mũi tên lên/xuống 2 đầu */
+}
+
+/* =========================================
+   STYLE CHO COMBOBOX TRẠNG THÁI (STATUS)
+   ========================================= */
+
+/* 1. Trạng thái 1: Nền #a8d1f7, chữ #0960b0 */
+.status-1, .status-1 .list-cell {
+    -fx-background-color: #a8d1f7;
+    -fx-text-fill: #0960b0;
+}
+
+/* 2. Trạng thái 2: Nền #E2B133 (18%), chữ #DFA510 */
+.status-2, .status-2 .list-cell {
+    -fx-background-color: rgba(226, 177, 51, 0.18);
+    -fx-text-fill: #DFA510;
+}
+
+/* 3. Trạng thái 3: Nền #E65F2B (18%), chữ #E65F2B */
+.status-3, .status-3 .list-cell {
+    -fx-background-color: rgba(230, 95, 43, 0.18);
+    -fx-text-fill: #E65F2B;
+}
+
+/* 4. Trạng thái 4: Nền #1A932E (18%), chữ #1A932E */
+.status-4, .status-4 .list-cell {
+    -fx-background-color: rgba(26, 147, 46, 0.18);
+    -fx-text-fill: #1A932E;
+}
+
+/* 5. Trạng thái 5: Không cần CSS đặc biệt (giữ mặc định) */
+.status-5, .status-5 .list-cell {
+    -fx-background-color: transparent; /* Hoặc màu nền mặc định của app */
+    -fx-text-fill: -fx-text-base-color;
+}
+
+/* Tùy chọn: Thêm bo góc cho ComboBox giống thiết kế badge */
+.combo-box.status-1, .combo-box.status-2,
+.combo-box.status-3, .combo-box.status-4 {
+    -fx-background-radius: 4px;
+    -fx-border-radius: 4px;
+    -fx-font-weight: bold;
+}
+
+/* Tăng khoảng cách và tạo độ bo góc cho các dòng xổ xuống */
+.combo-box-popup .list-cell {
+    -fx-padding: 6px 10px;
+    -fx-background-radius: 4px;
+    -fx-border-color: transparent transparent #f3f4f6 transparent; /* Đường kẻ ngang mờ chia cách */
+    -fx-border-width: 0 0 1px 0;
+}
+
+/* Loại bỏ gạch dưới ở dòng cuối cùng */
+.combo-box-popup .list-cell:empty {
+    -fx-border-color: transparent;
+}
+
+.btn-delete{
+    -fx-background-color: #ff0000;
+    -fx-background-radius: 20px;
+    -fx-text-fill: white;
+    -fx-font-family: "Segoe UI", sans-serif;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-padding: 8px 20px;
+    -fx-cursor: hand;
+}
+
+.btn-delete:hover {
+    -fx-background-color: #780404;
+}
