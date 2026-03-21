@@ -2,6 +2,7 @@ package com.group4.projects_management_fe.features.mainlayout;
 
 import com.group4.common.dto.SseNotificationDTO;
 import com.group4.common.dto.UserDTO;
+import com.group4.common.dto.UserUpdateDTO;
 import com.group4.projects_management_fe.core.api.RxSseManager;
 import com.group4.projects_management_fe.core.api.UserApi;
 import com.group4.projects_management_fe.core.api.base.SseClientManager;
@@ -161,6 +162,10 @@ public class MainLayoutController {
 
     private void showProfile() {
 
+        if (currentUser != null) {
+            bindUserToUI(currentUser);
+        }
+
         profileOverlay.setVisible(true);
         profileOverlay.setManaged(true);
 
@@ -177,6 +182,29 @@ public class MainLayoutController {
 
         fade.play();
         scale.play();
+    }
+
+    @FXML
+    private void handleSaveProfile() {
+        if (currentUser == null) return;
+
+        UserUpdateDTO request = new UserUpdateDTO();
+        request.setFullName(fullnameField.getText());
+        request.setEmail(emailField.getText());
+
+        userApi.updateProfile(currentUser.getId(), request)
+                .thenAccept(updatedUser -> {
+                    currentUser = updatedUser;
+
+                    javafx.application.Platform.runLater(() -> {
+                        bindUserToUI(updatedUser);
+                        closeProfile();
+                    });
+                })
+                .exceptionally(ex -> {
+                    ex.printStackTrace();
+                    return null;
+                });
     }
 
     @FXML
