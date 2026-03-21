@@ -2,8 +2,10 @@ package com.group4.projects_management;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.scheduling.annotation.EnableScheduling;
 
 @SpringBootApplication
+@EnableScheduling
 public class ProjectsManagementApplication {
 
     public static void main(String[] args) {

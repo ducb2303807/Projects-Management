@@ -13,6 +13,7 @@ import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
 import java.util.HashSet;
+import java.util.List;
 
 /**
  * @pdOid f521481c-a646-4bde-bb82-baf28d561b0f
@@ -88,6 +89,15 @@ public class Task {
         return count;
     }
 
+    public List<Long> getMembersId() {
+        if (this.getAssignments() == null) return List.of();
+        return this.getAssignments()
+                .stream()
+                .filter(assignment -> assignment.getAssignee().isActive())
+                .map(assignment -> assignment.getAssignee().getUser().getId())
+                .toList();
+    }
+
     public boolean isUrgent() {
         return "Urgent".equalsIgnoreCase(this.priority.getSystemCode());
     }
@@ -101,7 +111,6 @@ public class Task {
         if (this.isCompleted()) return 0;
         return deadline.until(LocalDateTime.now(), java.time.temporal.ChronoUnit.DAYS);
     }
-
 
     public void addAssignment(ProjectMember assignee, ProjectMember assigner) {
         if (assignee == null || assigner == null) return;
@@ -132,10 +141,6 @@ public class Task {
                         .equals(taskAssignmentId));
     }
 
-    public boolean canUpdateStatus(TaskStatus newStatus) {
-        // TODO: implement
-        return false;
-    }
 
     public void addComment(Comment comment) {
         this.comments.add(comment);

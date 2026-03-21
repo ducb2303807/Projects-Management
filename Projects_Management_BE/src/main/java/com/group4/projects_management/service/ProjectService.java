@@ -18,7 +18,7 @@ public interface ProjectService {
    List<InvitationDTO> getPendingInvitations(Long userId);
    /** @param projectMemberId
     * @pdOid ad492c45-0123-4365-a116-0a463d36ca71 */
-   void removeMemberFromProject(Long projectMemberId);
+   void removeMemberFromProject(Long projectMemberId, Long requester);
    /** @param projectMemberId 
     * @param roleId
     * @pdOid d7beb3a7-c34a-4846-aedb-e15261f7fae1 */

@@ -7,7 +7,11 @@ package com.group4.projects_management.service; /*******************************
 import com.group4.common.dto.*;
 import com.group4.common.enums.MemberStatusCode;
 import com.group4.projects_management.core.exception.ResourceNotFoundException;
-import com.group4.projects_management.core.strategy.notification.invitation.ProjectInviteContext;
+import com.group4.projects_management.core.strategy.notification.invitation.MemberJoinContext;
+import com.group4.projects_management.core.strategy.notification.invitation.MemberLeftContext;
+import com.group4.projects_management.core.strategy.notification.invitation.MemberRemovedContext;
+import com.group4.projects_management.core.strategy.notification.invitation.ProjectInvitationContext;
+import com.group4.projects_management.core.strategy.notification.project.ProjectUpdatedContext;
 import com.group4.projects_management.entity.*;
 import com.group4.projects_management.mapper.ProjectMapper;
 import com.group4.projects_management.mapper.ProjectMemberMapper;
@@ -104,39 +108,61 @@ public class ProjectServiceImpl extends BaseServiceImpl<Project, Long> implement
         Map<Long, ProjectRole> roleMap = projectRoleRepository.findAllById(roleIds).stream()
                 .collect(Collectors.toMap(ProjectRole::getId, r -> r));
 
-        Set<Long> existingUserIdsInDb = projectMemberRepository.findAllByProject_IdAndUser_IdIn(projectId, userIds.stream().toList())
-                .stream()
-                .map(m -> m.getUser().getId())
-                .collect(Collectors.toSet());
+        List<ProjectMember> existingMembers = projectMemberRepository.findAllByProject_IdAndUser_IdIn(projectId, userIds.stream().toList());
+        Map<Long, ProjectMember> existingMemberMap = existingMembers.stream()
+                .collect(Collectors.toMap(m -> m.getUser().getId(), m -> m));
 
-        // 4. Lọc điều kiện và Build Entity bằng Stream (Không dùng vòng lặp for & if-continue)
         LocalDateTime now = LocalDateTime.now();
-        List<ProjectMember> newMembers = validUserRoleMap.entrySet().stream()
-                .filter(entry -> !existingUserIdsInDb.contains(entry.getKey())) // Phải chưa có trong DB
-                .filter(entry -> userMap.containsKey(entry.getKey()))            // User phải tồn tại
-                .filter(entry -> roleMap.containsKey(entry.getValue()))          // Role phải tồn tại
-                .map(entry -> {
-                    ProjectMember member = new ProjectMember();
-                    member.setProject(project);
-                    member.setUser(userMap.get(entry.getKey()));
-                    member.setProjectRole(roleMap.get(entry.getValue()));
-                    member.setProjectMemberStatus(pendingStatus);
-                    member.setInvitedBy(inviter);
-                    member.setInvitedAt(now);
-                    return member;
-                })
-                .toList();
+        List<ProjectMember> membersToSave = new ArrayList<>();
 
-        if (newMembers.isEmpty()) {
+        for (Map.Entry<Long, Long> entry : validUserRoleMap.entrySet()) {
+            Long userId = entry.getKey();
+            Long roleId = entry.getValue();
+
+            // Bỏ qua nếu User hoặc Role gửi lên là ID ảo không có trong DB
+            if (!userMap.containsKey(userId) || !roleMap.containsKey(roleId)) continue;
+
+            ProjectMember existingMember = existingMemberMap.get(userId);
+
+            if (existingMember != null) {
+                if (existingMember.getLeftAt() != null)  {
+                    existingMember.setProjectMemberStatus(pendingStatus);
+                    existingMember.setProjectRole(roleMap.get(roleId));
+                    existingMember.setInvitedBy(inviter);
+                    existingMember.setInvitedAt(now);
+                    existingMember.setLeftAt(null);
+                     existingMember.setJoinAt(null);
+
+                    membersToSave.add(existingMember);
+                }
+            } else
+            // chưa từng giam giá
+            {
+                ProjectMember newMember = new ProjectMember();
+                newMember.setProject(project);
+                newMember.setUser(userMap.get(userId));
+                newMember.setProjectRole(roleMap.get(roleId));
+                newMember.setProjectMemberStatus(pendingStatus);
+                newMember.setInvitedBy(inviter);
+                newMember.setInvitedAt(now);
+
+                membersToSave.add(newMember);
+            }
+        }
+
+        if (membersToSave.isEmpty()) {
             log.warn("Không có thành viên nào đủ điều kiện để mời trong dự án {}", projectId);
             return;
         }
 
         // 5. Lưu và Gửi thông báo
-        List<ProjectMember> savedMembers = projectMemberRepository.saveAll(newMembers);
+        List<ProjectMember> savedMembers = projectMemberRepository.saveAll(membersToSave);
 
         savedMembers.forEach(m -> {
-            ProjectInviteContext context = new ProjectInviteContext(project, inviter.getUser(), m.getProjectRole());
+            ProjectInvitationContext context = new ProjectInvitationContext(project,
+                    inviter.getUser(),
+                    m.getProjectRole());
+
             notificationService.send(m.getUser().getId(), context, m.getId());
         });
     }
@@ -153,15 +179,16 @@ public class ProjectServiceImpl extends BaseServiceImpl<Project, Long> implement
         var statusEntity = projectMemberStatusRepository.findBySystemCode(targetCode)
                 .orElseThrow(() -> new RuntimeException("Hệ thống chưa cấu hình trạng thái: " + targetCode));
 
-        if (statusEntity.getSystemCode().equalsIgnoreCase(MemberStatusCode.ACTIVE.name())) {
-            member.setLeftAt(null);
-            member.setJoinAt(LocalDateTime.now());
-        }
         if (statusEntity.getSystemCode().equalsIgnoreCase(MemberStatusCode.REMOVED.name())) {
             member.leave();
+            notifyMemberBeingRemoved(member);
         }
-        member.setProjectMemberStatus(statusEntity);
+        if (targetCode.equalsIgnoreCase(MemberStatusCode.LEFT.name())) {
+            member.leave();
+            notifyManagersAboutMemberLeft(member);
+        }
 
+        member.setProjectMemberStatus(statusEntity);
         projectMemberRepository.save(member);
     }
 
@@ -191,17 +218,27 @@ public class ProjectServiceImpl extends BaseServiceImpl<Project, Long> implement
 
     @Override
     @Transactional
-    public void removeMemberFromProject(Long projectMemberId) {
+    public void removeMemberFromProject(Long projectMemberId, Long requesterId) {
         var member = projectMemberRepository.findById(projectMemberId)
                 .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy thành viên trong project"));
 
+        var requester = userRepository.findById(requesterId)
+                .orElseThrow(() -> new ResourceNotFoundException("Requester not found"));
+
         var leftStatus = projectMemberStatusRepository.findBySystemCode(MemberStatusCode.LEFT.name())
-                        .orElseThrow(() -> new RuntimeException("System code not found: " + MemberStatusCode.LEFT.name()));
+                .orElseThrow(() -> new RuntimeException("System code not found: " + MemberStatusCode.LEFT.name()));
 
         member.setProjectMemberStatus(leftStatus);
         member.leave();
 
         projectMemberRepository.save(member);
+
+        notificationService.send(member.getUser().getId(),
+                new MemberRemovedContext(member.getProject(),
+                        member.getUser(),
+                        requester
+                ),
+                member.getProject().getId());
     }
 
     @Override
@@ -258,23 +295,10 @@ public class ProjectServiceImpl extends BaseServiceImpl<Project, Long> implement
     @Transactional
     public ProjectResponseDTO updateProject(Long projectId, ProjectUpdateRequestDTO dto) {
         Project project = projectRepository.findById(projectId)
-                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy dự án"));
+                .orElseThrow(() -> new ResourceNotFoundException("Project not found"));
 
-        if (dto.getProjectName() != null) {
-            project.setName(dto.getProjectName());
-        }
 
-        if (dto.getDescription() != null) {
-            project.setDescription(dto.getDescription());
-        }
-
-        if (dto.getStartDate() != null) {
-            project.setStartDate(dto.getStartDate());
-        }
-
-        if (dto.getEndDate() != null) {
-            project.setEndDate(dto.getEndDate());
-        }
+        projectMapper.updateProjectFromDto(dto, project);
 
         if (dto.getStatusId() != null) {
             ProjectStatus status = projectStatusRepository.findById(dto.getStatusId())
@@ -283,6 +307,18 @@ public class ProjectServiceImpl extends BaseServiceImpl<Project, Long> implement
         }
 
         Project updated = projectRepository.save(project);
+        List<Long> memberIds = updated.getActiveMembers().stream()
+                .map(m -> m.getUser().getId())
+                .toList();
+
+        if (!memberIds.isEmpty()) {
+            notificationService.send(memberIds,
+                    ProjectUpdatedContext.builder()
+                            .project(project)
+                            .projectName(project.getName()),
+                    updated.getId());
+        }
+
         return projectMapper.toDto(updated);
     }
 
@@ -301,9 +337,19 @@ public class ProjectServiceImpl extends BaseServiceImpl<Project, Long> implement
     @Override
     public void leaveProject(Long projectMemberId) {
         var member = projectMemberRepository.findById(projectMemberId)
-                .orElseThrow(() -> new ResourceNotFoundException("member không tồn tại"));
+                .orElseThrow(() -> new ResourceNotFoundException("Member not found"));
 
         member.leave();
+
+        var receivedIds = member.getProject().getProjectManagers()
+                .stream()
+                .map(ProjectMember::getUser)
+                .map(User::getId)
+                .toList();
+
+        notificationService.send(receivedIds,
+                new MemberLeftContext(member.getProject(), member.getUser()),
+                member.getProject().getId());
     }
 
     @Override
@@ -329,19 +375,14 @@ public class ProjectServiceImpl extends BaseServiceImpl<Project, Long> implement
                 .orElseThrow(() -> new RuntimeException("Hệ thống chưa cấu hình ProjectMemberStatus systemCode=ACTIVE"));
 
         Project project = projectMapper.toCreateEntity(dto);
-
         project.setCreatedBy(creator);
         project.setProjectStatus(defaultProjectStatus);
-
         Project savedProject = projectRepository.save(project);
 
-        ProjectMember creatorMember = new ProjectMember();
-        creatorMember.setProject(savedProject);
-        creatorMember.setUser(creator);
-        creatorMember.setProjectRole(ownerRole);
-        creatorMember.setProjectMemberStatus(activeMemberStatus);
-        creatorMember.setInvitedBy(null);
-        creatorMember.setJoinAt(LocalDateTime.now());
+
+        ProjectMember creatorMember = projectMemberMapper.createInitialMember(
+                savedProject, creator, ownerRole, activeMemberStatus
+        );
 
         var saved = projectMemberRepository.save(creatorMember);
 
@@ -365,10 +406,50 @@ public class ProjectServiceImpl extends BaseServiceImpl<Project, Long> implement
                 .orElseThrow(() -> new RuntimeException("Hệ thống chưa cấu hình ProjectStatus systemCode=ACTIVE"));
         member.setProjectMemberStatus(activeProjectStatus);
         member.setJoinAt(LocalDateTime.now());
+        member.joined();
+
+        var receivedIds = member.getProject().getProjectManagers()
+                .stream()
+                .map(ProjectMember::getUser)
+                .map(User::getId)
+                .toList();
+
+        notificationService.send(receivedIds,
+                new MemberJoinContext(member.getProject(), member.getUser()),
+                member.getProject().getId());
+
+
         projectMemberRepository.save(member);
     }
 
     private void handleDecline(ProjectMember member) {
         projectMemberRepository.delete(member);
+    }
+
+    private void notifyManagersAboutMemberLeft(ProjectMember member) {
+        List<Long> managerIds = member.getProject().getProjectManagers()
+                .stream()
+                .map(pm -> pm.getUser().getId())
+                .toList();
+
+        if (!managerIds.isEmpty()) {
+            MemberLeftContext context = new MemberLeftContext(member.getProject(), member.getUser());
+            notificationService.send(managerIds, context, member.getProject().getId());
+        }
+    }
+
+    private void notifyMemberBeingRemoved(ProjectMember member) {
+        User actor = member.getProject().getProjectManagers().stream()
+                .map(ProjectMember::getUser)
+                .findFirst()
+                .orElse(null);
+
+        MemberRemovedContext context = new MemberRemovedContext(
+                member.getProject(),
+                member.getUser(),
+                actor
+        );
+
+        notificationService.send(member.getUser().getId(), context, member.getProject().getId());
     }
 }

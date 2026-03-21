@@ -7,10 +7,10 @@ import org.springframework.stereotype.Component;
 import java.util.Map;
 
 @Component
-public class ProjectInvitationStrategy implements NotificationStrategy<ProjectInviteContext> {
+public class ProjectInvitationStrategy implements NotificationStrategy<ProjectInvitationContext> {
     @Override
     public boolean supports(Class<?> clazz) {
-        return ProjectInviteContext.class.equals(clazz);
+        return ProjectInvitationContext.class.equals(clazz);
     }
 
     @Override
@@ -19,14 +19,14 @@ public class ProjectInvitationStrategy implements NotificationStrategy<ProjectIn
     }
 
     @Override
-    public String buildTitle(ProjectInviteContext ctx) {
-        return String.format("%s đã mời bạn vào dự án %s",
+    public String buildTitle(ProjectInvitationContext ctx) {
+        return String.format("%s has invited you to project '%s'",
                 ctx.getInviter().getUsername(),
                 ctx.getProject().getName());
     }
 
     @Override
-    public Map<String, Object> buildMetadata(ProjectInviteContext ctx) {
+    public Map<String, Object> buildMetadata(ProjectInvitationContext ctx) {
         return Map.of(
                 "projectId", ctx.getProject().getId(),
                 "projectName", ctx.getProject().getName(),

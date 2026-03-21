@@ -1,4 +1,4 @@
-package com.group4.projects_management.core.strategy.notification.taskassignment;
+package com.group4.projects_management.core.strategy.notification.comment;
 
 import com.group4.projects_management.entity.Task;
 import com.group4.projects_management.entity.User;
@@ -9,7 +9,8 @@ import lombok.Data;
 @Data
 @AllArgsConstructor
 @Builder
-public class TaskAssignContext {
+public class CommentNotificationContext {
     private Task task;
-    private User assigner;
+    private User author;
+    private User parentAuthor;
 }
