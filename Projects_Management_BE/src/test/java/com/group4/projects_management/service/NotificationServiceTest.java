@@ -3,6 +3,7 @@ package com.group4.projects_management.service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.group4.common.dto.NotificationDTO;
+import com.group4.projects_management.core.event.NotificationEvent;
 import com.group4.projects_management.core.strategy.notification.NotificationStrategy;
 import com.group4.projects_management.entity.Notification;
 import com.group4.projects_management.entity.User;
@@ -228,7 +229,7 @@ public class NotificationServiceTest {
             verify(userNotificationRepository).saveAll(unCaptor.capture());
             assertEquals(2, unCaptor.getValue().size()); // Lưu cho 2 users
 
-            verify(eventPublisher, times(2)).publishEvent(any(NotificationDTO.class));
+            verify(eventPublisher, times(2)).publishEvent(any(NotificationEvent.class));
         }
 
         @Test
