@@ -22,6 +22,7 @@ import java.util.List;
 @AllArgsConstructor
 @SuperBuilder
 public class TaskResponseDTO extends TaskBaseDTO {
+    private Long projectId;
 
     private Long taskId;
 
