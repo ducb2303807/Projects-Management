@@ -145,10 +145,6 @@
     -fx-background-color: transparent;
 }
 
-.task-pane {
-
-}
-
 /* ========================================================= */
 /* 7. Khung chứa danh sách Task (Bo góc, viền xám) */
 /* ========================================================= */
@@ -178,6 +174,34 @@
 }
 
 .task-name-label {
-    -fx-font-size: 20px;
+    -fx-font-size: 18px;
+    -fx-font-family: "Montserrat";
+}
+
+
+/* 1. Tên Assignee thứ nhất */
+.task-assignee-text {
+    -fx-font-size: 18px;
     -fx-font-family: Montserrat;
+}
+
+/* 2. Vòng tròn "+N" đúng 22px */
+.task-assignee-extra-circle {
+    -fx-pref-width: 20px;
+    -fx-pref-height: 20px;
+    -fx-min-width: 20px;  /* Đảm bảo không bị co */
+    -fx-min-height: 20px; /* Đảm bảo không bị co */
+
+    /* Bo góc tuyệt đối để tạo vòng tròn */
+    -fx-background-radius: 50%;
+
+    /* Màu sắc giống Radix/Avatar mẫu: Nền xám nhạt, text xám đậm */
+    -fx-background-color: #EDF2F7;
+    -fx-text-fill: #718096;
+
+    /* Định dạng văn bản bên trong */
+    -fx-font-family: "Montserrat", sans-serif;
+    -fx-font-weight: bold;
+    -fx-font-size: 11px; /* Font nhỏ hơn một chút */
+    -fx-alignment: CENTER; /* Căn giữa hoàn hảo */
 }

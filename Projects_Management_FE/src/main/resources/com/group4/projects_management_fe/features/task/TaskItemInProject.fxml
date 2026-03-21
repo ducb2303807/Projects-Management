@@ -4,14 +4,14 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<GridPane alignment="CENTER_LEFT" prefHeight="50.0" prefWidth="1050.0" stylesheets="@../assets/css/project/projecttasks.css" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.group4.projects_management_fe.features.task.TaskController">
+<GridPane alignment="CENTER_LEFT" prefHeight="50.0" stylesheets="@../assets/css/project/projecttasks.css" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.group4.projects_management_fe.features.project.TaskItemController">
 
     <columnConstraints>
-        <ColumnConstraints hgrow="NEVER" minWidth="10.0" prefWidth="450.0" />
-        <ColumnConstraints halignment="CENTER" hgrow="NEVER" minWidth="10.0" prefWidth="150.0" />
-        <ColumnConstraints halignment="CENTER" hgrow="NEVER" minWidth="10.0" prefWidth="150.0" />
-        <ColumnConstraints halignment="CENTER" hgrow="NEVER" minWidth="10.0" prefWidth="150.0" />
-        <ColumnConstraints halignment="CENTER" hgrow="NEVER" minWidth="10.0" prefWidth="150.0" />
+        <ColumnConstraints hgrow="ALWAYS" minWidth="100.0" prefWidth="450.0" />
+        <ColumnConstraints halignment="CENTER" hgrow="NEVER" minWidth="100.0" prefWidth="150.0" />
+        <ColumnConstraints halignment="CENTER" hgrow="NEVER" minWidth="100.0" prefWidth="150.0" />
+        <ColumnConstraints halignment="CENTER" hgrow="NEVER" minWidth="100.0" prefWidth="150.0" />
+        <ColumnConstraints halignment="CENTER" hgrow="NEVER" minWidth="100.0" prefWidth="150.0" />
     </columnConstraints>
 
     <rowConstraints>
@@ -21,20 +21,26 @@
     <children>
         <HBox alignment="CENTER_LEFT" spacing="15.0" GridPane.columnIndex="0">
             <children>
-                <Label styleClass="task-name-label" text="Task name example" />
+                <Label fx:id="taskNameLabel" styleClass="task-name-label" text="Task name example" />
             </children>
             <padding>
                 <Insets left="20.0" right="10.0" />
             </padding>
         </HBox>
 
-        <Label alignment="CENTER" styleClass="task-name-label" text="Oct 24, 2023" GridPane.columnIndex="1" />
+        <Label fx:id="dueDateLabel" alignment="CENTER" styleClass="task-name-label" text="Oct 24, 2023" GridPane.columnIndex="1" />
 
-        <Label alignment="CENTER" styleClass="task-name-label" text="John Doe" GridPane.columnIndex="2" />
+        <HBox spacing="6.0" alignment="CENTER" HBox.hgrow="NEVER" GridPane.columnIndex="2">
+            <children>
+                <Label fx:id="assigneeNameLabel" text="-" styleClass="task-assignee-text" maxWidth="120.0"/>
 
-        <Label alignment="CENTER" styleClass="task-name-label" text="High" GridPane.columnIndex="3" />
+                <Label fx:id="assigneeExtraCountBadge" text="-" styleClass="task-assignee-extra-circle" visible="false" managed="false"/>
+            </children>
+        </HBox>
 
-        <Label alignment="CENTER" styleClass="task-name-label" text="In Progress" GridPane.columnIndex="4" />
+        <Label fx:id="priorityLabel" alignment="CENTER" styleClass="task-name-label" text="High" GridPane.columnIndex="3" />
+
+        <Label fx:id="statusLabel" alignment="CENTER" styleClass="task-name-label" text="In Progress" GridPane.columnIndex="4" />
     </children>
 
 </GridPane>
