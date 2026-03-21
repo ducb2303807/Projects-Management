@@ -34,9 +34,16 @@ public class DashboardController {
     private VBox calendarBox;
 
     @FXML
-    private ListView<TaskResponseDTO> taskListView;
+    private TableView<TaskResponseDTO> todayTaskTable;
 
-    /* -------- POPUP -------- */
+    @FXML
+    private TableColumn<TaskResponseDTO, String> colTaskName;
+
+    @FXML
+    private TableColumn<TaskResponseDTO, String> colTaskDeadline;
+
+    @FXML
+    private TableColumn<TaskResponseDTO, String> colTaskStatus;
 
     @FXML
     private Pane overlay;
@@ -159,51 +166,82 @@ public class DashboardController {
                 });
     }
 
-    private HBox createTaskItem(TaskResponseDTO task) {
+    private void setupTodayTaskTable() {
 
-        HBox container = new HBox();
-        container.setSpacing(10);
-        container.setAlignment(Pos.CENTER_LEFT);
-        container.getStyleClass().add("task-item");
+        todayTaskTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
 
-        Label name = new Label(task.getName());
-        name.getStyleClass().add("task-name");
+        colTaskName.setCellValueFactory(data ->
+                new SimpleStringProperty(data.getValue().getName())
+        );
 
-        Region spacer = new Region();
-        HBox.setHgrow(spacer, Priority.ALWAYS);
+        colTaskDeadline.setCellValueFactory(data -> {
+            if (data.getValue().getDeadline() != null) {
+                return new SimpleStringProperty(
+                        data.getValue().getDeadline().toLocalDate().toString()
+                );
+            }
+            return new SimpleStringProperty("No date");
+        });
 
-        Label status = new Label(task.getStatusName());
-        status.getStyleClass().add("status-badge");
+        colTaskStatus.setCellValueFactory(data ->
+                new SimpleStringProperty(data.getValue().getStatusName())
+        );
 
-        String normalized = task.getStatusName().toLowerCase();
+        colTaskStatus.setCellFactory(column -> new TableCell<>() {
+            @Override
+            protected void updateItem(String status, boolean empty) {
+                super.updateItem(status, empty);
 
-        switch (normalized) {
+                if (empty || status == null) {
+                    setGraphic(null);
+                    return;
+                }
 
-            case "done":
-                status.getStyleClass().add("status-completed");
-                break;
+                Label badge = new Label(status);
+                badge.getStyleClass().add("status-badge");
 
-            case "in_progress":
-                status.getStyleClass().add("status-active");
-                break;
+                String normalized = status.toLowerCase();
 
-            case "under_review":
-                status.getStyleClass().add("status-on-hold");
-                break;
+                switch (normalized) {
+                    case "done":
+                        badge.getStyleClass().add("status-completed");
+                        break;
+                    case "in progress":
+                        badge.getStyleClass().add("status-active");
+                        break;
+                    case "under review":
+                        badge.getStyleClass().add("status-on-hold");
+                        break;
+                    case "cancelled":
+                        badge.getStyleClass().add("status-cancelled");
+                        break;
+                    default:
+                        badge.getStyleClass().add("status-planning");
+                        break;
+                }
 
-            case "cancelled":
-                status.getStyleClass().add("status-cancelled");
-                break;
+                setGraphic(badge);
+                setText(null);
+            }
+        });
 
-            case "todo":
-            default:
-                status.getStyleClass().add("status-planning");
-                break;
-        }
+        todayTaskTable.setRowFactory(tv -> {
+            TableRow<TaskResponseDTO> row = new TableRow<>();
 
-        container.getChildren().addAll(name, spacer, status);
+            row.setOnMouseClicked(event -> {
+                if (!row.isEmpty() && event.getClickCount() == 1) {
+                    TaskResponseDTO clickedTask = row.getItem();
+                    openTaskDetail(clickedTask);
+                }
+            });
 
-        return container;
+            return row;
+        });
+    }
+
+    @FXML
+    private void handleResetTodayTasks() {
+        loadProjects();
     }
 
     private void setupProjectTable() {
@@ -227,7 +265,6 @@ public class DashboardController {
             return new SimpleStringProperty("");
         });
 
-        // 🟢 Status text
         colStatus.setCellValueFactory(data ->
                 new SimpleStringProperty(data.getValue().getStatusName())
         );
@@ -245,6 +282,11 @@ public class DashboardController {
 
                 Label badge = new Label(status);
                 badge.getStyleClass().add("status-badge");
+
+                badge.setMaxWidth(Double.MAX_VALUE);
+                badge.setAlignment(Pos.CENTER);
+
+                setAlignment(Pos.CENTER);
 
                 String normalized = status.toLowerCase();
 
@@ -296,35 +338,10 @@ public class DashboardController {
                 .toList();
 
         Platform.runLater(() -> {
-            taskListView.setItems(FXCollections.observableArrayList(taskItems));
-        });
-    }
+            todayTaskTable.setItems(FXCollections.observableArrayList(taskItems));
 
-    private void setupTaskListView() {
-
-        // render UI cho từng item
-        taskListView.setCellFactory(listView -> new ListCell<>() {
-            @Override
-            protected void updateItem(TaskResponseDTO task, boolean empty) {
-                super.updateItem(task, empty);
-
-                if (empty || task == null) {
-                    setGraphic(null);
-                } else {
-                    setGraphic(createTaskItem(task));
-                }
-            }
-        });
-
-        // bắt sự kiện click
-        taskListView.setOnMouseClicked(event -> {
-            if (event.getClickCount() == 2) {
-                TaskResponseDTO selectedTask =
-                        taskListView.getSelectionModel().getSelectedItem();
-
-                if (selectedTask != null) {
-                    openTaskDetail(selectedTask);
-                }
+            if (taskItems.isEmpty()) {
+                todayTaskTable.setPlaceholder(new Label("No tasks for today"));
             }
         });
     }
@@ -370,9 +387,9 @@ public class DashboardController {
         projectApi = new ProjectApi(sessionProvider);
         taskApi = new TaskApi(sessionProvider);
 
-        setupTaskListView();
         loadProjects();
         setupProjectTable();
+        setupTodayTaskTable();
 
         DatePicker datePicker = new DatePicker();
 

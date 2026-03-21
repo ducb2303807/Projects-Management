@@ -1,5 +1,6 @@
 package com.group4.projects_management_fe.features.mainlayout;
 
+import com.group4.common.dto.ChangePasswordRequestDTO;
 import com.group4.common.dto.SseNotificationDTO;
 import com.group4.common.dto.UserDTO;
 import com.group4.common.dto.UserUpdateDTO;
@@ -17,6 +18,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
@@ -69,6 +71,16 @@ public class MainLayoutController {
     @FXML
     private VBox profilePanel;
 
+    @FXML private VBox profileContent;
+    @FXML private VBox passwordContent;
+
+    @FXML private Label profileTab;
+    @FXML private Label passwordTab;
+
+    @FXML private PasswordField currentPasswordField;
+    @FXML private PasswordField newPasswordField;
+    @FXML private PasswordField confirmPasswordField;
+
     private UserDTO currentUser;
     private final UserApi userApi = new UserApi(AppSessionManager.getInstance());
 
@@ -101,6 +113,30 @@ public class MainLayoutController {
         if (currentUser != null) {
             bindUserToUI(currentUser);
         }
+    }
+
+    @FXML
+    private void showProfileTab() {
+        profileContent.setVisible(true);
+        profileContent.setManaged(true);
+
+        passwordContent.setVisible(false);
+        passwordContent.setManaged(false);
+
+        profileTab.getStyleClass().setAll("tab-active");
+        passwordTab.getStyleClass().setAll("tab");
+    }
+
+    @FXML
+    private void showPasswordTab() {
+        profileContent.setVisible(false);
+        profileContent.setManaged(false);
+
+        passwordContent.setVisible(true);
+        passwordContent.setManaged(true);
+
+        profileTab.getStyleClass().setAll("tab");
+        passwordTab.getStyleClass().setAll("tab-active");
     }
 
     @FXML
@@ -168,6 +204,43 @@ public class MainLayoutController {
 
         fade.play();
         scale.play();
+    }
+
+    @FXML
+    private void handleChangePassword() {
+        if (currentUser == null) return;
+
+        String current = currentPasswordField.getText();
+        String newPass = newPasswordField.getText();
+        String confirm = confirmPasswordField.getText();
+
+        if (!newPass.equals(confirm)) {
+            System.out.println("Confirm password không khớp");
+            return;
+        }
+
+        ChangePasswordRequestDTO request = new ChangePasswordRequestDTO();
+        request.setOldPassword(current);
+        request.setNewPassword(newPass);
+
+        userApi.changePassword(currentUser.getId(), request)
+                .thenRun(() -> {
+                    javafx.application.Platform.runLater(() -> {
+                        clearPasswordFields();
+                        closeProfile();
+                        System.out.println("Đổi mật khẩu thành công");
+                    });
+                })
+                .exceptionally(ex -> {
+                    ex.printStackTrace();
+                    return null;
+                });
+    }
+
+    private void clearPasswordFields() {
+        currentPasswordField.clear();
+        newPasswordField.clear();
+        confirmPasswordField.clear();
     }
 
     @FXML

@@ -95,7 +95,7 @@
                         <TableColumn fx:id="colName" text="Project name"/>
                         <TableColumn fx:id="colManager" text="Project manager"/>
                         <TableColumn fx:id="colDueDate" text="Due date"/>
-                        <TableColumn fx:id="colStatus" text="Status"/>
+                        <TableColumn fx:id="colStatus" text="Status" styleClass="status-column"/>
                     </columns>
 
                 </TableView>
@@ -107,14 +107,27 @@
                 <VBox fx:id="calendarBox" />
             </VBox>
 
-            <!-- TODAY TASK -->
-            <VBox maxHeight="400.0" minHeight="300.0" prefHeight="300.0" prefWidth="0.0" spacing="15" styleClass="box" GridPane.columnIndex="0" GridPane.rowIndex="1">
+            <VBox maxHeight="400.0" minHeight="300.0" prefHeight="300.0"
+                  prefWidth="0.0" spacing="15" styleClass="box"
+                  GridPane.columnIndex="0" GridPane.rowIndex="1">
 
-                <Label styleClass="box-title" text="Today task" />
+                <HBox alignment="CENTER_LEFT" spacing="10">
+                    <Label styleClass="box-title" text="Today task" />
 
-                <Separator />
+                    <Region HBox.hgrow="ALWAYS" />
 
-                <ListView fx:id="taskListView" prefHeight="220" />
+                    <Button text="Reset" onAction="#handleResetTodayTasks" styleClass="new-btn"/>
+                </HBox>
+
+                <TableView fx:id="todayTaskTable" prefHeight="220" styleClass="project-table">
+
+                    <columns>
+                        <TableColumn fx:id="colTaskName" text="Task name"/>
+                        <TableColumn fx:id="colTaskDeadline" text="Deadline"/>
+                        <TableColumn fx:id="colTaskStatus" text="Status"/>
+                    </columns>
+
+                </TableView>
 
             </VBox>
 

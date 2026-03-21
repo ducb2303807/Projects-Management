@@ -269,3 +269,7 @@
 .logout-btn:hover {
     -fx-background-color: linear-gradient(to right, #4c2fb3, #7048e8);
 }
+
+.overlay-bg {
+    -fx-background-color: transparent;
+}

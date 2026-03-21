@@ -69,40 +69,120 @@
 
             <StackPane fx:id="contentPane" />
 
-            <StackPane fx:id="profileOverlay" managed="false" styleClass="overlay" visible="false">
+            <StackPane fx:id="profileOverlay"
+                       managed="false"
+                       visible="false"
+                       styleClass="overlay"
+                       maxWidth="Infinity"
+                       maxHeight="Infinity"
+                       prefWidth="Infinity"
+                       prefHeight="Infinity"
+                       StackPane.alignment="CENTER">
 
                 <StackPane fx:id="overlayBackground" styleClass="overlay-bg" />
 
-                <VBox fx:id="profilePanel" maxHeight="380" maxWidth="480" prefHeight="380" prefWidth="480" spacing="15" styleClass="profile-panel">
+                <VBox fx:id="profilePanel"
+                      maxHeight="380" maxWidth="480"
+                      prefHeight="380" prefWidth="480"
+                      spacing="15"
+                      styleClass="profile-panel">
 
+                    <!-- HEADER -->
                     <HBox alignment="CENTER_LEFT" spacing="40" styleClass="profile-header">
-                        <Label styleClass="tab-active" text="Profile" />
-                        <Label styleClass="tab" text="Password" />
+                        <Label fx:id="profileTab"
+                               styleClass="tab-active"
+                               text="Profile"
+                               onMouseClicked="#showProfileTab"/>
+
+                        <Label fx:id="passwordTab"
+                               styleClass="tab"
+                               text="Password"
+                               onMouseClicked="#showPasswordTab"/>
+
                         <Region HBox.hgrow="ALWAYS" />
-                        <Button onAction="#handleLogout" styleClass="logout-btn" text="Log out" />
+
+                        <Button onAction="#handleLogout"
+                                styleClass="logout-btn"
+                                text="Log out" />
                     </HBox>
 
-                    <VBox spacing="5">
-                        <Label styleClass="field-label" text="Username" />
-                        <TextField fx:id="usernameField" styleClass="profile-field" text="Invincible" />
-                    </VBox>
+                    <!-- CONTENT SWITCH -->
+                    <StackPane fx:id="tabContent">
 
-                    <VBox spacing="5">
-                        <Label styleClass="field-label" text="Fullname" />
-                        <TextField fx:id="fullnameField" styleClass="profile-field" text="Nam" />
-                    </VBox>
+                        <VBox fx:id="profileContent" spacing="15">
 
-                    <VBox spacing="5">
-                        <Label styleClass="field-label" text="Email" />
-                        <TextField fx:id="emailField" styleClass="profile-field" text="hanb2303809@student.ctu.edu.vn" />
-                    </VBox>
+                            <VBox spacing="5">
+                                <Label styleClass="field-label" text="Username" />
+                                <TextField fx:id="usernameField"
+                                           styleClass="profile-field"
+                                           editable="false"/>
+                            </VBox>
 
-                    <Region VBox.vgrow="ALWAYS" />
+                            <VBox spacing="5">
+                                <Label styleClass="field-label" text="Fullname" />
+                                <TextField fx:id="fullnameField"
+                                           styleClass="profile-field"
+                                           editable="true"/>
+                            </VBox>
 
-                    <HBox alignment="CENTER_RIGHT" spacing="20">
-                        <Button onAction="#hideProfile" text="Cancel" />
-                        <Button styleClass="save-btn" text="Save" onAction="#handleSaveProfile"/>
-                    </HBox>
+                            <VBox spacing="5">
+                                <Label styleClass="field-label" text="Email" />
+                                <TextField fx:id="emailField"
+                                           styleClass="profile-field"
+                                           editable="true"/>
+                            </VBox>
+
+                            <Region VBox.vgrow="ALWAYS" />
+
+                            <HBox alignment="CENTER_RIGHT" spacing="20">
+                                <Button styleClass="save-btn"
+                                        onAction="#hideProfile"
+                                        text="Cancel" />
+                                <Button styleClass="save-btn"
+                                        text="Save"
+                                        onAction="#handleSaveProfile"/>
+                            </HBox>
+
+                        </VBox>
+
+                        <!-- ================= PASSWORD ================= -->
+                        <VBox fx:id="passwordContent"
+                              spacing="15"
+                              visible="false"
+                              managed="false">
+
+                            <VBox spacing="5">
+                                <Label styleClass="field-label" text="Current Password" />
+                                <PasswordField fx:id="currentPasswordField"
+                                               styleClass="profile-field"/>
+                            </VBox>
+
+                            <VBox spacing="5">
+                                <Label styleClass="field-label" text="New Password" />
+                                <PasswordField fx:id="newPasswordField"
+                                               styleClass="profile-field"/>
+                            </VBox>
+
+                            <VBox spacing="5">
+                                <Label styleClass="field-label" text="Confirm Password" />
+                                <PasswordField fx:id="confirmPasswordField"
+                                               styleClass="profile-field"/>
+                            </VBox>
+
+                            <Region VBox.vgrow="ALWAYS" />
+
+                            <HBox alignment="CENTER_RIGHT" spacing="20">
+                                <Button styleClass="save-btn"
+                                        onAction="#hideProfile"
+                                        text="Cancel" />
+                                <Button styleClass="save-btn"
+                                        text="Save"
+                                        onAction="#handleChangePassword"/>
+                            </HBox>
+
+                        </VBox>
+
+                    </StackPane>
 
                 </VBox>
             </StackPane>

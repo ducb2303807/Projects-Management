@@ -73,8 +73,16 @@
     -fx-background-color: #e3f2fd;
 }
 
-.project-table .table-row-cell:filled:selected .text {
-    -fx-fill: #1565c0; /* xanh đậm */
+.project-table .table-row-cell:filled:selected > .table-cell > .text {
+    -fx-fill: #1565c0;
+}
+
+.project-table .table-row-cell:filled:selected .status-badge {
+    -fx-text-fill: inherit;
+}
+
+.project-table .table-row-cell:filled:selected .status-badge .text {
+    -fx-fill: inherit;
 }
 
 .status-badge {
@@ -83,13 +91,35 @@
     -fx-padding: 4 12 4 12;
     -fx-background-radius: 20;
     -fx-alignment: center;
+
+    /* thêm cho đẹp */
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 6, 0, 0, 1);
 }
 
-.status-planning { -fx-background-color: #f0f0f0; -fx-text-fill: #333333; }
-.status-active { -fx-background-color: #fff9c4; -fx-text-fill: #fbc02d; }
-.status-on-hold { -fx-background-color: #fff6e0; -fx-text-fill: red; }
-.status-completed { -fx-background-color: #e6f7ee; -fx-text-fill: #1f9254; }
-.status-cancelled { -fx-background-color: #fff6e0; -fx-text-fill: red; }
+.status-planning {
+    -fx-background-color: #f0f0f0;
+    -fx-text-fill: #333333;
+}
+
+.status-active {
+    -fx-background-color: #fff9c4;
+    -fx-text-fill: #fbc02d;
+}
+
+.status-on-hold {
+    -fx-background-color: #e3f2fd;
+    -fx-text-fill: #1976d2;
+}
+
+.status-completed {
+    -fx-background-color: #e6f7ee;
+    -fx-text-fill: #1f9254;
+}
+
+.status-cancelled {
+    -fx-background-color: #fdecea;
+    -fx-text-fill: #d32f2f;
+}
 
 .box-title{
     -fx-font-size:16px;
@@ -138,9 +168,11 @@
 
 /* cells */
 
-.project-table .table-cell{
+.project-table .table-cell {
     -fx-border-color: transparent;
-    -fx-padding: 10 5 10 5;
+    -fx-alignment: CENTER_LEFT;
+    -fx-padding: 0 10 0 10;
+    -fx-alignment: CENTER;
 }
 
 /* review boxes */
@@ -303,4 +335,36 @@
 /* TEXT khi hover */
 .list-view .list-cell:hover .task-name {
     -fx-text-fill: #2563eb; /* xanh đậm */
+}
+
+.project-table .table-row-cell:filled:selected .status-column .text {
+    -fx-fill: inherit;
+}
+
+.task-list .list-cell {
+    -fx-border-color: transparent;
+    -fx-padding: 0 10 0 10;
+    -fx-alignment: CENTER;
+}
+
+.task-header {
+    -fx-padding: 5 10;
+    -fx-border-color: transparent transparent #ddd transparent;
+}
+
+.task-col {
+    -fx-font-weight: bold;
+}
+
+.task-col-name {
+    -fx-pref-width: 200;
+}
+
+.task-col-deadline {
+    -fx-pref-width: 120;
+}
+
+.task-col-status {
+    -fx-pref-width: 100;
+    -fx-alignment: CENTER;
 }

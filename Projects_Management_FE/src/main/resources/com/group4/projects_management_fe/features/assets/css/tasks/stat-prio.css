@@ -103,3 +103,60 @@
     -fx-max-width: 820;
     -fx-max-height: 620;
 }
+
+/* STATUS */
+.status-planning {
+    -fx-background-color: #f0f0f0;
+    -fx-text-fill: #333333;
+    -fx-font-weight: bold;
+}
+
+.status-active {
+    -fx-background-color: #fff9c4;
+    -fx-text-fill: #fbc02d;
+    -fx-font-weight: bold;
+}
+
+.status-on-hold {
+    -fx-background-color: #e3f2fd;
+    -fx-text-fill: #1976d2;
+    -fx-font-weight: bold;
+}
+
+.status-completed {
+    -fx-background-color: #e6f7ee;
+    -fx-text-fill: #1f9254;
+    -fx-font-weight: bold;
+}
+
+.status-cancelled {
+    -fx-background-color: #fdecea;
+    -fx-text-fill: #d32f2f;
+    -fx-font-weight: bold;
+}
+
+/* PRIORITY */
+.priority-low {
+    -fx-background-color: #e6f7ee;
+    -fx-text-fill: #2e7d32;
+    -fx-font-weight: bold;
+}
+
+.priority-medium {
+    -fx-background-color: #fff9c4;
+    -fx-text-fill: #fbc02d;
+    -fx-font-weight: bold;
+}
+
+.priority-high {
+    -fx-background-color: #fff3e0;
+    -fx-text-fill: #ef6c00;
+    -fx-font-weight: bold;
+}
+
+.priority-urgent,
+.priority-critical {
+    -fx-background-color: #fdecea;
+    -fx-text-fill: #d32f2f;
+    -fx-font-weight: bold;
+}
