@@ -2,7 +2,7 @@ package com.group4.projects_management.mapper;
 
 import com.group4.common.dto.InvitationDTO;
 import com.group4.common.dto.ProjectMemberDTO;
-import com.group4.projects_management.entity.ProjectMember;
+import com.group4.projects_management.entity.*;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
@@ -27,4 +27,13 @@ public abstract class ProjectMemberMapper {
     @Mapping(source = "projectMemberStatus.name", target = "statusName")
     public abstract InvitationDTO toInvitationDto(ProjectMember projectMember);
 
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "project", source = "project")
+    @Mapping(target = "user", source = "creator")
+    @Mapping(target = "projectRole", source = "ownerRole")
+    @Mapping(target = "projectMemberStatus", source = "activeMemberStatus")
+    @Mapping(target = "invitedBy", ignore = true)
+    @Mapping(target = "invitedAt", ignore = true)
+    @Mapping(target = "joinAt", expression = "java(java.time.LocalDateTime.now())")
+    public abstract ProjectMember createInitialMember(Project project, User creator, ProjectRole ownerRole, ProjectMemberStatus activeMemberStatus);
 }

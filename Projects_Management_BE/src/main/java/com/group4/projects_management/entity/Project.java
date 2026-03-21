@@ -109,7 +109,14 @@ public class Project {
       }
       return count;
    }
-   
+
+   public List<ProjectMember> getProjectManagers() {
+      if (members == null || members.isEmpty()) return List.of();
+
+      return members.stream()
+              .filter(ProjectMember::isManager)
+              .toList();
+   }
 
    public boolean hasMember(Long userId) {
       if (members == null) return false;

@@ -106,7 +106,8 @@ public class ProjectController {
     @Operation(summary = "Xóa members khỏi project")
     @DeleteMapping("/members/{projectMemberId}")
     public ResponseEntity<Void> removeMemberFormProject(@PathVariable Long projectMemberId) {
-        projectService.removeMemberFromProject(projectMemberId);
+        Long requester = SecurityUtils.getCurrentUserId();
+        projectService.removeMemberFromProject(projectMemberId, requester);
         return ResponseEntity.ok().build();
     }
 

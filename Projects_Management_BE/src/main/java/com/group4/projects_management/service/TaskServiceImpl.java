@@ -9,7 +9,10 @@ import com.group4.common.enums.MemberStatusCode;
 import com.group4.common.enums.TaskStatusCode;
 import com.group4.projects_management.core.exception.BusinessException;
 import com.group4.projects_management.core.exception.ResourceNotFoundException;
-import com.group4.projects_management.core.strategy.notification.taskassignment.TaskAssignContext;
+import com.group4.projects_management.core.strategy.notification.task.TaskAssignContext;
+import com.group4.projects_management.core.strategy.notification.task.TaskStatusContext;
+import com.group4.projects_management.core.strategy.notification.task.TaskUnassignContext;
+import com.group4.projects_management.core.strategy.notification.task.TaskUpdateContext;
 import com.group4.projects_management.entity.*;
 import com.group4.projects_management.mapper.TaskAssignmentMapper;
 import com.group4.projects_management.mapper.TaskHistoryMapper;
@@ -215,6 +218,17 @@ public class TaskServiceImpl extends BaseServiceImpl<Task, Long> implements Task
         task.setTaskStatus(status);
 
         taskRepository.save(task);
+
+        List<Long> assignedUserIds = task.getMembersId();
+
+        if (!assignedUserIds.isEmpty()) {
+            TaskStatusContext context = TaskStatusContext.builder()
+                    .task(task)
+                    .newStatusName(status.getName())
+                    // .actor(currentUser)
+                    .build();
+            notificationService.send(assignedUserIds, context, task.getId());
+        }
     }
 
 
@@ -225,18 +239,28 @@ public class TaskServiceImpl extends BaseServiceImpl<Task, Long> implements Task
         Task task = taskRepository.findById(taskId)
                 .orElseThrow(() -> new ResourceNotFoundException("Task not found"));
 
-        User user = userRepository.findById(requesterId)
+        User requester  = userRepository.findById(requesterId)
                 .orElseThrow(() -> new ResourceNotFoundException("Requester not found"));
+
+        List<Long> receiverIds = projectMemberRepository.findAllById(projectMemberIds)
+                .stream()
+                .map(m -> m.getUser().getId())
+                .toList();
 
         // Kiểm tra xem requesterId có phải là PM của project này không, nếu không ném Exception 403.
 
         taskAssignmentRepository.deleteByTaskIdAndProjectMemberIdIn(taskId, projectMemberIds);
+
+        TaskUnassignContext context = TaskUnassignContext.builder()
+                .task(task)
+                .actor(requester)
+                .build();
+        notificationService.send(receiverIds, context, task.getId());
     }
 
     @Override
     @Transactional
     public TaskResponseDTO updateTask(Long taskId, TaskUpdateDTO dto) {
-
         Task task = taskRepository.findById(taskId)
                 .orElseThrow(() -> new RuntimeException("Task not found"));
 
@@ -245,7 +269,18 @@ public class TaskServiceImpl extends BaseServiceImpl<Task, Long> implements Task
 
         TaskStatus status = taskStatusRepository.findById(dto.getStatusId())
                 .orElseThrow(() -> new ResourceNotFoundException("Status not found"));
+
         taskMapper.updateEntityFromDto(dto, task, priority, status);
+
+        Task savedTask = taskRepository.save(task);
+        List<Long> receiverIds = task.getMembersId();
+
+        if(!receiverIds.isEmpty()) {
+            TaskUpdateContext context = TaskUpdateContext.builder()
+                    .task(savedTask)
+                    .build();
+            notificationService.send(receiverIds, context, savedTask.getId());
+        }
 
         return taskMapper.toDto(task);
     }

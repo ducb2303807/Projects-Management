@@ -2,9 +2,9 @@ package com.group4.projects_management.mapper;
 
 import com.group4.common.dto.ProjectCreateRequestDTO;
 import com.group4.common.dto.ProjectResponseDTO;
+import com.group4.common.dto.ProjectUpdateRequestDTO;
 import com.group4.projects_management.entity.Project;
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
+import org.mapstruct.*;
 
 @Mapper(componentModel = "spring")
 public abstract class ProjectMapper
@@ -26,4 +26,15 @@ public abstract class ProjectMapper
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "updateAt", ignore = true)
     public abstract Project toCreateEntity(ProjectCreateRequestDTO dto);
+
+    @Mapping(source = "projectName", target = "name")
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "tasks", ignore = true)
+    @Mapping(target = "members", ignore = true)
+    @Mapping(target = "projectStatus", ignore = true)
+    @Mapping(target = "createdBy", ignore = true)
+    @Mapping(target = "createdAt", ignore = true)
+    @Mapping(target = "updateAt", ignore = true)
+    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+    public abstract void updateProjectFromDto(ProjectUpdateRequestDTO dto, @MappingTarget Project project);
 }
