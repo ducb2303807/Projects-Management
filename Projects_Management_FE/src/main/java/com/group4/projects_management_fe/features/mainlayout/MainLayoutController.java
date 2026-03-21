@@ -7,9 +7,12 @@ import com.group4.common.dto.UserUpdateDTO;
 import com.group4.projects_management_fe.core.api.RxSseManager;
 import com.group4.projects_management_fe.core.api.UserApi;
 import com.group4.projects_management_fe.core.api.base.SseClientManager;
+import com.group4.projects_management_fe.core.extension.SseRxBridge;
 import com.group4.projects_management_fe.core.navigation.AppStageManager;
 import com.group4.projects_management_fe.core.session.AppSessionManager;
+import com.group4.projects_management_fe.features.toast.Toast;
 import io.reactivex.rxjava3.disposables.CompositeDisposable;
+import io.reactivex.rxjava3.plugins.RxJavaPlugins;
 import javafx.animation.FadeTransition;
 import javafx.animation.ScaleTransition;
 import javafx.event.ActionEvent;
@@ -26,7 +29,9 @@ import javafx.scene.layout.Priority;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.shape.Circle;
+import javafx.stage.Stage;
 import javafx.util.Duration;
+import org.pdfsam.rxjavafx.schedulers.JavaFxScheduler;
 
 import java.io.IOException;
 
@@ -83,7 +88,6 @@ public class MainLayoutController {
 
     private UserDTO currentUser;
     private final UserApi userApi = new UserApi(AppSessionManager.getInstance());
-
     private final CompositeDisposable disposables = new CompositeDisposable();
     private final SseClientManager<SseNotificationDTO> sseClientManager = new RxSseManager(AppSessionManager.getInstance());
 
@@ -97,6 +101,16 @@ public class MainLayoutController {
         userBox.setOnMouseClicked(e -> showProfile());
         overlayBackground.setOnMouseClicked(e -> closeProfile());
         loadCurrentUser();
+
+        Stage stage = AppStageManager.getInstance().getStage();
+        /// SSE
+        sseClientManager.connect();
+        disposables.add(SseRxBridge.toObservable(sseClientManager)
+                .observeOn(JavaFxScheduler.platform())
+                .subscribe(sseNotificationDTO ->  {
+                            Toast.showToast(stage, sseNotificationDTO);
+                        }
+                        , RxJavaPlugins::onError));
     }
 
     private void bindUserToUI(UserDTO user) {
@@ -268,29 +282,6 @@ public class MainLayoutController {
         if (!disposables.isDisposed()) disposables.dispose();
         sseClientManager.shutdown();
         System.out.println("Logged out");
-    }
-
-    @FXML
-    private void handleSaveProfile() {
-        if (currentUser == null) return;
-
-        UserUpdateDTO request = new UserUpdateDTO();
-        request.setFullName(fullnameField.getText());
-        request.setEmail(emailField.getText());
-
-        userApi.updateProfile(currentUser.getId(), request)
-                .thenAccept(updatedUser -> {
-                    currentUser = updatedUser;
-
-                    javafx.application.Platform.runLater(() -> {
-                        bindUserToUI(updatedUser);
-                        closeProfile();
-                    });
-                })
-                .exceptionally(ex -> {
-                    ex.printStackTrace();
-                    return null;
-                });
     }
 
 

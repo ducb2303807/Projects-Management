@@ -397,7 +397,7 @@ public class ProjectServiceImpl extends BaseServiceImpl<Project, Long> implement
     @Override
     public ProjectResponseDTO getProjectDetail(Long projectId) {
         var project = projectRepository.findByIdWithMembers(projectId)
-                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy dự án"));
+                .orElseThrow(() -> new ResourceNotFoundException("Project not found"));
         return projectMapper.toDto(project);
     }
 

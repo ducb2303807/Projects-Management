@@ -44,16 +44,7 @@ public abstract class AbstractSseManager<T> extends BaseNetworkCore implements S
     @Override
     public void shutdown() {
         this.disconnect();
-        client.dispatcher().executorService().shutdown();
-        client.connectionPool().evictAll();
 
-        if (client.cache() != null) {
-            try {
-                client.cache().close();
-            } catch (Exception ignored) {
-                // Ignored
-            }
-        }
         ALL_MANAGERS.remove(this);
         onCustomShutdown();
     }

@@ -109,6 +109,8 @@ public class RxSseManager extends AbstractSseManager<SseNotificationDTO> {
                     return;
                 }
 
+                System.out.println("Nhận Event - Type: " + type + ", Data: " + data);
+
                 try {
                     var dto = parseData(data, SseNotificationDTO.class);
                     emitter.onNext(dto);
@@ -121,7 +123,7 @@ public class RxSseManager extends AbstractSseManager<SseNotificationDTO> {
             public void onFailure(@NotNull EventSource eventSource, Throwable t, Response response) {
                 Throwable parsedError = parseHttpError(response, t);
                 if (t instanceof IOException && "canceled".equalsIgnoreCase(t.getMessage())) {
-                    // ignore vì user đóng
+                    // ignore
                     return;
                 }
                 emitter.onError(parsedError);
