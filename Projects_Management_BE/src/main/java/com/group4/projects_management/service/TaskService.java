@@ -24,7 +24,7 @@ public interface TaskService {
    void assignMembers(Long taskId, List<Long> assigneeIdList, Long requesterId);
    /** @param projectId
     * @pdOid d174b4c9-a28a-426a-aa1c-ff79f514f6ab */
-   List<TaskResponseDTO> getTasksByProject(Long projectId);
+   List<TaskResponseDTO> getTasksByProject(Long projectId, boolean includeCancelled);
 
    List<TaskResponseDTO> getAllTasks();
 
@@ -33,7 +33,7 @@ public interface TaskService {
     * @param userId
     * @return List<TaskResponseDTO>
     */
-   List<TaskResponseDTO> getTasksByUserId(Long userId);
+   List<TaskResponseDTO> getTasksByUserId(Long userId, boolean includeCancelled);
    /** @param taskId
     * @pdOid 4eec4cea-792f-4ab2-bd99-05642a7da919 */
    List<TaskHistoryDTO> getTaskHistory(Long taskId);
@@ -57,5 +57,7 @@ public interface TaskService {
     * @param statusId
     * @pdOid 17f62ca3-613b-4673-b6f1-aa6745bf4827 */
    List<TaskResponseDTO> getTasksByStatus(Long projectId, Long statusId);
+
+   void deleteTask(Long taskId, Long requesterId);
 
 }

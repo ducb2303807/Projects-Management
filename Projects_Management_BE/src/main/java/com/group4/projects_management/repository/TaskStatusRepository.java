@@ -14,4 +14,5 @@ public interface TaskStatusRepository extends BaseRepository<TaskStatus, Long> {
 
     Optional<TaskStatus> findBySystemCode(String systemCode);
 
+
 }

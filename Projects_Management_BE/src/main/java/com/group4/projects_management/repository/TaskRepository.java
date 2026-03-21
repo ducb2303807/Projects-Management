@@ -7,6 +7,7 @@ package com.group4.projects_management.repository; /****************************
 import com.group4.projects_management.entity.Task;
 import com.group4.projects_management.repository.Base.BaseRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -29,4 +30,30 @@ public interface TaskRepository extends BaseRepository<Task, Long> {
     @Query("SELECT t FROM Task t WHERE t.deadline < :now " +
             "AND t.taskStatus.systemCode NOT IN ('COMPLETED', 'CANCELLED')")
     List<Task> findOverdueTasks(LocalDateTime now);
+
+    // Đếm số lượng task của project mà trạng thái KHÔNG PHẢI là 'CANCELLED'
+    @Query("SELECT COUNT(t) FROM Task t " +
+            "WHERE t.project.id = :projectId " +
+            "AND t.taskStatus.systemCode <> :status")
+    int countByProjectIdAndStatusNot(
+            @Param("projectId") Long projectId,
+            @Param("status") String status);
+
+    // Tìm danh sách task của project mà trạng thái KHÔNG PHẢI là 'CANCELLED'
+    @Query("SELECT t FROM Task t " +
+            "WHERE t.project.id = :projectId " +
+            "AND t.taskStatus.systemCode <> :status")
+    List<Task> findByProjectIdAndStatusNot(
+            @Param("projectId") Long projectId,
+            @Param("status") String status);
+
+    @Query("SELECT t FROM Task t " +
+            "WHERE t.project.id = :projectId " +
+            "AND t.taskStatus.systemCode <> :tStatus " +
+            "AND t.project.projectStatus.systemCode <> :pStatus")
+    List<Task> findActiveTasksByProjectId(
+            @Param("projectId") Long projectId,
+            @Param("tStatus") String tStatus,
+            @Param("pStatus") String pStatus);
+
 }

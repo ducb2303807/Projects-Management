@@ -142,13 +142,21 @@ public class TaskServiceImpl extends BaseServiceImpl<Task, Long> implements Task
         notificationService.send(receiverIds, context, task.getId());
     }
 
+
+
     @Override
     @org.springframework.transaction.annotation.Transactional(readOnly = true)
-    public List<TaskResponseDTO> getTasksByProject(Long projectId) {
+    public List<TaskResponseDTO> getTasksByProject(Long projectId, boolean includeCancelled) {
 
-        List<Task> tasks = taskRepository.findByProject_Id(projectId);
+        if (includeCancelled) {
+            return taskRepository.findByProject_Id(projectId).stream()
+                    .map(taskMapper::toDto).toList();
+        }
 
-        return tasks.stream()
+        // Chỉ lấy task nếu cả Task và Project đều KHÔNG ở trạng thái CANCELLED
+        return taskRepository.findActiveTasksByProjectId(
+                        projectId, "CANCELLED", "CANCELLED")
+                .stream()
                 .map(taskMapper::toDto)
                 .toList();
     }
@@ -164,19 +172,21 @@ public class TaskServiceImpl extends BaseServiceImpl<Task, Long> implements Task
 
     @Override
     @Transactional(readOnly = true)
-    public List<TaskResponseDTO> getTasksByUserId(Long userId) {
+    public List<TaskResponseDTO> getTasksByUserId(Long userId, boolean includeCancelled) {
+        final String activeMemberStatus = MemberStatusCode.ACTIVE.name();
+        List<Task> tasks;
 
-        var projectMemberStatus = projectMemberStatusRepository.findBySystemCode(MemberStatusCode.ACTIVE.name())
-                .orElseThrow(() -> new ResourceNotFoundException("Project member status ACTIVE not found"));
+        if (includeCancelled) {
+            tasks = taskAssignmentRepository.findAllTasksForUser(userId, activeMemberStatus);
+        } else {
+            tasks = taskAssignmentRepository.findActiveTasksForUser(
+                    userId,
+                    activeMemberStatus,
+                    TaskStatusCode.CANCELLED.name(),
+                    TaskStatusCode.CANCELLED.name());
+        }
 
-        var taskCancelStatus = taskStatusRepository.findBySystemCode(TaskStatusCode.CANCELLED.name())
-                .orElseThrow(() -> new ResourceNotFoundException("Task status CANCELLED not found"));
-
-        return taskAssignmentRepository.findTasksByUserIdAndStatus(
-                        userId,
-                        projectMemberStatus.getSystemCode(),
-                        taskCancelStatus.getSystemCode())
-                .stream()
+        return tasks.stream()
                 .map(taskMapper::toDto)
                 .toList();
     }
@@ -315,6 +325,33 @@ public class TaskServiceImpl extends BaseServiceImpl<Task, Long> implements Task
         return tasks.stream()
                 .map(taskMapper::toDto)
                 .toList();
+    }
+
+    @Override
+    @Transactional
+    public void deleteTask(Long taskId, Long requesterId) {
+        Task task = taskRepository.findById(taskId)
+                .orElseThrow(() -> new ResourceNotFoundException("Task not found"));
+
+        TaskStatus cancelledStatus = taskStatusRepository.findBySystemCode(TaskStatusCode.CANCELLED.name())
+                .orElseThrow(() -> new ResourceNotFoundException("Task status CANCELLED not found in system"));
+
+        task.setTaskStatus(cancelledStatus);
+        taskRepository.save(task);
+
+        List<Long> receiverIds = task.getMembersId();
+
+        if (!receiverIds.isEmpty()) {
+            User requester = userRepository.findById(requesterId).orElse(null);
+
+            TaskStatusContext context = TaskStatusContext.builder()
+                    .task(task)
+                    .newStatusName(cancelledStatus.getName())
+                    .actor(requester)
+                    .build();
+
+            notificationService.send(receiverIds, context, task.getId());
+        }
     }
 
 }

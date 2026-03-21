@@ -37,11 +37,12 @@ public class TaskController {
         return ResponseEntity.ok(taskService.getAllTasks());
     }
 
-    @Operation(summary = "Lấy thông tin tasks mà tôi tham gia, không lấy task bị CANCELED")
+    @Operation(summary = "Lấy thông tin tasks mà tôi tham gia")
     @GetMapping("/me")
-    public ResponseEntity<List<TaskResponseDTO>> getMyTasks() {
+    public ResponseEntity<List<TaskResponseDTO>> getMyTasks(
+            @RequestParam(defaultValue = "false") boolean includeCancelled) {
         Long currentUserId = SecurityUtils.getCurrentUserId();
-        return ResponseEntity.ok(taskService.getTasksByUserId(currentUserId));
+        return ResponseEntity.ok(taskService.getTasksByUserId(currentUserId,includeCancelled));
     }
 
     @Operation(summary = "Đưa các member đã chọn vào task",
@@ -66,6 +67,14 @@ public class TaskController {
         return ResponseEntity.ok().build();
     }
 
+    @Operation(summary = "Xóa task (chuyển sang trạng thái CANCELLED)")
+    @DeleteMapping("/{taskId}")
+    public ResponseEntity<Void> deleteTask(@PathVariable Long taskId) {
+        Long requesterId = SecurityUtils.getCurrentUserId();
+        taskService.deleteTask(taskId, requesterId);
+        return ResponseEntity.ok().build();
+    }
+
     @Operation(summary = "Lấy lịch sử thay đổi của task")
     @GetMapping("/{taskId}/histories")
     public ResponseEntity<List<TaskHistoryDTO>> getTaskHistory(@PathVariable Long taskId) {
@@ -84,4 +93,6 @@ public class TaskController {
     public ResponseEntity<List<CommentDTO>> getTaskComment(@PathVariable Long taskId) {
         return ResponseEntity.ok(commentService.getCommentsByTask(taskId));
     }
+
+
 }
