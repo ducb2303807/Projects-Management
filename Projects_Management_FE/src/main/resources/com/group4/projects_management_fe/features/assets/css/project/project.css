@@ -44,6 +44,12 @@
     -fx-background-color: #5c3f81;
 }
 
+.btn-new:pressed {
+    -fx-background-color: linear-gradient(to right, #593fc2, #7c58c2);
+    -fx-effect: none; /* Tắt bóng đổ khi bấm để tạo cảm giác nút lún xuống */
+    -fx-translate-y: 1px;
+}
+
 .transparent-scrollpane {
     -fx-background-color: transparent;
     -fx-control-inner-background: transparent;
@@ -126,10 +132,10 @@
     -fx-font-weight: bold;
 }
 
-/* Màu nền tạm cho hình tròn Avatar */
-.avatar-circle {
-    -fx-fill: #2c3e50;
-}
+/*!* Màu nền tạm cho hình tròn Avatar *!*/
+/*.avatar-circle {*/
+/*    -fx-fill: #2c3e50;*/
+/*}*/
 
 .ellipsis {
     -fx-text-fill: white;

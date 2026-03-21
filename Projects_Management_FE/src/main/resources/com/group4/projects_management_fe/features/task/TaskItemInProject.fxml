@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<GridPane alignment="CENTER_LEFT" prefHeight="50.0" prefWidth="1050.0" stylesheets="@../assets/css/project/projecttasks.css" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.group4.projects_management_fe.features.task.TaskController">
+
+    <columnConstraints>
+        <ColumnConstraints hgrow="NEVER" minWidth="10.0" prefWidth="450.0" />
+        <ColumnConstraints halignment="CENTER" hgrow="NEVER" minWidth="10.0" prefWidth="150.0" />
+        <ColumnConstraints halignment="CENTER" hgrow="NEVER" minWidth="10.0" prefWidth="150.0" />
+        <ColumnConstraints halignment="CENTER" hgrow="NEVER" minWidth="10.0" prefWidth="150.0" />
+        <ColumnConstraints halignment="CENTER" hgrow="NEVER" minWidth="10.0" prefWidth="150.0" />
+    </columnConstraints>
+
+    <rowConstraints>
+        <RowConstraints minHeight="10.0" prefHeight="50.0" vgrow="SOMETIMES" />
+    </rowConstraints>
+
+    <children>
+        <HBox alignment="CENTER_LEFT" spacing="15.0" GridPane.columnIndex="0">
+            <children>
+                <Label styleClass="task-name-label" text="Task name example" />
+            </children>
+            <padding>
+                <Insets left="20.0" right="10.0" />
+            </padding>
+        </HBox>
+
+        <Label alignment="CENTER" styleClass="task-name-label" text="Oct 24, 2023" GridPane.columnIndex="1" />
+
+        <Label alignment="CENTER" styleClass="task-name-label" text="John Doe" GridPane.columnIndex="2" />
+
+        <Label alignment="CENTER" styleClass="task-name-label" text="High" GridPane.columnIndex="3" />
+
+        <Label alignment="CENTER" styleClass="task-name-label" text="In Progress" GridPane.columnIndex="4" />
+    </children>
+
+</GridPane>
