@@ -56,6 +56,8 @@ public class TaskDetailFormController {
         this.popupStage = popupStage;
     }
 
+//     Callback được gọi SAU khi save thành công VÀ popup đã đóng.
+//     TasksViewController.reloadData() được truyền vào đây.
     public void setOnSaveSuccessCallback(Runnable callback) {
         this.onSaveSuccessCallback = callback;
     }
@@ -93,6 +95,9 @@ public class TaskDetailFormController {
 
         // Load comments từ server
         loadTaskComments();
+
+        // Lắng nghe thay đổi của task
+        setupChangeListeners();
     }
 
     // -----------------------------------------------------------------------
@@ -184,6 +189,62 @@ public class TaskDetailFormController {
         priorityComboBox.setButtonCell(cellFactory.call(null));
     }
 
+    private void setupChangeListeners() {
+        // Mặc định disable nút Save ban đầu
+        saveBtn.setDisable(true);
+
+        // Bắt sự kiện mỗi khi người dùng gõ hoặc chọn giá trị mới
+        taskNameInput.textProperty().addListener((observable, oldValue, newValue) -> checkChanges());
+        descriptionInput.textProperty().addListener((observable, oldValue, newValue) -> checkChanges());
+        dueDatePicker.valueProperty().addListener((observable, oldValue, newValue) -> checkChanges());
+        statusComboBox.valueProperty().addListener((observable, oldValue, newValue) -> checkChanges());
+        priorityComboBox.valueProperty().addListener((observable, oldValue, newValue) -> checkChanges());
+    }
+
+    private void checkChanges() {
+        if (currentTask == null) return;
+
+        boolean isChanged = false;
+
+        // So sánh Tên task
+        String currentName = currentTask.getName() != null ? currentTask.getName() : "";
+        String newName = taskNameInput.getText() != null ? taskNameInput.getText() : "";
+        if (!currentName.equals(newName)) isChanged = true;
+
+        // So sánh Description
+        String currentDesc = currentTask.getDescription() != null ? currentTask.getDescription() : "";
+        String newDesc = descriptionInput.getText() != null ? descriptionInput.getText() : "";
+        if (!currentDesc.equals(newDesc)) isChanged = true;
+
+        // So sánh Due Date
+        java.time.LocalDate currentDate = currentTask.getDeadline() != null ? currentTask.getDeadline().toLocalDate() : null;
+        java.time.LocalDate newDate = dueDatePicker.getValue();
+        if ((currentDate == null && newDate != null) || (currentDate != null && !currentDate.equals(newDate))) {
+            isChanged = true;
+        }
+
+        // So sánh Status
+        String currentStatus = currentTask.getStatusName();
+        LookupDTO newStatus = statusComboBox.getValue();
+        if (newStatus != null && currentStatus != null && !newStatus.getName().equalsIgnoreCase(currentStatus)) {
+            isChanged = true;
+        } else if (newStatus != null && currentStatus == null) {
+            isChanged = true;
+        }
+
+        // So sánh Priority
+        String currentPriority = currentTask.getPriorityName();
+        LookupDTO newPriority = priorityComboBox.getValue();
+        if (newPriority != null && currentPriority != null && !newPriority.getName().equalsIgnoreCase(currentPriority)) {
+            isChanged = true;
+        } else if (newPriority != null && currentPriority == null) {
+            isChanged = true;
+        }
+
+        // Nếu có thay đổi -> Enable (Bật) nút Save. Nếu không -> Disable (Tắt)
+        saveBtn.setDisable(!isChanged);
+    }
+
     /**
      * Chuyển tên thành CSS class slug: "ON_GOING" → "on-going", "HIGH" → "high"
      */
@@ -192,13 +253,11 @@ public class TaskDetailFormController {
 
         return switch (item.getName().toUpperCase()) {
             // Task Status
-            case "CẦN LÀM", "TODO" -> "-fx-text-fill: #757575; -fx-font-weight: bold;"; // Xám
+            case "CẦN LÀM", "TO DO" -> "-fx-text-fill: #757575; -fx-font-weight: bold;"; // Xám
             case "ĐANG LÀM", "IN PROGRESS" -> "-fx-text-fill: #FCAB10; -fx-font-weight: bold;"; // Vàng
-            case "ĐANG KIỂM TRA", "REVIEW" -> "-fx-text-fill: #7B68EE; -fx-font-weight: bold;"; // Tím
+            case "ĐANG KIỂM TRA", "UNDER REVIEW" -> "-fx-text-fill: #7B68EE; -fx-font-weight: bold;"; // Tím
             case "HOÀN THÀNH", "DONE" -> "-fx-text-fill: #2E7D32; -fx-font-weight: bold;"; // Xanh lá
             case "ĐÃ HỦY", "CANCELLED" -> "-fx-text-fill: #C62828; -fx-font-weight: bold;"; // Đỏ
-
-
 
             // Priority
             case "KHẨN CẤP", "URGENT" -> "-fx-text-fill: #C62828; -fx-font-weight: bold;"; // Đỏ
@@ -269,8 +328,12 @@ public class TaskDetailFormController {
     // 4. Gọi API Cập Nhật Task (PUT /api/tasks/{taskId})
     @FXML
     private void handleSave(ActionEvent event) {
+        if (currentTask == null) {
+            closeForm();
+            return;
+        }
+
         saveBtn.setDisable(true);
-        saveBtn.setText("Saving...");
 
         TaskUpdateDTO updateRequest = new TaskUpdateDTO();
         updateRequest.setName(taskNameInput.getText());
@@ -286,19 +349,23 @@ public class TaskDetailFormController {
             updateRequest.setPriorityId(Long.valueOf(priorityComboBox.getValue().getId()));
         }
 
-        taskApi.updateTask(currentTask.getTaskId(), updateRequest).thenAccept(success -> {
-            Platform.runLater(() -> {
-                if (onSaveSuccessCallback != null) onSaveSuccessCallback.run();
-                closeForm();
-            });
-        }).exceptionally(ex -> {
-            Platform.runLater(() -> {
-                saveBtn.setDisable(false);
-                saveBtn.setText("Save Changes");
-                System.err.println("Lỗi khi cập nhật task: " + ex.getMessage());
-            });
-            return null;
-        });
+        taskApi.updateTask(currentTask.getTaskId(), updateRequest)
+                .thenAccept(updated -> {
+                    Platform.runLater(() -> {
+                        // ĐÓNG POPUP TRƯỚC, sau đó mới reload
+                        closeForm();
+                        if (onSaveSuccessCallback != null) {
+                            onSaveSuccessCallback.run();
+                        }
+                    });
+                })
+                .exceptionally(ex -> {
+                    Platform.runLater(() -> {
+                        saveBtn.setDisable(false);
+                        System.err.println("Lỗi khi lưu task: " + ex.getMessage());
+                    });
+                    return null;
+                });
     }
 
     // 5. Quản lý Comments (Load & Thêm mới)
@@ -387,14 +454,14 @@ public class TaskDetailFormController {
         commentsContainer.getChildren().add(row);
     }
 
-    @FXML
-    private void handleCancel(ActionEvent event) {
-        closeForm();
-    }
-
     private void closeForm() {
         if (popupStage != null) {
             popupStage.close();
         }
+    }
+
+    @FXML
+    private void handleCancel(ActionEvent event) {
+        closeForm();
     }
 }

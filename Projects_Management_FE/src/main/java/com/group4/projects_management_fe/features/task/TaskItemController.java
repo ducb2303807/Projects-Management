@@ -39,6 +39,9 @@ public class TaskItemController implements Initializable {
     private AuthSessionProvider sessionProvider;
     private TaskResponseDTO currentTask;
 
+//    Callback được truyền từ TasksViewController → TaskGroupController → TaskItemController
+    private Runnable reloadCallback;
+
     @Override
     public void initialize(URL location, ResourceBundle resources) { }
 
@@ -48,6 +51,10 @@ public class TaskItemController implements Initializable {
 
     public void setCurrentTask(TaskResponseDTO task) {
         this.currentTask = task;
+    }
+
+    public void setReloadCallback(Runnable reloadCallback) {
+        this.reloadCallback = reloadCallback;
     }
 
     public void bindTask(TaskResponseDTO task) {
@@ -103,16 +110,17 @@ public class TaskItemController implements Initializable {
             // 1. Truyền session
             controller.setSessionProvider(sessionProvider);
 
-            // 2. Tạo LookupDTO cho status (bắt buộc vì initData cần 2 tham số)
-            LookupDTO statusDTO = new LookupDTO();
-            statusDTO.setId(currentTask.getTaskId() != null ? currentTask.getTaskId().toString() : null);
-            statusDTO.setName(currentTask.getStatusName());
+            // 2. Tạo LookupDTO cho status
+            LookupDTO memberLookup = new LookupDTO();
+            memberLookup.setId(currentTask.getTaskId() != null
+                    ? currentTask.getTaskId().toString() : null);
+            memberLookup.setName(currentTask.getStatusName());
 
             // 3. Truyền dữ liệu task vào form
-            controller.initData(currentTask, statusDTO);
+            controller.initData(currentTask, memberLookup);
 
             // 4. Callback reload sau khi save
-            controller.setOnSaveSuccessCallback(this::reloadParentList);
+            controller.setOnSaveSuccessCallback(reloadCallback);
 
             // === TẠO STAGE TRONG SUỐT (giống NewTaskForm) ===
             Window ownerWindow = moreButton.getScene().getWindow();
@@ -121,6 +129,8 @@ public class TaskItemController implements Initializable {
             popup.initModality(Modality.APPLICATION_MODAL);
             popup.initOwner(ownerWindow);
             popup.initStyle(StageStyle.TRANSPARENT);
+
+            controller.setPopupStage(popup);
 
             Scene scene = new Scene(root);
             scene.setFill(Color.TRANSPARENT);
@@ -143,14 +153,14 @@ public class TaskItemController implements Initializable {
     }
 
     // Reload danh sách sau khi edit/save
-    private void reloadParentList() {
-        // Tìm TasksViewController và reload
-        Window window = moreButton.getScene().getWindow();
-        if (window instanceof Stage stage) {
-            Object parent = stage.getScene().getRoot().lookup("#tasksView"); // nếu bạn đặt fx:id="tasksView" ở TasksView.fxml
-            if (parent instanceof TasksViewController tasksView) {
-                tasksView.reloadData();
-            }
-        }
-    }
+//    private void reloadParentList() {
+//        // Tìm TasksViewController và reload
+//        Window window = moreButton.getScene().getWindow();
+//        if (window instanceof Stage stage) {
+//            Object parent = stage.getScene().getRoot().lookup("#tasksView"); // nếu bạn đặt fx:id="tasksView" ở TasksView.fxml
+//            if (parent instanceof TasksViewController tasksView) {
+//                tasksView.reloadData();
+//            }
+//        }
+//    }
 }

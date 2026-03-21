@@ -20,15 +20,16 @@ import java.util.ResourceBundle;
 public class TaskGroupController implements Initializable {
 
     @FXML private TitledPane groupTitledPane;
-    @FXML private VBox taskItemsVBox;           // VBox bên trong ScrollPane (đúng với FXML)
+    @FXML private VBox taskGroupContentVBox; // Vùng chứa list task bên trong ScrollPane
 
     // === THÊM 2 BIẾN NÀY ĐỂ TRUYỀN DỮ LIỆU ===
     private AuthSessionProvider sessionProvider;
     private TaskResponseDTO currentTask;
+    private Runnable reloadCallback;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        // selectAll logic (giữ nếu bạn cần)
+        // selectAll logic
     }
 
     public void setSessionProvider(AuthSessionProvider sessionProvider) {
@@ -39,10 +40,12 @@ public class TaskGroupController implements Initializable {
         groupTitledPane.setText(name);
     }
 
-    @FXML private VBox taskGroupContentVBox; // Vùng chứa list task bên trong ScrollPane
+    public void setReloadCallback(Runnable reloadCallback) {
+        this.reloadCallback = reloadCallback;
+    }
 
     public void loadTasks(List<TaskResponseDTO> tasks) {
-        taskGroupContentVBox.getChildren().clear();   // dùng fx:id đúng
+        taskGroupContentVBox.getChildren().clear();
 
         for (TaskResponseDTO task : tasks) {
             try {
@@ -51,8 +54,11 @@ public class TaskGroupController implements Initializable {
 
                 TaskItemController itemCtrl = loader.getController();
                 itemCtrl.bindTask(task);
-                itemCtrl.setSessionProvider(this.sessionProvider);
+                itemCtrl.setSessionProvider(sessionProvider);
                 itemCtrl.setCurrentTask(task);
+                // Truyền reload callback xuống TaskItemController
+                // để sau khi save TaskDetail, list tự reload
+                itemCtrl.setReloadCallback(reloadCallback);
 
                 taskGroupContentVBox.getChildren().add(itemNode);
             } catch (IOException e) {
