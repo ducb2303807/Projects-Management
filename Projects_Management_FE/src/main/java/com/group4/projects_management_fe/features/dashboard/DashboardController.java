@@ -136,7 +136,7 @@ public class DashboardController {
                     int completedTasks = (int) myTasks.stream()
                             .filter(task ->
                                     task.getStatusName() != null &&
-                                            task.getStatusName().equalsIgnoreCase("Hoàn thành")
+                                            task.getStatusName().equalsIgnoreCase("done")
                             )
                             .count();
 
@@ -169,29 +169,29 @@ public class DashboardController {
         Label status = new Label(task.getStatusName());
         status.getStyleClass().add("status-badge");
 
-        String normalized = task.getStatusName();
+        String normalized = task.getStatusName().toLowerCase();
 
         switch (normalized) {
 
-            case "Hoàn thành":
-                status.getStyleClass().add("status-completed"); // CSS: màu xanh
+            case "done":
+                status.getStyleClass().add("status-completed");
                 break;
 
-            case "Đang làm":
-                status.getStyleClass().add("status-active");    // CSS: màu vàng
+            case "in_progress":
+                status.getStyleClass().add("status-active");
                 break;
 
-            case "Đang kiểm tra":
-                status.getStyleClass().add("status-on-hold");   // CSS: tạm dùng màu đỏ nhạt
+            case "under_review":
+                status.getStyleClass().add("status-on-hold");
                 break;
 
-            case "Đã hủy":
-                status.getStyleClass().add("status-cancelled"); // CSS: màu đỏ
+            case "cancelled":
+                status.getStyleClass().add("status-cancelled");
                 break;
 
-            case "Cần làm":
+            case "todo":
             default:
-                status.getStyleClass().add("status-planning");  // CSS: xám nhạt
+                status.getStyleClass().add("status-planning");
                 break;
         }
 
@@ -244,26 +244,23 @@ public class DashboardController {
 
                 switch (normalized) {
 
-                    case "đã hoàn thành":
+                    case "completed":
                         badge.getStyleClass().add("status-completed");
                         break;
 
-                    case "đang thực hiện":
+                    case "active":
                         badge.getStyleClass().add("status-active");
                         break;
 
-                    case "tạm dừng":
+                    case "on_hold":
                         badge.getStyleClass().add("status-on-hold");
                         break;
 
-                    case "đã hủy":
+                    case "cancelled":
                         badge.getStyleClass().add("status-cancelled");
                         break;
 
-                    case "lập kế hoạch":
-                        badge.getStyleClass().add("status-planning");
-                        break;
-
+                    case "planning":
                     default:
                         badge.getStyleClass().add("status-planning");
                         break;
