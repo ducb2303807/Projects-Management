@@ -114,7 +114,6 @@
 
 /*CHECK BOX*/
 .check-box > .box{
-    -fx-background-color: no;
     -fx-border-color: #dcdcdc;
     -fx-border-radius: 4px;
     -fx-border-width: 1.5px;
