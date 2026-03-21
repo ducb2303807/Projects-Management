@@ -43,4 +43,5 @@ public interface TaskAssignmentRepository extends BaseRepository<TaskAssignment,
             @Param("excludedTaskStatusCode") String excludedTaskStatusCode
     );
 
+    List<TaskAssignment>  findByTask_Id(Long taskId);
 }

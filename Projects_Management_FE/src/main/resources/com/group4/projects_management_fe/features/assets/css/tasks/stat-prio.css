@@ -1,0 +1,105 @@
+/* =============================================================
+   lookup-colors.css
+   Màu sắc cho Status và Priority trong ComboBox cell.
+   Class được gán động bởi NewTaskFormController.coloredCell()
+   dạng: "status-new", "status-on-going", "priority-high", ...
+   ============================================================= */
+
+/* --- Base badge: bo góc, padding, font --- */
+.lookup-badge {
+    -fx-background-radius: 4;
+    -fx-padding: 3 10 3 10;
+    -fx-font-size: 12px;
+    -fx-font-weight: bold;
+    -fx-text-fill: white;
+    -fx-cursor: hand;
+}
+
+/* =============================================================
+   TASK STATUS
+   ============================================================= */
+
+/* NEW — xanh dương nhạt */
+.status-new {
+    -fx-background-color: #4A90D9;
+    -fx-text-fill: white;
+}
+
+/* ON_GOING → slug: on-going — cam */
+.status-on-going {
+    -fx-background-color: #F5A623;
+    -fx-text-fill: white;
+}
+
+/* IN_REVIEW → slug: in-review — tím */
+.status-in-review {
+    -fx-background-color: #7B68EE;
+    -fx-text-fill: white;
+}
+
+/* DONE — xanh lá */
+.status-done {
+    -fx-background-color: #27AE60;
+    -fx-text-fill: white;
+}
+
+/* Fallback cho status chưa biết */
+.status-unknown {
+    -fx-background-color: #95A5A6;
+    -fx-text-fill: white;
+}
+
+/* =============================================================
+   PRIORITY
+   ============================================================= */
+
+/* LOW — xanh lá nhạt */
+.priority-low {
+    -fx-background-color: #2ECC71;
+    -fx-text-fill: white;
+}
+
+/* MEDIUM — vàng */
+.priority-medium {
+    -fx-background-color: #F39C12;
+    -fx-text-fill: white;
+}
+
+/* HIGH — đỏ */
+.priority-high {
+    -fx-background-color: #E74C3C;
+    -fx-text-fill: white;
+}
+
+/* CRITICAL / URGENT — đỏ đậm */
+.priority-critical,
+.priority-urgent {
+    -fx-background-color: #922B21;
+    -fx-text-fill: white;
+}
+
+/* Fallback */
+.priority-unknown {
+    -fx-background-color: #95A5A6;
+    -fx-text-fill: white;
+}
+
+/* =============================================================
+   OVERLAY MỜ — rootPane (StackPane) phủ toàn Stage
+   ============================================================= */
+
+.popup-background {
+    -fx-background-color: rgba(0, 0, 0, 0.45);
+}
+
+/* =============================================================
+   CARD FORM — VBox nằm giữa overlay
+   ============================================================= */
+
+.popup-container {
+    -fx-background-color: white;
+    -fx-background-radius: 12;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.28), 24, 0, 0, 6);
+    -fx-max-width: 820;
+    -fx-max-height: 620;
+}

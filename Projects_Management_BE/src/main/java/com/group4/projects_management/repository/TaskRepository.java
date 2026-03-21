@@ -6,7 +6,9 @@ package com.group4.projects_management.repository; /****************************
 
 import com.group4.projects_management.entity.Task;
 import com.group4.projects_management.repository.Base.BaseRepository;
+import org.springframework.data.jpa.repository.Query;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 /** @pdOid 9b851944-caed-4a10-a0ed-e8cb4396c90f */
@@ -19,4 +21,12 @@ public interface TaskRepository extends BaseRepository<Task, Long> {
     List<Task> findByProject_Id(Long projectId);
 
     List<Task> findByProject_IdAndTaskStatus_Id(Long projectId, Long statusId);
+
+    @Query("SELECT t FROM Task t WHERE t.deadline BETWEEN :start AND :end " +
+            "AND t.taskStatus.systemCode NOT IN ('COMPLETED', 'CANCELLED')")
+    List<Task> findTasksExpiringBetween(LocalDateTime start, LocalDateTime end);
+
+    @Query("SELECT t FROM Task t WHERE t.deadline < :now " +
+            "AND t.taskStatus.systemCode NOT IN ('COMPLETED', 'CANCELLED')")
+    List<Task> findOverdueTasks(LocalDateTime now);
 }
