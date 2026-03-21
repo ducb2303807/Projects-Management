@@ -2,8 +2,14 @@ package com.group4.projects_management_fe.features.dashboard;
 
 import com.group4.common.dto.ProjectResponseDTO;
 import com.group4.common.dto.TaskResponseDTO;
+import com.group4.projects_management_fe.core.api.ProjectApi;
+import com.group4.projects_management_fe.core.api.TaskApi;
+import com.group4.projects_management_fe.core.session.AppSessionManager;
+import com.group4.projects_management_fe.core.session.AuthSessionProvider;
 import com.group4.projects_management_fe.features.task.TaskDetailFormController;
+import javafx.application.Platform;
 import javafx.beans.property.SimpleStringProperty;
+import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Pos;
@@ -13,20 +19,15 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.skin.DatePickerSkin;
-import javafx.scene.layout.*;
-import com.group4.projects_management_fe.core.api.ProjectApi;
-import com.group4.projects_management_fe.core.api.TaskApi;
-import com.group4.projects_management_fe.core.session.AuthSessionProvider;
-import javafx.application.Platform;
-import javafx.collections.FXCollections;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Pane;
+import javafx.scene.layout.VBox;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
-import com.group4.projects_management_fe.core.session.AppSessionManager;
-import javafx.stage.Modality;
-import javafx.stage.Stage;
 
 public class DashboardController {
 
@@ -90,7 +91,7 @@ public class DashboardController {
 
     private void loadProjects() {
 
-        projectApi.getMyProjects()
+        projectApi.getMyProjects(false)
                 .thenAccept(projects -> {
 
                     Platform.runLater(() -> {
@@ -119,7 +120,7 @@ public class DashboardController {
         }
 
         List<CompletableFuture<List<TaskResponseDTO>>> futures = projects.stream()
-                .map(p -> projectApi.getTasksByProjectId(p.getId())) //
+                .map(p -> projectApi.getTasksByProjectId(p.getId(),false)) //
                 .toList();
 
         CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]))
