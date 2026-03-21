@@ -12,5 +12,4 @@ import lombok.Data;
 public class ProjectUpdatedContext {
     private Project project;
     private User actor;
-    private String projectName; // Dùng khi project đã bị xóa khỏi DB
 }

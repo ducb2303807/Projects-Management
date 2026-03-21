@@ -29,4 +29,14 @@ public interface ProjectMemberRepository extends BaseRepository<ProjectMember, L
 
     @Query("SELECT COUNT(m) FROM ProjectMember m WHERE m.project.id = :projectId AND m.projectMemberStatus.systemCode = 'ACCEPTED'")
     int countActiveMembersByProjectId(@Param("projectId") Long projectId);
+
+    @Query("SELECT pm FROM ProjectMember pm " +
+            "WHERE pm.user.id = :userId " +
+            "AND pm.leftAt IS NULL " +
+            "AND pm.projectMemberStatus.systemCode = :memberStatus " +
+            "AND pm.project.projectStatus.systemCode <> :cancelledStatus")
+    List<ProjectMember> findActiveProjectsForUser(
+            @Param("userId") Long userId,
+            @Param("memberStatus") String memberStatus,
+            @Param("cancelledStatus") String cancelledStatus);
 }

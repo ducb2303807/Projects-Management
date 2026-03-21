@@ -27,11 +27,14 @@ public interface ProjectService {
     * @pdOid 6ac8e9bb-3470-4722-a757-b4d681856e43 */
    ProjectStatsDTO getProjectStatistics(Long projectId);
    /** @pdOid 27d7677a-473a-40cc-8fbe-51ee89f31f8d */
-   List<ProjectResponseDTO> getProjectsByUserId(Long userId);
+   List<ProjectResponseDTO> getProjectsByUserId(Long userId, boolean includeCancelled);
    /** @param projectId 
     * @param dto
     * @pdOid 1b03a732-3ad2-4fbd-8402-eebae6e90b5a */
-   ProjectResponseDTO updateProject(Long projectId, ProjectUpdateRequestDTO dto);
+   ProjectResponseDTO updateProject(Long projectId, ProjectUpdateRequestDTO dto, Long actorId);
+
+   void deleteProject(Long projectId, Long actorId);
+
 
    List<ProjectMemberDTO> getMembersOfProject(Long projectId);
    /** @param projectMemberId
