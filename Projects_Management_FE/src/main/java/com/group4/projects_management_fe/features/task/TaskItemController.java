@@ -94,6 +94,9 @@ public class TaskItemController implements Initializable {
     // ===================================================================
     @FXML
     private void onMoreOptionsClicked() {
+        String projectRole = "PM";
+        Long projectId = currentTask.getProjectId();
+
         if (currentTask == null || sessionProvider == null) {
             System.err.println("Missing task or sessionProvider");
             return;
@@ -117,7 +120,9 @@ public class TaskItemController implements Initializable {
             memberLookup.setName(currentTask.getStatusName());
 
             // 3. Truyền dữ liệu task vào form
-            controller.initData(currentTask, memberLookup);
+            controller.initData(currentTask, memberLookup, projectId);
+
+            controller.setProjectId(currentTask.getProjectId());
 
             // 4. Callback reload sau khi save
             controller.setOnSaveSuccessCallback(reloadCallback);
@@ -151,16 +156,4 @@ public class TaskItemController implements Initializable {
             e.printStackTrace();
         }
     }
-
-    // Reload danh sách sau khi edit/save
-//    private void reloadParentList() {
-//        // Tìm TasksViewController và reload
-//        Window window = moreButton.getScene().getWindow();
-//        if (window instanceof Stage stage) {
-//            Object parent = stage.getScene().getRoot().lookup("#tasksView"); // nếu bạn đặt fx:id="tasksView" ở TasksView.fxml
-//            if (parent instanceof TasksViewController tasksView) {
-//                tasksView.reloadData();
-//            }
-//        }
-//    }
 }
