@@ -215,7 +215,7 @@ public class MainLayoutController {
         String confirm = confirmPasswordField.getText();
 
         if (!newPass.equals(confirm)) {
-            System.out.println("Confirm password không khớp");
+            System.out.println("Confirm password error");
             return;
         }
 
@@ -228,7 +228,7 @@ public class MainLayoutController {
                     javafx.application.Platform.runLater(() -> {
                         clearPasswordFields();
                         closeProfile();
-                        System.out.println("Đổi mật khẩu thành công");
+                        System.out.println("Password change successfully");
                     });
                 })
                 .exceptionally(ex -> {
