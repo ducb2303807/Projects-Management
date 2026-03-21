@@ -59,11 +59,26 @@
                         <FontIcon iconLiteral="fas-user-friends" styleClass="icon-muted" />
                         <Label styleClass="field-label" text="Assignee" />
                     </HBox>
-                    <HBox alignment="CENTER_LEFT" spacing="10.0" GridPane.columnIndex="1" GridPane.rowIndex="3">
-                        <Label fx:id="assigneeLabel" styleClass="field-value" text="Unassigned" />
-                        <Button fx:id="addAssigneeBtn" onAction="#handleAddAssigneeClick" styleClass="btn-add-circle" text="+" />
-                        <TextField fx:id="assigneeInput" managed="false" onAction="#handleAssigneeSubmit" promptText="Enter username" styleClass="clean-input" visible="false" HBox.hgrow="ALWAYS" />
-                    </HBox>
+
+                    <VBox spacing="6" GridPane.columnIndex="1" GridPane.rowIndex="3">
+                        <FlowPane fx:id="assigneeChipsPane"
+                                  hgap="6" vgap="6"
+                                  maxWidth="1.7976931348623157E308" />
+                        <HBox spacing="8" alignment="CENTER_LEFT">
+                            <Button fx:id="addAssigneeBtn"
+                                    onAction="#handleAddAssigneeClick"
+                                    styleClass="btn-add-circle"
+                                    text="+"
+                                    visible="false" managed="false" />
+                            <TextField fx:id="assigneeInput"
+                                       managed="false"
+                                       onAction="#handleAssigneeSubmit"
+                                       promptText="Enter username"
+                                       styleClass="clean-input"
+                                       visible="false"
+                                       HBox.hgrow="ALWAYS" />
+                        </HBox>
+                    </VBox>
 
                     <!-- Description -->
                     <HBox alignment="TOP_LEFT" spacing="10.0" GridPane.columnIndex="0" GridPane.rowIndex="4">
