@@ -12,8 +12,11 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @Builder
 public class SseNotificationDTO {
-    private String type;      // TASK_UPDATED, COMMENT_ADDED, PROJECT_INVITATION, v.v.
-    private String message;   // Nội dung hiển thị nhanh
-    private Object data;      // Object chứa chi tiết (TaskDTO, CommentDTO...)
+    private Long notificationId;
+    private String title;
+    private String type;
+    private String message;
+    private Object metadata;
+    private String referenceId;
     private LocalDateTime timestamp;
 }
