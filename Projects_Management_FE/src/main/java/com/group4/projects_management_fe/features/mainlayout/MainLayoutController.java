@@ -25,7 +25,9 @@ import javafx.scene.layout.Priority;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.shape.Circle;
+import javafx.stage.Stage;
 import javafx.util.Duration;
+import org.pdfsam.rxjavafx.schedulers.JavaFxScheduler;
 
 import java.io.IOException;
 
@@ -70,8 +72,6 @@ public class MainLayoutController {
     @FXML
     private VBox profilePanel;
 
-
-
     private UserDTO currentUser;
     private final UserApi userApi = new UserApi(AppSessionManager.getInstance());
     private final CompositeDisposable disposables = new CompositeDisposable();
@@ -88,10 +88,14 @@ public class MainLayoutController {
         overlayBackground.setOnMouseClicked(e -> closeProfile());
         loadCurrentUser();
 
-//         SSE test
+        Stage stage = AppStageManager.getInstance().getStage();
+        /// SSE
         sseClientManager.connect();
         disposables.add(SseRxBridge.toObservable(sseClientManager)
-                .subscribe(System.out::println
+                .observeOn(JavaFxScheduler.platform())
+                .subscribe(sseNotificationDTO ->  {
+                            Toast.showToast(stage, sseNotificationDTO);
+                        }
                         , RxJavaPlugins::onError));
     }
 
