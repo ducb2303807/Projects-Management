@@ -6,7 +6,7 @@
 <?import javafx.scene.layout.*?>
 <?import org.kordamp.ikonli.javafx.*?>
 
-<BorderPane style="-fx-background-color: #F8F9FA;" stylesheets="@../assets/css/auth.css" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.group4.projects_management_fe.features.mainlayout.MainLayoutController">
+<BorderPane style="-fx-background-color: #F8F9FA;" stylesheets="@../assets/css/auth.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.group4.projects_management_fe.features.mainlayout.MainLayoutController">
 
     <!-- TOP BAR -->
     <top>
@@ -36,7 +36,10 @@
                 </Button>
             </StackPane>
 
-            <HBox fx:id="userBox" alignment="CENTER" spacing="10" styleClass="user-box">
+            <HBox fx:id="userBox"
+                  alignment="CENTER_LEFT"
+                  spacing="10"
+                  styleClass="user-box">
                 <StackPane styleClass="avatar">
                     <ImageView fx:id="avatarImage" fitHeight="40" fitWidth="40" preserveRatio="false" styleClass="avt">
                         <image>
@@ -45,8 +48,8 @@
                     </ImageView>
                 </StackPane>
 
-                <VBox spacing="2">
-                    <Label text="User" />
+                <VBox spacing="2" alignment="CENTER_LEFT">
+                    <Label fx:id="usernameLabel" text="User" />
                     <Label styleClass="role-text" text="Project Manager" />
                 </VBox>
             </HBox>
@@ -81,24 +84,24 @@
 
                     <VBox spacing="5">
                         <Label styleClass="field-label" text="Username" />
-                        <TextField styleClass="profile-field" text="Invincible" />
+                        <TextField fx:id="usernameField" styleClass="profile-field" text="Invincible" />
                     </VBox>
 
                     <VBox spacing="5">
                         <Label styleClass="field-label" text="Fullname" />
-                        <TextField styleClass="profile-field" text="Nam" />
+                        <TextField fx:id="fullnameField" styleClass="profile-field" text="Nam" />
                     </VBox>
 
                     <VBox spacing="5">
                         <Label styleClass="field-label" text="Email" />
-                        <TextField styleClass="profile-field" text="hanb2303809@student.ctu.edu.vn" />
+                        <TextField fx:id="emailField" styleClass="profile-field" text="hanb2303809@student.ctu.edu.vn" />
                     </VBox>
 
                     <Region VBox.vgrow="ALWAYS" />
 
                     <HBox alignment="CENTER_RIGHT" spacing="20">
                         <Button onAction="#hideProfile" text="Cancel" />
-                        <Button styleClass="save-btn" text="Save" />
+                        <Button styleClass="save-btn" text="Save" onAction="#handleSaveProfile"/>
                     </HBox>
 
                 </VBox>

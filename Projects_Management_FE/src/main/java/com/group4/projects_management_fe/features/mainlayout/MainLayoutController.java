@@ -1,7 +1,10 @@
 package com.group4.projects_management_fe.features.mainlayout;
 
 import com.group4.common.dto.SseNotificationDTO;
+import com.group4.common.dto.UserDTO;
+import com.group4.common.dto.UserUpdateDTO;
 import com.group4.projects_management_fe.core.api.RxSseManager;
+import com.group4.projects_management_fe.core.api.UserApi;
 import com.group4.projects_management_fe.core.api.base.SseClientManager;
 import com.group4.projects_management_fe.core.navigation.AppStageManager;
 import com.group4.projects_management_fe.core.session.AppSessionManager;
@@ -13,6 +16,8 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.control.TextField;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
@@ -30,6 +35,18 @@ public class MainLayoutController {
 
     @FXML
     private Button dashboardBtn;
+
+    @FXML
+    private Label usernameLabel;
+
+    @FXML
+    private TextField usernameField;
+
+    @FXML
+    private TextField fullnameField;
+
+    @FXML
+    private TextField emailField;
 
     @FXML
     private Button projectsBtn;
@@ -52,6 +69,9 @@ public class MainLayoutController {
     @FXML
     private VBox profilePanel;
 
+    private UserDTO currentUser;
+    private final UserApi userApi = new UserApi(AppSessionManager.getInstance());
+
     private final CompositeDisposable disposables = new CompositeDisposable();
     private final SseClientManager<SseNotificationDTO> sseClientManager = new RxSseManager(AppSessionManager.getInstance());
 
@@ -64,19 +84,23 @@ public class MainLayoutController {
         avatarImage.setClip(clip);
         userBox.setOnMouseClicked(e -> showProfile());
         overlayBackground.setOnMouseClicked(e -> closeProfile());
+        loadCurrentUser();
+    }
 
-        // SSE test
-//        sseClientManager.connect();
-//        disposables.add(SseRxBridge.toObservable(sseClientManager)
-//                .subscribe(System.out::println
-//                        , RxJavaPlugins::onError));
-//
-//        var projectApi = new ProjectApi(AppSessionManager.getInstance());
-//        disposables.add(
-//                Observable.interval(5, TimeUnit.SECONDS)
-//                        .switchMap(i -> Observable.fromCompletionStage(projectApi.getMyProjects()))
-//                        .subscribe(System.out::println, RxJavaPlugins::onError)
-//        );
+    private void bindUserToUI(UserDTO user) {
+        usernameLabel.setText(user.getUsername());
+
+        usernameField.setText(user.getUsername());
+        fullnameField.setText(user.getFullName());
+        emailField.setText(user.getEmail());
+    }
+
+    private void loadCurrentUser() {
+        currentUser = AppSessionManager.getInstance().getCurrentUser();
+
+        if (currentUser != null) {
+            bindUserToUI(currentUser);
+        }
     }
 
     @FXML
@@ -124,6 +148,10 @@ public class MainLayoutController {
 
     private void showProfile() {
 
+        if (currentUser != null) {
+            bindUserToUI(currentUser);
+        }
+
         profileOverlay.setVisible(true);
         profileOverlay.setManaged(true);
 
@@ -167,6 +195,29 @@ public class MainLayoutController {
         if (!disposables.isDisposed()) disposables.dispose();
         sseClientManager.shutdown();
         System.out.println("Logged out");
+    }
+
+    @FXML
+    private void handleSaveProfile() {
+        if (currentUser == null) return;
+
+        UserUpdateDTO request = new UserUpdateDTO();
+        request.setFullName(fullnameField.getText());
+        request.setEmail(emailField.getText());
+
+        userApi.updateProfile(currentUser.getId(), request)
+                .thenAccept(updatedUser -> {
+                    currentUser = updatedUser;
+
+                    javafx.application.Platform.runLater(() -> {
+                        bindUserToUI(updatedUser);
+                        closeProfile();
+                    });
+                })
+                .exceptionally(ex -> {
+                    ex.printStackTrace();
+                    return null;
+                });
     }
 
 
