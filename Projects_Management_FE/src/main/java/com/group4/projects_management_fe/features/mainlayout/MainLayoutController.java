@@ -2,13 +2,14 @@ package com.group4.projects_management_fe.features.mainlayout;
 
 import com.group4.common.dto.SseNotificationDTO;
 import com.group4.common.dto.UserDTO;
-import com.group4.common.dto.UserUpdateDTO;
 import com.group4.projects_management_fe.core.api.RxSseManager;
 import com.group4.projects_management_fe.core.api.UserApi;
 import com.group4.projects_management_fe.core.api.base.SseClientManager;
+import com.group4.projects_management_fe.core.extension.SseRxBridge;
 import com.group4.projects_management_fe.core.navigation.AppStageManager;
 import com.group4.projects_management_fe.core.session.AppSessionManager;
 import io.reactivex.rxjava3.disposables.CompositeDisposable;
+import io.reactivex.rxjava3.plugins.RxJavaPlugins;
 import javafx.animation.FadeTransition;
 import javafx.animation.ScaleTransition;
 import javafx.event.ActionEvent;
@@ -69,9 +70,10 @@ public class MainLayoutController {
     @FXML
     private VBox profilePanel;
 
+
+
     private UserDTO currentUser;
     private final UserApi userApi = new UserApi(AppSessionManager.getInstance());
-
     private final CompositeDisposable disposables = new CompositeDisposable();
     private final SseClientManager<SseNotificationDTO> sseClientManager = new RxSseManager(AppSessionManager.getInstance());
 
@@ -85,6 +87,12 @@ public class MainLayoutController {
         userBox.setOnMouseClicked(e -> showProfile());
         overlayBackground.setOnMouseClicked(e -> closeProfile());
         loadCurrentUser();
+
+//         SSE test
+        sseClientManager.connect();
+        disposables.add(SseRxBridge.toObservable(sseClientManager)
+                .subscribe(System.out::println
+                        , RxJavaPlugins::onError));
     }
 
     private void bindUserToUI(UserDTO user) {
@@ -148,10 +156,6 @@ public class MainLayoutController {
 
     private void showProfile() {
 
-        if (currentUser != null) {
-            bindUserToUI(currentUser);
-        }
-
         profileOverlay.setVisible(true);
         profileOverlay.setManaged(true);
 
@@ -195,29 +199,6 @@ public class MainLayoutController {
         if (!disposables.isDisposed()) disposables.dispose();
         sseClientManager.shutdown();
         System.out.println("Logged out");
-    }
-
-    @FXML
-    private void handleSaveProfile() {
-        if (currentUser == null) return;
-
-        UserUpdateDTO request = new UserUpdateDTO();
-        request.setFullName(fullnameField.getText());
-        request.setEmail(emailField.getText());
-
-        userApi.updateProfile(currentUser.getId(), request)
-                .thenAccept(updatedUser -> {
-                    currentUser = updatedUser;
-
-                    javafx.application.Platform.runLater(() -> {
-                        bindUserToUI(updatedUser);
-                        closeProfile();
-                    });
-                })
-                .exceptionally(ex -> {
-                    ex.printStackTrace();
-                    return null;
-                });
     }
 
 
