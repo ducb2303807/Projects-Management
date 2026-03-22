@@ -1,18 +1,28 @@
 package com.group4.projects_management_fe.features.mainlayout;
 
-import com.group4.projects_management_fe.MainWindow;
-import com.group4.projects_management_fe.core.api.NotificationApi;
+import com.group4.common.dto.ChangePasswordRequestDTO;
+import com.group4.common.dto.SseNotificationDTO;
+import com.group4.common.dto.UserDTO;
+import com.group4.common.dto.UserUpdateDTO;
+import com.group4.projects_management_fe.core.api.RxSseManager;
+import com.group4.projects_management_fe.core.api.UserApi;
+import com.group4.projects_management_fe.core.api.base.SseClientManager;
+import com.group4.projects_management_fe.core.extension.SseRxBridge;
+import com.group4.projects_management_fe.core.navigation.AppStageManager;
 import com.group4.projects_management_fe.core.session.AppSessionManager;
+import com.group4.projects_management_fe.features.toast.Toast;
+import io.reactivex.rxjava3.disposables.CompositeDisposable;
+import io.reactivex.rxjava3.plugins.RxJavaPlugins;
 import javafx.animation.FadeTransition;
 import javafx.animation.ScaleTransition;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.scene.control.Button;
-import javafx.scene.image.Image;
+import javafx.scene.control.Label;
+import javafx.scene.control.PasswordField;
+import javafx.scene.control.TextField;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
@@ -21,6 +31,7 @@ import javafx.scene.layout.VBox;
 import javafx.scene.shape.Circle;
 import javafx.stage.Stage;
 import javafx.util.Duration;
+import org.pdfsam.rxjavafx.schedulers.JavaFxScheduler;
 
 import java.io.IOException;
 
@@ -31,6 +42,18 @@ public class MainLayoutController {
 
     @FXML
     private Button dashboardBtn;
+
+    @FXML
+    private Label usernameLabel;
+
+    @FXML
+    private TextField usernameField;
+
+    @FXML
+    private TextField fullnameField;
+
+    @FXML
+    private TextField emailField;
 
     @FXML
     private Button projectsBtn;
@@ -54,6 +77,24 @@ public class MainLayoutController {
     private VBox profilePanel;
 
     @FXML
+    private Label roleLabel;
+
+    @FXML private VBox profileContent;
+    @FXML private VBox passwordContent;
+
+    @FXML private Label profileTab;
+    @FXML private Label passwordTab;
+
+    @FXML private PasswordField currentPasswordField;
+    @FXML private PasswordField newPasswordField;
+    @FXML private PasswordField confirmPasswordField;
+
+    private UserDTO currentUser;
+    private final UserApi userApi = new UserApi(AppSessionManager.getInstance());
+    private final CompositeDisposable disposables = new CompositeDisposable();
+    private final SseClientManager<SseNotificationDTO> sseClientManager = new RxSseManager(AppSessionManager.getInstance());
+
+    @FXML
     public void initialize() {
         showDashboard();
         setActive(dashboardBtn);
@@ -62,12 +103,76 @@ public class MainLayoutController {
         avatarImage.setClip(clip);
         userBox.setOnMouseClicked(e -> showProfile());
         overlayBackground.setOnMouseClicked(e -> closeProfile());
+        loadCurrentUser();
 
+        Stage stage = AppStageManager.getInstance().getStage();
+        /// SSE
+        sseClientManager.connect();
+        disposables.add(SseRxBridge.toObservable(sseClientManager)
+                .observeOn(JavaFxScheduler.platform())
+                .subscribe(sseNotificationDTO ->  {
+                            Toast.showToast(stage, sseNotificationDTO);
+                        }
+                        , RxJavaPlugins::onError));
+    }
 
-        var a = new NotificationApi(AppSessionManager.getInstance());
-        a.getNotificationsForUser()
-                .thenAccept(notificationDTOS -> {
-                    System.out.println(notificationDTOS);
+    private void bindUserToUI(UserDTO user) {
+        usernameLabel.setText(user.getUsername());
+
+        usernameField.setText(user.getUsername());
+        fullnameField.setText(user.getFullName());
+        emailField.setText(user.getEmail());
+        roleLabel.setText(user.getSystemRoleName());
+    }
+
+    private void loadCurrentUser() {
+        currentUser = AppSessionManager.getInstance().getCurrentUser();
+
+        if (currentUser != null) {
+            bindUserToUI(currentUser);
+        }
+    }
+
+    @FXML
+    private void showProfileTab() {
+        profileContent.setVisible(true);
+        profileContent.setManaged(true);
+
+        passwordContent.setVisible(false);
+        passwordContent.setManaged(false);
+
+        profileTab.getStyleClass().setAll("tab-active");
+        passwordTab.getStyleClass().setAll("tab");
+    }
+
+    @FXML
+    private void showPasswordTab() {
+        profileContent.setVisible(false);
+        profileContent.setManaged(false);
+
+        passwordContent.setVisible(true);
+        passwordContent.setManaged(true);
+
+        profileTab.getStyleClass().setAll("tab");
+        passwordTab.getStyleClass().setAll("tab-active");
+    }
+
+    @FXML
+    private void handleSaveProfile() {
+        if (currentUser == null) return;
+
+        UserUpdateDTO request = new UserUpdateDTO();
+        request.setFullName(fullnameField.getText());
+        request.setEmail(emailField.getText());
+
+        userApi.updateProfile(currentUser.getId(), request)
+                .thenAccept(updatedUser -> {
+                    currentUser = updatedUser;
+
+                    javafx.application.Platform.runLater(() -> {
+                        bindUserToUI(updatedUser);
+                        closeProfile();
+                    });
                 })
                 .exceptionally(ex -> {
                     ex.printStackTrace();
@@ -99,7 +204,7 @@ public class MainLayoutController {
             Node view = loader.load();
 
             VBox wrapper = new VBox(view);
-            wrapper.setMaxWidth(1200);
+            wrapper.setMaxWidth(Double.MAX_VALUE);
 
             VBox.setVgrow(view, Priority.ALWAYS);
 
@@ -120,6 +225,10 @@ public class MainLayoutController {
 
     private void showProfile() {
 
+        if (currentUser != null) {
+            bindUserToUI(currentUser);
+        }
+
         profileOverlay.setVisible(true);
         profileOverlay.setManaged(true);
 
@@ -136,6 +245,43 @@ public class MainLayoutController {
 
         fade.play();
         scale.play();
+    }
+
+    @FXML
+    private void handleChangePassword() {
+        if (currentUser == null) return;
+
+        String current = currentPasswordField.getText();
+        String newPass = newPasswordField.getText();
+        String confirm = confirmPasswordField.getText();
+
+        if (!newPass.equals(confirm)) {
+            System.out.println("Confirm password error");
+            return;
+        }
+
+        ChangePasswordRequestDTO request = new ChangePasswordRequestDTO();
+        request.setOldPassword(current);
+        request.setNewPassword(newPass);
+
+        userApi.changePassword(currentUser.getId(), request)
+                .thenRun(() -> {
+                    javafx.application.Platform.runLater(() -> {
+                        clearPasswordFields();
+                        closeProfile();
+                        System.out.println("Password change successfully");
+                    });
+                })
+                .exceptionally(ex -> {
+                    ex.printStackTrace();
+                    return null;
+                });
+    }
+
+    private void clearPasswordFields() {
+        currentPasswordField.clear();
+        newPasswordField.clear();
+        confirmPasswordField.clear();
     }
 
     @FXML
@@ -158,37 +304,12 @@ public class MainLayoutController {
 
     @FXML
     private void handleLogout(ActionEvent event) {
-        try {
-            FXMLLoader loader = new FXMLLoader(
-                    getClass().getResource("/com/group4/projects_management_fe/features/auth/AuthView.fxml")
-            );
-
-            Parent root = loader.load();
-
-            Stage stage = (Stage) ((Node) event.getSource())
-                    .getScene()
-                    .getWindow();
-
-            Scene scene = new Scene(root, 900, 650);
-            scene.getStylesheets().add(
-                    MainWindow.class.getResource(
-                            "/com/group4/projects_management_fe/features/assets/css/auth.css"
-                    ).toExternalForm()
-            );
-
-            Image logo = new Image(
-                    getClass().getResourceAsStream("/com/group4/projects_management_fe/features/assets/image/app_icon_v6.png")
-                    );
-
-            stage.getIcons().add(logo);
-            stage.setTitle("Login");
-            stage.setScene(scene);
-            stage.centerOnScreen();
-            stage.setResizable(false);
-            stage.show();
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        AppStageManager.getInstance().navigateToLogin();
+        AppSessionManager.getInstance().destroySession();
+        if (!disposables.isDisposed()) disposables.dispose();
+        sseClientManager.shutdown();
+        System.out.println("Logged out");
     }
+
+
 }

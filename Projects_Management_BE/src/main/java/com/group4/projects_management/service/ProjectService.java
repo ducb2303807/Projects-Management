@@ -11,14 +11,14 @@ import java.util.List;
 /** @pdOid 8bff7f6e-4d91-40f5-85c1-c0b870149bb3 */
 public interface ProjectService {
    List<ProjectResponseDTO> getAllProjects();
-   void inviteMember(Long projectId, Long inviteeId, Long inviterId, Long roleId);
-
+   void inviteMembers(Long projectId, List<MemberInviteRequest> inviteRequests, Long inviterUserId);
+//   void inviteMember(Long projectId, MemberInviteRequest request, Long inviterUserId);
    void updateMemberStatus(Long memberId, ProjectMemberUpdateDTO request);
    void handleInvitation(Long invitationId, InvitationRequestDTO request);
    List<InvitationDTO> getPendingInvitations(Long userId);
    /** @param projectMemberId
     * @pdOid ad492c45-0123-4365-a116-0a463d36ca71 */
-   void removeMemberFromProject(Long projectMemberId);
+   void removeMemberFromProject(Long projectMemberId, Long requester);
    /** @param projectMemberId 
     * @param roleId
     * @pdOid d7beb3a7-c34a-4846-aedb-e15261f7fae1 */
@@ -27,11 +27,14 @@ public interface ProjectService {
     * @pdOid 6ac8e9bb-3470-4722-a757-b4d681856e43 */
    ProjectStatsDTO getProjectStatistics(Long projectId);
    /** @pdOid 27d7677a-473a-40cc-8fbe-51ee89f31f8d */
-   List<ProjectResponseDTO> getProjectsByUserId(Long userId);
+   List<ProjectResponseDTO> getProjectsByUserId(Long userId, boolean includeCancelled);
    /** @param projectId 
     * @param dto
     * @pdOid 1b03a732-3ad2-4fbd-8402-eebae6e90b5a */
-   ProjectResponseDTO updateProject(Long projectId, ProjectUpdateRequestDTO dto);
+   ProjectResponseDTO updateProject(Long projectId, ProjectUpdateRequestDTO dto, Long actorId);
+
+   void deleteProject(Long projectId, Long actorId);
+
 
    List<ProjectMemberDTO> getMembersOfProject(Long projectId);
    /** @param projectMemberId

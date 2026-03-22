@@ -8,6 +8,7 @@ import com.group4.common.dto.*;
 import com.group4.projects_management.core.security.SecurityUtils;
 import com.group4.projects_management.service.CommentService;
 import com.group4.projects_management.service.TaskService;
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,53 +17,82 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-/** @pdOid ce9b19d3-3ddd-449d-8d79-b270923a5f2d */
+/**
+ * @pdOid ce9b19d3-3ddd-449d-8d79-b270923a5f2d
+ */
 @RestController
 @RequestMapping("/api/tasks")
 @SecurityRequirement(name = "bearerAuth")
 public class TaskController {
 
-   @Autowired
-   private TaskService taskService;
+    @Autowired
+    private TaskService taskService;
 
-   @Autowired
-   private CommentService commentService;
+    @Autowired
+    private CommentService commentService;
 
-   @PostMapping("/{taskId}/assignments")
-   public ResponseEntity<Void> assignMember(
-           @PathVariable Long taskId,
-           @RequestParam Long projectMemberId) {
+    @Operation(summary = "Lấy thông tin tất cả tasks trong hệ thống")
+    @GetMapping
+    public ResponseEntity<List<TaskResponseDTO>> getAllTasks() {
+        return ResponseEntity.ok(taskService.getAllTasks());
+    }
 
-      var auth = org.springframework.security.core.context.SecurityContextHolder
-              .getContext().getAuthentication();
+    @Operation(summary = "Lấy thông tin tasks mà tôi tham gia")
+    @GetMapping("/me")
+    public ResponseEntity<List<TaskResponseDTO>> getMyTasks(
+            @RequestParam(defaultValue = "false") boolean includeCancelled) {
+        Long currentUserId = SecurityUtils.getCurrentUserId();
+        return ResponseEntity.ok(taskService.getTasksByUserId(currentUserId,includeCancelled));
+    }
 
-      var userId = SecurityUtils.getCurrentUserId();
-      System.out.println("Current userId = " + userId);
+    @Operation(summary = "Đưa các member đã chọn vào task",
+            description = "List ở đây chứa danh sách projectmemberId")
+    @PostMapping("/{taskId}/members")
+    public ResponseEntity<Void> assignMember(
+            @PathVariable Long taskId,
+            @RequestBody List<Long> projectMemberId) {
+        var userId = SecurityUtils.getCurrentUserId();
+        taskService.assignMembers(taskId, projectMemberId, userId);
+        return ResponseEntity.ok().build();
+    }
 
-      taskService.assignMember(taskId, projectMemberId, userId);
+    @Operation(summary = "Xóa các member đã chọn ra khỏi task",
+            description = "List ở đây chứa danh sách projectmemberId")
+    @DeleteMapping("/{taskId}/members/{projectMemberIds}")
+    public ResponseEntity<Void> removeMemberFromTask(
+            @PathVariable Long taskId,
+            @RequestParam List<Long> projectMemberIds) {
+        var userId = SecurityUtils.getCurrentUserId();
+        taskService.removeMembersFromTask(taskId, projectMemberIds, userId);
+        return ResponseEntity.ok().build();
+    }
 
-      return ResponseEntity.ok().build();
-   }
+    @Operation(summary = "Xóa task (chuyển sang trạng thái CANCELLED)")
+    @DeleteMapping("/{taskId}")
+    public ResponseEntity<Void> deleteTask(@PathVariable Long taskId) {
+        Long requesterId = SecurityUtils.getCurrentUserId();
+        taskService.deleteTask(taskId, requesterId);
+        return ResponseEntity.ok().build();
+    }
 
-   @DeleteMapping("/assignments/{taskAssignmentId}")
-   public ResponseEntity<Void> removeMemberFromTask(@PathVariable Long taskAssignmentId) {
-      taskService.removeMemberFromTask(taskAssignmentId);
-      return ResponseEntity.ok().build();
-   }
+    @Operation(summary = "Lấy lịch sử thay đổi của task")
+    @GetMapping("/{taskId}/histories")
+    public ResponseEntity<List<TaskHistoryDTO>> getTaskHistory(@PathVariable Long taskId) {
+        return ResponseEntity.ok(taskService.getTaskHistory(taskId));
+    }
 
-   @GetMapping("/{taskId}/histories")
-   public ResponseEntity<List<TaskHistoryDTO>> getTaskHistory(@PathVariable Long taskId) {
-      return ResponseEntity.ok(taskService.getTaskHistory(taskId));
-   }
+    @Operation(summary = "Cập nhật task")
+    @PutMapping("/{taskId}")
+    public ResponseEntity<TaskResponseDTO> updateTask(@PathVariable Long taskId,
+                                                      @Valid @RequestBody TaskUpdateDTO request) {
+        return ResponseEntity.ok(taskService.updateTask(taskId, request));
+    }
 
-   @PutMapping("/{taskId}")
-   public ResponseEntity<TaskResponseDTO> updateTask(@PathVariable Long taskId,
-                                                     @Valid @RequestBody TaskUpdateDTO request) {
-      return ResponseEntity.ok(taskService.updateTask(taskId, request));
-   }
+    @Operation(summary = "Lấy comments của task")
+    @GetMapping("/{taskId}/comments")
+    public ResponseEntity<List<CommentDTO>> getTaskComment(@PathVariable Long taskId) {
+        return ResponseEntity.ok(commentService.getCommentsByTask(taskId));
+    }
 
-   @GetMapping("/{taskId}/comments")
-   public ResponseEntity<List<CommentDTO>> getTaskComment(@PathVariable Long taskId) {
-      return ResponseEntity.ok(commentService.getCommentsByTask(taskId));
-   }
+
 }

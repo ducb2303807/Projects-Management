@@ -15,7 +15,9 @@ public abstract class UserMapper {
 
     @Autowired
     protected PasswordEncoder passwordEncoder;
+
     @Mapping(source = "appRole.name", target = "systemRoleName")
+    @Mapping(source = "active", target = "isActive")
     public abstract UserDTO toDto(User user);
 
     @Mapping(target = "id", ignore = true)
@@ -33,6 +35,7 @@ public abstract class UserMapper {
     @Mapping(target = "active", ignore = true)
     @Mapping(target = "project", ignore = true)
     @Mapping(target = "userNotification", ignore = true)
+    @Mapping(target = "username", ignore = true)
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     public abstract void updateEntityFromDto(UserUpdateDTO dto, @MappingTarget User user);
 

@@ -39,9 +39,10 @@ public class UserController {
 
    @Operation(summary = "Lấy tất cả project của người dùng")
    @GetMapping("/{userId}/projects")
-   public ResponseEntity<List<ProjectResponseDTO>> getProjectsByUserId(@PathVariable Long userId) {
-      return ResponseEntity.ok(projectService.getProjectsByUserId(userId));
+   public ResponseEntity<List<ProjectResponseDTO>> getProjectsByUserId(@PathVariable Long userId, @RequestParam(defaultValue = "false") boolean includeCancelled) {
+      return ResponseEntity.ok(projectService.getProjectsByUserId(userId,includeCancelled));
    }
+
 
    @Operation(summary = "Kiểm tra tồn tại của username/email trong hệ thống")
    @PostMapping("/exists")
@@ -82,5 +83,4 @@ public class UserController {
       userService.changePassword(userId, dto);
       return ResponseEntity.ok().build();
    }
-
 }

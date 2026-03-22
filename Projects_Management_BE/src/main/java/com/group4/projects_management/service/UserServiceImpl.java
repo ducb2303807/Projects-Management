@@ -43,14 +43,14 @@ public class UserServiceImpl extends BaseServiceImpl<User, Long> implements User
     @Override
     public AuthResponse login(LoginRequest request) {
         User user = userRepository.findByUsername(request.getUsername())
-                .orElseThrow(() -> new BusinessException("Tài khoản không tồn tại", BusinessErrorCode.AUTH_USER_NOT_FOUND));
+                .orElseThrow(() -> new BusinessException("Username does not exist!", BusinessErrorCode.AUTH_USER_NOT_FOUND));
 
         if (!user.isActive()) {
-            throw new BusinessException("Tài khoản của bạn đã bị khóa!", BusinessErrorCode.AUTH_ACCOUNT_LOCKED);
+            throw new BusinessException("Your account has been blocked", BusinessErrorCode.AUTH_ACCOUNT_LOCKED);
         }
 
         if (!passwordEncoder.matches(request.getPassword(), user.getHashedPassword())) {
-            throw new BusinessException("Sai mật khẩu", BusinessErrorCode.AUTH_INVALID_PASSWORD);
+            throw new BusinessException("Incorrect password", BusinessErrorCode.AUTH_INVALID_PASSWORD);
         }
 
         var token = jwtUtils.generateToken(user.getUsername());
@@ -62,10 +62,10 @@ public class UserServiceImpl extends BaseServiceImpl<User, Long> implements User
     @Transactional
     public UserDTO register(UserRegistrationDTO dto) {
         if (this.existsByUsername(dto.getUsername())) {
-            throw new BusinessException("Username đã tồn tại!", BusinessErrorCode.AUTH_USERNAME_ALREADY_EXISTS);
+            throw new BusinessException("Username already exists", BusinessErrorCode.AUTH_USERNAME_ALREADY_EXISTS);
         }
         if (this.existsByEmail(dto.getEmail())) {
-            throw new BusinessException("Email đã tồn tại", BusinessErrorCode.AUTH_EMAIL_ALREADY_EXISTS);
+            throw new BusinessException("Email already exists", BusinessErrorCode.AUTH_EMAIL_ALREADY_EXISTS);
         }
 
         var role = appRoleRepository.getAppRoleBySystemCode("user");
@@ -85,7 +85,7 @@ public class UserServiceImpl extends BaseServiceImpl<User, Long> implements User
         if (dto.getEmail() != null
                 && !dto.getEmail().equals(user.getEmail())
                 && existsByEmail(dto.getEmail())) {
-            throw new BusinessException("Email đã tồn tại", BusinessErrorCode.AUTH_EMAIL_ALREADY_EXISTS);
+            throw new BusinessException("Email already exists", BusinessErrorCode.AUTH_EMAIL_ALREADY_EXISTS);
         }
 
         userMapper.updateEntityFromDto(dto, user);
@@ -101,7 +101,7 @@ public class UserServiceImpl extends BaseServiceImpl<User, Long> implements User
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
         if (!passwordEncoder.matches(dto.getOldPassword(), user.getHashedPassword())) {
-            throw new BusinessException("old password is incorrect", BusinessErrorCode.AUTH_INVALID_PASSWORD);
+            throw new BusinessException("Old password is incorrect", BusinessErrorCode.AUTH_INVALID_PASSWORD);
         }
         user.setHashedPassword(passwordEncoder.encode(dto.getNewPassword()));
         userRepository.save(user);

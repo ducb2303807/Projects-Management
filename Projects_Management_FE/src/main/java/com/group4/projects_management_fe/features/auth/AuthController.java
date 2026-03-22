@@ -63,11 +63,7 @@ public class AuthController {
     @FXML
     private VBox bgArea;
 
-    private static final Pattern eReg =
-            Pattern.compile("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$");
-
-    private static final Pattern pReg =
-            Pattern.compile("^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d).{8,}$");
+    private static final Pattern eReg = Pattern.compile("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$");
 
     private static final Pattern nameReg =
             Pattern.compile("^[A-Za-zÀ-ỹ\\s]{2,50}$");
@@ -271,21 +267,10 @@ public class AuthController {
             return;
         }
 
-//        if (!eReg.matcher(email).matches()) {
-//            showAlert("Validation Error", "Email format is invalid.");
-//            return;
-//        }
-
         if (password.isEmpty()) {
             showAlert("Validation Error", "Password cannot be empty.");
             return;
         }
-//
-//        if (!pReg.matcher(password).matches()) {
-//            showAlert("Validation Error",
-//                    "Password must be at least 8 characters and include uppercase, lowercase and a number.");
-//            return;
-//        }
 
         LoginRequest loginRequest = LoginRequest.builder()
                 .username(email)
@@ -293,28 +278,20 @@ public class AuthController {
 
         authApi.login(loginRequest).thenAccept(response -> {
             Platform.runLater(() -> {
-                // --- BƯỚC QUAN TRỌNG: Lưu thông tin vào Session ---
-                // Giả sử response của bạn có chứa token và user info
-                // Bạn cần kiểm tra xem object 'response' của bạn có các getter này không
                 AppSessionManager.getInstance().createSession(
                         response.getToken(),
                         response.getUser()
                 );
-                // ------------------------------------------------
-
                 showAlert("Login successful", "Welcome back!");
                 openMainLayout();
             });
         }).exceptionally(ex -> {
             Platform.runLater(() -> {
                 Throwable cause = ex.getCause() != null ? ex.getCause() : ex;
-
                 String cleanMessage = cause.getMessage();
-
                 if (cleanMessage != null && cleanMessage.contains(": ")) {
                     cleanMessage = cleanMessage.substring(cleanMessage.indexOf(": ") + 2);
                 }
-
                 showAlert("Login failed", cleanMessage);
             });
             return null;
@@ -334,11 +311,6 @@ public class AuthController {
             return;
         }
 
-        if (!nameReg.matcher(fullName).matches()) {
-            showAlert("Validation Error",
-                    "Full username must contain only letters and spaces (2-50 characters).");
-            return;
-        }
 
         if (username.isEmpty()) {
             showAlert("Validation Error", "Name cannot be empty.");
@@ -350,19 +322,8 @@ public class AuthController {
             return;
         }
 
-        if (!eReg.matcher(email).matches()) {
-            showAlert("Validation Error", "Email format is invalid.");
-            return;
-        }
-
         if (password.isEmpty()) {
             showAlert("Validation Error", "Password cannot be empty.");
-            return;
-        }
-
-        if (!pReg.matcher(password).matches()) {
-            showAlert("Validation Error",
-                    "Password must be at least 8 characters and include uppercase, lowercase and a number.");
             return;
         }
 
@@ -374,31 +335,18 @@ public class AuthController {
                 .email(email)
                 .build();
 
-        // 2. Gọi API thông qua authApi
         authApi.register(registerRequest).thenAccept(response -> {
-            // Khi thành công dùng Platform.runLater để update UI
             Platform.runLater(() -> {
                 showAlert("Register successful!", "Your account has been created. Now, please login.");
-
-                // (Tuỳ chọn) Xóa trắng các ô nhập liệu sau khi đăng ký thành công
-//                registerFullName.clear();
-//                registerName.clear();
-//                registerEmail.clear();
-//                registerPassword.clear();
-
-                // Chuyển về màn hình đăng nhập
                 showSignIn();
             });
         }).exceptionally(ex -> {
-            // Xử lý lỗi giống handleLogin
             Platform.runLater(() -> {
                 Throwable cause = ex.getCause() != null ? ex.getCause() : ex;
                 String cleanMessage = cause.getMessage();
-
                 if (cleanMessage != null && cleanMessage.contains(": ")) {
                     cleanMessage = cleanMessage.substring(cleanMessage.indexOf(": ") + 2);
                 }
-
                 showAlert("Registration failed", cleanMessage);
             });
             return null;
@@ -418,7 +366,7 @@ public class AuthController {
 
             Stage stage = AppStageManager.getInstance().getStage();
 
-            stage.setScene(new Scene(root, 1200, 800));
+            stage.setScene(new Scene(root, 1500, 800));
             stage.setResizable(true);
             stage.setTitle("Nexus");
             stage.centerOnScreen();

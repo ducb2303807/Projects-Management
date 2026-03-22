@@ -11,13 +11,14 @@ import com.group4.common.enums.LookupType;
 import com.group4.projects_management.core.exception.BusinessException;
 import com.group4.projects_management.core.exception.ResourceNotFoundException;
 import com.group4.projects_management.entity.*;
+import com.group4.projects_management.mapper.LookupMapper;
 import com.group4.projects_management.repository.*;
 import jakarta.annotation.PostConstruct;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.io.Serializable;
 import java.util.EnumMap;
@@ -36,6 +37,7 @@ public class LookupServiceImpl implements LookupService {
     private final ProjectStatusRepository projectStatusRepository;
     private final ProjectMemberStatusRepository projectMemberStatusRepository;
     private final TaskStatusRepository taskStatusRepository;
+    private final LookupMapper lookupMapper;
 
     private final Map<LookupType, LookupMetadata<?, ?>> registry = new EnumMap<>(LookupType.class);
 
@@ -58,10 +60,11 @@ public class LookupServiceImpl implements LookupService {
         LookupMetadata<?, ?> meta = registry.get(type);
         if (meta == null) {
             log.error("Chưa cấu hình Metadata cho type: {}", type);
-            throw new RuntimeException("Loại danh mục không tồn tại trong hệ thống!");
+            throw new ResourceNotFoundException("Loại danh mục không tồn tại trong hệ thống!");
         }
+
         return meta.repository.findAll().stream()
-                .map(e -> new LookupDTO(e.getId().toString(), e.getName(), e.getDescription()))
+                .map(lookupMapper::toDto)
                 .toList();
     }
 
@@ -76,7 +79,6 @@ public class LookupServiceImpl implements LookupService {
         boolean isUpdate = dto.getId() != null && !dto.getId().isBlank();
 
         if (isUpdate) {
-            // LOGIC CHO UPDATE
             if (!meta.editable()) {
                 throw new BusinessException("Danh mục hệ thống này không được phép chỉnh sửa!", BusinessErrorCode.SYSTEM_ACCESS_DENIED);
             }
@@ -84,15 +86,16 @@ public class LookupServiceImpl implements LookupService {
             entity = meta.repository.findById(id)
                     .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy bản ghi để cập nhật"));
         } else {
-            // LOGIC CHO CREATE
             entity = meta.factory.get();
         }
 
         entity.setName(dto.getName());
         entity.setDescription(dto.getDescription());
+        entity.setSystemCode(dto.getSystemCode());
 
         BaseLookup<Serializable> saved = meta.repository.save(entity);
-        return new LookupDTO(saved.getId().toString(), saved.getName(), saved.getDescription());
+
+        return lookupMapper.toDto(saved);
     }
 
     private Object parseId(String id) {

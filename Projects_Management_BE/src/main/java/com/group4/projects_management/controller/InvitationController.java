@@ -19,11 +19,13 @@ public class InvitationController {
     @Autowired
     private ProjectService projectService;
 
+    @Operation(summary = "Lấy danh sách lời mời của userId")
     @GetMapping("/{userId}")
     public ResponseEntity<List<InvitationDTO>> getInvitation(@PathVariable Long userId) {
         return ResponseEntity.ok(projectService.getPendingInvitations(userId));
     }
 
+    @Operation(summary = "Lấy danh sách lời mời của tôi")
     @GetMapping("/me")
     public ResponseEntity<List<InvitationDTO>> getInvitation() {
         var userId = SecurityUtils.getCurrentUserId();
@@ -33,7 +35,7 @@ public class InvitationController {
 
     @Operation(
             summary = "Chấp nhận hoặc tự chối lời mời vào project",
-            description = ""
+            description = "ACCEPT / DECLINE"
     )
     @PatchMapping("/{projectMemberId}")
     public ResponseEntity<Void> handleInvitation(@PathVariable Long projectMemberId,

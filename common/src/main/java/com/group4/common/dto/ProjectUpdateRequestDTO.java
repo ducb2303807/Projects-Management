@@ -4,6 +4,7 @@ package com.group4.common.dto; /************************************************
  * Purpose: Defines the Class ProjectUpdateRequestDTO
  ***********************************************************************/
 
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 
@@ -14,6 +15,6 @@ import lombok.experimental.SuperBuilder;
 @AllArgsConstructor
 @SuperBuilder
 public class ProjectUpdateRequestDTO extends ProjectBaseDTO {
-   /** @pdOid 26cc8fc1-1c98-44dd-bf90-32306ad02c57 */
+   @NotNull(message = "Status ID cannot be null")
    private Long statusId;
 }

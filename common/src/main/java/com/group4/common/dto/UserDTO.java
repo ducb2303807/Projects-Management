@@ -14,7 +14,7 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 public class UserDTO extends UserBaseDTO {
    private Long id;
-   protected java.lang.String username;
+   private java.lang.String username;
    private boolean isActive;
    private java.lang.String systemRoleName;
 }

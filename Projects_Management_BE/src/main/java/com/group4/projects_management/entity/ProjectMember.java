@@ -4,6 +4,7 @@ package com.group4.projects_management.entity; /********************************
  * Purpose: Defines the Class ProjectMember
  ***********************************************************************/
 
+import com.group4.common.enums.ProjectMemberRoleCode;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -73,6 +74,19 @@ public class ProjectMember {
       if (this.leftAt == null) {
          this.leftAt = LocalDateTime.now();
       }
+   }
+
+   public void joined() {
+      this.leftAt = null;
+      this.joinAt = LocalDateTime.now();
+   }
+
+   public boolean isManager() {
+      if (!isActive()) return false;
+
+      var roleCode = this.projectRole.getSystemCode();
+      return roleCode.equalsIgnoreCase(ProjectMemberRoleCode.PM.name())
+              || roleCode.equalsIgnoreCase(ProjectMemberRoleCode.CO_PM.name());
    }
 
    public boolean isActive() {

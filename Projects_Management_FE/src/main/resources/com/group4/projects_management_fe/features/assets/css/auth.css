@@ -118,11 +118,13 @@
     -fx-font-family: "SansSerif";
     -fx-font-weight: 600;
     -fx-text-fill: #111111;
+    -fx-cursor: hand;;
 }
 
 .nav-btn.active {
     -fx-border-color: #8558cc;
     -fx-border-width: 0 0 3 0;
+    -fx-cursor: hand;;
 }
 
 
@@ -159,7 +161,7 @@
 .user-box {
     -fx-background-color: #F5F6F8;
     -fx-background-radius: 40;
-    -fx-padding: 4 18 4 12;
+    -fx-padding: 3 16 3 10; /* cân lại padding */
     -fx-alignment: center-left;
     -fx-cursor: hand;
 }
@@ -169,18 +171,31 @@
 }
 
 .avatar {
-    -fx-background-radius: 50%;
+    -fx-min-width: 40;
+    -fx-min-height: 40;
     -fx-max-width: 40;
     -fx-max-height: 40;
-    -fx-overflow: hidden;
+
+    -fx-background-radius: 50%;
+    -fx-background-color: transparent;
+
+    -fx-alignment: center;
+    -fx-padding: 0;
 }
 
 .avt {
-    -fx-background-radius: 50%;
+    -fx-fit-width: 40;
+    -fx-fit-height: 40;
+}
+
+#usernameLabel {
+    -fx-font-size: 13px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #222;
 }
 
 .role-text {
-    -fx-font-size: 10px;
+    -fx-font-size: 11px;
     -fx-text-fill: #8A8F98;
 }
 
@@ -193,9 +208,9 @@
 
 /*}*/
 /*//card overlay*/
-.overlay {
-    -fx-background-color: rgba(0,0,0,0.3);
-    -fx-alignment: center;
+.profile-box {
+    -fx-background-radius: 20;
+    -fx-padding: 2;
 }
 
 .profile-panel {
@@ -216,6 +231,11 @@
     -fx-text-fill: #5b3cc4;
 }
 
+.tab-active:hover,
+.tab:hover {
+    -fx-cursor: hand;
+}
+
 .tab {
     -fx-font-size: 18;
     -fx-text-fill: #666;
@@ -225,6 +245,7 @@
     -fx-background-color: #4b2e83;
     -fx-text-fill: white;
     -fx-background-radius: 20;
+    -fx-cursor: hand;;
 }
 
 .field-label {
@@ -241,6 +262,7 @@
     -fx-background-color: linear-gradient(to right, #4b2e83, #a45bdc);
     -fx-text-fill: white;
     -fx-background-radius: 20;
+    -fx-cursor: hand;;
 }
 
 .logout-btn {
@@ -255,4 +277,8 @@
 
 .logout-btn:hover {
     -fx-background-color: linear-gradient(to right, #4c2fb3, #7048e8);
+}
+
+.overlay-bg {
+    -fx-background-color: rgba(0,0,0,0.6);
 }

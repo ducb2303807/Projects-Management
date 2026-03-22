@@ -19,20 +19,29 @@ import java.util.List;
 @RequestMapping("/api/notifications")
 @SecurityRequirement(name = "bearerAuth")
 public class NotificationController {
-   @Autowired
-   private NotificationService notificationService;
+    @Autowired
+    private NotificationService notificationService;
 
-   @Operation(summary = "Lấy danh sách thông báo của user đang đăng nhập")
-   @GetMapping("/me")
-   public ResponseEntity<List<NotificationDTO>> getNotificationsForUser() {
-      var userId = SecurityUtils.getCurrentUserId();
-      return ResponseEntity.ok(notificationService.getNotificationsForUser(userId));
-   }
+    @Operation(summary = "Lấy danh sách thông báo của user đang đăng nhập")
+    @GetMapping("/me")
+    public ResponseEntity<List<NotificationDTO>> getNotificationsForUser() {
+        var userId = SecurityUtils.getCurrentUserId();
+        return ResponseEntity.ok(notificationService.getNotificationsForUser(userId));
+    }
 
-   @PatchMapping("/{notificationId}/read")
-   public ResponseEntity<Void> makeAsRead(@PathVariable Long notificationId) {
-      var userId = SecurityUtils.getCurrentUserId();
-      notificationService.markAsRead(notificationId, userId);
-      return ResponseEntity.ok().build();
-   }
+    @Operation(summary = "Đánh dấu thông báo đã đọc")
+    @PatchMapping("/{notificationId}/read")
+    public ResponseEntity<Void> makeAsRead(@PathVariable Long notificationId) {
+        var userId = SecurityUtils.getCurrentUserId();
+        notificationService.markAsRead(notificationId, userId);
+        return ResponseEntity.ok().build();
+    }
+
+    @Operation(summary = "Đánh dấu tất cả thông báo là đã đọc")
+    @PatchMapping("/read-all")
+    public ResponseEntity<Void> markAllAsRead() {
+        var userId = SecurityUtils.getCurrentUserId();
+        notificationService.markAllAsRead(userId);
+        return ResponseEntity.ok().build();
+    }
 }

@@ -5,6 +5,7 @@ import com.group4.projects_management_fe.core.session.AuthSessionProvider;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 public abstract class AbstractSseManager<T> extends BaseNetworkCore implements SseClientManager<T> {
@@ -13,6 +14,8 @@ public abstract class AbstractSseManager<T> extends BaseNetworkCore implements S
     protected final OkHttpClient client;
     protected final Class<T> responseType;
 
+    private static final Set<AbstractSseManager<?>> ALL_MANAGERS =
+            Collections.newSetFromMap(new WeakHashMap<>());
 
     protected AbstractSseManager(Class<T> responseType, AuthSessionProvider sessionProvider) {
         this.responseType = responseType;
@@ -34,24 +37,30 @@ public abstract class AbstractSseManager<T> extends BaseNetworkCore implements S
             });
         }
         this.client = clientBuilder.build();
+
+        ALL_MANAGERS.add(this);
     }
 
     @Override
     public void shutdown() {
         this.disconnect();
-        client.dispatcher().executorService().shutdown();
-        client.connectionPool().evictAll();
 
-        if (client.cache() != null) {
-            try {
-                client.cache().close();
-            } catch (Exception ignored) {
-                // Ignored
-            }
-        }
+        ALL_MANAGERS.remove(this);
         onCustomShutdown();
     }
 
     protected void onCustomShutdown() {
+    }
+
+
+    public static void disconnectAll() {
+        synchronized (ALL_MANAGERS) {
+
+            List<AbstractSseManager<?>> managers = new ArrayList<>(ALL_MANAGERS);
+            for (AbstractSseManager<?> m : managers) {
+                m.shutdown();
+            }
+            ALL_MANAGERS.clear();
+        }
     }
 }

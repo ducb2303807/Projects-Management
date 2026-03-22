@@ -16,4 +16,5 @@ public class LookupDTO {
    private String id;
    private java.lang.String name;
    private java.lang.String description;
+   private java.lang.String systemCode;
 }

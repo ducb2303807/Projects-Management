@@ -1,10 +1,15 @@
 package com.group4.projects_management.service;
 
 import com.group4.common.dto.CommentDTO;
+import com.group4.projects_management.core.exception.ResourceNotFoundException;
+import com.group4.projects_management.core.strategy.notification.comment.CommentNotificationContext;
 import com.group4.projects_management.entity.Comment;
 import com.group4.projects_management.entity.ProjectMember;
 import com.group4.projects_management.entity.Task;
+import com.group4.projects_management.entity.User;
+import com.group4.projects_management.mapper.CommentMapper;
 import com.group4.projects_management.repository.ProjectMemberRepository;
+import com.group4.projects_management.repository.TaskAssignmentRepository;
 import com.group4.projects_management.repository.TaskCommentRepository;
 import com.group4.projects_management.repository.TaskRepository;
 import com.group4.projects_management.service.base.BaseServiceImpl;
@@ -20,69 +25,81 @@ public class CommentServiceImpl extends BaseServiceImpl<Comment, Long> implement
    private final TaskCommentRepository taskCommentRepository;
    private final TaskRepository taskRepository;
    private final ProjectMemberRepository projectMemberRepository;
+   private final CommentMapper commentMapper;
+   private final NotificationService notificationService;
+   private final TaskAssignmentRepository taskAssignmentRepository;
 
    public CommentServiceImpl(TaskCommentRepository taskCommentRepository,
                              TaskRepository taskRepository,
-                             ProjectMemberRepository projectMemberRepository) {
+                             ProjectMemberRepository projectMemberRepository, CommentMapper commentMapper, NotificationService notificationService, TaskAssignmentRepository taskAssignmentRepository) {
       super(taskCommentRepository);
       this.taskCommentRepository = taskCommentRepository;
       this.taskRepository = taskRepository;
       this.projectMemberRepository = projectMemberRepository;
+       this.commentMapper = commentMapper;
+       this.notificationService = notificationService;
+       this.taskAssignmentRepository = taskAssignmentRepository;
    }
 
    @Override
    public List<CommentDTO> getCommentsByTask(Long taskId) {
-
       List<Comment> comments = taskCommentRepository.findByTaskId(taskId);
 
       return comments.stream()
-              .map(this::convertToDTO)
+              .map(commentMapper::toDto)
               .collect(Collectors.toList());
    }
 
    @Override
    public CommentDTO createComment(Long taskId, Long projectMemberId, String text, Long replyCommentId) {
+      Task task = taskRepository.findById(taskId)
+              .orElseThrow(() -> new RuntimeException("Task not found"));
+
+      ProjectMember member = projectMemberRepository.findById(projectMemberId)
+              .orElseThrow(() -> new RuntimeException("Project member not found"));
+
+      User author = member.getUser();
 
       Comment comment = new Comment();
       comment.setContent(text);
       comment.setCreateAt(LocalDateTime.now());
-
-      Task task = taskRepository.findById(taskId)
-              .orElseThrow(() -> new RuntimeException("Task not found"));
       comment.setTask(task);
-
-      ProjectMember member = projectMemberRepository.findById(projectMemberId)
-              .orElseThrow(() -> new RuntimeException("Project member not found"));
       comment.setMember(member);
 
+      User parentAuthor = null;
       if (replyCommentId != null) {
          Comment parent = taskCommentRepository.findById(replyCommentId)
-                 .orElseThrow(() -> new RuntimeException("Parent comment not found"));
+                 .orElseThrow(() -> new ResourceNotFoundException("Parent comment not found"));
          comment.setParent(parent);
+         parentAuthor = parent.getMember().getUser();
       }
 
       Comment saved = taskCommentRepository.save(comment);
 
-      return convertToDTO(saved);
-   }
+      CommentNotificationContext context = CommentNotificationContext.builder()
+              .task(task)
+              .author(author)
+              .parentAuthor(parentAuthor)
+              .build();
 
-   private CommentDTO convertToDTO(Comment comment) {
+      if (replyCommentId != null) {
+         // reply
+         if (!parentAuthor.getId().equals(author.getId())) {
+            notificationService.send(parentAuthor.getId(), context, task.getId());
+         }
+      } else {
+         // normal
+         List<Long> assigneeIds = taskAssignmentRepository.findByTask_Id(taskId)
+                 .stream()
+                 .map(a -> a.getAssignee().getUser().getId())
+                 .filter(id -> !id.equals(author.getId())) // Loại bỏ chính mình
+                 .toList();
 
-      CommentDTO dto = new CommentDTO();
-
-      dto.setCommentId(comment.getId());
-      dto.setContent(comment.getContent());
-      dto.setCreateAt(comment.getCreateAt());
-
-      if (comment.getParent() != null) {
-         dto.setParentId(comment.getParent().getId());
+         if (!assigneeIds.isEmpty()) {
+            notificationService.send(assigneeIds, context, task.getId());
+         }
       }
 
-      if (comment.getMember() != null) {
-         dto.setUserName(comment.getMember().getUser().getUsername());
-         dto.setFullName(comment.getMember().getUser().getFullName());
-      }
-
-      return dto;
+      return commentMapper.toDto(saved);
    }
 }

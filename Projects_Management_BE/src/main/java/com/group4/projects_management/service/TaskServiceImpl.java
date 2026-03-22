@@ -4,13 +4,25 @@ import com.group4.common.dto.TaskCeateRequestDTO;
 import com.group4.common.dto.TaskHistoryDTO;
 import com.group4.common.dto.TaskResponseDTO;
 import com.group4.common.dto.TaskUpdateDTO;
+import com.group4.common.enums.BusinessErrorCode;
+import com.group4.common.enums.MemberStatusCode;
+import com.group4.common.enums.TaskStatusCode;
+import com.group4.projects_management.core.exception.BusinessException;
+import com.group4.projects_management.core.exception.ResourceNotFoundException;
+import com.group4.projects_management.core.strategy.notification.task.TaskAssignContext;
+import com.group4.projects_management.core.strategy.notification.task.TaskStatusContext;
+import com.group4.projects_management.core.strategy.notification.task.TaskUnassignContext;
+import com.group4.projects_management.core.strategy.notification.task.TaskUpdateContext;
 import com.group4.projects_management.entity.*;
 import com.group4.projects_management.mapper.TaskAssignmentMapper;
+import com.group4.projects_management.mapper.TaskHistoryMapper;
+import com.group4.projects_management.mapper.TaskMapper;
 import com.group4.projects_management.repository.*;
 import com.group4.projects_management.service.base.BaseServiceImpl;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -18,292 +30,328 @@ import java.util.List;
 @Service
 public class TaskServiceImpl extends BaseServiceImpl<Task, Long> implements TaskService {
 
-   private final TaskRepository taskRepository;
-   private final TaskHistoryRepository taskHistoryRepository;
-   private final TaskAssignmentRepository taskAssignmentRepository;
-   private final ProjectMemberRepository projectMemberRepository;
-   private final PriorityRepository priorityRepository;
-   private final TaskStatusRepository taskStatusRepository;
-   private final ProjectRepository projectRepository;
-
-   private final TaskAssignmentMapper taskAssignmentMapper;
-
-   public TaskServiceImpl(
-           TaskRepository taskRepository,
-           TaskHistoryRepository taskHistoryRepository,
-           TaskAssignmentRepository taskAssignmentRepository,
-           ProjectMemberRepository projectMemberRepository,
-           PriorityRepository priorityRepository,
-           TaskStatusRepository taskStatusRepository,
-           ProjectRepository projectRepository, TaskAssignmentMapper taskAssignmentMapper
-   ) {
-      super(taskRepository);
-      this.taskRepository = taskRepository;
-      this.taskHistoryRepository = taskHistoryRepository;
-      this.taskAssignmentRepository = taskAssignmentRepository;
-      this.projectMemberRepository = projectMemberRepository;
-      this.priorityRepository = priorityRepository;
-      this.taskStatusRepository = taskStatusRepository;
-      this.projectRepository = projectRepository;
-       this.taskAssignmentMapper = taskAssignmentMapper;
-   }
-
-   @Override
-   @Transactional
-   public void assignMember(Long taskId, Long assigneeId, Long assignerId) {
-      System.out.println("assignerId = " + assignerId);
-      Task task = taskRepository.findById(taskId)
-              .orElseThrow(() -> new RuntimeException("Task not found"));
-
-      ProjectMember assignee = projectMemberRepository.findById(assigneeId)
-              .orElseThrow(() -> new RuntimeException("Assignee not found"));
-
-      ProjectMember assigner = projectMemberRepository
-              .findByUser_IdAndProject_Id(assignerId, task.getProject().getId())
-              .orElseThrow(() -> new RuntimeException("Assigner not in project"));
+    private final TaskRepository taskRepository;
+    private final TaskHistoryRepository taskHistoryRepository;
+    private final TaskAssignmentRepository taskAssignmentRepository;
+    private final ProjectMemberRepository projectMemberRepository;
+    private final PriorityRepository priorityRepository;
+    private final TaskStatusRepository taskStatusRepository;
+    private final ProjectRepository projectRepository;
+    private final ProjectMemberStatusRepository projectMemberStatusRepository;
+    private final TaskAssignmentMapper taskAssignmentMapper;
+    private final TaskMapper taskMapper;
+    private final NotificationService notificationService;
+    private final TaskHistoryMapper taskHistoryMapper;
+    private final UserRepository userRepository;
+
+
+    public TaskServiceImpl(
+            TaskRepository taskRepository,
+            TaskHistoryRepository taskHistoryRepository,
+            TaskAssignmentRepository taskAssignmentRepository,
+            ProjectMemberRepository projectMemberRepository,
+            PriorityRepository priorityRepository,
+            TaskStatusRepository taskStatusRepository,
+            ProjectRepository projectRepository, ProjectMemberStatusRepository projectMemberStatusRepository, TaskAssignmentMapper taskAssignmentMapper, TaskMapper taskMapper, NotificationService notificationService, TaskHistoryMapper taskHistoryMapper, UserRepository userRepository
+    ) {
+        super(taskRepository);
+        this.taskRepository = taskRepository;
+        this.taskHistoryRepository = taskHistoryRepository;
+        this.taskAssignmentRepository = taskAssignmentRepository;
+        this.projectMemberRepository = projectMemberRepository;
+        this.priorityRepository = priorityRepository;
+        this.taskStatusRepository = taskStatusRepository;
+        this.projectRepository = projectRepository;
+        this.projectMemberStatusRepository = projectMemberStatusRepository;
+        this.taskAssignmentMapper = taskAssignmentMapper;
+        this.taskMapper = taskMapper;
+        this.notificationService = notificationService;
+        this.taskHistoryMapper = taskHistoryMapper;
+        this.userRepository = userRepository;
+    }
+
+    @Override
+    @Transactional
+    public void assignMember(Long taskId, Long assigneeId, Long assignerId) {
+        System.out.println("assignerId = " + assignerId);
+        Task task = taskRepository.findById(taskId)
+                .orElseThrow(() -> new RuntimeException("Task not found"));
+
+        ProjectMember assignee = projectMemberRepository.findById(assigneeId)
+                .orElseThrow(() -> new RuntimeException("Assignee not found"));
+
+        ProjectMember assigner = projectMemberRepository
+                .findByUser_IdAndProject_Id(assignerId, task.getProject().getId())
+                .orElseThrow(() -> new RuntimeException("Assigner not in project"));
+
+        TaskAssignment assignment = new TaskAssignment();
+        assignment.setTask(task);
+        assignment.setAssignee(assignee);
+        assignment.setAssigner(assigner);
+        assignment.setAssignAt(LocalDateTime.now());
+
+        TaskAssignContext context = TaskAssignContext.builder()
+                .task(task)
+                .assigner(assigner.getUser())
+                .build();
+
+        Long receiverId = assignee.getUser().getId();
+        Long referenceId = task.getId();
+
+        notificationService.send(receiverId, context, referenceId);
+
+        taskAssignmentRepository.save(assignment);
+    }
+
+    @Override
+    @Transactional
+    public void assignMembers(Long taskId, List<Long> assigneeIdList, Long assignerId) {
+        if (assigneeIdList == null || assigneeIdList.isEmpty()) return;
+
+        Task task = taskRepository.findById(taskId)
+                .orElseThrow(() -> new ResourceNotFoundException("Task not found"));
+
+        ProjectMember assigner = projectMemberRepository
+                .findByUser_IdAndProject_Id(assignerId, task.getProject().getId())
+                .orElseThrow(() -> new ResourceNotFoundException("Assigner not in project"));
+
+
+        List<ProjectMember> assignees = projectMemberRepository.findAllById(assigneeIdList);
+
+        List<TaskAssignment> assignments = new ArrayList<>();
+        List<Long> receiverIds = new ArrayList<>();
+
+        for (ProjectMember assignee : assignees) {
+            TaskAssignment assignment = new TaskAssignment();
+            assignment.setTask(task);
+            assignment.setAssignee(assignee);
+            assignment.setAssigner(assigner);
+
+            assignments.add(assignment);
+
+            receiverIds.add(assignee.getUser().getId());
+        }
+
+        taskAssignmentRepository.saveAll(assignments);
+
+        TaskAssignContext context = TaskAssignContext.builder()
+                .task(task)
+                .assigner(assigner.getUser())
+                .build();
+
+        notificationService.send(receiverIds, context, task.getId());
+    }
+
+
+
+    @Override
+    @org.springframework.transaction.annotation.Transactional(readOnly = true)
+    public List<TaskResponseDTO> getTasksByProject(Long projectId, boolean includeCancelled) {
+
+        if (includeCancelled) {
+            return taskRepository.findByProject_Id(projectId).stream()
+                    .map(taskMapper::toDto).toList();
+        }
+
+        // Chỉ lấy task nếu cả Task và Project đều KHÔNG ở trạng thái CANCELLED
+        return taskRepository.findActiveTasksByProjectId(
+                        projectId, "CANCELLED", "CANCELLED")
+                .stream()
+                .map(taskMapper::toDto)
+                .toList();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<TaskResponseDTO> getAllTasks() {
+        return taskRepository.findAll()
+                .stream()
+                .map(taskMapper::toDto)
+                .toList();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<TaskResponseDTO> getTasksByUserId(Long userId, boolean includeCancelled) {
+        final String activeMemberStatus = MemberStatusCode.ACTIVE.name();
+        List<Task> tasks;
+
+        if (includeCancelled) {
+            tasks = taskAssignmentRepository.findAllTasksForUser(userId, activeMemberStatus);
+        } else {
+            tasks = taskAssignmentRepository.findActiveTasksForUser(
+                    userId,
+                    activeMemberStatus,
+                    TaskStatusCode.CANCELLED.name(),
+                    TaskStatusCode.CANCELLED.name());
+        }
+
+        return tasks.stream()
+                .map(taskMapper::toDto)
+                .toList();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<TaskHistoryDTO> getTaskHistory(Long taskId) {
+        return taskHistoryRepository.findByTaskId(taskId)
+                .stream()
+                .map(taskHistoryMapper::toDto)
+                .toList();
+    }
+
+    @Override
+    @Transactional
+    public void updateTaskPriority(Long taskId, Long taskPriorityId) {
+
+        Task task = taskRepository.findById(taskId)
+                .orElseThrow(() -> new RuntimeException("Task not found"));
+
+        Priority priority = priorityRepository.findById(taskPriorityId)
+                .orElseThrow(() -> new RuntimeException("Priority not found"));
+
+        task.setPriority(priority);
+
+        taskRepository.save(task);
+    }
 
-      TaskAssignment assignment = new TaskAssignment();
-      assignment.setTask(task);
-      assignment.setAssignee(assignee);
-      assignment.setAssigner(assigner);
-      assignment.setAssignAt(LocalDateTime.now());
+    @Override
+    @Transactional
+    public void updateTaskStatus(Long taskId, Long taskStatusId) {
 
-      taskAssignmentRepository.save(assignment);
-   }
+        Task task = taskRepository.findById(taskId)
+                .orElseThrow(() -> new RuntimeException("Task not found"));
 
-   @Override
-   @Transactional
-   public void assignMembers(Long taskId, List<Long> assigneeIdList, Long assignerId) {
+        TaskStatus status = taskStatusRepository.findById(taskStatusId)
+                .orElseThrow(() -> new RuntimeException("Status not found"));
 
-      for (Long assigneeId : assigneeIdList) {
-         assignMember(taskId, assigneeId, assignerId);
-      }
+        task.setTaskStatus(status);
 
-   }
+        taskRepository.save(task);
 
-   @Override
-   @org.springframework.transaction.annotation.Transactional(readOnly = true)
-   public List<TaskResponseDTO> getTasksByProject(Long projectId) {
+        List<Long> assignedUserIds = task.getMembersId();
 
-      List<Task> tasks = taskRepository.findByProject_Id(projectId);
-      List<TaskResponseDTO> result = new ArrayList<>();
+        if (!assignedUserIds.isEmpty()) {
+            TaskStatusContext context = TaskStatusContext.builder()
+                    .task(task)
+                    .newStatusName(status.getName())
+                    // .actor(currentUser)
+                    .build();
+            notificationService.send(assignedUserIds, context, task.getId());
+        }
+    }
 
-      for (Task task : tasks) {
 
-         if (task.getProject().getId().equals(projectId)) {
+    @Override
+    @Transactional
+    public void removeMembersFromTask(Long taskId, List<Long> projectMemberIds, Long requesterId) {
+        if (projectMemberIds == null || projectMemberIds.isEmpty()) return;
+        Task task = taskRepository.findById(taskId)
+                .orElseThrow(() -> new ResourceNotFoundException("Task not found"));
 
-            TaskResponseDTO dto = new TaskResponseDTO();
-            dto.setTaskId(task.getId());
-            dto.setTaskName(task.getName());
-            dto.setDescription(task.getDescription());
-            dto.setDeadline(task.getDeadline());
-            dto.setCreatedAt(task.getCreatedAt());
+        User requester  = userRepository.findById(requesterId)
+                .orElseThrow(() -> new ResourceNotFoundException("Requester not found"));
 
+        List<Long> receiverIds = projectMemberRepository.findAllById(projectMemberIds)
+                .stream()
+                .map(m -> m.getUser().getId())
+                .toList();
 
-            var assigneesDTO = task.getAssignments()
-                   .stream()
-                    .map(taskAssignmentMapper::toDTO)
-                    .toList();
+        // Kiểm tra xem requesterId có phải là PM của project này không, nếu không ném Exception 403.
 
-            dto.setAssignees(assigneesDTO);
+        taskAssignmentRepository.deleteByTaskIdAndProjectMemberIdIn(taskId, projectMemberIds);
 
-            if (task.getPriority() != null) {
-               dto.setPriorityName(task.getPriority().getName());
-            }
+        TaskUnassignContext context = TaskUnassignContext.builder()
+                .task(task)
+                .actor(requester)
+                .build();
+        notificationService.send(receiverIds, context, task.getId());
+    }
 
-            if (task.getTaskStatus() != null) {
-               dto.setStatusName(task.getTaskStatus().getName());
-            }
+    @Override
+    @Transactional
+    public TaskResponseDTO updateTask(Long taskId, TaskUpdateDTO dto) {
+        Task task = taskRepository.findById(taskId)
+                .orElseThrow(() -> new RuntimeException("Task not found"));
 
-            result.add(dto);
-         }
-      }
+        Priority priority = priorityRepository.findById(dto.getPriorityId())
+                .orElseThrow(() -> new ResourceNotFoundException("Priority not found"));
 
-      return result;
-   }
+        TaskStatus status = taskStatusRepository.findById(dto.getStatusId())
+                .orElseThrow(() -> new ResourceNotFoundException("Status not found"));
 
-   @Override
-   public List<TaskHistoryDTO> getTaskHistory(Long taskId) {
+        taskMapper.updateEntityFromDto(dto, task, priority, status);
 
-      List<TaskHistory> histories = taskHistoryRepository.findByTaskId(taskId);
+        Task savedTask = taskRepository.save(task);
+        List<Long> receiverIds = task.getMembersId();
 
-      List<TaskHistoryDTO> result = new ArrayList<>();
+        if(!receiverIds.isEmpty()) {
+            TaskUpdateContext context = TaskUpdateContext.builder()
+                    .task(savedTask)
+                    .build();
+            notificationService.send(receiverIds, context, savedTask.getId());
+        }
 
-      for (TaskHistory history : histories) {
+        return taskMapper.toDto(task);
+    }
 
-         TaskHistoryDTO dto = new TaskHistoryDTO();
+    @Override
+    @Transactional
+    public TaskResponseDTO createTask(TaskCeateRequestDTO dto) {
 
-         dto.setChangedAt(history.getChangedAt());
-         dto.setColumnName(history.getColumnName());
-         dto.setOldValue(history.getOldValue());
-         dto.setNewValue(history.getNewValue());
+        if (dto.getDeadline().toLocalDate().isBefore(LocalDate.now())) {
+            throw new BusinessException("Deadline cannot be in the past", BusinessErrorCode.SYSTEM_VALIDATION_ERROR);
+        }
 
-         if (history.getChangedBy() != null) {
-            dto.setChangeBy(history.getChangedBy().getUser().getUsername());
-         }
+        Priority priority = priorityRepository.findById(dto.getPriorityId())
+                .orElseThrow(() -> new ResourceNotFoundException("Priority not found"));
 
-         result.add(dto);
-      }
+        Project project = projectRepository.findById(dto.getProjectId())
+                .orElseThrow(() -> new ResourceNotFoundException("Project not found"));
 
-      return result;
-   }
+        TaskStatus status = taskStatusRepository.findById(dto.getTaskStatusId())
+                .orElseThrow(() -> new ResourceNotFoundException("Task status not found"));
 
-   @Override
-   @Transactional
-   public void updateTaskPriority(Long taskId, Long taskPriorityId) {
+        Task task = taskMapper.toEntity(dto, project, priority, status);
 
-      Task task = taskRepository.findById(taskId)
-              .orElseThrow(() -> new RuntimeException("Task not found"));
+        return taskMapper.toDto(taskRepository.save(task));
+    }
 
-      Priority priority = priorityRepository.findById(taskPriorityId)
-              .orElseThrow(() -> new RuntimeException("Priority not found"));
+    @Override
+    public List<TaskResponseDTO> getTasksByStatus(Long projectId, Long statusId) {
 
-      task.setPriority(priority);
+        List<Task> tasks = taskRepository.findByProject_IdAndTaskStatus_Id(projectId, statusId);
 
-      taskRepository.save(task);
-   }
+        return tasks.stream()
+                .map(taskMapper::toDto)
+                .toList();
+    }
 
-   @Override
-   @Transactional
-   public void updateTaskStatus(Long taskId, Long taskStatusId) {
+    @Override
+    @Transactional
+    public void deleteTask(Long taskId, Long requesterId) {
+        Task task = taskRepository.findById(taskId)
+                .orElseThrow(() -> new ResourceNotFoundException("Task not found"));
 
-      Task task = taskRepository.findById(taskId)
-              .orElseThrow(() -> new RuntimeException("Task not found"));
+        TaskStatus cancelledStatus = taskStatusRepository.findBySystemCode(TaskStatusCode.CANCELLED.name())
+                .orElseThrow(() -> new ResourceNotFoundException("Task status CANCELLED not found in system"));
 
-      TaskStatus status = taskStatusRepository.findById(taskStatusId)
-              .orElseThrow(() -> new RuntimeException("Status not found"));
+        task.setTaskStatus(cancelledStatus);
+        taskRepository.save(task);
 
-      task.setTaskStatus(status);
+        List<Long> receiverIds = task.getMembersId();
 
-      taskRepository.save(task);
-   }
+        if (!receiverIds.isEmpty()) {
+            User requester = userRepository.findById(requesterId).orElse(null);
 
-   @Override
-   @Transactional
-   public void removeMemberFromTask(Long taskAssignmentId) {
-      taskAssignmentRepository.deleteById(taskAssignmentId);
-   }
+            TaskStatusContext context = TaskStatusContext.builder()
+                    .task(task)
+                    .newStatusName(cancelledStatus.getName())
+                    .actor(requester)
+                    .build();
 
-   @Override
-   @Transactional
-   public void removeMembersFromTask(Long taskId, List<Long> membersId) {
-
-      Task task = taskRepository.findById(taskId)
-              .orElseThrow(() -> new RuntimeException("Task not found"));
-
-      if (task.getAssignments() == null) return;
-
-      for (TaskAssignment assignment : task.getAssignments()) {
-
-         if (membersId.contains(assignment.getId())) {
-            taskAssignmentRepository.delete(assignment);
-         }
-
-      }
-
-   }
-
-   @Override
-   @Transactional
-   public TaskResponseDTO updateTask(Long taskId, TaskUpdateDTO dto) {
-
-      Task task = taskRepository.findById(taskId)
-              .orElseThrow(() -> new RuntimeException("Task not found"));
-
-      task.setName(dto.getTaskName());
-      task.setDescription(dto.getDescription());
-      task.setDeadline(dto.getDeadline());
-
-      taskRepository.save(task);
-
-      TaskResponseDTO response = new TaskResponseDTO();
-
-      response.setTaskId(task.getId());
-      response.setTaskName(task.getName());
-      response.setDescription(task.getDescription());
-      response.setDeadline(task.getDeadline());
-      response.setCreatedAt(task.getCreatedAt());
-
-      if (task.getPriority() != null) {
-         response.setPriorityName(task.getPriority().getName());
-      }
-
-      if (task.getTaskStatus() != null) {
-         response.setStatusName(task.getTaskStatus().getName());
-      }
-
-      return response;
-   }
-
-   @Override
-   @Transactional
-   public TaskResponseDTO createTask(TaskCeateRequestDTO dto) {
-
-      Task task = new Task();
-
-      task.setName(dto.getTaskName());
-      task.setDescription(dto.getDescription());
-      task.setDeadline(dto.getDeadline());
-
-      Priority priority = priorityRepository.findById(dto.getPriorityId())
-              .orElseThrow(() -> new RuntimeException("Priority not found"));
-
-      task.setPriority(priority);
-
-      Project project = projectRepository.findById(dto.getProjectId())
-              .orElseThrow(() -> new RuntimeException("Project not found"));
-
-      task.setProject(project);
-
-      TaskStatus status = taskStatusRepository.findById(dto.getTaskStatusId())
-              .orElseThrow(() -> new RuntimeException("Task status not found"));
-
-      task.setTaskStatus(status);
-
-      var entity = taskRepository.save(task);
-
-      TaskResponseDTO response = new TaskResponseDTO();
-      response.setTaskId(task.getId());
-      response.setTaskName(task.getName());
-      response.setDescription(task.getDescription());
-      response.setDeadline(task.getDeadline());
-      response.setCreatedAt(task.getCreatedAt());
-      response.setPriorityName(priority.getName());
-      response.setStatusName(status.getName());
-      response.setAssignees(List.of());
-
-      return response;
-   }
-
-   @Override
-   public List<TaskResponseDTO> getTasksByStatus(Long projectId, Long statusId) {
-
-      List<Task> tasks =
-              taskRepository.findByProject_IdAndTaskStatus_Id(projectId, statusId);
-
-      List<TaskResponseDTO> result = new ArrayList<>();
-
-      for (Task task : tasks) {
-
-         TaskResponseDTO dto = new TaskResponseDTO();
-         dto.setTaskId(task.getId());
-         dto.setTaskName(task.getName());
-         dto.setDescription(task.getDescription());
-         dto.setDeadline(task.getDeadline());
-         dto.setCreatedAt(task.getCreatedAt());
-
-         if (task.getPriority() != null) {
-            dto.setPriorityName(task.getPriority().getName());
-         }
-
-         if (task.getTaskStatus() != null) {
-            dto.setStatusName(task.getTaskStatus().getName());
-         }
-
-         result.add(dto);
-      }
-
-      return result;
-   }
+            notificationService.send(receiverIds, context, task.getId());
+        }
+    }
 
 }

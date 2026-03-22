@@ -42,12 +42,10 @@ public class TaskHistory {
    @ManyToOne
    @JoinColumn(name = "PROJECT_MEMBER_ID", nullable = false)
    @ToString.Exclude
-   public ProjectMember changedBy;
+   private ProjectMember changedBy;
    /** @pdRoleInfo migr=no name=Task assc=association17 mult=1..1 side=A */
    @ManyToOne
    @JoinColumn(name = "TASK_ID", nullable = false)
    @ToString.Exclude
-   public Task task;
-   
-
+   private Task task;
 }
