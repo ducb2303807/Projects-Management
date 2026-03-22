@@ -2,6 +2,7 @@ package com.group4.projects_management_fe.features.task;
 
 import com.group4.common.dto.*;
 import com.group4.common.enums.LookupType;
+import com.group4.projects_management_fe.core.api.CommentApi;
 import com.group4.projects_management_fe.core.api.LookupApi;
 import com.group4.projects_management_fe.core.api.TaskApi;
 import com.group4.projects_management_fe.core.session.AuthSessionProvider;
@@ -15,8 +16,6 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import javafx.util.Callback;
 import javafx.util.StringConverter;
-
-import java.time.LocalDateTime;
 
 public class TaskDetailFormController {
 
@@ -37,6 +36,7 @@ public class TaskDetailFormController {
     private Stage popupStage;
     private TaskApi taskApi;
     private LookupApi lookupApi;
+    private CommentApi commentApi;
     private AuthSessionProvider sessionProvider;
     private Runnable onSaveSuccessCallback;
 
@@ -48,7 +48,7 @@ public class TaskDetailFormController {
         this.sessionProvider = sessionProvider;
         this.taskApi = new TaskApi(sessionProvider);
         this.lookupApi = new LookupApi(sessionProvider);
-
+        this.commentApi = new CommentApi(sessionProvider);
         loadLookups();
     }
 
@@ -342,7 +342,7 @@ public class TaskDetailFormController {
 
         commentField.setDisable(true);
 
-        taskApi.createComment(request).thenAccept(newComment -> {
+        commentApi.createComment(request).thenAccept(newComment -> {
             Platform.runLater(() -> {
                 addCommentToUI(newComment);
                 commentField.clear();

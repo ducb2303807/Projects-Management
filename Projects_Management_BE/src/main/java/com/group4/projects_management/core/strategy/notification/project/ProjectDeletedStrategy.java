@@ -13,7 +13,7 @@ public class ProjectDeletedStrategy implements NotificationStrategy<ProjectDelet
     public boolean supports(Class<?> clazz) { return ProjectDeleteContext.class.equals(clazz); }
 
     @Override
-    public NotificationType getType() { return NotificationType.PROJECT_UPDATED; }
+    public NotificationType getType() { return NotificationType.PROJECT_DELETED; }
 
     @Override
     public String buildTitle(ProjectDeleteContext ctx) {

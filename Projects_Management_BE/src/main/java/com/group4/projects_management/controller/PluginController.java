@@ -39,5 +39,4 @@ public class PluginController {
       pluginService.saveDashboardLayout(userId, configs);
       return ResponseEntity.ok().build();
    }
-
 }
