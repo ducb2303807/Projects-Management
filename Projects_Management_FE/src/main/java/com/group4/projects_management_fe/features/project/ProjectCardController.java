@@ -55,8 +55,6 @@ public class ProjectCardController {
     @FXML
     private void handleOpenDetails(MouseEvent event) {
         try {
-            event.consume();
-
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/group4/projects_management_fe/features/project/ProjectDetailsForm.fxml"));
             Parent root = loader.load();
 

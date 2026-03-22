@@ -383,7 +383,7 @@ public class ProjectDetailsFormController {
         alert.showAndWait().ifPresent(type -> {
             if (type == btnDelete) {
                 // Nếu bấm Delete -> Gọi ViewModel xử lý đổi Status
-                viewModel.softDeleteProject();
+                viewModel.deleteProject();
             }
             // Nếu bấm Cancel -> Popup tự tắt, giữ nguyên trạng thái Edit Mode
         });
