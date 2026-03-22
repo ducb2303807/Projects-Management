@@ -207,7 +207,11 @@ public class ProjectDetailsViewModel extends NewProjectViewModel {
 
         // Gọi thẳng endpoint DELETE của backend
         projectApi.deleteProject(currentProjectId).thenAccept(v -> {
-            deleteSuccess.onNext(true); // Báo thành công để Controller đóng form
+            //Xóa dự án có ID tương ứng ra khỏi local
+            com.group4.projects_management_fe.features.project.ProjectController.recentProjectsList
+                    .removeIf(p -> String.valueOf(p.getId()).equals(String.valueOf(currentProjectId)));
+            // Báo thành công để Controller đóng form
+            deleteSuccess.onNext(true);
         }).exceptionally(ex -> {
             System.err.println("Lỗi khi xóa dự án: " + ex.getMessage());
             saveError.onNext("Lỗi xóa dự án: " + ex.getMessage());

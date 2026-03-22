@@ -51,7 +51,7 @@ public class ProjectController implements Initializable {
     // ==========================================
 
     // Dùng LinkedList static để giữ lại danh sách khi người dùng chuyển trang
-    private static final LinkedList<ProjectResponseDTO> recentProjectsList = new LinkedList<>();
+    static final LinkedList<ProjectResponseDTO> recentProjectsList = new LinkedList<>();
     private final List<ProjectItem> allProjectItems = new ArrayList<>();
 
     private static class ProjectItem {
@@ -89,8 +89,43 @@ public class ProjectController implements Initializable {
         renderRecentProjects();
 
         // 4. Lắng nghe dữ liệu API từ ViewModel
+        // 4. Lắng nghe dữ liệu API từ ViewModel
         viewModel.projectsObservable().subscribe(projects -> {
-            Platform.runLater(() -> renderProjectsToUI(projects));
+            Platform.runLater(() -> {
+//                this.currentProjectsList = new ArrayList<>(projects);
+
+                // 1. Lấy ra danh sách ID của các dự án CÒN TỒN TẠI (vừa fetch từ DB về)
+                List<Long> activeIds = projects.stream()
+                        .map(ProjectResponseDTO::getId)
+                        .collect(Collectors.toList());
+
+                // 2. Xóa sạch khỏi LinkedList tĩnh những dự án không còn trên DB nữa
+                recentProjectsList.removeIf(p -> !activeIds.contains(p.getId()));
+
+                // 1. Giữ nguyên hàm cũ của bạn: Vẽ danh sách Project chính
+                renderProjectsToUI(projects);
+
+                // 2. PHẦN CHÈN THÊM: Dọn dẹp và vẽ lại danh sách Recent Project
+                if (recentCardsContainer != null) {
+                    recentCardsContainer.getChildren().clear(); // Xóa sạch thẻ cũ
+
+                    for (var localProject : recentProjectsList) {
+                        try {
+                            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/group4/projects_management_fe/features/project/RecentProjectCard.fxml"));
+                            Node card = loader.load();
+                            RecentProjectCardController controller = loader.getController();
+
+                            // Nạp dữ liệu vào thẻ (Thay đổi getProjectId/getProjectName nếu file của bạn đặt tên khác)
+                            controller.bindData(String.valueOf(localProject.getId()), localProject.getProjectName());
+
+                            recentCardsContainer.getChildren().add(card);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+
+            });
         }, Throwable::printStackTrace);
 
         // 5. Bắt đầu gọi API
@@ -237,6 +272,11 @@ public class ProjectController implements Initializable {
 
         // 3. Render
         mainCardsContainer.getChildren().clear();
+
+        if (recentCardsContainer != null) {
+            recentCardsContainer.getChildren().clear();
+        }
+
         for (ProjectItem item : filteredList) {
             mainCardsContainer.getChildren().add(item.cardNode);
         }
