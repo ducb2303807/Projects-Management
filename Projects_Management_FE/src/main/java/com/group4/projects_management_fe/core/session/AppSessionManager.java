@@ -25,6 +25,7 @@ public class AppSessionManager implements AuthSessionProvider {
     public void destroySession() {
         this.token = null;
         this.currentUser = null;
+        com.group4.projects_management_fe.features.project.ProjectController.recentProjectsList.clear();
     }
 
     @Override

@@ -51,7 +51,7 @@ public class ProjectController implements Initializable {
     // ==========================================
 
     // Dùng LinkedList static để giữ lại danh sách khi người dùng chuyển trang
-    static final LinkedList<ProjectResponseDTO> recentProjectsList = new LinkedList<>();
+    public static final LinkedList<ProjectResponseDTO> recentProjectsList = new LinkedList<>();
     private final List<ProjectItem> allProjectItems = new ArrayList<>();
 
     private static class ProjectItem {
@@ -70,6 +70,7 @@ public class ProjectController implements Initializable {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
+        renderRecentProjects();
         // 1. Setup ComboBox Sắp xếp
         if (sortCriteriaComboBox != null) {
             sortCriteriaComboBox.getItems().addAll("Name", "Date", "Status");
@@ -94,13 +95,14 @@ public class ProjectController implements Initializable {
             Platform.runLater(() -> {
 //                this.currentProjectsList = new ArrayList<>(projects);
 
-                // 1. Lấy ra danh sách ID của các dự án CÒN TỒN TẠI (vừa fetch từ DB về)
-                List<Long> activeIds = projects.stream()
-                        .map(ProjectResponseDTO::getId)
-                        .collect(Collectors.toList());
+                if (!projects.isEmpty()) {
+                    List<Long> activeIds = projects.stream()
+                            .map(ProjectResponseDTO::getId)
+                            .collect(Collectors.toList());
 
-                // 2. Xóa sạch khỏi LinkedList tĩnh những dự án không còn trên DB nữa
-                recentProjectsList.removeIf(p -> !activeIds.contains(p.getId()));
+                    // Xóa sạch khỏi LinkedList tĩnh những dự án không còn trên DB nữa
+                    recentProjectsList.removeIf(p -> !activeIds.contains(p.getId()));
+                }
 
                 // 1. Giữ nguyên hàm cũ của bạn: Vẽ danh sách Project chính
                 renderProjectsToUI(projects);
@@ -203,10 +205,18 @@ public class ProjectController implements Initializable {
                     }
                 });
 
-                // GẮN SỰ KIỆN CLICK CHO THẺ CARD CHÍNH ĐỂ THÊM VÀO RECENT
-                projectCard.setOnMouseClicked(event -> {
+                // ============================================================
+                // CÁCH ĐƠN GIẢN HÓA: Gắn callback bằng hàm có sẵn
+                // ============================================================
+                cardCtrl.setOnAddToRecentCallback(() -> {
                     handleProjectClicked(dto);
                 });
+                // ============================================================
+
+//                // GẮN SỰ KIỆN CLICK CHO THẺ CARD CHÍNH ĐỂ THÊM VÀO RECENT
+//                projectCard.setOnMouseClicked(event -> {
+//                    handleProjectClicked(dto);
+//                });
 
                 // Lưu lại nội bộ để hỗ trợ Sort và Search
                 allProjectItems.add(new ProjectItem(projectCard, dto.getProjectName(), projectDate, dto.getStatusName()));

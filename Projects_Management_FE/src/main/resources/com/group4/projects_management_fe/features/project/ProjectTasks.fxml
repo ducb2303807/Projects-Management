@@ -21,7 +21,7 @@
                     <children>
                         <TextField fx:id="searchInput" managed="true" prefWidth="200.0" promptText="Search task" styleClass="search-input" visible="true" />
                         <ComboBox fx:id="sortTaskComboBox" managed="false" prefWidth="120.0" promptText="Sort by" styleClass="clean-input" visible="false" />
-                        <Button fx:id="sortTaskBtn" mnemonicParsing="false" styleClass="icon-btn" text="⇅" />
+                        <Button fx:id="sortTaskBtn" onAction="#handleSortClick" mnemonicParsing="false" styleClass="icon-btn" text="⇅" />
                         <Button fx:id="newTaskBtn" mnemonicParsing="false" styleClass="btn-new" text="+ New" />
                     </children>
                 </HBox>
@@ -80,14 +80,11 @@
                 </children>
             </VBox>
             <VBox.margin>
-                <Insets bottom="15" left="10.0" right="10.0" top="15.0" />
+                <Insets bottom="10" left="10.0" right="10.0" top="15.0" />
             </VBox.margin>
         </VBox>
         <HBox alignment="BOTTOM_RIGHT" prefWidth="1081.0" spacing="15.0">
-            <Button cancelButton="true" minHeight="35.0" minWidth="80.0" mnemonicParsing="false" styleClass="btn-cancel" text="Cancel" textAlignment="CENTER" />
-         <VBox.margin>
-            <Insets top="15.0" />
-         </VBox.margin>
+            <Button fx:id="cancelBtn" onAction="#handleCancel" cancelButton="true" minHeight="35.0" minWidth="80.0" mnemonicParsing="false" styleClass="btn-cancel" text="Cancel" textAlignment="CENTER" />
         </HBox>
     </children>
 </VBox>
