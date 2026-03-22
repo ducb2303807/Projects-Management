@@ -111,6 +111,23 @@
     -fx-text-fill: #E74C3C;
 }
 
+.btn-leave {
+    -fx-background-color: #ff0000;
+    -fx-background-radius: 20px;
+    -fx-text-fill: #F2F2F2;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-cursor: hand;
+    -fx-padding: 8px 15px;
+}
+
+.btn-cancel:hover {
+    -fx-text-fill: #ff0000;
+    -fx-background-color: #F2F2F2;
+    -fx-background-radius: 20px;
+}
+
+
 .btn-cancel {
     -fx-background-color: transparent;
     -fx-background-radius: 20px;

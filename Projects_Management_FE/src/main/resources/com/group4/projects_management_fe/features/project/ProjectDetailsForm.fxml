@@ -130,20 +130,53 @@
                     </ScrollPane>
                 </VBox>
 
-                <Region VBox.vgrow="ALWAYS" />
+                <HBox alignment="CENTER" minHeight="120.0" prefHeight="130.0" prefWidth="270.0">
+                    <VBox prefHeight="130.0" prefWidth="135.0">
+                        <VBox alignment="CENTER_LEFT" prefHeight="65.0" prefWidth="135.0">
+                            <Label styleClass="user-name" text="Total" />
+                            <Label fx:id="totalTasks" styleClass="user-name" text="{Creator}" textAlignment="CENTER">
+                        <VBox.margin>
+                           <Insets left="30.0" />
+                        </VBox.margin></Label>
+                        </VBox>
+                        <VBox alignment="CENTER_LEFT" prefHeight="65.0" prefWidth="135.0">
+                            <Label styleClass="user-name" text="Progress" />
+                            <Label fx:id="percentage" styleClass="user-name" text="{CreateDate}" textAlignment="CENTER">
+                        <VBox.margin>
+                           <Insets left="30.0" />
+                        </VBox.margin></Label>
+                        </VBox>
+                    </VBox>
+                    <VBox prefHeight="130.0" prefWidth="135.0">
+                        <VBox alignment="CENTER_LEFT" prefHeight="65.0" prefWidth="135.0">
+                            <Label styleClass="user-name" text="On going" />
+                            <Label fx:id="inProgress" styleClass="user-name" text="{Creator}" textAlignment="CENTER">
+                        <VBox.margin>
+                           <Insets left="30.0" />
+                        </VBox.margin></Label>
+                        </VBox>
+                        <VBox alignment="CENTER_LEFT" prefHeight="65.0" prefWidth="135.0">
+                            <Label styleClass="user-name" text="Completed" />
+                            <Label fx:id="completed" styleClass="user-name" text="{CreateDate}" textAlignment="CENTER">
+                        <VBox.margin>
+                           <Insets left="30.0" />
+                        </VBox.margin></Label>
+                        </VBox>
+                    </VBox>
+                </HBox>
 
-                <VBox spacing="10.0">
+                <VBox prefWidth="270.0" spacing="10.0">
                     <Label styleClass="field-label" text="Last updated at" />
-                    <HBox alignment="CENTER_LEFT" spacing="10.0">
-<!--                        <Label fx:id="lastUpdatedByLabel" styleClass="user-name" text="{Updater}" />-->
+                    <HBox alignment="CENTER_LEFT">
                         <Label fx:id="lastUpdatedDateLabel" styleClass="date-time" text="{UpdateDate}" />
                     </HBox>
                 </VBox>
 
-                <Region VBox.vgrow="ALWAYS" />
+                <HBox alignment="CENTER_LEFT" spacing="15.0">
+                    <Button fx:id="leaveBtn" managed="false" minHeight="35.0" minWidth="80.0" mnemonicParsing="false" onAction="#handleLeaveProject" styleClass="btn-leave" text="Leave" textFill="#d32f2f" visible="false" />
 
-                <HBox alignment="BOTTOM_RIGHT" spacing="15.0">
-                    <Button fx:id="leaveBtn" managed="false" visible="false" minHeight="35.0" minWidth="80.0" mnemonicParsing="false" onAction="#handleLeaveProject" styleClass="btn-cancel" text="Leave" textFill="#d32f2f" />
+                    <Region HBox.hgrow="ALWAYS" />
+
                     <Button fx:id="cancelBtn" cancelButton="true" minHeight="35.0" minWidth="80.0" mnemonicParsing="false" onAction="#handleCancel" styleClass="btn-cancel" text="Cancel" />
                     <Button fx:id="saveBtn" defaultButton="true" managed="false" minHeight="35.0" minWidth="80.0" mnemonicParsing="false" onAction="#handleSave" styleClass="btn-create" text="Save" visible="false" />
                 </HBox>
