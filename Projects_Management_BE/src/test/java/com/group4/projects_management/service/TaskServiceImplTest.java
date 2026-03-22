@@ -5,6 +5,7 @@ import com.group4.common.dto.TaskResponseDTO;
 import com.group4.common.dto.TaskUpdateDTO;
 import com.group4.common.enums.MemberStatusCode;
 import com.group4.common.enums.TaskStatusCode;
+import com.group4.projects_management.core.event.TaskHistoryEvent;
 import com.group4.projects_management.core.exception.BusinessException;
 import com.group4.projects_management.core.exception.ResourceNotFoundException;
 import com.group4.projects_management.entity.*;
@@ -20,6 +21,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.context.ApplicationEventPublisher;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -33,19 +35,34 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 class TaskServiceImplTest {
 
-    @Mock private TaskRepository taskRepository;
-    @Mock private TaskHistoryRepository taskHistoryRepository;
-    @Mock private TaskAssignmentRepository taskAssignmentRepository;
-    @Mock private ProjectMemberRepository projectMemberRepository;
-    @Mock private PriorityRepository priorityRepository;
-    @Mock private TaskStatusRepository taskStatusRepository;
-    @Mock private ProjectRepository projectRepository;
-    @Mock private ProjectMemberStatusRepository projectMemberStatusRepository;
-    @Mock private TaskAssignmentMapper taskAssignmentMapper;
-    @Mock private TaskMapper taskMapper;
-    @Mock private NotificationService notificationService;
-    @Mock private TaskHistoryMapper taskHistoryMapper;
-    @Mock private UserRepository userRepository;
+    @Mock
+    private TaskRepository taskRepository;
+    @Mock
+    private TaskHistoryRepository taskHistoryRepository;
+    @Mock
+    private TaskAssignmentRepository taskAssignmentRepository;
+    @Mock
+    private ProjectMemberRepository projectMemberRepository;
+    @Mock
+    private PriorityRepository priorityRepository;
+    @Mock
+    private TaskStatusRepository taskStatusRepository;
+    @Mock
+    private ProjectRepository projectRepository;
+    @Mock
+    private ProjectMemberStatusRepository projectMemberStatusRepository;
+    @Mock
+    private TaskAssignmentMapper taskAssignmentMapper;
+    @Mock
+    private TaskMapper taskMapper;
+    @Mock
+    private NotificationService notificationService;
+    @Mock
+    private TaskHistoryMapper taskHistoryMapper;
+    @Mock
+    private UserRepository userRepository;
+    @Mock
+    private ApplicationEventPublisher eventPublisher;
 
     @InjectMocks
     private TaskServiceImpl taskService;
@@ -327,31 +344,58 @@ class TaskServiceImplTest {
         }
 
         @Test
-        @DisplayName("Update Task - Complete flow with notification")
+        @DisplayName("Update Task - Complete flow with notification and history event")
         void updateTask_FullFlow() {
             // Arrange
+            Long taskId = 100L;
+            Long actorId = 10L; // Thêm ID của người thực hiện
+
             TaskUpdateDTO dto = new TaskUpdateDTO();
             dto.setPriorityId(2L);
             dto.setStatusId(3L);
 
             Priority p = new Priority();
+            p.setId(2L);
             TaskStatus s = new TaskStatus();
+            s.setId(3L);
 
-            // Giả lập task có người được gán để nhận thông báo
+            // Chuẩn bị Entity cũ để hàm so sánh (detect changes) không bị NullPointerException
+            Priority oldP = new Priority();
+            oldP.setId(1L);
+            TaskStatus oldS = new TaskStatus();
+            oldS.setId(1L);
+
             Task spyTask = spy(mockTask);
+            spyTask.setProject(mockProject); // mockProject đã tạo ở @BeforeEach có ID = 1L
+            spyTask.setPriority(oldP);
+            spyTask.setTaskStatus(oldS);
             when(spyTask.getMembersId()).thenReturn(List.of(10L));
 
-            when(taskRepository.findById(100L)).thenReturn(Optional.of(spyTask));
+            // Mock dữ liệu cho người thực hiện (Actor)
+            ProjectMember mockActor = new ProjectMember();
+            mockActor.setUser(mockUser);
+
+            // Mock các Repository
+            when(taskRepository.findById(taskId)).thenReturn(Optional.of(spyTask));
             when(priorityRepository.findById(2L)).thenReturn(Optional.of(p));
             when(taskStatusRepository.findById(3L)).thenReturn(Optional.of(s));
+
+            // MOCK MỚI: Tìm người thực hiện trong Project
+            when(projectMemberRepository.findByUser_IdAndProject_Id(actorId, spyTask.getProject().getId()))
+                    .thenReturn(Optional.of(mockActor));
+
             when(taskRepository.save(any())).thenReturn(spyTask);
+            when(taskMapper.toDto(any())).thenReturn(new TaskResponseDTO());
 
             // Act
-            taskService.updateTask(100L, dto);
+            // TRUYỀN THÊM actorId VÀO ĐÂY
+            taskService.updateTask(taskId, dto, actorId);
 
             // Assert
             verify(taskMapper).updateEntityFromDto(dto, spyTask, p, s);
-            verify(notificationService).send(eq(List.of(10L)), any(), eq(100L));
+            verify(notificationService).send(eq(List.of(10L)), any(), eq(taskId));
+
+            verify(eventPublisher).publishEvent(any(TaskHistoryEvent.class));
         }
     }
 

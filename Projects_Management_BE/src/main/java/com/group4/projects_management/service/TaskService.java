@@ -50,7 +50,7 @@ public interface TaskService {
    /** @param taskId 
     * @param dto
     * @pdOid 19ffe925-d5b2-40a5-ad6d-d6ea1d48f65e */
-   TaskResponseDTO updateTask(Long taskId, TaskUpdateDTO dto);
+   TaskResponseDTO updateTask(Long taskId, TaskUpdateDTO dto, Long actorId);
 
    TaskResponseDTO createTask(TaskCreateRequestDTO dto);
    /** @param projectId 
