@@ -14,6 +14,7 @@ import com.group4.projects_management.repository.TaskCommentRepository;
 import com.group4.projects_management.repository.TaskRepository;
 import com.group4.projects_management.service.base.BaseServiceImpl;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -51,6 +52,7 @@ public class CommentServiceImpl extends BaseServiceImpl<Comment, Long> implement
    }
 
    @Override
+   @Transactional
    public CommentDTO createComment(Long taskId, Long projectMemberId, String text, Long replyCommentId) {
       Task task = taskRepository.findById(taskId)
               .orElseThrow(() -> new RuntimeException("Task not found"));

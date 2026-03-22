@@ -6,6 +6,7 @@ package com.group4.projects_management.service; /*******************************
 
 import com.group4.common.dto.*;
 import com.group4.common.enums.MemberStatusCode;
+import com.group4.common.enums.ProjectMemberRoleCode;
 import com.group4.common.enums.ProjectStatusCode;
 import com.group4.common.enums.TaskStatusCode;
 import com.group4.projects_management.core.exception.ResourceNotFoundException;
@@ -98,8 +99,8 @@ public class ProjectServiceImpl extends BaseServiceImpl<Project, Long> implement
         var project = projectRepository.findById(projectId)
                 .orElseThrow(() -> new ResourceNotFoundException("Project not found"));
 
-        var pendingStatus = projectMemberStatusRepository.findBySystemCode("PENDING")
-                .orElseThrow(() -> new RuntimeException("Cấu hình hệ thống lỗi: Thiếu status PENDING"));
+        var pendingStatus = projectMemberStatusRepository.findBySystemCode(MemberStatusCode.PENDING.name())
+                .orElseThrow(() -> new ResourceNotFoundException("Pending status not found in project."));
 
         // 3. Batch Fetching (Lấy dữ liệu hàng loạt)
         Set<Long> userIds = validUserRoleMap.keySet();
@@ -211,7 +212,7 @@ public class ProjectServiceImpl extends BaseServiceImpl<Project, Long> implement
     @Override
     public List<InvitationDTO> getPendingInvitations(Long userId) {
         var invitations = this.projectMemberRepository
-                .findAllByUser_IdAndProjectMemberStatus_SystemCode(userId, "PENDING")
+                .findAllByUser_IdAndProjectMemberStatus_SystemCode(userId, MemberStatusCode.PENDING.name())
                 .stream()
                 .map(this.projectMemberMapper::toInvitationDto)
                 .toList();
@@ -262,7 +263,7 @@ public class ProjectServiceImpl extends BaseServiceImpl<Project, Long> implement
     public ProjectStatsDTO getProjectStatistics(Long projectId) {
         // Đảm bảo project tồn tại
         projectRepository.findById(projectId)
-                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy dự án"));
+                .orElseThrow(() -> new ResourceNotFoundException("Project not found with ID: " + projectId));
 
         int totalActiveTasks = taskRepository.countByProjectIdAndStatusNot(projectId, TaskStatusCode.CANCELLED.name());
         int completedTasks = taskRepository.countByProject_IdAndTaskStatus_SystemCode(projectId, TaskStatusCode.DONE.name());
@@ -372,7 +373,7 @@ public class ProjectServiceImpl extends BaseServiceImpl<Project, Long> implement
     @Transactional
     public List<ProjectMemberDTO> getMembersOfProject(Long projectId) {
         var project = this.projectRepository.findById(projectId)
-                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy project!"));
+                .orElseThrow(() -> new ResourceNotFoundException("Project not found"));
 
         return project.getActiveMembers()
                 .stream().map(this.projectMemberMapper::toDto)
@@ -410,13 +411,13 @@ public class ProjectServiceImpl extends BaseServiceImpl<Project, Long> implement
         var creator = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy người tạo dự án"));
 
-        var ownerRole = projectRoleRepository.findBySystemCode("PM")
+        var ownerRole = projectRoleRepository.findBySystemCode(ProjectMemberRoleCode.PM.name())
                 .orElseThrow(() -> new RuntimeException("Hệ thống chưa cấu hình ProjectRole systemCode=PM"));
 
-        var defaultProjectStatus = projectStatusRepository.findBySystemCode("ACTIVE")
+        var defaultProjectStatus = projectStatusRepository.findBySystemCode(ProjectStatusCode.ACTIVE.name())
                 .orElseThrow(() -> new RuntimeException("Hệ thống chưa cấu hình ProjectStatus systemCode=ACTIVE"));
 
-        var activeMemberStatus = projectMemberStatusRepository.findBySystemCode("ACTIVE")
+        var activeMemberStatus = projectMemberStatusRepository.findBySystemCode(MemberStatusCode.ACTIVE.name())
                 .orElseThrow(() -> new RuntimeException("Hệ thống chưa cấu hình ProjectMemberStatus systemCode=ACTIVE"));
 
         Project project = projectMapper.toCreateEntity(dto);
@@ -447,7 +448,7 @@ public class ProjectServiceImpl extends BaseServiceImpl<Project, Long> implement
     }
 
     private void handleAccept(ProjectMember member) {
-        var activeProjectStatus = projectMemberStatusRepository.findBySystemCode("ACTIVE")
+        var activeProjectStatus = projectMemberStatusRepository.findBySystemCode(MemberStatusCode.ACTIVE.name())
                 .orElseThrow(() -> new RuntimeException("Hệ thống chưa cấu hình ProjectStatus systemCode=ACTIVE"));
         member.setProjectMemberStatus(activeProjectStatus);
         member.setJoinAt(LocalDateTime.now());
