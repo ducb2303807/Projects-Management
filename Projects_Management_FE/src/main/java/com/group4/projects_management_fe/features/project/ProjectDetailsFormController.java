@@ -570,10 +570,10 @@ public class ProjectDetailsFormController {
                     coManagerDropdown.hide();
                     return;
                 }
-                for (UserDTO user : users) { // Nhớ import UserDTO
+                for (UserDTO user : users) {
                     MenuItem item = new MenuItem(user.getUsername());
-                    // Bấm chuột vào Dropdown -> Gọi Alert
-                    item.setOnAction(e -> confirmAndInviteUser(user, 4L, "co-manager"));
+                    // TRUYỀN SỐ 2L CHO CO-MANAGER
+                    item.setOnAction(e -> confirmAndInviteUser(user, 2L, "co-manager"));
                     coManagerDropdown.getItems().add(item);
                 }
                 // Nếu đang focus ở ô nhập liệu thì mới thả Dropdown ra
@@ -621,7 +621,8 @@ public class ProjectDetailsFormController {
                     .filter(u -> text.equalsIgnoreCase(u.getUsername()) ||
                             (u.getEmail() != null && text.equalsIgnoreCase(u.getEmail())))
                     .findFirst()
-                    .ifPresent(u -> confirmAndInviteUser(u, 4L, "co-manager"));
+                    // TRUYỀN SỐ 2L CHO CO-MANAGER
+                    .ifPresent(u -> confirmAndInviteUser(u, 2L, "co-manager"));
         }
     }
 
@@ -662,11 +663,11 @@ public class ProjectDetailsFormController {
 
         alert.showAndWait().ifPresent(type -> {
             if (type == btnYes) {
-                // 1. Gửi request qua ViewModel
+                // Gửi request qua ViewModel (Lúc này roleId sẽ là 2 hoặc 3 tùy luồng)
                 viewModel.inviteUser(user.getId(), roleId);
 
-                // 2. Dọn dẹp giao diện (Xóa text và đóng ô Input lại)
-                if (roleId == 4L) {
+                // KIỂM TRA ROLE ID LÀ 2L ĐỂ ẨN Ô INPUT CO-MANAGER
+                if (roleId == 2L) {
                     coManagerInput.clear();
                     coManagerInput.setVisible(false);
                     coManagerInput.setManaged(false);

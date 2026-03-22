@@ -1,17 +1,14 @@
 package com.group4.projects_management_fe.features.project;
 
-import com.group4.common.dto.ProjectMemberDTO;
-import com.group4.common.dto.ProjectResponseDTO;
-import com.group4.common.dto.ProjectUpdateRequestDTO;
+import com.group4.common.dto.*;
 import com.group4.projects_management_fe.core.api.UserApi;
 import com.group4.projects_management_fe.core.session.AppSessionManager;
 import com.group4.projects_management_fe.core.api.LookupApi;
 import com.group4.common.enums.LookupType;
-import com.group4.common.dto.LookupDTO;
-import com.group4.common.dto.UserDTO;
 
 import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.subjects.BehaviorSubject;
+import javafx.application.Platform;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -314,12 +311,22 @@ public class ProjectDetailsViewModel extends NewProjectViewModel {
     public void inviteUser(Long userId, Long roleId) {
         if (currentProjectId == null) return;
 
-        // TODO: Khởi tạo DTO gửi lời mời dựa theo Backend của bạn (Ví dụ: ProjectInvitationRequestDTO)
-        // ProjectInvitationRequestDTO request = new ProjectInvitationRequestDTO(userId, roleId);
+        // 1. Sử dụng Builder của MemberInviteRequest (Chỉ cần userId và roleId)
+        MemberInviteRequest inviteDTO = MemberInviteRequest.builder()
+                .userId(userId)             // Gắn User ID được mời
+                .roleId(roleId)             // Gắn Role ID (2 cho Co-manager, 3 cho Member)
+                .build();
 
-        // Gọi API: POST /api/projects/{projectId}/invitations
-        // projectApi.inviteMemberToProject(currentProjectId, request).thenAccept(v -> {
-        //     Platform.runLater(() -> fetchProjectMembers()); // Mời xong thì load lại danh sách bên dưới
-        // });
+        // 2. Bọc vào List vì API endpoint yêu cầu List<MemberInviteRequest>
+        List<MemberInviteRequest> requestBody = List.of(inviteDTO);
+
+        // 3. Gọi API: projectId truyền vào tham số đầu, list truyền vào tham số thứ hai
+        projectApi.inviteMembers(currentProjectId, requestBody).thenAccept(v -> {
+            // Mời thành công -> Tự động gọi hàm fetch lại danh sách thành viên để cập nhật UI
+            javafx.application.Platform.runLater(this::fetchProjectMembers);
+        }).exceptionally(ex -> {
+            System.err.println("Lỗi khi mời thành viên: " + ex.getMessage());
+            return null;
+        });
     }
 }
