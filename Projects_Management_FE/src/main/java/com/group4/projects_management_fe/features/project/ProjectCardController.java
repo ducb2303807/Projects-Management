@@ -5,8 +5,10 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
 import javafx.scene.paint.Color;
 import javafx.stage.StageStyle;
@@ -18,13 +20,21 @@ public class ProjectCardController {
     @FXML private Label moreOptionsLabel;
     @FXML private Label dateLabel;
     @FXML private Label creatorNameLabel;
+    @FXML private AnchorPane rootCardPane;
 
     private String currentProjectId;
 
     private Runnable onProjectUpdatedCallback;
 
     @FXML
-    public void initialize() {}
+    public void initialize() {
+//        if (rootCardPane != null) {
+//            rootCardPane.setOnMouseClicked(event -> {
+//                handleCardClick(event);
+//            });
+//        }
+        System.out.println("load: " + this.currentProjectId + " ======");
+    }
 
     public void setOnProjectUpdatedCallback(Runnable callback) {
         this.onProjectUpdatedCallback = callback;
@@ -53,7 +63,7 @@ public class ProjectCardController {
             if (this.currentProjectId != null && !this.currentProjectId.trim().isEmpty()) {
                 detailsController.initData(Long.valueOf(this.currentProjectId));
             } else {
-                System.err.println("❌ LỖI: currentProjectId bị null hoặc trống!");
+                System.err.println("LỖI: currentProjectId bị null hoặc trống!");
                 return;
             }
 
@@ -74,6 +84,32 @@ public class ProjectCardController {
 
         } catch (Exception e) {
             e.printStackTrace();
+        }
+    }
+
+    @FXML
+    public void handleCardClick(MouseEvent event) { // Đổi thành public
+        System.out.println("====== ĐÃ CLICK VÀO CARD! ID: " + this.currentProjectId + " ======");
+
+        // Tránh bị đè sự kiện click khi bấm vào nút 3 chấm Options
+//        if (event.getTarget() == moreOptionsLabel || event.getTarget() instanceof Button) {
+//            return;
+//        }
+
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/group4/projects_management_fe/features/project/ProjectTasks.fxml"));
+            Parent root = loader.load();
+
+            ProjectTasksController controller = loader.getController();
+            controller.initData(Long.valueOf(this.currentProjectId), this.projectTitleLabel.getText());
+
+            Stage popupStage = new Stage();
+            popupStage.setScene(new Scene(root));
+            popupStage.show();
+
+        } catch (Exception e) {
+            System.err.println("❌ LỖI KHI MỞ TAB TASK:");
+            e.printStackTrace(); // Phải có dòng này để lỗi hiện ra Console, không bị giấu đi
         }
     }
 }

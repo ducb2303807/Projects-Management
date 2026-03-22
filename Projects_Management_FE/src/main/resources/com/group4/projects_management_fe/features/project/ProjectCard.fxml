@@ -4,7 +4,7 @@
 <?import javafx.scene.image.*?>
 <?import javafx.scene.layout.*?>
 
-<AnchorPane prefHeight="180.0" prefWidth="320.0" styleClass="main-card-container" stylesheets="@../assets/css/project.css"
+<AnchorPane fx:id="rootCardPane" onMousePressed="#handleCardClick" prefHeight="180.0" prefWidth="320.0" styleClass="main-card-container" stylesheets="@../assets/css/project/project.css"
             xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="com.group4.projects_management_fe.features.project.ProjectCardController"
             style="-fx-padding:0 0 0 10;">
@@ -30,8 +30,8 @@
                        onMouseClicked="#handleOpenDetails"
                        style="-fx-cursor: hand;" />
                 <HBox AnchorPane.bottomAnchor="15.0" AnchorPane.leftAnchor="20.0">
-                    <Label fx:id="calendarLabel" styleClass="icon-text" text="📅 " AnchorPane.bottomAnchor="15.0" AnchorPane.leftAnchor="20.0" />
-                    <Label fx:id="dateLabel" styleClass="icon-text" text="" AnchorPane.bottomAnchor="15.0" AnchorPane.leftAnchor="20.0" />
+                    <Label styleClass="icon-text" text="📅 " AnchorPane.bottomAnchor="15.0" AnchorPane.leftAnchor="20.0" />
+                    <Label fx:id="dateLabel" styleClass="icon-text" text="-" AnchorPane.bottomAnchor="15.0" AnchorPane.leftAnchor="20.0" />
                 </HBox>
                 <HBox alignment="CENTER" spacing="4.0" AnchorPane.rightAnchor="15.0" AnchorPane.topAnchor="10.0">
                     <children>

@@ -131,7 +131,7 @@ public class ProjectController implements Initializable {
 
                 // 2. Gắn tên dự án vào thẻ
                 if (ctrl != null) {
-                    ctrl.bindData(dto.getProjectName());
+                    ctrl.bindData(String.valueOf(dto.getId()), dto.getProjectName());
                 }
 
                 recentCardsContainer.getChildren().add(recentCard);
