@@ -17,12 +17,8 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @SuperBuilder
 abstract class ProjectBaseDTO {
-   /** @pdOid 0424a3d8-12ef-4ebd-a1b0-01527bd7c0c6 */
    private java.lang.String projectName;
-   /** @pdOid 565c0453-e1b0-43a0-88ef-56597d76fdcb */
    private java.lang.String description;
-   /** @pdOid 18938c0e-d5f2-430f-8777-1572c34e99ad */
    private LocalDateTime startDate;
-   /** @pdOid 66401136-bb5c-4036-8b17-166bdd62c43a */
    private LocalDateTime endDate;
 }

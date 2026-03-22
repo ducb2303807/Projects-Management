@@ -74,9 +74,8 @@
         <GridPane hgap="20" vgap="20">
 
             <columnConstraints>
-                <ColumnConstraints percentWidth="50" />
-                <ColumnConstraints percentWidth="25" />
-                <ColumnConstraints percentWidth="25" />
+                <ColumnConstraints percentWidth="65" />
+                <ColumnConstraints percentWidth="35" />
             </columnConstraints>
 
             <!-- PROJECT SUMMARY -->
@@ -96,7 +95,7 @@
                         <TableColumn fx:id="colName" text="Project name"/>
                         <TableColumn fx:id="colManager" text="Project manager"/>
                         <TableColumn fx:id="colDueDate" text="Due date"/>
-                        <TableColumn fx:id="colStatus" text="Status"/>
+                        <TableColumn fx:id="colStatus" text="Status" styleClass="status-column"/>
                     </columns>
 
                 </TableView>
@@ -108,25 +107,27 @@
                 <VBox fx:id="calendarBox" />
             </VBox>
 
-            <!-- REVIEW -->
-            <VBox spacing="15" styleClass="box" GridPane.columnIndex="2" GridPane.rowIndex="0">
+            <VBox maxHeight="400.0" minHeight="300.0" prefHeight="300.0"
+                  prefWidth="0.0" spacing="15" styleClass="box"
+                  GridPane.columnIndex="0" GridPane.rowIndex="1">
 
-                <Label styleClass="box-title" text="Review" />
+                <HBox alignment="CENTER_LEFT" spacing="10">
+                    <Label styleClass="box-title" text="Today task" />
 
-                <Pane styleClass="review-box" />
-                <Pane styleClass="review-box" />
-                <Pane styleClass="review-box" />
+                    <Region HBox.hgrow="ALWAYS" />
 
-            </VBox>
+                    <Button text="Reset" onAction="#handleResetTodayTasks" styleClass="new-btn"/>
+                </HBox>
 
-            <!-- TODAY TASK -->
-            <VBox maxHeight="400.0" minHeight="300.0" prefHeight="300.0" prefWidth="0.0" spacing="15" styleClass="box" GridPane.columnIndex="0" GridPane.rowIndex="1">
+                <TableView fx:id="todayTaskTable" prefHeight="220" styleClass="project-table">
 
-                <Label styleClass="box-title" text="Today task" />
+                    <columns>
+                        <TableColumn fx:id="colTaskName" text="Task name"/>
+                        <TableColumn fx:id="colTaskDeadline" text="Deadline"/>
+                        <TableColumn fx:id="colTaskStatus" text="Status"/>
+                    </columns>
 
-                <Separator />
-
-                <ListView fx:id="taskListView" prefHeight="220" />
+                </TableView>
 
             </VBox>
 

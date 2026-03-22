@@ -43,4 +43,34 @@ public interface TaskAssignmentRepository extends BaseRepository<TaskAssignment,
             @Param("excludedTaskStatusCode") String excludedTaskStatusCode
     );
 
+    List<TaskAssignment>  findByTask_Id(Long taskId);
+
+    // Query lấy Task đang hoạt động (loại bỏ CANCELLED)
+    @Query("SELECT ta.task FROM TaskAssignment ta " +
+            "WHERE ta.assignee.user.id = :userId " +
+            "AND ta.assignee.projectMemberStatus.systemCode = :memberStatus " +
+            "AND ta.task.taskStatus.systemCode <> :cancelledStatus")
+    List<Task> findActiveTasksForUser(
+            @Param("userId") Long userId,
+            @Param("memberStatus") String memberStatus,
+            @Param("cancelledStatus") String cancelledStatus);
+
+    // Query lấy TẤT CẢ Task (bao gồm cả CANCELLED)
+    @Query("SELECT ta.task FROM TaskAssignment ta " +
+            "WHERE ta.assignee.user.id = :userId " +
+            "AND ta.assignee.projectMemberStatus.systemCode = :memberStatus")
+    List<Task> findAllTasksForUser(
+            @Param("userId") Long userId,
+            @Param("memberStatus") String memberStatus);
+
+    @Query("SELECT ta.task FROM TaskAssignment ta " +
+            "WHERE ta.assignee.user.id = :userId " +
+            "AND ta.assignee.projectMemberStatus.systemCode = :mStatus " +
+            "AND ta.task.taskStatus.systemCode <> :tStatus " + // Task không bị hủy
+            "AND ta.task.project.projectStatus.systemCode <> :pStatus") // Project không bị hủy
+    List<Task> findActiveTasksForUser(
+            @Param("userId") Long userId,
+            @Param("mStatus") String mStatus,
+            @Param("tStatus") String tStatus,
+            @Param("pStatus") String pStatus);
 }

@@ -2,25 +2,32 @@ package com.group4.projects_management_fe.features.dashboard;
 
 import com.group4.common.dto.ProjectResponseDTO;
 import com.group4.common.dto.TaskResponseDTO;
+import com.group4.projects_management_fe.core.api.ProjectApi;
+import com.group4.projects_management_fe.core.api.TaskApi;
+import com.group4.projects_management_fe.core.session.AppSessionManager;
+import com.group4.projects_management_fe.core.session.AuthSessionProvider;
+import com.group4.projects_management_fe.features.task.TaskDetailFormController;
+import javafx.application.Platform;
 import javafx.beans.property.SimpleStringProperty;
+import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.geometry.Pos;
 import javafx.geometry.Side;
 import javafx.scene.Node;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.skin.DatePickerSkin;
-import javafx.scene.layout.*;
-import com.group4.projects_management_fe.core.api.ProjectApi;
-import com.group4.projects_management_fe.core.api.TaskApi;
-import com.group4.projects_management_fe.core.session.AuthSessionProvider;
-import javafx.application.Platform;
-import javafx.collections.FXCollections;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Pane;
+import javafx.scene.layout.VBox;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
-import com.group4.projects_management_fe.core.session.AppSessionManager;
 
 public class DashboardController {
 
@@ -28,9 +35,16 @@ public class DashboardController {
     private VBox calendarBox;
 
     @FXML
-    private ListView<HBox> taskListView;
+    private TableView<TaskResponseDTO> todayTaskTable;
 
-    /* -------- POPUP -------- */
+    @FXML
+    private TableColumn<TaskResponseDTO, String> colTaskName;
+
+    @FXML
+    private TableColumn<TaskResponseDTO, String> colTaskDeadline;
+
+    @FXML
+    private TableColumn<TaskResponseDTO, String> colTaskStatus;
 
     @FXML
     private Pane overlay;
@@ -77,7 +91,7 @@ public class DashboardController {
 
     private void loadProjects() {
 
-        projectApi.getMyProjects()
+        projectApi.getMyProjects(false)
                 .thenAccept(projects -> {
 
                     Platform.runLater(() -> {
@@ -106,7 +120,7 @@ public class DashboardController {
         }
 
         List<CompletableFuture<List<TaskResponseDTO>>> futures = projects.stream()
-                .map(p -> projectApi.getTasksByProjectId(p.getId())) //
+                .map(p -> projectApi.getTasksByProjectId(p.getId(),false)) //
                 .toList();
 
         CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]))
@@ -136,7 +150,7 @@ public class DashboardController {
                     int completedTasks = (int) myTasks.stream()
                             .filter(task ->
                                     task.getStatusName() != null &&
-                                            task.getStatusName().equalsIgnoreCase("Hoàn thành")
+                                            task.getStatusName().equalsIgnoreCase("done")
                             )
                             .count();
 
@@ -153,51 +167,82 @@ public class DashboardController {
                 });
     }
 
-    private HBox createTaskItem(TaskResponseDTO task) {
+    private void setupTodayTaskTable() {
 
-        HBox container = new HBox();
-        container.setSpacing(10);
-        container.setAlignment(Pos.CENTER_LEFT);
-        container.getStyleClass().add("task-item");
+        todayTaskTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
 
-        Label name = new Label(task.getName());
-        name.getStyleClass().add("task-name");
+        colTaskName.setCellValueFactory(data ->
+                new SimpleStringProperty(data.getValue().getName())
+        );
 
-        Region spacer = new Region();
-        HBox.setHgrow(spacer, Priority.ALWAYS);
+        colTaskDeadline.setCellValueFactory(data -> {
+            if (data.getValue().getDeadline() != null) {
+                return new SimpleStringProperty(
+                        data.getValue().getDeadline().toLocalDate().toString()
+                );
+            }
+            return new SimpleStringProperty("No date");
+        });
 
-        Label status = new Label(task.getStatusName());
-        status.getStyleClass().add("status-badge");
+        colTaskStatus.setCellValueFactory(data ->
+                new SimpleStringProperty(data.getValue().getStatusName())
+        );
 
-        String normalized = task.getStatusName();
+        colTaskStatus.setCellFactory(column -> new TableCell<>() {
+            @Override
+            protected void updateItem(String status, boolean empty) {
+                super.updateItem(status, empty);
 
-        switch (normalized) {
+                if (empty || status == null) {
+                    setGraphic(null);
+                    return;
+                }
 
-            case "Hoàn thành":
-                status.getStyleClass().add("status-completed"); // CSS: màu xanh
-                break;
+                Label badge = new Label(status);
+                badge.getStyleClass().add("status-badge");
 
-            case "Đang làm":
-                status.getStyleClass().add("status-active");    // CSS: màu vàng
-                break;
+                String normalized = status.toLowerCase();
 
-            case "Đang kiểm tra":
-                status.getStyleClass().add("status-on-hold");   // CSS: tạm dùng màu đỏ nhạt
-                break;
+                switch (normalized) {
+                    case "done":
+                        badge.getStyleClass().add("status-completed");
+                        break;
+                    case "in progress":
+                        badge.getStyleClass().add("status-active");
+                        break;
+                    case "under review":
+                        badge.getStyleClass().add("status-on-hold");
+                        break;
+                    case "cancelled":
+                        badge.getStyleClass().add("status-cancelled");
+                        break;
+                    default:
+                        badge.getStyleClass().add("status-planning");
+                        break;
+                }
 
-            case "Đã hủy":
-                status.getStyleClass().add("status-cancelled"); // CSS: màu đỏ
-                break;
+                setGraphic(badge);
+                setText(null);
+            }
+        });
 
-            case "Cần làm":
-            default:
-                status.getStyleClass().add("status-planning");  // CSS: xám nhạt
-                break;
-        }
+        todayTaskTable.setRowFactory(tv -> {
+            TableRow<TaskResponseDTO> row = new TableRow<>();
 
-        container.getChildren().addAll(name, spacer, status);
+            row.setOnMouseClicked(event -> {
+                if (!row.isEmpty() && event.getClickCount() == 1) {
+                    TaskResponseDTO clickedTask = row.getItem();
+                    openTaskDetail(clickedTask);
+                }
+            });
 
-        return container;
+            return row;
+        });
+    }
+
+    @FXML
+    private void handleResetTodayTasks() {
+        loadProjects();
     }
 
     private void setupProjectTable() {
@@ -221,7 +266,6 @@ public class DashboardController {
             return new SimpleStringProperty("");
         });
 
-        // 🟢 Status text
         colStatus.setCellValueFactory(data ->
                 new SimpleStringProperty(data.getValue().getStatusName())
         );
@@ -240,30 +284,32 @@ public class DashboardController {
                 Label badge = new Label(status);
                 badge.getStyleClass().add("status-badge");
 
+                badge.setMaxWidth(Double.MAX_VALUE);
+                badge.setAlignment(Pos.CENTER);
+
+                setAlignment(Pos.CENTER);
+
                 String normalized = status.toLowerCase();
 
                 switch (normalized) {
 
-                    case "đã hoàn thành":
+                    case "completed":
                         badge.getStyleClass().add("status-completed");
                         break;
 
-                    case "đang thực hiện":
+                    case "active":
                         badge.getStyleClass().add("status-active");
                         break;
 
-                    case "tạm dừng":
+                    case "on_hold":
                         badge.getStyleClass().add("status-on-hold");
                         break;
 
-                    case "đã hủy":
+                    case "cancelled":
                         badge.getStyleClass().add("status-cancelled");
                         break;
 
-                    case "lập kế hoạch":
-                        badge.getStyleClass().add("status-planning");
-                        break;
-
+                    case "planning":
                     default:
                         badge.getStyleClass().add("status-planning");
                         break;
@@ -284,19 +330,50 @@ public class DashboardController {
 
         LocalDate today = LocalDate.now();
 
-        List<HBox> taskItems = allTasks.stream()
+        List<TaskResponseDTO> taskItems = allTasks.stream()
                 .filter(task -> task.getAssignees() != null)
                 .filter(task -> task.getAssignees().stream()
                         .anyMatch(a -> a.getUserId() != null && a.getUserId().equals(currentUserId)))
                 .filter(task -> task.getDeadline() != null)
                 .filter(task -> task.getDeadline().toLocalDate().isEqual(today))
-                .map(this::createTaskItem)
-                .filter(Objects::nonNull)
                 .toList();
 
         Platform.runLater(() -> {
-            taskListView.setItems(FXCollections.observableArrayList(taskItems));
+            todayTaskTable.setItems(FXCollections.observableArrayList(taskItems));
+
+            if (taskItems.isEmpty()) {
+                todayTaskTable.setPlaceholder(new Label("No tasks for today"));
+            }
         });
+    }
+
+    private void openTaskDetail(TaskResponseDTO task) {
+        try {
+            FXMLLoader loader = new FXMLLoader(
+                    getClass().getResource("/com/group4/projects_management_fe/features/task/TaskDetailForm.fxml")
+            );
+
+            Parent root = loader.load();
+
+            TaskDetailFormController controller = loader.getController();
+
+            controller.setSessionProvider(AppSessionManager.getInstance());
+
+            controller.initData(task, null);
+
+            Stage stage = new Stage();
+            stage.setScene(new Scene(root));
+            stage.initModality(Modality.APPLICATION_MODAL);
+            stage.setTitle("Task Detail");
+
+            controller.setPopupStage(stage);
+
+            stage.showAndWait();
+            loadProjects();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
     //service
 
@@ -313,6 +390,7 @@ public class DashboardController {
 
         loadProjects();
         setupProjectTable();
+        setupTodayTaskTable();
 
         DatePicker datePicker = new DatePicker();
 
@@ -320,6 +398,5 @@ public class DashboardController {
         Node calendar = skin.getPopupContent();
 
         calendarBox.getChildren().add(calendar);
-
     }
 }

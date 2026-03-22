@@ -34,16 +34,17 @@ public class ProjectController {
 
     @Operation(summary = "Lấy thông tin projects mà tôi tham gia")
     @GetMapping("/me")
-    public ResponseEntity<List<ProjectResponseDTO>> getMyProjects() {
+    public ResponseEntity<List<ProjectResponseDTO>> getMyProjects(
+            @RequestParam(defaultValue = "false") boolean includeCancelled) {
         Long currentUserId = SecurityUtils.getCurrentUserId();
-        return ResponseEntity.ok(projectService.getProjectsByUserId(currentUserId));
+        return ResponseEntity.ok(projectService.getProjectsByUserId(currentUserId, includeCancelled));
     }
 
     @Operation(summary = "Tạo project")
     @PostMapping
     public ResponseEntity<ProjectResponseDTO> createProject(@Valid @RequestBody ProjectCreateRequestDTO request) {
         var userId = SecurityUtils.getCurrentUserId();
-        return ResponseEntity.ok(projectService.createProject(userId,request));
+        return ResponseEntity.ok(projectService.createProject(userId, request));
     }
 
     @Operation(summary = "lấy thông tin project")
@@ -54,8 +55,10 @@ public class ProjectController {
 
     @Operation(summary = "lấy thông tin tasks của project")
     @GetMapping("/{projectId}/tasks")
-    public ResponseEntity<List<TaskResponseDTO>> getTasksByProjectId(@PathVariable Long projectId) {
-        return ResponseEntity.ok(taskService.getTasksByProject(projectId));
+    public ResponseEntity<List<TaskResponseDTO>> getTasksByProjectId(
+            @PathVariable Long projectId,
+            @RequestParam(defaultValue = "false") boolean includeCancelled) {
+        return ResponseEntity.ok(taskService.getTasksByProject(projectId, includeCancelled));
     }
 
     @Operation(summary = "Tạo task vào project")
@@ -71,7 +74,17 @@ public class ProjectController {
     @PutMapping("/{projectId}")
     public ResponseEntity<ProjectResponseDTO> updateProject(@PathVariable Long projectId,
                                                             @Valid @RequestBody ProjectUpdateRequestDTO request) {
-        return ResponseEntity.ok(projectService.updateProject(projectId, request));
+        Long requester = SecurityUtils.getCurrentUserId();
+        return ResponseEntity.ok(projectService.updateProject(projectId, request, requester));
+    }
+
+    @Operation(summary = "Xóa project",
+            description = "Đặt project thành trạng thái CANCELED")
+    @DeleteMapping("/{projectId}")
+    public ResponseEntity<Void> deleteProject(@PathVariable Long projectId) {
+        Long requesterId = SecurityUtils.getCurrentUserId();
+        projectService.deleteProject(projectId, requesterId);
+        return ResponseEntity.ok().build();
     }
 
     @Operation(summary = "lấy thông tin các member của project")
@@ -106,7 +119,8 @@ public class ProjectController {
     @Operation(summary = "Xóa members khỏi project")
     @DeleteMapping("/members/{projectMemberId}")
     public ResponseEntity<Void> removeMemberFormProject(@PathVariable Long projectMemberId) {
-        projectService.removeMemberFromProject(projectMemberId);
+        Long requester = SecurityUtils.getCurrentUserId();
+        projectService.removeMemberFromProject(projectMemberId, requester);
         return ResponseEntity.ok().build();
     }
 

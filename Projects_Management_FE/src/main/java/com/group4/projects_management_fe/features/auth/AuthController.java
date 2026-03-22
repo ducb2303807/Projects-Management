@@ -366,7 +366,7 @@ public class AuthController {
 
             Stage stage = AppStageManager.getInstance().getStage();
 
-            stage.setScene(new Scene(root, 1200, 800));
+            stage.setScene(new Scene(root, 1500, 800));
             stage.setResizable(true);
             stage.setTitle("Nexus");
             stage.centerOnScreen();

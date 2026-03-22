@@ -5,6 +5,7 @@ import com.group4.projects_management_fe.core.api.base.AbstractAuthenticatedApi;
 import com.group4.projects_management_fe.core.session.AuthSessionProvider;
 import okhttp3.RequestBody;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
@@ -16,29 +17,50 @@ public class NotificationApi extends AbstractAuthenticatedApi {
     }
 
     /**
-     * Tương ứng với @GetMapping("/me")
+     * GET /api/notifications/me
      * Lấy danh sách thông báo của user đang đăng nhập
      */
     public CompletableFuture<List<NotificationDTO>> getNotificationsForUser() {
-        String endpoint = ENDPOINT + "/me";
+        String url = ENDPOINT + "/me";
 
         return this.sendGetRequest(
-                endpoint,
-                NotificationDTO[].class,
+                url,
+                NotificationDTO[].class, // Sử dụng mảng để tránh lỗi Type Erasure của Generic List
                 null
-        ).thenApply(List::of);
+        ).thenApply(array -> array != null ? Arrays.asList(array) : List.of());
     }
 
     /**
-     * Tương ứng với @PatchMapping("/{notificationId}/read")
-     * Đánh dấu thông báo đã đọc
+     * PATCH /api/notifications/{notificationId}/read
+     * Đánh dấu một thông báo cụ thể là đã đọc
      */
     public CompletableFuture<Void> markAsRead(Long notificationId) {
-        String endpoint = ENDPOINT + "/" + notificationId + "/read";
+        String url = ENDPOINT + "/" + notificationId + "/read";
 
-        RequestBody emptyBody = RequestBody.create(new byte[0], null);
+        // Vì controller BE không yêu cầu @RequestBody, ta gửi một body rỗng
+        // BaseApi có check 'instanceof RequestBody', nên ta có thể tạo trực tiếp
+        RequestBody emptyBody = RequestBody.create("", JSON_MEDIA_TYPE);
+
         return this.sendPatchRequest(
-                endpoint,
+                url,
+                emptyBody,
+                Void.class,
+                null
+        );
+    }
+
+    /**
+     * PATCH /api/notifications/read-all
+     * Đánh dấu tất cả thông báo là đã đọc
+     */
+    public CompletableFuture<Void> markAllAsRead() {
+        String url = ENDPOINT + "/read-all";
+
+        // Gửi body rỗng tương tự như markAsRead
+        RequestBody emptyBody = RequestBody.create("", JSON_MEDIA_TYPE);
+
+        return this.sendPatchRequest(
+                url,
                 emptyBody,
                 Void.class,
                 null

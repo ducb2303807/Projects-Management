@@ -1,6 +1,6 @@
 package com.group4.common.dto;
 
-import com.group4.common.enums.MemberStatus;
+import com.group4.common.enums.MemberStatusCode;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -12,5 +12,5 @@ import lombok.NoArgsConstructor;
 public class ProjectMemberUpdateDTO {
 
     @NotNull(message = "Trạng thái không được để trống")
-    private MemberStatus status;
+    private MemberStatusCode status;
 }

@@ -3,6 +3,7 @@ package com.group4.projects_management.service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.group4.common.dto.NotificationDTO;
+import com.group4.projects_management.core.event.NotificationEvent;
 import com.group4.projects_management.core.exception.ResourceNotFoundException;
 import com.group4.projects_management.core.strategy.notification.NotificationStrategy;
 import com.group4.projects_management.entity.Notification;
@@ -12,9 +13,9 @@ import com.group4.projects_management.repository.NotificationRepository;
 import com.group4.projects_management.repository.UserNotificationRepository;
 import com.group4.projects_management.repository.UserRepository;
 import com.group4.projects_management.service.base.BaseServiceImpl;
-import jakarta.transaction.Transactional;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collections;
 import java.util.List;
@@ -117,7 +118,6 @@ public class NotificationServiceImp extends BaseServiceImpl<Notification, Long> 
 
         notificationRepository.save(notif);
 
-
         var users = userRepository.findAllById(receiverIds);
 
         var userNotifications = users.stream().map(user -> {
@@ -126,8 +126,8 @@ public class NotificationServiceImp extends BaseServiceImpl<Notification, Long> 
             un.setNotification(notif);
 
             var dto = userNotificationMapper.toDto(un);
-            this.eventPublisher.publishEvent(dto);
 
+            eventPublisher.publishEvent(new NotificationEvent(user.getId(), dto));
             return un;
         }).toList();
 

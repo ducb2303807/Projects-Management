@@ -37,14 +37,16 @@ public class TaskController {
         return ResponseEntity.ok(taskService.getAllTasks());
     }
 
-    @Operation(summary = "Lấy thông tin tasks mà tôi tham gia, không lấy task bị CANCELED")
+    @Operation(summary = "Lấy thông tin tasks mà tôi tham gia")
     @GetMapping("/me")
-    public ResponseEntity<List<TaskResponseDTO>> getMyTasks() {
+    public ResponseEntity<List<TaskResponseDTO>> getMyTasks(
+            @RequestParam(defaultValue = "false") boolean includeCancelled) {
         Long currentUserId = SecurityUtils.getCurrentUserId();
-        return ResponseEntity.ok(taskService.getTasksByUserId(currentUserId));
+        return ResponseEntity.ok(taskService.getTasksByUserId(currentUserId,includeCancelled));
     }
 
-    @Operation(summary = "Đưa các member đã chọn vào task")
+    @Operation(summary = "Đưa các member đã chọn vào task",
+            description = "List ở đây chứa danh sách projectmemberId")
     @PostMapping("/{taskId}/members")
     public ResponseEntity<Void> assignMember(
             @PathVariable Long taskId,
@@ -54,13 +56,22 @@ public class TaskController {
         return ResponseEntity.ok().build();
     }
 
-    @Operation(summary = "Xóa các member đã chọn ra khỏi task")
+    @Operation(summary = "Xóa các member đã chọn ra khỏi task",
+            description = "List ở đây chứa danh sách projectmemberId")
     @DeleteMapping("/{taskId}/members/{projectMemberIds}")
     public ResponseEntity<Void> removeMemberFromTask(
             @PathVariable Long taskId,
             @RequestParam List<Long> projectMemberIds) {
         var userId = SecurityUtils.getCurrentUserId();
         taskService.removeMembersFromTask(taskId, projectMemberIds, userId);
+        return ResponseEntity.ok().build();
+    }
+
+    @Operation(summary = "Xóa task (chuyển sang trạng thái CANCELLED)")
+    @DeleteMapping("/{taskId}")
+    public ResponseEntity<Void> deleteTask(@PathVariable Long taskId) {
+        Long requesterId = SecurityUtils.getCurrentUserId();
+        taskService.deleteTask(taskId, requesterId);
         return ResponseEntity.ok().build();
     }
 
@@ -82,4 +93,6 @@ public class TaskController {
     public ResponseEntity<List<CommentDTO>> getTaskComment(@PathVariable Long taskId) {
         return ResponseEntity.ok(commentService.getCommentsByTask(taskId));
     }
+
+
 }

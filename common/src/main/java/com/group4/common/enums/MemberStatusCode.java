@@ -1,6 +1,7 @@
 package com.group4.common.enums;
 
-public enum MemberStatus {
+public enum MemberStatusCode {
+    PENDING,
     ACTIVE,
     LEFT,
     REMOVED
