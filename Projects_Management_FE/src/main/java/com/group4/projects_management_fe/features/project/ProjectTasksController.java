@@ -3,13 +3,16 @@ package com.group4.projects_management_fe.features.project;
 import com.group4.common.dto.TaskResponseDTO;
 import io.reactivex.rxjava3.disposables.CompositeDisposable;
 import javafx.application.Platform;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
+import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.VBox;
+import javafx.stage.Stage;
 
 public class ProjectTasksController {
 
@@ -19,6 +22,8 @@ public class ProjectTasksController {
 
     // Đây là VBox nằm bên trong TaskListInProject.fxml
     @FXML private VBox taskItemsContainer;
+
+    @FXML private Button cancelBtn;
 
     private final ProjectTasksViewModel viewModel = new ProjectTasksViewModel();
     private final CompositeDisposable disposables = new CompositeDisposable();
@@ -35,7 +40,12 @@ public class ProjectTasksController {
     public void initialize() {
         // Setup Sort ComboBox
         if (sortTaskComboBox != null) {
-            sortTaskComboBox.getItems().addAll("Newest", "Oldest", "Deadline (Earliest)");
+            // Thay thế dòng addAll cũ bằng dòng này:
+            sortTaskComboBox.getItems().addAll(
+                    "Newest", "Oldest", "Deadline (Earliest)",
+                    "Status A-Z", "Priority A-Z", "Name A-Z", "Name Z-A"
+            );
+
             sortTaskComboBox.setValue("Newest");
             sortTaskComboBox.valueProperty().addListener((obs, oldV, newV) -> viewModel.setSortType(newV));
         }
@@ -71,8 +81,34 @@ public class ProjectTasksController {
         }));
     }
 
+    @FXML
+    private void handleCancel(ActionEvent event) {
+        // Dọn dẹp rác, ngắt kết nối API
+        cleanup();
+
+        // Ép kiểu và đóng popup hiện tại (Code rất ngắn gọn)
+        Stage stage = (Stage) cancelBtn.getScene().getWindow();
+        stage.close();
+    }
+
     // Đừng quên clear memory khi đóng màn hình
     public void cleanup() {
         disposables.clear();
+    }
+
+    @FXML
+    public void handleSortClick(ActionEvent event) {
+        if (sortTaskComboBox != null) {
+            boolean isVisible = sortTaskComboBox.isVisible();
+
+            // Đảo ngược trạng thái hiển thị
+            sortTaskComboBox.setVisible(!isVisible);
+            sortTaskComboBox.setManaged(!isVisible);
+
+            // Nếu vừa được bật lên -> Xổ dropdown ra luôn
+            if (!isVisible) {
+                sortTaskComboBox.show();
+            }
+        }
     }
 }

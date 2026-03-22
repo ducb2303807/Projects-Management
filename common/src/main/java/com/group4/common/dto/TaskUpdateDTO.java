@@ -15,8 +15,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class TaskUpdateDTO extends TaskBaseDTO {
-   /** @pdOid 8daa97e8-b395-4ece-b0cd-cb3f4964d724 */
    private Long statusId;
-   /** @pdOid 7c99fd8b-83b2-4893-bd06-6a31bdb27e25 */
    private Long priorityId;
 }
