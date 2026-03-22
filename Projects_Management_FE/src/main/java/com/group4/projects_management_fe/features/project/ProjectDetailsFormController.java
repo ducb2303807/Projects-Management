@@ -1,5 +1,6 @@
 package com.group4.projects_management_fe.features.project;
 
+import com.group4.common.dto.UserDTO;
 import io.reactivex.rxjava3.disposables.CompositeDisposable;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
@@ -16,6 +17,9 @@ import javafx.util.Callback;
 import com.group4.common.dto.ProjectMemberDTO;
 import java.time.LocalDate;
 import java.util.List;
+import javafx.scene.control.ContextMenu;
+import javafx.scene.control.MenuItem;
+import javafx.geometry.Side;
 
 public class ProjectDetailsFormController {
 
@@ -43,6 +47,9 @@ public class ProjectDetailsFormController {
     @FXML private Label createdByLabel;
     @FXML private Label createdDateLabel;
     @FXML private Label lastUpdatedDateLabel;
+
+    private ContextMenu coManagerDropdown = new ContextMenu();
+    private ContextMenu memberDropdown = new ContextMenu();
 
     private final ProjectDetailsViewModel viewModel = new ProjectDetailsViewModel();
     private final CompositeDisposable disposables = new CompositeDisposable();
@@ -329,6 +336,8 @@ public class ProjectDetailsFormController {
 
         statusComboBox.setCellFactory(cellFactory);
         statusComboBox.setButtonCell(cellFactory.call(null));
+
+        setupSearchBindings();
     }
 
     @FXML private void handleEditMode(ActionEvent event) { viewModel.enableEditMode(); }
@@ -468,15 +477,6 @@ public class ProjectDetailsFormController {
         }
     }
 
-    // Hai hàm xử lý khi user gõ xong và bấm Enter (hiện tại để trống, sẽ call API search ở đây)
-    @FXML private void handleCoManagerSubmit(ActionEvent event) {
-        // Tạm thời để trống. Sau này sẽ lấy text từ coManagerInput.getText() gọi API
-    }
-
-    @FXML private void handleMemberSubmit(ActionEvent event) {
-        // Tạm thời để trống. Sau này sẽ lấy text từ memberInput.getText() gọi API
-    }
-
     private void renderMembers(List<ProjectMemberDTO> members) {
         // Xóa sạch Node cũ trước khi vẽ lại
         coManagerTagsContainer.getChildren().clear();
@@ -542,5 +542,140 @@ public class ProjectDetailsFormController {
 
         badge.getChildren().addAll(nameLabel, removeBtn);
         return badge;
+    }
+
+    private void setupSearchBindings() {
+        // 1. Lắng nghe gõ phím trên Textfield để gọi API
+        coManagerInput.textProperty().addListener((obs, oldVal, newVal) -> {
+            if (newVal != null && !newVal.trim().isEmpty()) {
+                viewModel.searchUsersForCoManager(newVal.trim());
+            } else {
+                coManagerDropdown.hide();
+            }
+        });
+
+        memberInput.textProperty().addListener((obs, oldVal, newVal) -> {
+            if (newVal != null && !newVal.trim().isEmpty()) {
+                viewModel.searchUsersForMember(newVal.trim());
+            } else {
+                memberDropdown.hide();
+            }
+        });
+
+        // 2. Hứng dữ liệu trả về và hiển thị Dropdown (Co-Manager)
+        disposables.add(viewModel.getCoManagerSearchResults().subscribe(users -> {
+            Platform.runLater(() -> {
+                coManagerDropdown.getItems().clear();
+                if (users == null || users.isEmpty()) {
+                    coManagerDropdown.hide();
+                    return;
+                }
+                for (UserDTO user : users) { // Nhớ import UserDTO
+                    MenuItem item = new MenuItem(user.getUsername());
+                    // Bấm chuột vào Dropdown -> Gọi Alert
+                    item.setOnAction(e -> confirmAndInviteUser(user, 4L, "co-manager"));
+                    coManagerDropdown.getItems().add(item);
+                }
+                // Nếu đang focus ở ô nhập liệu thì mới thả Dropdown ra
+                if (coManagerInput.isFocused()) {
+                    coManagerDropdown.show(coManagerInput, Side.BOTTOM, 0, 0);
+                }
+            });
+        }));
+
+        // 3. Hứng dữ liệu trả về và hiển thị Dropdown (Member)
+        disposables.add(viewModel.getMemberSearchResults().subscribe(users -> {
+            Platform.runLater(() -> {
+                memberDropdown.getItems().clear();
+                if (users == null || users.isEmpty()) {
+                    memberDropdown.hide();
+                    return;
+                }
+                for (UserDTO user : users) {
+                    MenuItem item = new MenuItem(user.getUsername());
+                    item.setOnAction(e -> confirmAndInviteUser(user, 3L, "member"));
+                    memberDropdown.getItems().add(item);
+                }
+                if (memberInput.isFocused()) {
+                    memberDropdown.show(memberInput, Side.BOTTOM, 0, 0);
+                }
+            });
+        }));
+    }
+
+    // ==========================================
+    // LOGIC KHI ẤN PHÍM ENTER
+    // ==========================================
+    // ==========================================
+    // LOGIC KHI ẤN PHÍM ENTER (Hỗ trợ gõ Username hoặc Email)
+    // ==========================================
+    @FXML
+    private void handleCoManagerSubmit(ActionEvent event) {
+        String text = coManagerInput.getText().trim();
+
+        // SỬA DÒNG NÀY: Gọi hàm mới tạo để lấy List
+        List<UserDTO> currentResults = viewModel.getCurrentCoManagerList();
+
+        if (currentResults != null && !text.isEmpty()) {
+            currentResults.stream()
+                    .filter(u -> text.equalsIgnoreCase(u.getUsername()) ||
+                            (u.getEmail() != null && text.equalsIgnoreCase(u.getEmail())))
+                    .findFirst()
+                    .ifPresent(u -> confirmAndInviteUser(u, 4L, "co-manager"));
+        }
+    }
+
+    @FXML
+    private void handleMemberSubmit(ActionEvent event) {
+        String text = memberInput.getText().trim();
+
+        // SỬA DÒNG NÀY: Gọi hàm mới tạo để lấy List
+        List<UserDTO> currentResults = viewModel.getCurrentMemberList();
+
+        if (currentResults != null && !text.isEmpty()) {
+            currentResults.stream()
+                    .filter(u -> text.equalsIgnoreCase(u.getUsername()) ||
+                            (u.getEmail() != null && text.equalsIgnoreCase(u.getEmail())))
+                    .findFirst()
+                    .ifPresent(u -> confirmAndInviteUser(u, 3L, "member"));
+        }
+    }
+
+    // ==========================================
+    // ALERT XÁC NHẬN VÀ XỬ LÝ MỜI
+    // ==========================================
+    private void confirmAndInviteUser(UserDTO user, Long roleId, String roleName) {
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.setTitle("Add " + roleName);
+        alert.setHeaderText(null);
+        alert.setContentText("Are you sure to invite " + user.getUsername() + " to be " + roleName + "?");
+
+        ButtonType btnYes = new ButtonType("Yes", ButtonBar.ButtonData.YES);
+        ButtonType btnNo = new ButtonType("No", ButtonBar.ButtonData.NO);
+        alert.getButtonTypes().setAll(btnYes, btnNo);
+
+        // Đặt thuộc tính "Nhấn mạnh" (Mặc định chọn) cho nút Yes
+        Button yesBtn = (Button) alert.getDialogPane().lookupButton(btnYes);
+        yesBtn.setDefaultButton(true);
+        Button noBtn = (Button) alert.getDialogPane().lookupButton(btnNo);
+        noBtn.setDefaultButton(false);
+
+        alert.showAndWait().ifPresent(type -> {
+            if (type == btnYes) {
+                // 1. Gửi request qua ViewModel
+                viewModel.inviteUser(user.getId(), roleId);
+
+                // 2. Dọn dẹp giao diện (Xóa text và đóng ô Input lại)
+                if (roleId == 4L) {
+                    coManagerInput.clear();
+                    coManagerInput.setVisible(false);
+                    coManagerInput.setManaged(false);
+                } else {
+                    memberInput.clear();
+                    memberInput.setVisible(false);
+                    memberInput.setManaged(false);
+                }
+            }
+        });
     }
 }
