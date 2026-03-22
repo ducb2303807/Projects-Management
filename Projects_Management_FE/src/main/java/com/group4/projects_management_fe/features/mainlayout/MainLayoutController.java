@@ -4,6 +4,7 @@ import com.group4.common.dto.ChangePasswordRequestDTO;
 import com.group4.common.dto.SseNotificationDTO;
 import com.group4.common.dto.UserDTO;
 import com.group4.common.dto.UserUpdateDTO;
+import com.group4.projects_management_fe.core.api.NotificationApi;
 import com.group4.projects_management_fe.core.api.RxSseManager;
 import com.group4.projects_management_fe.core.api.UserApi;
 import com.group4.projects_management_fe.core.api.base.SseClientManager;
@@ -15,6 +16,7 @@ import io.reactivex.rxjava3.disposables.CompositeDisposable;
 import io.reactivex.rxjava3.plugins.RxJavaPlugins;
 import javafx.animation.FadeTransition;
 import javafx.animation.ScaleTransition;
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -31,11 +33,14 @@ import javafx.scene.shape.Circle;
 import javafx.stage.Popup;
 import javafx.stage.Stage;
 import javafx.util.Duration;
+import lombok.Getter;
 import org.pdfsam.rxjavafx.schedulers.JavaFxScheduler;
 
 import java.io.IOException;
 
 public class MainLayoutController {
+    @Getter
+    private static MainLayoutController instance;
 
     @FXML
     private StackPane contentPane;
@@ -93,14 +98,18 @@ public class MainLayoutController {
     @FXML private PasswordField currentPasswordField;
     @FXML private PasswordField newPasswordField;
     @FXML private PasswordField confirmPasswordField;
+    @FXML private Label notifBadge;
 
     private UserDTO currentUser;
     private final UserApi userApi = new UserApi(AppSessionManager.getInstance());
     private final CompositeDisposable disposables = new CompositeDisposable();
     private final SseClientManager<SseNotificationDTO> sseClientManager = new RxSseManager(AppSessionManager.getInstance());
+    private final NotificationApi notificationApi = new NotificationApi(AppSessionManager.getInstance());
 
     @FXML
     public void initialize() {
+        instance = this;
+
         showDashboard();
         setActive(dashboardBtn);
         notifBtn.setOnAction(e -> showNotificationsPopup());
@@ -111,15 +120,27 @@ public class MainLayoutController {
         overlayBackground.setOnMouseClicked(e -> closeProfile());
         loadCurrentUser();
 
+        updateNotificationBadge();
+
         Stage stage = AppStageManager.getInstance().getStage();
         /// SSE
         sseClientManager.connect();
         disposables.add(SseRxBridge.toObservable(sseClientManager)
                 .observeOn(JavaFxScheduler.platform())
-                .subscribe(sseNotificationDTO ->  {
-                            Toast.showToast(stage, sseNotificationDTO);
-                        }
-                        , RxJavaPlugins::onError));
+                .subscribe(sseNotificationDTO -> {
+                    javafx.application.Platform.runLater(() -> {
+                        Toast.showToast(stage, sseNotificationDTO);
+
+                        incrementBadgeCount();
+
+                        new java.util.Timer().schedule(new java.util.TimerTask() {
+                            @Override
+                            public void run() {
+                                javafx.application.Platform.runLater(() -> updateNotificationBadge());
+                            }
+                        }, 1500);
+                    });
+                }, RxJavaPlugins::onError));
     }
 
     private void bindUserToUI(UserDTO user) {
@@ -345,6 +366,72 @@ public class MainLayoutController {
 
         } catch (IOException e) {
             e.printStackTrace();
+        }
+    }
+
+    public void updateNotificationBadge() {
+        notificationApi.getUnreadCount().thenAccept(count -> {
+            javafx.application.Platform.runLater(() -> {
+                applyBadgeCount(count);
+            });
+        });
+    }
+
+    public void decrementBadgeCount() {
+        Platform.runLater(() -> {
+            try {
+                String currentText = notifBadge.getText();
+                if (currentText == null || currentText.isEmpty() || currentText.equals("0")) {
+                    applyBadgeCount(0);
+                    return;
+                }
+
+                if (!currentText.contains("+")) {
+                    int count = Integer.parseInt(currentText);
+                    applyBadgeCount(Math.max(0, count - 1));
+                } else {
+                    updateNotificationBadge();
+                }
+            } catch (Exception e) {
+                updateNotificationBadge();
+            }
+        });
+    }
+
+    public void incrementBadgeCount() {
+        Platform.runLater(() -> {
+            try {
+                // Kiểm tra xem label có null không (tránh lỗi crash app)
+                if (notifBadge == null) return;
+
+                int newCount = 1; // Mặc định nếu chưa có số thì là 1
+
+                // Nếu badge đang hiển thị và có nội dung số
+                if (notifBadge.isVisible() && notifBadge.getText() != null && !notifBadge.getText().isEmpty()) {
+                    String text = notifBadge.getText().replace("+", "").trim();
+                    newCount = Integer.parseInt(text) + 1;
+                }
+
+                // Cập nhật lên giao diện
+                applyBadgeCount(newCount);
+
+                System.out.println("SSE debug: Đã tăng badge lên " + newCount);
+            } catch (Exception e) {
+                System.err.println("Lỗi khi tăng badge: " + e.getMessage());
+                updateNotificationBadge(); // Fallback gọi API nếu tính toán lỗi
+            }
+        });
+    }
+
+    public void applyBadgeCount(int count) {
+        if (count > 0) {
+            notifBadge.setText(count > 99 ? "99+" : String.valueOf(count));
+            notifBadge.setVisible(true);
+            notifBadge.setManaged(true);
+            notifBadge.applyCss();
+        } else {
+            notifBadge.setVisible(false);
+            notifBadge.setManaged(false);
         }
     }
 }

@@ -89,4 +89,18 @@ public class NotificationApi extends AbstractAuthenticatedApi {
                 });
     }
 
+    /**
+     * GET /api/notifications/unread-count
+     * Lấy số lượng thông báo chưa đọc của user
+     */
+    public CompletableFuture<Integer> getUnreadCount() {
+        String url = ENDPOINT + "/unread-count";
+
+        return this.sendGetRequest(
+                url,
+                Integer.class,
+                null
+        ).thenApply(count -> count != null ? count : 0);
+    }
+
 }

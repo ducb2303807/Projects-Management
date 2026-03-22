@@ -147,20 +147,20 @@ public class NotificationsController {
         notificationApi.respondToInvitation(projectMemberId, action)
                 .thenAccept(success -> Platform.runLater(() -> {
                     if (success) {
-                        Alert info = new Alert(Alert.AlertType.INFORMATION);
-                        if ("ACCEPT".equals(action)) {
-                            info.setHeaderText("Successfully joined the project!");
-                        } else {
-                            info.setHeaderText("Invitation declined successfully.");
-                        }
-
+                        item.setRead(true);
                         if (item.getMetadata() != null) {
-                            item.setRead(true);
                             item.getMetadata().setResponseAction(action);
                         }
+                        notificationList.refresh();
 
                         notificationApi.markAsRead(item.getId());
-                        notificationList.refresh();
+
+                        if (MainLayoutController.getInstance() != null) {
+                            MainLayoutController.getInstance().decrementBadgeCount();
+                        }
+
+                        Alert info = new Alert(Alert.AlertType.INFORMATION);
+                        info.setHeaderText("ACCEPT".equals(action) ? "Successfully joined the project!" : "Invitation declined successfully.");
                         info.show();
                     } else {
                         Alert error = new Alert(Alert.AlertType.ERROR);

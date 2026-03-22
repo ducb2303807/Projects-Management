@@ -44,4 +44,11 @@ public class NotificationController {
         notificationService.markAllAsRead(userId);
         return ResponseEntity.ok().build();
     }
+
+    @Operation(summary = "Đếm số thông báo chưa đọc")
+    @GetMapping("/unread-count")
+    public ResponseEntity<Integer> getUnreadCount() {
+        var userId = SecurityUtils.getCurrentUserId();
+        return ResponseEntity.ok(notificationService.countUnreadNotifications(userId));
+    }
 }

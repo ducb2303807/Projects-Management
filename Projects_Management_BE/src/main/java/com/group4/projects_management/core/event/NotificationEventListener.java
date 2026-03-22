@@ -33,7 +33,7 @@ public class NotificationEventListener {
 
         Object metadataJson;
         try {
-            metadataJson = objectMapper.readTree(dbDto.getMetadata());
+            metadataJson = objectMapper.valueToTree(dbDto.getMetadata());
         } catch (Exception e) {
             metadataJson = null;
         }
