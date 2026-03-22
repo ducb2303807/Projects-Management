@@ -1,78 +1,74 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<!--<?xml version="1.0" encoding="UTF-8"?>-->
 
-<?import javafx.geometry.Insets?>
-<?import javafx.scene.control.Button?>
-<?import javafx.scene.control.CheckBox?>
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.layout.ColumnConstraints?>
-<?import javafx.scene.layout.GridPane?>
-<?import javafx.scene.layout.HBox?>
-<?import javafx.scene.layout.RowConstraints?>
+<!--<?import javafx.geometry.Insets?>-->
+<!--<?import javafx.scene.control.Button?>-->
+<!--<?import javafx.scene.control.Label?>-->
+<!--<?import javafx.scene.layout.ColumnConstraints?>-->
+<!--<?import javafx.scene.layout.GridPane?>-->
+<!--<?import javafx.scene.layout.HBox?>-->
+<!--<?import javafx.scene.layout.RowConstraints?>-->
 
-<HBox fx:id="taskItemRoot" alignment="CENTER_LEFT" spacing="12" styleClass="task-item-row" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.group4.projects_management_fe.features.task.TaskItemController">
-   <GridPane>
-      <columnConstraints>
-         <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" />
-         <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" />
-      </columnConstraints>
-      <rowConstraints>
-         <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
-      </rowConstraints>
-      <children>
+<!--<HBox fx:id="taskItemRoot" alignment="CENTER_LEFT" spacing="12" styleClass="task-item-row"-->
+<!--      stylesheets="@../assets/css/tasks/task-group-item.css" xmlns="http://javafx.com/javafx/25"-->
+<!--      xmlns:fx="http://javafx.com/fxml/1"-->
+<!--      fx:controller="com.group4.projects_management_fe.features.task.TaskItemController">-->
+<!--    <GridPane>-->
+<!--        <columnConstraints>-->
+<!--            <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="540.0"/>-->
+<!--            <ColumnConstraints halignment="LEFT" hgrow="SOMETIMES" minWidth="10.0" prefWidth="150.0"/>-->
+<!--            <ColumnConstraints halignment="LEFT" prefWidth="190.0"/>-->
+<!--            <ColumnConstraints halignment="CENTER" prefWidth="150.0"/>-->
+<!--            <ColumnConstraints halignment="LEFT" minWidth="10.0" prefWidth="40.0"/>-->
+<!--        </columnConstraints>-->
+<!--        <rowConstraints>-->
+<!--            <RowConstraints minHeight="10.0" vgrow="SOMETIMES"/>-->
+<!--        </rowConstraints>-->
+<!--        <children>-->
 
-          <!-- LEFT: Checkbox + Task name + Comment count -->
-          <HBox alignment="CENTER_LEFT" spacing="8">
-              <CheckBox fx:id="taskCheckBox" mnemonicParsing="false" />
-              <Label fx:id="taskNameLabel" styleClass="task-name" text="Task name" />
-          </HBox>
+<!--            &lt;!&ndash; LEFT:  Task name + Comment count &ndash;&gt;-->
+<!--            <HBox alignment="CENTER_LEFT" spacing="8">-->
+<!--                <Label fx:id="taskNameLabel" styleClass="task-content" text="Task name">-->
+<!--                    <HBox.margin>-->
+<!--                        <Insets left="15.0"/>-->
+<!--                    </HBox.margin>-->
+<!--                </Label>-->
+<!--            </HBox>-->
+<!--            <Label fx:id="dueDateLabel" styleClass="task-content" text="Mar 31, 2026" GridPane.columnIndex="1">-->
+<!--                <GridPane.margin>-->
+<!--                    <Insets left="35.0"/>-->
+<!--                </GridPane.margin>-->
+<!--            </Label>-->
 
-          <!-- RIGHT: Due date | Assignee | Priority | More -->
-          <HBox alignment="CENTER_LEFT" spacing="24" GridPane.columnIndex="1">
-            <GridPane>
-               <columnConstraints>
-                  <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" />
-                  <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" />
-                  <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" />
-                  <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" />
-               </columnConstraints>
-               <rowConstraints>
-                  <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
-               </rowConstraints>
-               <children>
-                    <Label fx:id="dueDateLabel" styleClass="due-date" text="Mar 31, 2026" />
+<!--            &lt;!&ndash; Assignee &ndash;&gt;-->
+<!--            <HBox fx:id="assigneeBox" alignment="CENTER" spacing="4" GridPane.columnIndex="2">-->
+<!--                <Label fx:id="assigneeAvatar" styleClass="avatar-circle" text="H">-->
+<!--                    <opaqueInsets>-->
+<!--                        <Insets/>-->
+<!--                    </opaqueInsets>-->
+<!--                    <HBox.margin>-->
+<!--                        <Insets left="20.0"/>-->
+<!--                    </HBox.margin>-->
+<!--                </Label>-->
+<!--                <Label fx:id="assigneeOverflow" styleClass="assignee-overflow" text="+2" visible="false"/>-->
+<!--                <GridPane.margin>-->
+<!--                    <Insets/>-->
+<!--                </GridPane.margin>-->
+<!--            </HBox>-->
 
-                    <!-- Assignee -->
-                    <HBox fx:id="assigneeBox" alignment="CENTER_LEFT" spacing="4" GridPane.columnIndex="1">
-                        <Label fx:id="assigneeAvatar" styleClass="avatar-circle" text="H">
-                        <opaqueInsets>
-                           <Insets />
-                        </opaqueInsets>
-                        <HBox.margin>
-                           <Insets left="20.0" />
-                        </HBox.margin>
-                     </Label>
-                        <Label fx:id="assigneeOverflow" styleClass="assignee-overflow" text="+2" visible="false" />
-                    </HBox>
+<!--            &lt;!&ndash; Priority badge &ndash;&gt;-->
+<!--            <Label fx:id="priorityLabel" styleClass="priority-badge" text="High" GridPane.columnIndex="3">-->
+<!--                <GridPane.margin>-->
+<!--                    <Insets/>-->
+<!--                </GridPane.margin>-->
+<!--            </Label>-->
 
-                    <!-- Priority badge -->
-                    <Label fx:id="priorityLabel" styleClass="priority-badge" text="High" GridPane.columnIndex="2">
-                     <GridPane.margin>
-                        <Insets left="20.0" />
-                     </GridPane.margin>
-                  </Label>
-
-                    <!-- More button -->
-                    <Button fx:id="moreButton" onAction="#onMoreOptionsClicked" styleClass="more-button" text="⋯" GridPane.columnIndex="3">
-                     <GridPane.margin>
-                        <Insets left="30.0" />
-                     </GridPane.margin>
-                  </Button>
-               </children>
-            </GridPane>
-            <GridPane.margin>
-               <Insets left="300.0" />
-            </GridPane.margin>
-          </HBox>
-      </children>
-   </GridPane>
-</HBox>
+<!--            &lt;!&ndash; More button &ndash;&gt;-->
+<!--            <Button fx:id="moreButton" onAction="#onMoreOptionsClicked" styleClass="more-button" text="⋯"-->
+<!--                    GridPane.columnIndex="4">-->
+<!--                <GridPane.margin>-->
+<!--                    <Insets/>-->
+<!--                </GridPane.margin>-->
+<!--            </Button>-->
+<!--        </children>-->
+<!--    </GridPane>-->
+<!--</HBox>-->
