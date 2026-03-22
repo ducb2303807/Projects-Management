@@ -118,11 +118,13 @@
     -fx-font-family: "SansSerif";
     -fx-font-weight: 600;
     -fx-text-fill: #111111;
+    -fx-cursor: hand;;
 }
 
 .nav-btn.active {
     -fx-border-color: #8558cc;
     -fx-border-width: 0 0 3 0;
+    -fx-cursor: hand;;
 }
 
 
@@ -206,9 +208,9 @@
 
 /*}*/
 /*//card overlay*/
-.overlay {
-    -fx-background-color: rgba(0,0,0,0.3);
-    -fx-alignment: center;
+.profile-box {
+    -fx-background-radius: 20;
+    -fx-padding: 2;
 }
 
 .profile-panel {
@@ -229,6 +231,11 @@
     -fx-text-fill: #5b3cc4;
 }
 
+.tab-active:hover,
+.tab:hover {
+    -fx-cursor: hand;
+}
+
 .tab {
     -fx-font-size: 18;
     -fx-text-fill: #666;
@@ -238,6 +245,7 @@
     -fx-background-color: #4b2e83;
     -fx-text-fill: white;
     -fx-background-radius: 20;
+    -fx-cursor: hand;;
 }
 
 .field-label {
@@ -254,6 +262,7 @@
     -fx-background-color: linear-gradient(to right, #4b2e83, #a45bdc);
     -fx-text-fill: white;
     -fx-background-radius: 20;
+    -fx-cursor: hand;;
 }
 
 .logout-btn {
@@ -271,5 +280,5 @@
 }
 
 .overlay-bg {
-    -fx-background-color: transparent;
+    -fx-background-color: rgba(0,0,0,0.6);
 }

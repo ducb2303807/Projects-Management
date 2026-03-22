@@ -24,12 +24,12 @@ public class ProjectTasksViewModel {
 
     public void loadTasksForProject(Long projectId) {
         // Đổi tên hàm gọi API ở đây cho khớp với backend của bạn
-        projectApi.getTasksByProjectId(projectId).thenAccept(tasks -> {
-            allTasksSubject.onNext(tasks);
-        }).exceptionally(ex -> {
-            System.err.println("Lỗi gọi API getTasksByProjectId: " + ex.getMessage());
-            return null;
-        });
+//        projectApi.getTasksByProjectId(projectId).thenAccept(tasks -> {
+//            allTasksSubject.onNext(tasks);
+//        }).exceptionally(ex -> {
+//            System.err.println("Lỗi gọi API getTasksByProjectId: " + ex.getMessage());
+//            return null;
+//        });
     }
 
     // Luồng dữ liệu ĐÃ LỌC để UI lắng nghe và vẽ lại

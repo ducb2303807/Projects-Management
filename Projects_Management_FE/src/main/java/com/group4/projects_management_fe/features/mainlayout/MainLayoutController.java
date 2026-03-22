@@ -76,6 +76,9 @@ public class MainLayoutController {
     @FXML
     private VBox profilePanel;
 
+    @FXML
+    private Label roleLabel;
+
     @FXML private VBox profileContent;
     @FXML private VBox passwordContent;
 
@@ -119,6 +122,7 @@ public class MainLayoutController {
         usernameField.setText(user.getUsername());
         fullnameField.setText(user.getFullName());
         emailField.setText(user.getEmail());
+        roleLabel.setText(user.getSystemRoleName());
     }
 
     private void loadCurrentUser() {
