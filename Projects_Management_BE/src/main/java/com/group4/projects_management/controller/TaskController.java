@@ -42,7 +42,7 @@ public class TaskController {
     public ResponseEntity<List<TaskResponseDTO>> getMyTasks(
             @RequestParam(defaultValue = "false") boolean includeCancelled) {
         Long currentUserId = SecurityUtils.getCurrentUserId();
-        return ResponseEntity.ok(taskService.getTasksByUserId(currentUserId,includeCancelled));
+        return ResponseEntity.ok(taskService.getTasksByUserId(currentUserId, includeCancelled));
     }
 
     @Operation(summary = "Đưa các member đã chọn vào task",
@@ -85,7 +85,8 @@ public class TaskController {
     @PutMapping("/{taskId}")
     public ResponseEntity<TaskResponseDTO> updateTask(@PathVariable Long taskId,
                                                       @Valid @RequestBody TaskUpdateDTO request) {
-        return ResponseEntity.ok(taskService.updateTask(taskId, request));
+        var requesterId = SecurityUtils.getCurrentUserId();
+        return ResponseEntity.ok(taskService.updateTask(taskId, request, requesterId));
     }
 
     @Operation(summary = "Lấy comments của task")
