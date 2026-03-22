@@ -55,6 +55,8 @@ public class ProjectCardController {
     @FXML
     private void handleOpenDetails(MouseEvent event) {
         try {
+            event.consume();
+
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/group4/projects_management_fe/features/project/ProjectDetailsForm.fxml"));
             Parent root = loader.load();
 
@@ -89,6 +91,18 @@ public class ProjectCardController {
 
     @FXML
     public void handleCardClick(MouseEvent event) { // Đổi thành public
+
+        // 1. Lấy phần tử thực sự bị click (thường là cái chữ "•••")
+        javafx.scene.Node target = (javafx.scene.Node) event.getTarget();
+
+        // 2. Dò ngược lên các thẻ cha để kiểm tra
+        while (target != null) {
+            if (target == moreOptionsLabel || target instanceof javafx.scene.control.Button) {
+                return; // Bắt trúng nút 3 chấm -> Quay xe, KHÔNG mở danh sách Task
+            }
+            target = target.getParent();
+        }
+
         System.out.println("====== ĐÃ CLICK VÀO CARD! ID: " + this.currentProjectId + " ======");
 
         // Tránh bị đè sự kiện click khi bấm vào nút 3 chấm Options
