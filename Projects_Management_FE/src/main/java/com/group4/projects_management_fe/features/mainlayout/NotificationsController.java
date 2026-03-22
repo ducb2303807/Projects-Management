@@ -112,6 +112,27 @@ public class NotificationsController {
 
             showInvitationPopup(item);
         }
+//        else if ("MEMBER_JOINED".equals(item.getType())) {
+//            if (!item.isRead()) {
+//                notificationApi.markAsRead(item.getId());
+//                item.setRead(true);
+//                notificationList.refresh();
+//                if (MainLayoutController.getInstance() != null) {
+//                    MainLayoutController.getInstance().decrementBadgeCount();
+//                }
+//            }
+//
+//            if (MainLayoutController.getInstance() != null && item.getMetadata() != null) {
+//                Long projectId = item.getMetadata().getProjectId();
+//                String projectName = item.getMetadata().getProjectName();
+//
+//                if (projectName == null) {
+//                    projectName = "Project Details";
+//                }
+//                System.out.println("Opening project: " + projectId + " - " + projectName); // log debug
+//                MainLayoutController.getInstance().openProjectTasksWindow(projectId, projectName);
+//            }
+//        }
     }
 
     private void showInvitationPopup(NotificationDTO item) {
