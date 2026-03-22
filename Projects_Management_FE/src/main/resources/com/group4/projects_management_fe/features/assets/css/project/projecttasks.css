@@ -209,3 +209,23 @@
     -fx-font-size: 11px; /* Font nhỏ hơn một chút */
     -fx-alignment: CENTER; /* Căn giữa hoàn hảo */
 }
+
+.status-completed {
+    -fx-background-color: #D4F3E6;
+    -fx-text-fill: #107C41;
+}
+
+.status-on-going {
+    -fx-background-color: #FFF4D6;
+    -fx-text-fill: #B78103;
+}
+
+.status-in-review {
+    -fx-background-color: #FFEDE5;
+    -fx-text-fill: #E65100;
+}
+
+.status-delayed {
+    -fx-background-color: #FFE5E5;
+    -fx-text-fill: #D32F2F;
+}

@@ -7,6 +7,8 @@ import com.group4.projects_management_fe.core.api.TaskApi;
 import com.group4.projects_management_fe.core.session.AuthSessionProvider;
 import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.subjects.BehaviorSubject;
+import javafx.application.Platform;
+import lombok.Setter;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -34,6 +36,11 @@ public class NewTaskViewModel {
     private final BehaviorSubject<String>       assignee    = BehaviorSubject.createDefault("");
     private final BehaviorSubject<String>       description = BehaviorSubject.createDefault("");
     private final BehaviorSubject<List<String>> comments    = BehaviorSubject.createDefault(new ArrayList<>());
+    @Setter
+    private Long projectId;
+    // --- SUBMIT ---
+    @Setter
+    private Runnable onSuccess;
 
     public NewTaskViewModel(AuthSessionProvider sessionProvider) {
         this.lookupApi = new LookupApi(sessionProvider);
@@ -84,16 +91,35 @@ public class NewTaskViewModel {
                 (name, date) -> !name.trim().isEmpty() && !date.equals(LocalDate.MIN));
     }
 
-    // --- SUBMIT ---
     public void submitTask() {
-        System.out.println("Task Name   : " + taskName.getValue());
-        System.out.println("Due Date    : " + dueDate.getValue());
-        System.out.println("Status ID   : " + status.getValue().getId()
-                + " / Name: " + status.getValue().getName());
-        System.out.println("Priority ID : " + priority.getValue().getId()
-                + " / Name: " + priority.getValue().getName());
-        System.out.println("Assignee    : " + assignee.getValue());
-        System.out.println("Description : " + description.getValue());
-        // TODO: taskApi.createTaskInProject(projectId, dto)
+        com.group4.common.dto.TaskCreateRequestDTO dto = new com.group4.common.dto.TaskCreateRequestDTO();
+
+        dto.setName(taskName.getValue());
+        dto.setProjectId(this.projectId);
+
+        if (priority.getValue() != null && priority.getValue().getId() != null) {
+            dto.setPriorityId(Long.parseLong(priority.getValue().getId().toString()));
+        }
+
+        if (status.getValue() != null && status.getValue().getId() != null) {
+            dto.setTaskStatusId(Long.parseLong(status.getValue().getId().toString()));
+        }
+
+        if (dueDate.getValue() != null) {
+            dto.setDeadline(dueDate.getValue().atStartOfDay());
+        }
+
+        dto.setDescription(description.getValue());
+
+        taskApi.createTaskInProject(dto)
+                .thenAccept(res -> {
+                    if (onSuccess != null) {
+                        Platform.runLater(onSuccess);
+                    }
+                })
+                .exceptionally(ex -> {
+                    ex.printStackTrace();
+                    return null;
+                });
     }
 }

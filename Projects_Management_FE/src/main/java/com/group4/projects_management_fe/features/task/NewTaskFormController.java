@@ -16,6 +16,7 @@ import javafx.util.StringConverter;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.util.Callback;
+import lombok.Getter;
 
 import java.util.List;
 
@@ -35,6 +36,7 @@ public class NewTaskFormController {
     @FXML private TextField commentField;
     @FXML private Button    saveBtn;
 
+    @Getter
     private NewTaskViewModel viewModel;
     private final CompositeDisposable disposables = new CompositeDisposable();
     private Stage popupStage;
@@ -46,6 +48,7 @@ public class NewTaskFormController {
 
     @FXML
     public void initialize() {
+        System.out.println(">>> FORM ĐÃ MỞ!"); // Kiểm tra xem Controller có chạy không
         setupStatusComboBox();
         setupPriorityComboBox();
         setupComboBoxStyling();

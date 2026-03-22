@@ -1,18 +1,24 @@
 package com.group4.projects_management_fe.features.project;
 
 import com.group4.common.dto.TaskResponseDTO;
+import com.group4.projects_management_fe.core.session.AppSessionManager;
+import com.group4.projects_management_fe.features.task.NewTaskFormController;
 import io.reactivex.rxjava3.disposables.CompositeDisposable;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.VBox;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
+
+import java.io.IOException;
 
 public class ProjectTasksController {
 
@@ -25,11 +31,14 @@ public class ProjectTasksController {
 
     @FXML private Button cancelBtn;
 
+    private Long currentProjectId;
+
     private final ProjectTasksViewModel viewModel = new ProjectTasksViewModel();
     private final CompositeDisposable disposables = new CompositeDisposable();
 
     // Gọi hàm này khi khởi tạo màn hình từ bên ngoài
     public void initData(Long projectId, String projectName) {
+        this.currentProjectId = projectId;
         if (projectNameLabel != null) {
             projectNameLabel.setText(projectName);
         }
@@ -109,6 +118,41 @@ public class ProjectTasksController {
             if (!isVisible) {
                 sortTaskComboBox.show();
             }
+        }
+    }
+
+    @FXML
+    private void handleCreateNewTask() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/group4/projects_management_fe/features/task/NewTaskForm.fxml"));
+            Parent root = loader.load();
+
+            NewTaskFormController controller = loader.getController();
+            controller.setSessionProvider(AppSessionManager.getInstance());
+            controller.getViewModel().setProjectId(this.currentProjectId);
+
+            Stage stage = new Stage();
+
+            controller.getViewModel().setOnSuccess(() -> {
+                stage.close();
+                loadProjectTasks();
+            });
+
+            stage.setScene(new Scene(root));
+            stage.initModality(Modality.APPLICATION_MODAL);
+            stage.setTitle("Create New Task");
+
+            stage.showAndWait();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            System.err.println("Cannot open Task create form!");
+        }
+    }
+
+    private void loadProjectTasks() {
+        if (this.currentProjectId != null) {
+            viewModel.loadTasksForProject(this.currentProjectId);
         }
     }
 }

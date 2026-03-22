@@ -95,5 +95,10 @@ public class TaskController {
         return ResponseEntity.ok(commentService.getCommentsByTask(taskId));
     }
 
-
+    @Operation(summary = "Tạo một task mới")
+    @PostMapping
+    public ResponseEntity<TaskResponseDTO> createTask(@Valid @RequestBody TaskCreateRequestDTO request) {
+        System.out.println(">>> Đang tạo Task: " + request.getName());
+        return ResponseEntity.ok(taskService.createTask(request));
+    }
 }

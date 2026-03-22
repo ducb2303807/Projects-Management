@@ -207,14 +207,17 @@ public class DashboardController {
                     case "done":
                         badge.getStyleClass().add("status-completed");
                         break;
-                    case "in progress":
-                        badge.getStyleClass().add("status-active");
+                    case "on going":
+                        badge.getStyleClass().add("status-on-going");
                         break;
                     case "under review":
-                        badge.getStyleClass().add("status-on-hold");
+                        badge.getStyleClass().add("status-in-review");
                         break;
                     case "cancelled":
                         badge.getStyleClass().add("status-cancelled");
+                        break;
+                    case "delayed":
+                        badge.getStyleClass().add("status-delayed");
                         break;
                     default:
                         badge.getStyleClass().add("status-planning");
@@ -359,7 +362,11 @@ public class DashboardController {
 
             controller.setSessionProvider(AppSessionManager.getInstance());
 
-            controller.initData(task, null);
+            Long projectId = task.getProjectId();
+
+            controller.initData(task, null, projectId);
+
+            controller.setProjectId(projectId);
 
             Stage stage = new Stage();
             stage.setScene(new Scene(root));

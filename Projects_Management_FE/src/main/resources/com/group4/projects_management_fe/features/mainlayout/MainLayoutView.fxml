@@ -50,7 +50,7 @@
 
                 <VBox spacing="2" alignment="CENTER_LEFT">
                     <Label fx:id="usernameLabel" text="User" />
-                    <Label styleClass="role-text" text="Project Manager" />
+                    <Label fx:id="roleLabel" styleClass="role-text" text="Project Manager" />
                 </VBox>
             </HBox>
 
