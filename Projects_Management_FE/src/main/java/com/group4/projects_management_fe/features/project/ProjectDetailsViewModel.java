@@ -329,4 +329,42 @@ public class ProjectDetailsViewModel extends NewProjectViewModel {
             return null;
         });
     }
+
+    // ==========================================
+    // LOGIC RỜI KHỎI DỰ ÁN (LEAVE)
+    // ==========================================
+    public void leaveProject(Long projectMemberId) {
+        if (projectMemberId == null) return;
+
+        projectApi.removeMemberFromProject(projectMemberId).thenAccept(v -> {
+            // Khi leave thành công, ta mượn luôn deleteSuccess để báo cho Controller đóng Popup
+            // và tự động refresh lại danh sách Project bên ngoài (y hệt như khi xóa dự án)
+            Platform.runLater(() -> deleteSuccess.onNext(true));
+        }).exceptionally(ex -> {
+            System.err.println("Lỗi khi rời dự án: " + ex.getMessage());
+            return null;
+        });
+    }
+
+    // ==========================================
+    // LOGIC KICK MEMBER (XÓA KHỎI DỰ ÁN)
+    // ==========================================
+    public void kickMember(Long projectMemberId) {
+        if (projectMemberId == null) return;
+
+        projectApi.removeMemberFromProject(projectMemberId).thenAccept(v -> {
+            System.out.println("Kick member thành công!");
+            // Cập nhật lại UI sau khi kick thành công
+            Platform.runLater(() -> {
+                fetchProjectMembers(); // Gọi lại hàm load members, danh sách sẽ tự động render lại
+            });
+        }).exceptionally(ex -> {
+            System.err.println("Lỗi khi kick member: " + ex.getMessage());
+            // Bạn có thể emit lỗi ra UI nếu cần
+            return null;
+        });
+    }
+    public Observable<Boolean> getIsEditing() {
+        return isEditing;
+    }
 }

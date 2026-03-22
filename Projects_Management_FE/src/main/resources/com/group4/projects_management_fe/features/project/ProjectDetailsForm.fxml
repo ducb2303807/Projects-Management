@@ -143,6 +143,7 @@
                 <Region VBox.vgrow="ALWAYS" />
 
                 <HBox alignment="BOTTOM_RIGHT" spacing="15.0">
+                    <Button fx:id="leaveBtn" managed="false" visible="false" minHeight="35.0" minWidth="80.0" mnemonicParsing="false" onAction="#handleLeaveProject" styleClass="btn-cancel" text="Leave" textFill="#d32f2f" />
                     <Button fx:id="cancelBtn" cancelButton="true" minHeight="35.0" minWidth="80.0" mnemonicParsing="false" onAction="#handleCancel" styleClass="btn-cancel" text="Cancel" />
                     <Button fx:id="saveBtn" defaultButton="true" managed="false" minHeight="35.0" minWidth="80.0" mnemonicParsing="false" onAction="#handleSave" styleClass="btn-create" text="Save" visible="false" />
                 </HBox>
