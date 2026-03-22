@@ -1,0 +1,299 @@
+/*============== TASK GROUP ==============*/
+.task-header {
+    -fx-font-size: 18px;
+    -fx-text-fill: #797979;
+}
+
+/*TITLE PANE*/
+.titled-pane > .title {
+    -fx-background-color: #FBFBFB;
+    -fx-background-insets: 0;
+    -fx-background-radius: 5 5 0 0;
+    -fx-padding: 10px; /* Tạo độ thoáng cho tiêu đề */
+    -fx-border-color: #bcb9b9; /* Đường kẻ mờ ở dưới */
+    -fx-border-width: 0 0 0.75 0;
+}
+
+/* Chỉnh font chữ cho text "On going" */
+.titled-pane > .title > .text {
+    -fx-fill: #333333; /* Màu chữ xám đậm */
+    -fx-font-family: "Montserrat";
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+}
+
+.titled-pane {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+}
+
+.titled-pane > .content {
+    -fx-background-color: white;
+    -fx-border-color: transparent;
+    -fx-background-radius: 5px;
+}
+/*TITLE PANE*/
+
+/*SCROLL PANE*/
+.scroll-pane {
+    -fx-background-color: transparent;
+    -fx-background-insets: 0;
+    -fx-padding: 0;
+    -fx-border-color: transparent;
+}
+
+.scroll-pane > .viewport {
+    -fx-background-color: transparent;
+}
+
+/* Tùy chỉnh vùng chứa tổng thể của thanh cuộn dọc */
+.scroll-bar:vertical {
+    -fx-background-color: transparent;
+    -fx-pref-width: 8px; /* Độ rộng của thanh cuộn */
+}
+
+/* 1. Phần rãnh trượt (Track) */
+.scroll-bar:vertical .track {
+    -fx-background-color: transparent; /* Có thể đổi thành màu xám nhạt nếu muốn thấy rãnh */
+    -fx-border-color: transparent;
+    -fx-background-radius: 4px;
+}
+
+/* 2. Phần thanh nắm kéo (Thumb) */
+.scroll-bar:vertical .thumb {
+    -fx-background-color: #c1c1c1; /* Màu của cục cuộn */
+    -fx-background-radius: 4px; /* Bo góc */
+}
+
+/* Hiệu ứng khi di chuột (hover) vào cục cuộn */
+.scroll-bar:vertical .thumb:hover {
+    -fx-background-color: #a8a8a8;
+}
+
+/* Hiệu ứng khi đang nhấn giữ (nhấp chuột) vào cục cuộn */
+.scroll-bar:vertical .thumb:pressed {
+    -fx-background-color: #787878;
+}
+
+/* 3. Ẩn 2 nút mũi tên Lên/Xuống ở 2 đầu */
+.scroll-bar:vertical .increment-button,
+.scroll-bar:vertical .decrement-button {
+    -fx-background-color: transparent;
+    -fx-pref-height: 0px; /* Ép chiều cao về 0 để ẩn hoàn toàn */
+    -fx-padding: 0;
+}
+
+/* Ẩn hình ảnh mũi tên bên trong nút */
+.scroll-bar:vertical .increment-arrow,
+.scroll-bar:vertical .decrement-arrow {
+    -fx-shape: " ";
+    -fx-padding: 0;
+}
+/*SCROLL PANE*/
+
+/*============== TASK ITEM ==============*/
+.task-content {
+    -fx-font-size: 15px;
+    -fx-text-fill: #000000;
+}
+
+/*MORE BUTTON*/
+.more-button {
+    -fx-background-color: transparent; /* Ẩn nền mặc định */
+    -fx-text-fill: #707070;           /* Màu xám nhẹ cho dấu chấm */
+    -fx-font-size: 24px;              /* Tăng nhẹ kích thước font */
+    -fx-font-weight: bold;
+    -fx-cursor: hand;                 /* Hiện bàn tay khi di chuột qua */
+    -fx-background-radius: 15;        /* Bo tròn nút */
+    -fx-min-width: 30px;
+    -fx-max-width: 30px;
+    -fx-min-height: 30px;
+    -fx-max-height: 30px;
+    -fx-padding: 0;                   /* Căn giữa dấu chấm */
+}
+
+/* Hiệu ứng khi di chuột qua */
+.more-button:hover {
+    -fx-background-color: #E8E8E8;    /* Nền xám nhạt hiện lên */
+    -fx-text-fill: #333333;           /* Dấu chấm đậm hơn */
+}
+
+/* Hiệu ứng khi click */
+.more-button:pressed {
+    -fx-background-color: #D0D0D0;
+}
+/*MORE BUTTON*/
+
+/* --- Base badge: bo góc, padding, font --- */
+.lookup-badge {
+    -fx-background-radius: 4;
+    -fx-padding: 3 10 3 10;
+    -fx-font-size: 12px;
+    -fx-font-weight: bold;
+    -fx-text-fill: white;
+    -fx-cursor: hand;
+}
+
+/* =============================================================
+   TASK STATUS
+   ============================================================= */
+
+/* NEW — xanh dương nhạt */
+.status-new {
+    -fx-background-color: #4A90D9;
+    -fx-text-fill: white;
+}
+
+/* ON_GOING → slug: on-going — cam */
+.status-on-going {
+    -fx-background-color: #F5A623;
+    -fx-text-fill: white;
+}
+
+/* IN_REVIEW → slug: in-review — tím */
+.status-in-review {
+    -fx-background-color: #7B68EE;
+    -fx-text-fill: white;
+}
+
+/* DONE — xanh lá */
+.status-done {
+    -fx-background-color: #27AE60;
+    -fx-text-fill: white;
+}
+
+/* Fallback cho status chưa biết */
+.status-unknown {
+    -fx-background-color: #95A5A6;
+    -fx-text-fill: white;
+}
+
+/* =============================================================
+   PRIORITY
+   ============================================================= */
+
+/* LOW — xanh lá nhạt */
+.priority-low {
+    -fx-background-radius: 20;
+    -fx-padding: 3 10 3 10;
+    -fx-font-size: 15px;
+    -fx-background-color: #D3E8D6;
+    -fx-text-fill: #1A932E;
+}
+
+/* MEDIUM — vàng */
+.priority-medium {
+    -fx-background-radius: 20;
+    -fx-padding: 3 10 3 10;
+    -fx-font-size: 15px;
+    -fx-background-color: #F7EED7;
+    -fx-text-fill: #DFA510;
+}
+
+/* HIGH — cam */
+.priority-high {
+    -fx-background-radius: 20;
+    -fx-padding: 3 10 3 10;
+    -fx-font-size: 15px;
+    -fx-background-color: #F7DFD6;
+    -fx-text-fill: #E65F2B;
+}
+
+/* URGENT — đỏ */
+.priority-urgent {
+    -fx-background-radius: 20;
+    -fx-padding: 3 10 3 10;
+    -fx-font-size: 15px;
+    -fx-background-color: #F7D6D6;
+    -fx-text-fill: #EE201C;
+}
+
+/* Fallback */
+.priority-unknown {
+    -fx-background-radius: 20;
+    -fx-padding: 3 10 3 10;
+    -fx-font-size: 15px;
+    -fx-background-color: #95A5A6;
+    -fx-text-fill: white;
+}
+
+/* ============== TASK TABLE CUSTOMIZATION ============== */
+/* 1. Xóa viền tổng thể của toàn bộ Table */
+.task-table {
+    -fx-border-color: transparent;
+    -fx-background-color: transparent;
+}
+
+/* 2. Xóa nền và viền của khu vực chứa Header */
+.task-table .column-header-background {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+}
+
+/* 3. Xóa viền của từng cột Header, thêm đệm */
+.task-table .column-header {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-padding: 10px 0px;
+}
+
+/* 4. Font size và font-weight cho chữ ở Header */
+.task-table .column-header .label {
+    -fx-font-size: 18px;
+    -fx-text-fill: #797979;
+    -fx-font-weight: 500; /* 500 tương đương với mức Medium trong JavaFX */
+    -fx-padding: 5px 0px;
+    -fx-alignment: CENTER; /* Mặc định header căn giữa */
+}
+
+/* 5. Căn giữa, set font size và xóa viền cho TẤT CẢ các ô dữ liệu (Cell) */
+.task-table .table-cell {
+    -fx-font-size: 15px;
+    -fx-alignment: CENTER;
+    -fx-border-color: transparent; /* Xóa dòng kẻ dọc/ngang giữa các ô */
+}
+
+/* Xóa dòng kẻ mặc định của các hàng (Row) */
+.task-table .table-row-cell {
+    -fx-background-color: transparent;
+    -fx-table-cell-border-color: transparent;
+}
+
+/* 6. Style riêng biệt để căn trái cho cột Task Name */
+.task-table .task-name-col {
+    -fx-alignment: CENTER-LEFT;
+    -fx-padding: 10px 0px 10px 20px;
+}
+.task-table .task-name-col .label {
+    -fx-alignment: CENTER-LEFT; /* Đảm bảo cả Header của cột này cũng căn trái */
+}
+
+/* Khóa và ẩn thanh cuộn ngang của TableView */
+.task-table .scroll-bar:horizontal {
+    -fx-opacity: 0;
+    -fx-padding: -10; /* Đẩy padding âm để triệt tiêu không gian chiếm dụng */
+}
+
+/* Ẩn hoàn toàn các thành phần của nó */
+.task-table .scroll-bar:horizontal .track,
+.task-table .scroll-bar:horizontal .thumb {
+    -fx-background-color: transparent;
+}
+
+.task-table .table-row-cell:hover {
+    -fx-background-color: #F1F7FF;
+}
+
+/* Nút ⋯ */
+.more-button {
+    -fx-background-color: transparent;
+    -fx-text-fill: #666666;
+    -fx-font-size: 16px;
+    -fx-alignment: CENTER;
+    -fx-font-weight: bold;
+    -fx-cursor: hand;
+}
+
+.more-button:hover {
+    -fx-text-fill: #5B3E9E;
+}
