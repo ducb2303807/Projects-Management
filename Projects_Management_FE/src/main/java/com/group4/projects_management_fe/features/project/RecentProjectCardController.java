@@ -41,18 +41,35 @@ public class RecentProjectCardController {
         }
 
         try {
-            // Load giao diện ProjectTasks
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/group4/projects_management_fe/features/project/ProjectTasks.fxml"));
             Parent root = loader.load();
 
-            // Lấy Controller và truyền dữ liệu sang
+            // Truyền dữ liệu sang Controller
             ProjectTasksController controller = loader.getController();
             controller.initData(Long.valueOf(this.currentProjectId), this.lblProjectName.getText());
 
-            // Hiển thị (Tạm thời dùng cửa sổ popup, nếu bạn có chuyển màn hình thì thay đổi ở đây)
             Stage popupStage = new Stage();
-            popupStage.setScene(new Scene(root));
-            popupStage.show();
+            Scene scene = new Scene(root);
+
+            // Nếu thiết kế form của bạn có bo góc, cần set Transparent để không bị viền đen
+            scene.setFill(javafx.scene.paint.Color.TRANSPARENT);
+            popupStage.setScene(scene);
+
+            // ====================================================================
+            // 1. Ẩn thanh Title (thanh chứa nút X, -, phóng to) và không cho resize
+            popupStage.initStyle(javafx.stage.StageStyle.TRANSPARENT); // Hoặc dùng StageStyle.UNDECORATED
+
+            // 2. Chặn tương tác với phần bên ngoài màn hình (Modality)
+            popupStage.initModality(javafx.stage.Modality.APPLICATION_MODAL);
+
+            // 3. Set Owner là cửa sổ chính (để popup luôn nằm trên cùng)
+            Stage mainStage = com.group4.projects_management_fe.core.navigation.AppStageManager.getInstance().getStage();
+            if (mainStage != null) {
+                popupStage.initOwner(mainStage);
+            }
+            // ====================================================================
+
+            popupStage.showAndWait(); // Thay show() bằng showAndWait() nếu muốn chặn hoàn toàn luồng
 
         } catch (Exception e) {
             e.printStackTrace();

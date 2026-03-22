@@ -201,29 +201,21 @@ public class ProjectDetailsViewModel extends NewProjectViewModel {
         });
     }
 
-    public void softDeleteProject() {
+    // XÓA HÀM softDeleteProject() cũ đi và thay bằng hàm này:
+    public void deleteProject() {
         if (currentProjectId == null) return;
 
-        ProjectUpdateRequestDTO dto = new ProjectUpdateRequestDTO();
-        dto.setProjectName(projectName.getValue());
-        dto.setDescription(description.getValue());
-
-        if (startDate.getValue() != null && !startDate.getValue().equals(LocalDate.MIN)) {
-            dto.setStartDate(startDate.getValue().atStartOfDay());
-        }
-        if (endDate.getValue() != null && !endDate.getValue().equals(LocalDate.MIN)) {
-            dto.setEndDate(endDate.getValue().atTime(23, 59, 59));
-        }
-
-        // ÉP CỨNG ID = 5 (Trạng thái Đã hủy)
-        dto.setStatusId(5L);
-
-        // Gọi API Cập nhật
-        projectApi.updateProject(currentProjectId, dto).thenAccept(updatedProject -> {
-            deleteSuccess.onNext(true); // Báo thành công để đóng form
+        // Gọi thẳng endpoint DELETE của backend
+        projectApi.deleteProject(currentProjectId).thenAccept(v -> {
+            //Xóa dự án có ID tương ứng ra khỏi local
+            com.group4.projects_management_fe.features.project.ProjectController.recentProjectsList
+                    .removeIf(p -> String.valueOf(p.getId()).equals(String.valueOf(currentProjectId)));
+            // Báo thành công để Controller đóng form
+            deleteSuccess.onNext(true);
         }).exceptionally(ex -> {
             System.err.println("Lỗi khi xóa dự án: " + ex.getMessage());
-            saveError.onNext(ex.getMessage());
+            saveError.onNext("Lỗi xóa dự án: " + ex.getMessage());
             return null;
         });
-    }}
+    }
+}
