@@ -1,6 +1,6 @@
 package com.group4.projects_management.service;
 
-import com.group4.common.dto.TaskCeateRequestDTO;
+import com.group4.common.dto.TaskCreateRequestDTO;
 import com.group4.common.dto.TaskHistoryDTO;
 import com.group4.common.dto.TaskResponseDTO;
 import com.group4.common.dto.TaskUpdateDTO;
@@ -297,7 +297,7 @@ public class TaskServiceImpl extends BaseServiceImpl<Task, Long> implements Task
 
     @Override
     @Transactional
-    public TaskResponseDTO createTask(TaskCeateRequestDTO dto) {
+    public TaskResponseDTO createTask(TaskCreateRequestDTO dto) {
 
         if (dto.getDeadline().toLocalDate().isBefore(LocalDate.now())) {
             throw new BusinessException("Deadline cannot be in the past", BusinessErrorCode.SYSTEM_VALIDATION_ERROR);

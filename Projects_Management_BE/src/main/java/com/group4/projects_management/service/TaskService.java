@@ -4,7 +4,7 @@ package com.group4.projects_management.service; /*******************************
  * Purpose: Defines the Interface TaskService
  ***********************************************************************/
 
-import com.group4.common.dto.TaskCeateRequestDTO;
+import com.group4.common.dto.TaskCreateRequestDTO;
 import com.group4.common.dto.TaskHistoryDTO;
 import com.group4.common.dto.TaskResponseDTO;
 import com.group4.common.dto.TaskUpdateDTO;
@@ -52,7 +52,7 @@ public interface TaskService {
     * @pdOid 19ffe925-d5b2-40a5-ad6d-d6ea1d48f65e */
    TaskResponseDTO updateTask(Long taskId, TaskUpdateDTO dto);
 
-   TaskResponseDTO createTask(TaskCeateRequestDTO dto);
+   TaskResponseDTO createTask(TaskCreateRequestDTO dto);
    /** @param projectId 
     * @param statusId
     * @pdOid 17f62ca3-613b-4673-b6f1-aa6745bf4827 */
