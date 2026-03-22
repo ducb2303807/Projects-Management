@@ -1,5 +1,6 @@
 package com.group4.projects_management_fe.features.project;
 
+import com.group4.common.dto.ProjectMemberDTO;
 import com.group4.common.dto.ProjectResponseDTO;
 import com.group4.common.dto.ProjectUpdateRequestDTO;
 import com.group4.projects_management_fe.core.session.AppSessionManager;
@@ -37,6 +38,9 @@ public class ProjectDetailsViewModel extends NewProjectViewModel {
     // State lưu danh sách tên Status để hiển thị lên UI (ComboBox)
     private final BehaviorSubject<List<String>> statusList = BehaviorSubject.createDefault(new ArrayList<>());
 
+    // Subject quản lý danh sách thành viên
+    private final BehaviorSubject<List<ProjectMemberDTO>> projectMembers = BehaviorSubject.createDefault(new ArrayList<>());
+
     // Map dùng để quy đổi ngược từ: Tên Status (String) -> Status ID (Long) khi Save
     private final Map<String, Long> statusNameToIdMap = new HashMap<>();
     public Map<String, Long> getStatusNameToIdMap() {
@@ -61,6 +65,7 @@ public class ProjectDetailsViewModel extends NewProjectViewModel {
     public Observable<LocalDate> endDateObservable() { return this.endDate.hide(); }
     public Observable<Boolean> onDeleteSuccess() { return deleteSuccess.hide(); }
     public Observable<String> statusNameObservable() { return this.statusName.hide(); }
+    public Observable<List<ProjectMemberDTO>> getProjectMembersObservable() { return projectMembers; }
 
     // HÀM MỚI ĐƯỢC THÊM VÀO ĐỂ NHẬN GIÁ TRỊ TỪ COMBOBOX:
     public void setStatusName(String name) { this.statusName.onNext(name); }
@@ -148,6 +153,7 @@ public class ProjectDetailsViewModel extends NewProjectViewModel {
                     ex.printStackTrace();
                     return null;
                 });
+        fetchProjectMembers();
     }
 
     // ==========================================
@@ -217,5 +223,19 @@ public class ProjectDetailsViewModel extends NewProjectViewModel {
             saveError.onNext("Lỗi xóa dự án: " + ex.getMessage());
             return null;
         });
+    }
+
+    public void fetchProjectMembers() {
+        if (currentProjectId == null) return;
+
+        projectApi.getMembersOfProject(currentProjectId)
+                .thenAccept(membersList -> {
+                    // Đẩy dữ liệu mới vào Subject
+                    projectMembers.onNext(membersList);
+                })
+                .exceptionally(ex -> {
+                    System.err.println("Lỗi khi lấy danh sách thành viên: " + ex.getMessage());
+                    return null;
+                });
     }
 }

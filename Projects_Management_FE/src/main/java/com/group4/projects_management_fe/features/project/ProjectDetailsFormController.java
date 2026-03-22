@@ -13,8 +13,9 @@ import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 import javafx.util.Callback;
-
+import com.group4.common.dto.ProjectMemberDTO;
 import java.time.LocalDate;
+import java.util.List;
 
 public class ProjectDetailsFormController {
 
@@ -318,6 +319,14 @@ public class ProjectDetailsFormController {
             }
         };
 
+        disposables.add(
+                viewModel.getProjectMembersObservable()
+                        .subscribe(members -> {
+                            // Đảm bảo thao tác UI chạy trên luồng JavaFX
+                            Platform.runLater(() -> renderMembers(members));
+                        }, error -> error.printStackTrace())
+        );
+
         statusComboBox.setCellFactory(cellFactory);
         statusComboBox.setButtonCell(cellFactory.call(null));
     }
@@ -341,11 +350,6 @@ public class ProjectDetailsFormController {
         }
         viewModel.saveChanges();
     }
-
-    @FXML private void handleAddCoManagerClick(ActionEvent event) {}
-    @FXML private void handleCoManagerSubmit(ActionEvent event) {}
-    @FXML private void handleAddMemberClick(ActionEvent event) {}
-    @FXML private void handleMemberSubmit(ActionEvent event) {}
 
     public void closeForm() {
         disposables.clear();
@@ -420,5 +424,123 @@ public class ProjectDetailsFormController {
                 "-fx-background-color: %s; -fx-text-fill: %s; -fx-padding: 4px 12px; -fx-background-radius: 12px; -fx-font-weight: bold; -fx-font-size: 12px;",
                 bgColor, textColor
         );
+    }
+
+    // ==========================================
+    // XỬ LÝ ẨN/HIỆN Ô TÌM KIẾM CO-MANAGER VÀ MEMBER
+    // ==========================================
+
+    @FXML
+    private void handleAddCoManagerClick(ActionEvent event) {
+        if (coManagerInput != null) {
+            boolean isCurrentlyVisible = coManagerInput.isVisible();
+
+            // Đảo ngược trạng thái bật/tắt
+            coManagerInput.setVisible(!isCurrentlyVisible);
+            coManagerInput.setManaged(!isCurrentlyVisible);
+
+            if (!isCurrentlyVisible) {
+                // Nếu vừa được bật lên -> Đưa con trỏ chuột vào để gõ ngay
+                coManagerInput.requestFocus();
+            } else {
+                // Nếu bị tắt đi -> Xóa sạch text bên trong
+                coManagerInput.clear();
+            }
+        }
+    }
+
+    @FXML
+    private void handleAddMemberClick(ActionEvent event) {
+        if (memberInput != null) {
+            boolean isCurrentlyVisible = memberInput.isVisible();
+
+            // Đảo ngược trạng thái bật/tắt
+            memberInput.setVisible(!isCurrentlyVisible);
+            memberInput.setManaged(!isCurrentlyVisible);
+
+            if (!isCurrentlyVisible) {
+                // Nếu vừa được bật lên -> Đưa con trỏ chuột vào để gõ ngay
+                memberInput.requestFocus();
+            } else {
+                // Nếu bị tắt đi -> Xóa sạch text bên trong
+                memberInput.clear();
+            }
+        }
+    }
+
+    // Hai hàm xử lý khi user gõ xong và bấm Enter (hiện tại để trống, sẽ call API search ở đây)
+    @FXML private void handleCoManagerSubmit(ActionEvent event) {
+        // Tạm thời để trống. Sau này sẽ lấy text từ coManagerInput.getText() gọi API
+    }
+
+    @FXML private void handleMemberSubmit(ActionEvent event) {
+        // Tạm thời để trống. Sau này sẽ lấy text từ memberInput.getText() gọi API
+    }
+
+    private void renderMembers(List<ProjectMemberDTO> members) {
+        // Xóa sạch Node cũ trước khi vẽ lại
+        coManagerTagsContainer.getChildren().clear();
+        memberTagsContainer.getChildren().clear();
+
+        // Thêm một biến đếm tổng số thành viên Active
+        int totalActiveMembers = 0;
+
+        if (members == null || members.isEmpty()) {
+            if (memberCountLabel != null) memberCountLabel.setText("(0)");
+            return;
+        }
+
+        for (ProjectMemberDTO member : members) {
+            // 1. Dọn dẹp khoảng trắng
+            String status = member.getStatusName() != null ? member.getStatusName().trim() : "";
+            String role = member.getRoleName() != null ? member.getRoleName().trim() : "";
+
+            // 2. Chỉ lấy thành viên Active
+            if (!"Active".equalsIgnoreCase(status)) {
+                continue;
+            }
+
+            // 3. Tăng biến đếm tổng (Vì đã lọt qua if Active ở trên, người này chắc chắn được tính)
+            totalActiveMembers++;
+
+            // 4. Tạo Node giao diện (Badge) và phân loại hiển thị
+            if ("Co-Project Manager".equalsIgnoreCase(role)) {
+                Node badge = createMemberBadge(member);
+                coManagerTagsContainer.getChildren().add(badge);
+            } else if ("Project Member".equalsIgnoreCase(role)) {
+                Node badge = createMemberBadge(member);
+                memberTagsContainer.getChildren().add(badge);
+            } else if ("Project Manager".equalsIgnoreCase(role)) {
+                // Project Manager không hiển thị dạng Badge ở đây, nhưng vẫn được tính vào totalActiveMembers
+            } else {
+                System.out.println("CẢNH BÁO: Không nhận diện được Role để vẽ Badge -> [" + role + "]");
+            }
+        }
+
+        // 5. Cập nhật con số đếm bằng TỔNG SỐ thành viên Active
+        if (memberCountLabel != null) {
+            memberCountLabel.setText(totalActiveMembers + " member(s)");
+        }
+    }
+
+    // 3. Hàm tạo Badge (Cục Tên + Nút X)
+    private Node createMemberBadge(ProjectMemberDTO member) {
+        HBox badge = new HBox();
+        badge.getStyleClass().add("member-badge");
+
+        Label nameLabel = new Label(member.getUsername());
+        nameLabel.getStyleClass().add("member-badge-text");
+
+        Button removeBtn = new Button("x");
+        removeBtn.getStyleClass().add("member-badge-remove-btn");
+
+        // Sự kiện click nút X -> Xóa user (Sẽ làm ở luồng sau theo API DELETE)
+        removeBtn.setOnAction(e -> {
+            System.out.println("Sắp xóa member ID: " + member.getProjectMemberId());
+            // Tạm để đây, bước sau làm API Xóa sẽ gọi viewModel.removeMember(...)
+        });
+
+        badge.getChildren().addAll(nameLabel, removeBtn);
+        return badge;
     }
 }

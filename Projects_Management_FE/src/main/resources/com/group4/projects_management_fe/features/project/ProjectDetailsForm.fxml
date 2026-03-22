@@ -41,9 +41,9 @@
                     <Insets bottom="30.0" left="30.0" right="20.0" top="25.0" />
                 </padding>
 
-                <GridPane hgap="15.0" vgap="18.0">
+                <GridPane hgap="15.0" prefHeight="291.0" prefWidth="541.0" vgap="18.0">
                     <columnConstraints>
-                        <ColumnConstraints maxWidth="164.00000762939453" minWidth="100.0" prefWidth="129.2" />
+                        <ColumnConstraints maxWidth="164.00000762939453" minWidth="140.0" prefWidth="129.2" />
                         <ColumnConstraints hgrow="ALWAYS" maxWidth="425.2" minWidth="385.19999237060546" prefWidth="420.4" />
                     </columnConstraints>
 
@@ -90,7 +90,7 @@
 
                     <HBox alignment="CENTER_LEFT" spacing="10.0">
                         <Button fx:id="addMemberBtn" onAction="#handleAddMemberClick" styleClass="btn-add-circle" text="+" />
-                        <TextField fx:id="memberInput" managed="false" onAction="#handleMemberSubmit" promptText="Enter username..." styleClass="clean-input" visible="false" HBox.hgrow="ALWAYS" />
+                        <TextField fx:id="memberInput" managed="false" onAction="#handleMemberSubmit" promptText="Enter username" styleClass="clean-input" visible="false" HBox.hgrow="ALWAYS" />
                     </HBox>
 
                     <ScrollPane fitToWidth="true" hbarPolicy="NEVER" maxHeight="140.0" minHeight="50.0" prefHeight="100.0" styleClass="tags-scroll-pane" vbarPolicy="AS_NEEDED" VBox.vgrow="SOMETIMES">
