@@ -6,6 +6,7 @@ package com.group4.projects_management.service; /*******************************
 
 import com.group4.common.dto.*;
 import com.group4.common.enums.MemberStatusCode;
+import com.group4.common.enums.ProjectStatusCode;
 import com.group4.common.enums.TaskStatusCode;
 import com.group4.projects_management.core.exception.ResourceNotFoundException;
 import com.group4.projects_management.core.strategy.notification.invitation.MemberJoinContext;
@@ -342,13 +343,19 @@ public class ProjectServiceImpl extends BaseServiceImpl<Project, Long> implement
         User actor = userRepository.findById(actorId)
                 .orElseThrow(() -> new ResourceNotFoundException("Actor not found"));
 
+        ProjectStatus cancelledStatus = projectStatusRepository.findBySystemCode(ProjectStatusCode.CANCELLED.name())
+                .orElseThrow(() -> new ResourceNotFoundException("Project status CANCELLED not found"));
+
+
         List<Long> memberIds = project.getActiveMembers().stream()
                 .map(m -> m.getUser().getId())
+                .filter(id -> !id.equals(actorId))
                 .toList();
 
         String projectName = project.getName();
 
-        projectRepository.delete(project);
+        project.setProjectStatus(cancelledStatus);
+        projectRepository.save(project);
 
         if (!memberIds.isEmpty()) {
             ProjectDeleteContext deleteContext = ProjectDeleteContext.builder()
