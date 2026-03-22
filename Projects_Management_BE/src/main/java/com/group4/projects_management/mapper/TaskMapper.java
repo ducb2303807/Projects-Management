@@ -1,6 +1,6 @@
 package com.group4.projects_management.mapper;
 
-import com.group4.common.dto.TaskCeateRequestDTO;
+import com.group4.common.dto.TaskCreateRequestDTO;
 import com.group4.common.dto.TaskResponseDTO;
 import com.group4.common.dto.TaskUpdateDTO;
 import com.group4.projects_management.entity.Priority;
@@ -28,7 +28,7 @@ public abstract class TaskMapper {
     @Mapping(target = "deadline", expression = "java(adjustDeadline(dto.getDeadline()))")
     @Mapping(target = "name", source = "dto.name")
     @Mapping(target = "description", source = "dto.description")
-    public abstract Task toEntity(TaskCeateRequestDTO dto, Project project, Priority priority, TaskStatus status);
+    public abstract Task toEntity(TaskCreateRequestDTO dto, Project project, Priority priority, TaskStatus status);
 
 
     // --- 2. Map từ Task sang Response DTO ---
