@@ -33,6 +33,8 @@ public class TasksViewController {
     private LookupApi lookupApi;
     private AuthSessionProvider sessionProvider;
 
+    private boolean includeCancelled=true;
+
     public void setSessionProvider(AuthSessionProvider sessionProvider) {
         this.sessionProvider = sessionProvider;
         if (sessionProvider != null) {
@@ -50,7 +52,7 @@ public class TasksViewController {
 
     private void loadTasksData() {
         lookupApi.getAll(LookupType.TASK_STATUS)
-                .thenCombine(taskApi.getMyTasks(), (statuses, tasks) -> {   // ← Dùng getMyTasks()
+                .thenCombine(taskApi.getMyTasks(includeCancelled), (statuses, tasks) -> {   // ← Dùng getMyTasks()
                     Platform.runLater(() -> renderDynamicGroups(statuses, tasks));
                     return null;
                 })
@@ -98,7 +100,7 @@ public class TasksViewController {
         return switch (systemName.toUpperCase()) {
             case "TODO"        -> "To do";
             case "IN_PROGRESS" -> "On going";
-            case "REVIEW"      -> "In review";
+            case "REVIEW"      -> "Under review";
             case "DONE"        -> "Done";
             case "CANCELLED"   -> "Cancelled";
             default            -> systemName;
