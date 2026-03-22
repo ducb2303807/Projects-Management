@@ -19,7 +19,7 @@ import lombok.experimental.SuperBuilder;
 @NoArgsConstructor
 @AllArgsConstructor
 @SuperBuilder
-public class TaskCeateRequestDTO extends TaskBaseDTO {
+public class TaskCreateRequestDTO extends TaskBaseDTO {
     @NotNull
     private Long projectId;
     @NotNull

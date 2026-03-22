@@ -28,7 +28,7 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-public class UserServiceTest {
+public class UserServiceImplTest {
     @Mock
     private UserRepository userRepository;
     @Mock private BCryptPasswordEncoder passwordEncoder;

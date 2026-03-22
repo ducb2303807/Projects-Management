@@ -1,6 +1,6 @@
 package com.group4.projects_management.service;
 
-import com.group4.common.dto.TaskCeateRequestDTO;
+import com.group4.common.dto.TaskCreateRequestDTO;
 import com.group4.common.dto.TaskHistoryDTO;
 import com.group4.common.dto.TaskResponseDTO;
 import com.group4.common.dto.TaskUpdateDTO;
@@ -75,14 +75,14 @@ public class TaskServiceImpl extends BaseServiceImpl<Task, Long> implements Task
     public void assignMember(Long taskId, Long assigneeId, Long assignerId) {
         System.out.println("assignerId = " + assignerId);
         Task task = taskRepository.findById(taskId)
-                .orElseThrow(() -> new RuntimeException("Task not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Task not found"));
 
         ProjectMember assignee = projectMemberRepository.findById(assigneeId)
-                .orElseThrow(() -> new RuntimeException("Assignee not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Assignee not found"));
 
         ProjectMember assigner = projectMemberRepository
                 .findByUser_IdAndProject_Id(assignerId, task.getProject().getId())
-                .orElseThrow(() -> new RuntimeException("Assigner not in project"));
+                .orElseThrow(() -> new ResourceNotFoundException("Assigner not in project"));
 
         TaskAssignment assignment = new TaskAssignment();
         assignment.setTask(task);
@@ -205,10 +205,10 @@ public class TaskServiceImpl extends BaseServiceImpl<Task, Long> implements Task
     public void updateTaskPriority(Long taskId, Long taskPriorityId) {
 
         Task task = taskRepository.findById(taskId)
-                .orElseThrow(() -> new RuntimeException("Task not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Task not found"));
 
         Priority priority = priorityRepository.findById(taskPriorityId)
-                .orElseThrow(() -> new RuntimeException("Priority not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Priority not found"));
 
         task.setPriority(priority);
 
@@ -220,10 +220,10 @@ public class TaskServiceImpl extends BaseServiceImpl<Task, Long> implements Task
     public void updateTaskStatus(Long taskId, Long taskStatusId) {
 
         Task task = taskRepository.findById(taskId)
-                .orElseThrow(() -> new RuntimeException("Task not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Task not found"));
 
         TaskStatus status = taskStatusRepository.findById(taskStatusId)
-                .orElseThrow(() -> new RuntimeException("Status not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Status not found"));
 
         task.setTaskStatus(status);
 
@@ -272,7 +272,7 @@ public class TaskServiceImpl extends BaseServiceImpl<Task, Long> implements Task
     @Transactional
     public TaskResponseDTO updateTask(Long taskId, TaskUpdateDTO dto) {
         Task task = taskRepository.findById(taskId)
-                .orElseThrow(() -> new RuntimeException("Task not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Task not found"));
 
         Priority priority = priorityRepository.findById(dto.getPriorityId())
                 .orElseThrow(() -> new ResourceNotFoundException("Priority not found"));
@@ -297,7 +297,7 @@ public class TaskServiceImpl extends BaseServiceImpl<Task, Long> implements Task
 
     @Override
     @Transactional
-    public TaskResponseDTO createTask(TaskCeateRequestDTO dto) {
+    public TaskResponseDTO createTask(TaskCreateRequestDTO dto) {
 
         if (dto.getDeadline().toLocalDate().isBefore(LocalDate.now())) {
             throw new BusinessException("Deadline cannot be in the past", BusinessErrorCode.SYSTEM_VALIDATION_ERROR);

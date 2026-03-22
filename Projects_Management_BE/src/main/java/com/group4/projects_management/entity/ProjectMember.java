@@ -84,6 +84,10 @@ public class ProjectMember {
    public boolean isManager() {
       if (!isActive()) return false;
 
+      if (this.projectRole == null || this.projectRole.getSystemCode() == null) {
+         return false;
+      }
+
       var roleCode = this.projectRole.getSystemCode();
       return roleCode.equalsIgnoreCase(ProjectMemberRoleCode.PM.name())
               || roleCode.equalsIgnoreCase(ProjectMemberRoleCode.CO_PM.name());
