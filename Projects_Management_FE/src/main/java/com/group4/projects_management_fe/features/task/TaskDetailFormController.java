@@ -5,6 +5,7 @@ import com.group4.common.enums.LookupType;
 import com.group4.projects_management_fe.core.api.LookupApi;
 import com.group4.projects_management_fe.core.api.ProjectApi;
 import com.group4.projects_management_fe.core.api.TaskApi;
+import com.group4.projects_management_fe.core.api.CommentApi;
 import com.group4.projects_management_fe.core.session.AuthSessionProvider;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
@@ -21,6 +22,7 @@ import javafx.util.Callback;
 import javafx.util.StringConverter;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -47,6 +49,7 @@ public class TaskDetailFormController {
     private ProjectApi projectApi;
     private TaskApi taskApi;
     private LookupApi lookupApi;
+    private CommentApi commentApi;
     private Runnable onSaveSuccessCallback;
 
     private TaskResponseDTO currentTask;
@@ -55,6 +58,7 @@ public class TaskDetailFormController {
 
     // True nếu user hiện tại có role PM hoặc CO_PM trong project này
     private boolean canManageAssignees = false;
+    private boolean includeCancelled = true;
 
     // Cache danh sách member của project (lazy load lần đầu nhấn "+")
     private List<ProjectMemberDTO> projectMembersCache = null;
@@ -66,6 +70,7 @@ public class TaskDetailFormController {
         this.projectApi = new ProjectApi(sessionProvider);
         this.taskApi = new TaskApi(sessionProvider);
         this.lookupApi = new LookupApi(sessionProvider);
+        this.commentApi = new CommentApi(sessionProvider);
 
         loadLookups();
     }
@@ -269,8 +274,8 @@ public class TaskDetailFormController {
         // Tắt tất cả nút × trong lúc đang gọi API để chống double-click
         assigneeChipsPane.getChildren().forEach(node -> node.setDisable(true));
 
-        taskApi.removeMemberFromTask(currentTask.getTaskId(), projectMemberId)
-                .thenCompose(v -> taskApi.getMyTasks())
+        taskApi.removeMemberFromTask(currentTask.getTaskId(), Collections.singletonList(projectMemberId))
+                .thenCompose(v -> taskApi.getMyTasks(includeCancelled))
                 .thenAccept(tasks -> {
                     tasks.stream()
                             .filter(t -> t.getTaskId().equals(currentTask.getTaskId()))
@@ -579,7 +584,7 @@ public class TaskDetailFormController {
     private void assignMemberToTask(Long projectMemberId) {
         addAssigneeBtn.setDisable(true);
 
-        taskApi.assignMember(currentTask.getProjectId(), projectMemberId).thenAccept(v -> {
+        taskApi.assignMember(currentTask.getProjectId(), Collections.singletonList(projectMemberId)).thenAccept(v -> {
             Platform.runLater(() -> {
                 System.out.println("Gán member thành công!");
                 if (onSaveSuccessCallback != null) onSaveSuccessCallback.run(); // Load lại list view ngoài
@@ -699,7 +704,7 @@ public class TaskDetailFormController {
 
         commentField.setDisable(true);
 
-        taskApi.createComment(request).thenAccept(newComment -> {
+        commentApi.createComment(request).thenAccept(newComment -> {
             Platform.runLater(() -> {
                 addCommentToUI(newComment);
                 commentField.clear();
