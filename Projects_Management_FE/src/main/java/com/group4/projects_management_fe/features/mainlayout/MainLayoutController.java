@@ -11,6 +11,7 @@ import com.group4.projects_management_fe.core.api.base.SseClientManager;
 import com.group4.projects_management_fe.core.extension.SseRxBridge;
 import com.group4.projects_management_fe.core.navigation.AppStageManager;
 import com.group4.projects_management_fe.core.session.AppSessionManager;
+import com.group4.projects_management_fe.features.project.ProjectTasksController;
 import com.group4.projects_management_fe.features.toast.Toast;
 import io.reactivex.rxjava3.disposables.CompositeDisposable;
 import io.reactivex.rxjava3.plugins.RxJavaPlugins;
@@ -432,6 +433,26 @@ public class MainLayoutController {
         } else {
             notifBadge.setVisible(false);
             notifBadge.setManaged(false);
+        }
+    }
+
+    public void openProjectTasksWindow(Long projectId, String projectName) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/group4/projects_management_fe/features/project/ProjectTasks.fxml"));
+            Parent root = loader.load();
+
+            ProjectTasksController controller = loader.getController();
+            controller.initData(projectId, projectName);
+
+            Stage newStage = new Stage();
+            newStage.setTitle("Project Tasks: " + projectName);
+            newStage.setScene(new javafx.scene.Scene(root));
+
+            Platform.runLater(() -> newStage.show());
+
+        } catch (IOException e) {
+            System.err.println("Không thể mở cửa sổ Project Tasks: " + e.getMessage());
+            e.printStackTrace();
         }
     }
 }

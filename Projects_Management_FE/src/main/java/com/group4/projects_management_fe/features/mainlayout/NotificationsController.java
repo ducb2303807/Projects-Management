@@ -101,9 +101,12 @@ public class NotificationsController {
             }
 
             if ("ACCEPT".equalsIgnoreCase(action)) {
-                Alert info = new Alert(Alert.AlertType.INFORMATION);
-                info.setHeaderText("You have already joined this project.");
-                info.show();
+                if (MainLayoutController.getInstance() != null && item.getMetadata() != null) {
+                    Long projectId = item.getMetadata().getProjectId();
+                    String projectName = item.getMetadata().getProjectName();
+
+                    MainLayoutController.getInstance().openProjectTasksWindow(projectId, projectName);
+                }
                 return;
             }
 
