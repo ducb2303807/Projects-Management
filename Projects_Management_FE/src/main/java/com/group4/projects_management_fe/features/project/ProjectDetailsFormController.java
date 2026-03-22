@@ -396,19 +396,19 @@ public class ProjectDetailsFormController {
         String textColor;
 
         switch (statusName.trim()) {
-            case "Lập kế hoạch":
+            case "Planning":
                 bgColor = "#E1F0FF"; textColor = "#0052CC";
                 break;
-            case "Đang thực hiện":
+            case "Active":
                 bgColor = "#FFF0B3"; textColor = "#FF991F";
                 break;
-            case "Đã hoàn thành":
+            case "Completed":
                 bgColor = "#E3FCEF"; textColor = "#006644";
                 break;
-            case "Tạm dừng":
+            case "On Hold":
                 bgColor = "#FFEBE6"; textColor = "#BF2600";
                 break;
-            case "Đã huỷ":
+            case "Cancelled":
                 bgColor = "#EBECF0"; textColor = "#42526E";
                 break;
             default:
