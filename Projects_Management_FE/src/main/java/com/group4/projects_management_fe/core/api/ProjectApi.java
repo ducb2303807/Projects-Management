@@ -68,7 +68,7 @@ public class ProjectApi extends AbstractAuthenticatedApi {
     /**
      * POST /api/projects/{projectId}/tasks
      */
-    public CompletableFuture<TaskResponseDTO> createTaskInProject(Long projectId, TaskCeateRequestDTO request) {
+    public CompletableFuture<TaskResponseDTO> createTaskInProject(Long projectId, TaskCreateRequestDTO request) {
         String url = ENDPOINT + "/" + projectId + "/tasks";
         return this.sendPostRequest(url, request, TaskResponseDTO.class, null);
     }

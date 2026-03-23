@@ -12,7 +12,6 @@ import lombok.ToString;
 
 import java.time.LocalDateTime;
 
-/** @pdOid 0e883aa9-0aed-4d40-b934-fa3a37b93713 */
 @Entity
 @Table(name = "TASK_COMMENT")
 @Data

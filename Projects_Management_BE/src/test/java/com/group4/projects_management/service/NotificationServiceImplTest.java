@@ -34,7 +34,7 @@ import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-public class NotificationServiceTest {
+public class NotificationServiceImplTest {
 
     @Mock
     private ApplicationEventPublisher eventPublisher;
