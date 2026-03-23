@@ -19,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class NotificationServiceImp extends BaseServiceImpl<Notification, Long> implements NotificationService {
@@ -109,12 +110,15 @@ public class NotificationServiceImp extends BaseServiceImpl<Notification, Long> 
         notif.setType(strategy.getType().name());
         notif.setTitle(strategy.buildTitle(contextData));
 
+        Map<String, Object> metadataMap = strategy.buildMetadata(contextData);
+
         try {
-            String jsonMetadata = objectMapper.writeValueAsString(strategy.buildMetadata(contextData));
+            String jsonMetadata = objectMapper.writeValueAsString(metadataMap);
             notif.setMetadata(jsonMetadata);
         } catch (JsonProcessingException e) {
             notif.setMetadata("{}");
         }
+
 
         notificationRepository.save(notif);
 
@@ -126,6 +130,7 @@ public class NotificationServiceImp extends BaseServiceImpl<Notification, Long> 
             un.setNotification(notif);
 
             var dto = userNotificationMapper.toDto(un);
+            dto.setMetadata(metadataMap);
 
             eventPublisher.publishEvent(new NotificationEvent(user.getId(), dto));
             return un;
@@ -147,21 +152,5 @@ public class NotificationServiceImp extends BaseServiceImpl<Notification, Long> 
             throw new ResourceNotFoundException("User not found");
         }
         return this.userNotificationRepository.countByUser_IdAndIsReadIsFalse(userId);
-    }
-
-    @Transactional
-    public void updateMetadataResponseByRef(String refId, String action) {
-        Notification notif = notificationRepository.findByReferenceIdAndType(refId)
-                .orElseThrow(() -> new ResourceNotFoundException("Notification not found"));
-
-        try {
-            NotificationDTO.Metadata meta = objectMapper.readValue(notif.getMetadata(), NotificationDTO.Metadata.class);
-            meta.setResponseAction(action);
-            notif.setMetadata(objectMapper.writeValueAsString(meta));
-
-            notificationRepository.save(notif);
-        } catch (JsonProcessingException e) {
-            e.printStackTrace();
-        }
     }
 }

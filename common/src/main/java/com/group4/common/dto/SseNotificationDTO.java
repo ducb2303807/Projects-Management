@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.Map;
 
 @Data
 @AllArgsConstructor
@@ -16,7 +17,7 @@ public class SseNotificationDTO {
     private String title;
     private String type;
     private String message;
-    private Object metadata;
+    private Map<String, Object> metadata;
     private String referenceId;
     private LocalDateTime timestamp;
 }

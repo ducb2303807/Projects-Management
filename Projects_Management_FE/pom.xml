@@ -149,12 +149,6 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>com.group4</groupId>
-            <artifactId>Projects_Management_BE</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
             <groupId>org.ocpsoft.prettytime</groupId>
             <artifactId>prettytime</artifactId>
             <version>5.0.9.Final</version>

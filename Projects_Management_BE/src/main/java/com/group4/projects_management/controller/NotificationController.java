@@ -38,7 +38,7 @@ public class NotificationController {
     }
 
     @Operation(summary = "Đánh dấu tất cả thông báo là đã đọc")
-    @PatchMapping("/read-all")
+    @PatchMapping("/me/read-all")
     public ResponseEntity<Void> markAllAsRead() {
         var userId = SecurityUtils.getCurrentUserId();
         notificationService.markAllAsRead(userId);
@@ -46,7 +46,7 @@ public class NotificationController {
     }
 
     @Operation(summary = "Đếm số thông báo chưa đọc")
-    @GetMapping("/unread-count")
+    @GetMapping("/me/unread-count")
     public ResponseEntity<Integer> getUnreadCount() {
         var userId = SecurityUtils.getCurrentUserId();
         return ResponseEntity.ok(notificationService.countUnreadNotifications(userId));

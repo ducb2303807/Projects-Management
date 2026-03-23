@@ -37,8 +37,6 @@ public class NotificationApi extends AbstractAuthenticatedApi {
     public CompletableFuture<Void> markAsRead(Long notificationId) {
         String url = ENDPOINT + "/" + notificationId + "/read";
 
-        // Vì controller BE không yêu cầu @RequestBody, ta gửi một body rỗng
-        // BaseApi có check 'instanceof RequestBody', nên ta có thể tạo trực tiếp
         RequestBody emptyBody = RequestBody.create("", JSON_MEDIA_TYPE);
 
         return this.sendPatchRequest(
@@ -54,7 +52,7 @@ public class NotificationApi extends AbstractAuthenticatedApi {
      * Đánh dấu tất cả thông báo là đã đọc
      */
     public CompletableFuture<Void> markAllAsRead() {
-        String url = ENDPOINT + "/read-all";
+        String url = ENDPOINT + "/me/read-all";
 
         // Gửi body rỗng tương tự như markAsRead
         RequestBody emptyBody = RequestBody.create("", JSON_MEDIA_TYPE);
@@ -68,33 +66,11 @@ public class NotificationApi extends AbstractAuthenticatedApi {
     }
 
     /**
-     * Tương ứng với @PatchMapping("/api/projects/members/{memberId}")
-     * Xử lý lời mời tham gia dự án (ACCEPT hoặc DECLINE)
-     */
-    public CompletableFuture<Boolean> respondToInvitation(Long projectMemberId, String action) {
-        String endpoint = "/invitations/" + projectMemberId;
-
-        String bodyJson = "{\"action\":\"" + action + "\"}";
-        RequestBody body = RequestBody.create(bodyJson, okhttp3.MediaType.parse("application/json"));
-
-        return this.sendPatchRequest(
-                        endpoint,
-                        body,
-                        Void.class,
-                        null
-                ).thenApply(result -> true)
-                .exceptionally(ex -> {
-                    ex.printStackTrace();
-                    return false;
-                });
-    }
-
-    /**
      * GET /api/notifications/unread-count
      * Lấy số lượng thông báo chưa đọc của user
      */
     public CompletableFuture<Integer> getUnreadCount() {
-        String url = ENDPOINT + "/unread-count";
+        String url = ENDPOINT + "/me/unread-count";
 
         return this.sendGetRequest(
                 url,
