@@ -111,6 +111,23 @@
     -fx-text-fill: #E74C3C;
 }
 
+.btn-leave {
+    -fx-background-color: #ff0000;
+    -fx-background-radius: 20px;
+    -fx-text-fill: #F2F2F2;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-cursor: hand;
+    -fx-padding: 8px 15px;
+}
+
+.btn-cancel:hover {
+    -fx-text-fill: #ff0000;
+    -fx-background-color: #F2F2F2;
+    -fx-background-radius: 20px;
+}
+
+
 .btn-cancel {
     -fx-background-color: transparent;
     -fx-background-radius: 20px;
@@ -298,4 +315,37 @@
 
 .btn-delete:hover {
     -fx-background-color: #780404;
+}
+
+/* Container của cái Badge */
+.member-badge {
+    -fx-background-color: #E1E4E8;
+    -fx-background-radius: 15px; /* Bo tròn đều 2 đầu */
+    -fx-padding: 4px 8px 4px 12px;
+    -fx-alignment: center;
+    -fx-spacing: 5px;
+}
+
+/* Chữ tên User */
+.member-badge-text {
+    -fx-text-fill: #24292E;
+    -fx-font-size: 13px;
+    -fx-font-weight: 500;
+}
+
+/* Nút X xóa thành viên */
+.member-badge-remove-btn {
+    -fx-background-color: transparent;
+    -fx-text-fill: #6A737D;
+    -fx-font-size: 12px;
+    -fx-font-weight: bold;
+    -fx-padding: 2px 5px 2px 5px;
+    -fx-background-radius: 50%;
+    -fx-cursor: hand;
+}
+
+/* Hiệu ứng di chuột vào nút X đổi màu đỏ */
+.member-badge-remove-btn:hover {
+    -fx-background-color: #FFEBE9;
+    -fx-text-fill: #CB2431;
 }

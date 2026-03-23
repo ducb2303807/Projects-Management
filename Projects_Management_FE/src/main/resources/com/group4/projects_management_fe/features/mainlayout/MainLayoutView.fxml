@@ -34,6 +34,18 @@
                         <FontIcon iconLiteral="fas-bell" styleClass="notif-icon" />
                     </graphic>
                 </Button>
+
+                <Label fx:id="notifBadge"
+                       alignment="CENTER"
+                       managed="false"
+                       visible="false"
+                       styleClass="notif-badge"
+                       text="0"
+                       StackPane.alignment="TOP_RIGHT">
+                    <StackPane.margin>
+                        <Insets right="5.0" top="5.0" />
+                    </StackPane.margin>
+                </Label>
             </StackPane>
 
             <HBox fx:id="userBox"

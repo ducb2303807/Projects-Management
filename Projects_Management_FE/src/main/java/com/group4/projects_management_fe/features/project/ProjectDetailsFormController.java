@@ -1,5 +1,6 @@
 package com.group4.projects_management_fe.features.project;
 
+import com.group4.common.dto.UserDTO;
 import io.reactivex.rxjava3.disposables.CompositeDisposable;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
@@ -13,8 +14,13 @@ import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 import javafx.util.Callback;
-
+import com.group4.common.dto.ProjectMemberDTO;
 import java.time.LocalDate;
+import java.util.List;
+import javafx.scene.control.ContextMenu;
+import javafx.scene.control.MenuItem;
+import javafx.geometry.Side;
+import com.group4.projects_management_fe.core.session.AppSessionManager;
 
 public class ProjectDetailsFormController {
 
@@ -42,6 +48,12 @@ public class ProjectDetailsFormController {
     @FXML private Label createdByLabel;
     @FXML private Label createdDateLabel;
     @FXML private Label lastUpdatedDateLabel;
+    @FXML private Button leaveBtn;
+
+    private ContextMenu coManagerDropdown = new ContextMenu();
+    private ContextMenu memberDropdown = new ContextMenu();
+
+    private Long myProjectMemberId = null;
 
     private final ProjectDetailsViewModel viewModel = new ProjectDetailsViewModel();
     private final CompositeDisposable disposables = new CompositeDisposable();
@@ -318,8 +330,18 @@ public class ProjectDetailsFormController {
             }
         };
 
+        disposables.add(
+                viewModel.getProjectMembersObservable()
+                        .subscribe(members -> {
+                            // Đảm bảo thao tác UI chạy trên luồng JavaFX
+                            Platform.runLater(() -> renderMembers(members));
+                        }, error -> error.printStackTrace())
+        );
+
         statusComboBox.setCellFactory(cellFactory);
         statusComboBox.setButtonCell(cellFactory.call(null));
+
+        setupSearchBindings();
     }
 
     @FXML private void handleEditMode(ActionEvent event) { viewModel.enableEditMode(); }
@@ -341,11 +363,6 @@ public class ProjectDetailsFormController {
         }
         viewModel.saveChanges();
     }
-
-    @FXML private void handleAddCoManagerClick(ActionEvent event) {}
-    @FXML private void handleCoManagerSubmit(ActionEvent event) {}
-    @FXML private void handleAddMemberClick(ActionEvent event) {}
-    @FXML private void handleMemberSubmit(ActionEvent event) {}
 
     public void closeForm() {
         disposables.clear();
@@ -420,5 +437,355 @@ public class ProjectDetailsFormController {
                 "-fx-background-color: %s; -fx-text-fill: %s; -fx-padding: 4px 12px; -fx-background-radius: 12px; -fx-font-weight: bold; -fx-font-size: 12px;",
                 bgColor, textColor
         );
+    }
+
+    // ==========================================
+    // XỬ LÝ ẨN/HIỆN Ô TÌM KIẾM CO-MANAGER VÀ MEMBER
+    // ==========================================
+
+    @FXML
+    private void handleAddCoManagerClick(ActionEvent event) {
+        if (coManagerInput != null) {
+            boolean isCurrentlyVisible = coManagerInput.isVisible();
+
+            // Đảo ngược trạng thái bật/tắt
+            coManagerInput.setVisible(!isCurrentlyVisible);
+            coManagerInput.setManaged(!isCurrentlyVisible);
+
+            if (!isCurrentlyVisible) {
+                // Nếu vừa được bật lên -> Đưa con trỏ chuột vào để gõ ngay
+                coManagerInput.requestFocus();
+            } else {
+                // Nếu bị tắt đi -> Xóa sạch text bên trong
+                coManagerInput.clear();
+            }
+        }
+    }
+
+    @FXML
+    private void handleAddMemberClick(ActionEvent event) {
+        if (memberInput != null) {
+            boolean isCurrentlyVisible = memberInput.isVisible();
+
+            // Đảo ngược trạng thái bật/tắt
+            memberInput.setVisible(!isCurrentlyVisible);
+            memberInput.setManaged(!isCurrentlyVisible);
+
+            if (!isCurrentlyVisible) {
+                // Nếu vừa được bật lên -> Đưa con trỏ chuột vào để gõ ngay
+                memberInput.requestFocus();
+            } else {
+                // Nếu bị tắt đi -> Xóa sạch text bên trong
+                memberInput.clear();
+            }
+        }
+    }
+
+    private void renderMembers(List<ProjectMemberDTO> members) {
+        coManagerTagsContainer.getChildren().clear();
+        memberTagsContainer.getChildren().clear();
+        int totalActiveMembers = 0;
+
+        myProjectMemberId = null;
+        boolean canLeave = false;
+        boolean canEdit = false;
+
+        Long currentUserId = AppSessionManager.getInstance().getCurrentUser() != null
+                ? AppSessionManager.getInstance().getCurrentUser().getId() : -1L;
+
+        if (members == null || members.isEmpty()) {
+            if (memberCountLabel != null) memberCountLabel.setText("(0)");
+            if (leaveBtn != null) { leaveBtn.setVisible(false); leaveBtn.setManaged(false); }
+            if (editBtn != null) { editBtn.setVisible(false); editBtn.setManaged(false); }
+            return;
+        }
+
+        // LẤY CHỨC VỤ CỦA USER ĐANG ĐĂNG NHẬP (Chỉ thêm đúng đoạn này)
+        String currentUserRole = members.stream()
+                .filter(m -> String.valueOf(m.getUserId()).equals(String.valueOf(currentUserId)))
+                .map(ProjectMemberDTO::getRoleName)
+                .findFirst()
+                .orElse("");
+
+        for (ProjectMemberDTO member : members) {
+            String status = member.getStatusName() != null ? member.getStatusName().trim() : "";
+            String role = member.getRoleName() != null ? member.getRoleName().trim() : "";
+
+            if (!"Active".equalsIgnoreCase(status)) continue;
+
+            totalActiveMembers++;
+
+            String memberIdStr = String.valueOf(member.getUserId());
+            String currentUserIdStr = String.valueOf(currentUserId);
+
+            // Kiểm tra quyền Leave và Edit của User đang đăng nhập
+            if (memberIdStr.equals(currentUserIdStr)) {
+                if ("Co-Project Manager".equalsIgnoreCase(role) || "Project Member".equalsIgnoreCase(role)) {
+                    canLeave = true;
+                    myProjectMemberId = member.getProjectMemberId();
+                }
+                if ("Project Manager".equalsIgnoreCase(role) || "Co-Project Manager".equalsIgnoreCase(role)) {
+                    canEdit = true;
+                }
+            }
+
+            // --- VẼ BADGE VÀ TRUYỀN THÊM currentUserRole ĐỂ CHECK QUYỀN KICK ---
+            if ("Co-Project Manager".equalsIgnoreCase(role)) {
+                Node badge = createMemberBadge(member, currentUserRole); // TRUYỀN THÊM VÀO ĐÂY
+                coManagerTagsContainer.getChildren().add(badge);
+            } else if ("Project Member".equalsIgnoreCase(role)) {
+                Node badge = createMemberBadge(member, currentUserRole); // TRUYỀN THÊM VÀO ĐÂY
+                memberTagsContainer.getChildren().add(badge);
+            } else if ("Project Manager".equalsIgnoreCase(role)) {
+                // PM không vẽ badge ở đây
+            }
+        }
+
+        if (memberCountLabel != null) {
+            memberCountLabel.setText(totalActiveMembers + " member(s)");
+        }
+        if (leaveBtn != null) {
+            leaveBtn.setVisible(canLeave);
+            leaveBtn.setManaged(canLeave);
+        }
+        if (editBtn != null) {
+            editBtn.setVisible(canEdit);
+            editBtn.setManaged(canEdit);
+        }
+    }
+
+    // 3. Hàm tạo Badge (Cục Tên + Nút X)
+    // =========================================================================
+    // COPY TOÀN BỘ ĐOẠN NÀY ĐÈ LÊN HÀM createMemberBadge CŨ TRONG CONTROLLER
+    // =========================================================================
+    private Node createMemberBadge(ProjectMemberDTO member, String currentUserRole) {
+        HBox badge = new HBox();
+        badge.getStyleClass().add("member-badge");
+
+        Label nameLabel = new Label(member.getUsername());
+        nameLabel.getStyleClass().add("member-badge-text");
+
+        Button removeBtn = new Button("x");
+        removeBtn.getStyleClass().add("member-badge-remove-btn");
+
+        // --- KIỂM TRA QUYỀN KICK ---
+        boolean canKick = false;
+        if ("Project Manager".equalsIgnoreCase(currentUserRole)) {
+            // PM được kick Co-Manager và Member
+            if ("Co-Project Manager".equalsIgnoreCase(member.getRoleName()) || "Project Member".equalsIgnoreCase(member.getRoleName())) {
+                canKick = true;
+            }
+        } else if ("Co-Project Manager".equalsIgnoreCase(currentUserRole)) {
+            // Co-PM CHỈ được kick Member
+            if ("Project Member".equalsIgnoreCase(member.getRoleName())) {
+                canKick = true;
+            }
+        }
+
+        // Nếu không có quyền kick, ẩn vĩnh viễn nút X
+        if (!canKick) {
+            removeBtn.setVisible(false);
+            removeBtn.setManaged(false);
+        } else {
+            // Nếu có quyền kick -> Ẩn/Hiện nút X theo trạng thái bật Edit Mode (Cây bút)
+            disposables.add(viewModel.getIsEditing().subscribe(isEditing -> {
+                Platform.runLater(() -> {
+                    removeBtn.setVisible(isEditing);
+                    removeBtn.setManaged(isEditing);
+                });
+            }));
+        }
+
+        // --- SỰ KIỆN KHI BẤM NÚT X ---
+        removeBtn.setOnAction(e -> {
+            Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+            alert.setTitle("Remove Member");
+            alert.setHeaderText(null);
+            alert.setContentText("Are you sure you want to remove " + member.getUsername() + " from this project?");
+
+            ButtonType btnYes = new ButtonType("Remove", ButtonBar.ButtonData.OK_DONE);
+            ButtonType btnNo = new ButtonType("Cancel", ButtonBar.ButtonData.CANCEL_CLOSE);
+            alert.getButtonTypes().setAll(btnYes, btnNo);
+
+            // Nút Cancel mặc định được chọn để chống bấm nhầm
+            Button cancelBtn = (Button) alert.getDialogPane().lookupButton(btnNo);
+            cancelBtn.setDefaultButton(true);
+            Button yesBtn = (Button) alert.getDialogPane().lookupButton(btnYes);
+            yesBtn.setDefaultButton(false);
+
+            alert.showAndWait().ifPresent(type -> {
+                if (type == btnYes) {
+                    viewModel.kickMember(member.getProjectMemberId()); // Gọi ViewModel để API
+                }
+            });
+        });
+
+        badge.getChildren().addAll(nameLabel, removeBtn);
+        return badge;
+    }
+
+    private void setupSearchBindings() {
+        // 1. Lắng nghe gõ phím trên Textfield để gọi API
+        coManagerInput.textProperty().addListener((obs, oldVal, newVal) -> {
+            if (newVal != null && !newVal.trim().isEmpty()) {
+                viewModel.searchUsersForCoManager(newVal.trim());
+            } else {
+                coManagerDropdown.hide();
+            }
+        });
+
+        memberInput.textProperty().addListener((obs, oldVal, newVal) -> {
+            if (newVal != null && !newVal.trim().isEmpty()) {
+                viewModel.searchUsersForMember(newVal.trim());
+            } else {
+                memberDropdown.hide();
+            }
+        });
+
+        // 2. Hứng dữ liệu trả về và hiển thị Dropdown (Co-Manager)
+        disposables.add(viewModel.getCoManagerSearchResults().subscribe(users -> {
+            Platform.runLater(() -> {
+                coManagerDropdown.getItems().clear();
+                if (users == null || users.isEmpty()) {
+                    coManagerDropdown.hide();
+                    return;
+                }
+                for (UserDTO user : users) {
+                    MenuItem item = new MenuItem(user.getUsername());
+                    // TRUYỀN SỐ 2L CHO CO-MANAGER
+                    item.setOnAction(e -> confirmAndInviteUser(user, 2L, "co-manager"));
+                    coManagerDropdown.getItems().add(item);
+                }
+                // Nếu đang focus ở ô nhập liệu thì mới thả Dropdown ra
+                if (coManagerInput.isFocused()) {
+                    coManagerDropdown.show(coManagerInput, Side.BOTTOM, 0, 0);
+                }
+            });
+        }));
+
+        // 3. Hứng dữ liệu trả về và hiển thị Dropdown (Member)
+        disposables.add(viewModel.getMemberSearchResults().subscribe(users -> {
+            Platform.runLater(() -> {
+                memberDropdown.getItems().clear();
+                if (users == null || users.isEmpty()) {
+                    memberDropdown.hide();
+                    return;
+                }
+                for (UserDTO user : users) {
+                    MenuItem item = new MenuItem(user.getUsername());
+                    item.setOnAction(e -> confirmAndInviteUser(user, 3L, "member"));
+                    memberDropdown.getItems().add(item);
+                }
+                if (memberInput.isFocused()) {
+                    memberDropdown.show(memberInput, Side.BOTTOM, 0, 0);
+                }
+            });
+        }));
+    }
+
+    // ==========================================
+    // LOGIC KHI ẤN PHÍM ENTER
+    // ==========================================
+    // ==========================================
+    // LOGIC KHI ẤN PHÍM ENTER (Hỗ trợ gõ Username hoặc Email)
+    // ==========================================
+    @FXML
+    private void handleCoManagerSubmit(ActionEvent event) {
+        String text = coManagerInput.getText().trim();
+
+        // SỬA DÒNG NÀY: Gọi hàm mới tạo để lấy List
+        List<UserDTO> currentResults = viewModel.getCurrentCoManagerList();
+
+        if (currentResults != null && !text.isEmpty()) {
+            currentResults.stream()
+                    .filter(u -> text.equalsIgnoreCase(u.getUsername()) ||
+                            (u.getEmail() != null && text.equalsIgnoreCase(u.getEmail())))
+                    .findFirst()
+                    // TRUYỀN SỐ 2L CHO CO-MANAGER
+                    .ifPresent(u -> confirmAndInviteUser(u, 2L, "co-manager"));
+        }
+    }
+
+    @FXML
+    private void handleMemberSubmit(ActionEvent event) {
+        String text = memberInput.getText().trim();
+
+        // SỬA DÒNG NÀY: Gọi hàm mới tạo để lấy List
+        List<UserDTO> currentResults = viewModel.getCurrentMemberList();
+
+        if (currentResults != null && !text.isEmpty()) {
+            currentResults.stream()
+                    .filter(u -> text.equalsIgnoreCase(u.getUsername()) ||
+                            (u.getEmail() != null && text.equalsIgnoreCase(u.getEmail())))
+                    .findFirst()
+                    .ifPresent(u -> confirmAndInviteUser(u, 3L, "member"));
+        }
+    }
+
+    // ==========================================
+    // ALERT XÁC NHẬN VÀ XỬ LÝ MỜI
+    // ==========================================
+    private void confirmAndInviteUser(UserDTO user, Long roleId, String roleName) {
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.setTitle("Add " + roleName);
+        alert.setHeaderText(null);
+        alert.setContentText("Are you sure to invite " + user.getUsername() + " to be " + roleName + "?");
+
+        ButtonType btnYes = new ButtonType("Yes", ButtonBar.ButtonData.YES);
+        ButtonType btnNo = new ButtonType("No", ButtonBar.ButtonData.NO);
+        alert.getButtonTypes().setAll(btnYes, btnNo);
+
+        // Đặt thuộc tính "Nhấn mạnh" (Mặc định chọn) cho nút Yes
+        Button yesBtn = (Button) alert.getDialogPane().lookupButton(btnYes);
+        yesBtn.setDefaultButton(true);
+        Button noBtn = (Button) alert.getDialogPane().lookupButton(btnNo);
+        noBtn.setDefaultButton(false);
+
+        alert.showAndWait().ifPresent(type -> {
+            if (type == btnYes) {
+                // Gửi request qua ViewModel (Lúc này roleId sẽ là 2 hoặc 3 tùy luồng)
+                viewModel.inviteUser(user.getId(), roleId);
+
+                // KIỂM TRA ROLE ID LÀ 2L ĐỂ ẨN Ô INPUT CO-MANAGER
+                if (roleId == 2L) {
+                    coManagerInput.clear();
+                    coManagerInput.setVisible(false);
+                    coManagerInput.setManaged(false);
+                } else {
+                    memberInput.clear();
+                    memberInput.setVisible(false);
+                    memberInput.setManaged(false);
+                }
+            }
+        });
+    }
+
+    @FXML
+    private void handleLeaveProject(ActionEvent event) {
+        if (myProjectMemberId == null) return;
+
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.setTitle("Leave Project");
+        alert.setHeaderText(null);
+        alert.setContentText("Are you sure you want to leave this project?");
+
+        // Khởi tạo 2 nút
+        ButtonType btnLeave = new ButtonType("Leave", ButtonBar.ButtonData.OK_DONE);
+        ButtonType btnCancel = new ButtonType("Cancel", ButtonBar.ButtonData.CANCEL_CLOSE);
+        alert.getButtonTypes().setAll(btnLeave, btnCancel);
+
+        // Highlight nút Cancel (Bảo vệ user khỏi việc lỡ tay bấm nhầm Enter)
+        Button cancelAlertBtn = (Button) alert.getDialogPane().lookupButton(btnCancel);
+        cancelAlertBtn.setDefaultButton(true);
+
+        Button leaveAlertBtn = (Button) alert.getDialogPane().lookupButton(btnLeave);
+        leaveAlertBtn.setDefaultButton(false);
+
+        alert.showAndWait().ifPresent(type -> {
+            if (type == btnLeave) {
+                // Nếu bấm Leave -> Gọi API qua ViewModel
+                viewModel.leaveProject(myProjectMemberId);
+            }
+        });
     }
 }

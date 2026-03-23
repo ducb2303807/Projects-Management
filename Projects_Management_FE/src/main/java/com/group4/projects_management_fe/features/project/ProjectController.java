@@ -13,7 +13,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.TextField;
-import javafx.scene.layout.FlowPane;
+import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.paint.Color;
 import javafx.stage.Modality;
@@ -34,7 +34,7 @@ import java.util.stream.Collectors;
 public class ProjectController implements Initializable {
 
     @FXML private HBox recentCardsContainer;
-    @FXML private FlowPane mainCardsContainer;
+    @FXML private GridPane mainCardsContainer;
 
     @FXML private TextField searchInput;
     @FXML private Button sortBtn;
@@ -287,8 +287,23 @@ public class ProjectController implements Initializable {
             recentCardsContainer.getChildren().clear();
         }
 
+        // ========================================================
+        // CHỈ THAY ĐỔI ĐOẠN NÀY: Chèn giải thuật 3 cột cho GridPane
+        // ========================================================
+        int columns = 3;
+        int col = 0;
+        int row = 0;
+
         for (ProjectItem item : filteredList) {
-            mainCardsContainer.getChildren().add(item.cardNode);
+            // Thay vì dùng getChildren().add(), ta dùng hàm add(Node, col, row) của GridPane
+            mainCardsContainer.add(item.cardNode, col, row);
+
+            // Tính toán tọa độ cho thẻ tiếp theo
+            col++;
+            if (col == columns) {
+                col = 0;
+                row++;
+            }
         }
     }
 
