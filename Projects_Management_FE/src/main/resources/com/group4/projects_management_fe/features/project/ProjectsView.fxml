@@ -47,12 +47,11 @@
 
                     <HBox alignment="CENTER" style="-fx-background-color: rgba(233, 233, 233, 0.35);">
                         <children>
-                            <FlowPane fx:id="mainCardsContainer" alignment="TOP_LEFT" hgap="30.0" vgap="25.0"
-                                      prefWrapLength="1100.0" maxWidth="1100.0">
+                            <GridPane fx:id="mainCardsContainer" alignment="CENTER" hgap="30.0" vgap="25.0">
                                 <padding>
                                     <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
                                 </padding>
-                            </FlowPane>
+                            </GridPane>
                         </children>
                     </HBox>
                 </children>
