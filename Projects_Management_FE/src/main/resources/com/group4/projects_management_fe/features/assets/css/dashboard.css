@@ -227,7 +227,7 @@
     -fx-pref-width: 260;
 }
 
-//TODAY TASK
+/*TODAY TASK*/
 .task-tabs {
     -fx-font-size: 14px;
 }
@@ -268,7 +268,7 @@
     -fx-text-fill:#F57C00;
 }
 
-//project card
+/*project card*/
 /* overlay */
 .form-label{
     -fx-font-size: 14px;

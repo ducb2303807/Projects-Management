@@ -8,7 +8,7 @@
 
 .section-title {
     -fx-text-fill: #1a1a1a;
-    -fx-font-family: "Segoe UI", sans-serif;
+    -fx-font-family: "Montserrat";
     -fx-font-size: 40px;
     -fx-font-weight: bold;
 }
@@ -102,7 +102,7 @@
     -fx-background-color:linear-gradient(to right,#7b5cff,#9f7aea);
     -fx-background-radius: 20px;
     -fx-text-fill: white;
-    -fx-font-family: "Segoe UI", sans-serif;
+    -fx-font-family: "Montserrat";
     -fx-font-size: 14px;
     -fx-font-weight: bold;
     -fx-padding: 8px 20px;
@@ -208,4 +208,24 @@
     -fx-font-weight: bold;
     -fx-font-size: 11px; /* Font nhỏ hơn một chút */
     -fx-alignment: CENTER; /* Căn giữa hoàn hảo */
+}
+
+.status-completed {
+    -fx-background-color: #D4F3E6;
+    -fx-text-fill: #107C41;
+}
+
+.status-on-going {
+    -fx-background-color: #FFF4D6;
+    -fx-text-fill: #B78103;
+}
+
+.status-in-review {
+    -fx-background-color: #FFEDE5;
+    -fx-text-fill: #E65100;
+}
+
+.status-delayed {
+    -fx-background-color: #FFE5E5;
+    -fx-text-fill: #D32F2F;
 }

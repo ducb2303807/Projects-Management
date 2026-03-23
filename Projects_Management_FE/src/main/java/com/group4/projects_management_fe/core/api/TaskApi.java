@@ -130,4 +130,18 @@ public class TaskApi extends AbstractAuthenticatedApi {
                 .build();
         builder.url(newUrl);
     }
+
+    /**
+     * POST /api/tasks
+     * Tạo một task mới gắn với một Project cụ thể
+     * (Sử dụng TaskCreateRequestDTO chứa projectId)
+     */
+    public CompletableFuture<TaskResponseDTO> createTaskInProject(com.group4.common.dto.TaskCreateRequestDTO request) {
+        return this.sendPostRequest(
+                ENDPOINT,
+                request,
+                TaskResponseDTO.class,
+                null
+        );
+    }
 }

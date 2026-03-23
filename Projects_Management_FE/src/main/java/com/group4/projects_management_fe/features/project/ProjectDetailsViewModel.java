@@ -45,6 +45,12 @@ public class ProjectDetailsViewModel extends NewProjectViewModel {
     private final BehaviorSubject<List<UserDTO>> coManagerSearchResults = BehaviorSubject.createDefault(new ArrayList<>());
     private final BehaviorSubject<List<UserDTO>> memberSearchResults = BehaviorSubject.createDefault(new ArrayList<>());
 
+    //Subject lưu các biến statistic
+    private final BehaviorSubject<String> totalTasks = BehaviorSubject.createDefault("0");
+    private final BehaviorSubject<String> inProgressTasks = BehaviorSubject.createDefault("0");
+    private final BehaviorSubject<String> completedTasks = BehaviorSubject.createDefault("0");
+    private final BehaviorSubject<String> progressPercentage = BehaviorSubject.createDefault("0%");
+
     // Map dùng để quy đổi ngược từ: Tên Status (String) -> Status ID (Long) khi Save
     private final Map<String, Long> statusNameToIdMap = new HashMap<>();
     public Map<String, Long> getStatusNameToIdMap() {
@@ -79,16 +85,19 @@ public class ProjectDetailsViewModel extends NewProjectViewModel {
     public Observable<List<String>> statusListObservable() { return statusList.hide(); }
     public Observable<String> createdByObservable() { return createdBy.hide(); }
     public Observable<String> createdDateObservable() { return createdDate.hide(); }
-    public Observable<String> lastUpdatedByObservable() { return lastUpdatedBy.hide(); }
     public Observable<String> lastUpdatedDateObservable() { return lastUpdatedDate.hide(); }
 
     public Observable<Boolean> onSaveSuccess() { return saveSuccess.hide(); }
     public Observable<String> onSaveError() { return saveError.hide(); }
     public Observable<List<String>> membersObservable() { return members.hide(); }
 
+    public Observable<Boolean> getIsEditing() { return isEditing; }
+    public Observable<String> getTotalTasks() { return totalTasks; }
+    public Observable<String> getInProgressTasks() { return inProgressTasks; }
+    public Observable<String> getCompletedTasks() { return completedTasks; }
+    public Observable<String> getProgressPercentage() { return progressPercentage; }
+
     public void enableEditMode() { isEditing.onNext(true); }
-    public void addMember(String username) {}
-    public void removeMember(String username) {}
     private final UserApi userApi = new UserApi(AppSessionManager.getInstance());
 
     public List<UserDTO> getCurrentCoManagerList() {
@@ -169,6 +178,7 @@ public class ProjectDetailsViewModel extends NewProjectViewModel {
                     return null;
                 });
         fetchProjectMembers();
+        fetchProjectStatistics(currentProjectId);
     }
 
     // ==========================================
@@ -364,7 +374,23 @@ public class ProjectDetailsViewModel extends NewProjectViewModel {
             return null;
         });
     }
-    public Observable<Boolean> getIsEditing() {
-        return isEditing;
+
+    // ==========================================
+    // LẤY THỐNG KÊ (STATISTICS)
+    // ==========================================
+    public void fetchProjectStatistics(Long projectId) {
+        if (projectId == null) return;
+
+        projectApi.getProjectStatistics(projectId).thenAccept(stats -> {
+            Platform.runLater(() -> {
+                totalTasks.onNext(String.valueOf(stats.getTotalTasks()));
+                inProgressTasks.onNext(String.valueOf(stats.getInProgressTasks()));
+                completedTasks.onNext(String.valueOf(stats.getCompletedTasks()));
+                progressPercentage.onNext(String.format("%.0f%%", stats.getProgressPercentage()));
+            });
+        }).exceptionally(ex -> {
+            System.err.println("Lỗi khi lấy thống kê dự án: " + ex.getMessage());
+            return null;
+        });
     }
 }
