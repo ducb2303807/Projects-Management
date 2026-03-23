@@ -458,12 +458,14 @@ public class ProjectServiceImpl extends BaseServiceImpl<Project, Long> implement
                 .stream()
                 .map(ProjectMember::getUser)
                 .map(User::getId)
+                .filter(id -> !id.equals(member.getUser().getId()))
                 .toList();
+
+        log.info("receivedIds: {}", receivedIds);
 
         notificationService.send(receivedIds,
                 new MemberJoinContext(member.getProject(), member.getUser()),
                 member.getProject().getId());
-
 
         projectMemberRepository.save(member);
     }

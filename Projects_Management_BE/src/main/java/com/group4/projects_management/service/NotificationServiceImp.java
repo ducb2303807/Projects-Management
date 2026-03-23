@@ -119,7 +119,6 @@ public class NotificationServiceImp extends BaseServiceImpl<Notification, Long> 
             notif.setMetadata("{}");
         }
 
-
         notificationRepository.save(notif);
 
         var users = userRepository.findAllById(receiverIds);

@@ -13,6 +13,7 @@ import com.group4.projects_management_fe.core.navigation.AppStageManager;
 import com.group4.projects_management_fe.core.session.AppSessionManager;
 import com.group4.projects_management_fe.features.project.ProjectTasksController;
 import com.group4.projects_management_fe.features.toast.Toast;
+import io.reactivex.rxjava3.core.Completable;
 import io.reactivex.rxjava3.disposables.CompositeDisposable;
 import io.reactivex.rxjava3.plugins.RxJavaPlugins;
 import javafx.animation.FadeTransition;
@@ -38,6 +39,7 @@ import lombok.Getter;
 import org.pdfsam.rxjavafx.schedulers.JavaFxScheduler;
 
 import java.io.IOException;
+import java.util.concurrent.TimeUnit;
 
 public class MainLayoutController {
     @Getter
@@ -90,16 +92,24 @@ public class MainLayoutController {
     @FXML
     private Label roleLabel;
 
-    @FXML private VBox profileContent;
-    @FXML private VBox passwordContent;
+    @FXML
+    private VBox profileContent;
+    @FXML
+    private VBox passwordContent;
 
-    @FXML private Label profileTab;
-    @FXML private Label passwordTab;
+    @FXML
+    private Label profileTab;
+    @FXML
+    private Label passwordTab;
 
-    @FXML private PasswordField currentPasswordField;
-    @FXML private PasswordField newPasswordField;
-    @FXML private PasswordField confirmPasswordField;
-    @FXML private Label notifBadge;
+    @FXML
+    private PasswordField currentPasswordField;
+    @FXML
+    private PasswordField newPasswordField;
+    @FXML
+    private PasswordField confirmPasswordField;
+    @FXML
+    private Label notifBadge;
 
     private UserDTO currentUser;
     private final UserApi userApi = new UserApi(AppSessionManager.getInstance());
@@ -128,20 +138,15 @@ public class MainLayoutController {
         sseClientManager.connect();
         disposables.add(SseRxBridge.toObservable(sseClientManager)
                 .observeOn(JavaFxScheduler.platform())
-                .subscribe(sseNotificationDTO -> {
-                    javafx.application.Platform.runLater(() -> {
-                        Toast.showToast(stage, sseNotificationDTO);
+                .subscribe(sseNotificationDTO -> Platform.runLater(() -> {
+                    Toast.showToast(stage, sseNotificationDTO);
+                    incrementBadgeCount();
 
-                        incrementBadgeCount();
+                    Completable.timer(1500, TimeUnit.MILLISECONDS)
+                            .observeOn(JavaFxScheduler.platform())
+                            .subscribe(this::updateNotificationBadge);
 
-                        new java.util.Timer().schedule(new java.util.TimerTask() {
-                            @Override
-                            public void run() {
-                                javafx.application.Platform.runLater(() -> updateNotificationBadge());
-                            }
-                        }, 1500);
-                    });
-                }, RxJavaPlugins::onError));
+                }), RxJavaPlugins::onError));
     }
 
     private void bindUserToUI(UserDTO user) {

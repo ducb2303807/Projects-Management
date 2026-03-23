@@ -171,14 +171,16 @@ public class NotificationsController {
             }
 
             showInvitationPopup(item, metaMap);
+        } else {
+            notificationApi.markAsRead(item.getId());
+            item.setRead(true);
+            notificationList.refresh();
+            if (MainLayoutController.getInstance() != null) {
+                MainLayoutController.getInstance().decrementBadgeCount();
+            }
         }
 
-        notificationApi.markAsRead(item.getId());
-        item.setRead(true);
-        notificationList.refresh();
-        if (MainLayoutController.getInstance() != null) {
-            MainLayoutController.getInstance().decrementBadgeCount();
-        }
+
     }
 
     private void showInvitationPopup(NotificationDTO item, Map<String, Object> metaMap) {
