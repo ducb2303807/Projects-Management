@@ -1,53 +1,74 @@
 package com.group4.projects_management_fe.features.task;
 
 import com.group4.common.dto.LookupDTO;
+import com.group4.common.dto.ProjectMemberDTO;
 import com.group4.projects_management_fe.core.session.AuthSessionProvider;
 import io.reactivex.rxjava3.disposables.CompositeDisposable;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.geometry.Pos;
+import javafx.geometry.Side;
 import javafx.scene.control.*;
-import javafx.scene.layout.StackPane;
+import javafx.scene.layout.*;
 import javafx.stage.Stage;
 import javafx.util.Callback;
 import javafx.util.StringConverter;
-import javafx.scene.control.ListCell;
-import javafx.scene.control.ListView;
 import lombok.Getter;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class NewTaskFormController {
 
-    @FXML private StackPane rootPane;
-    @FXML private TextField taskNameInput;
+    @FXML private StackPane  rootPane;
+    @FXML private TextField  taskNameInput;
     @FXML private DatePicker dueDatePicker;
     @FXML private ComboBox<LookupDTO> statusComboBox;
     @FXML private ComboBox<LookupDTO> priorityComboBox;
-    @FXML private Label     assigneeLabel;
-    @FXML private Button    addAssigneeBtn;
-    @FXML private TextField assigneeInput;
-    @FXML private TextArea  descriptionInput;
-    @FXML private Button    saveBtn;
+
+    @FXML private FlowPane   assigneeChipsPane;
+
+    @FXML private Button     addAssigneeBtn;
+
+    @FXML private TextArea   descriptionInput;
+    @FXML private Button     saveBtn;
+
 
     @Getter
     private NewTaskViewModel viewModel;
     private final CompositeDisposable disposables = new CompositeDisposable();
     private Stage popupStage;
 
+    private Long projectId;
+    private Long currentMemberId;
+
     // Gọi từ TasksViewController sau khi tạo Stage, trước showAndWait()
     public void setPopupStage(Stage stage) {
         this.popupStage = stage;
     }
 
+    public void setProjectContext(Long projectId, Long currentMemberId) {
+        this.projectId       = projectId;
+        this.currentMemberId = currentMemberId;
+        if (viewModel != null) {
+            viewModel.setProjectId(projectId);
+            viewModel.loadProjectMembers(currentMemberId);
+        }
+    }
+
+    public void setSessionProvider(AuthSessionProvider sessionProvider) {
+        this.viewModel = new NewTaskViewModel(sessionProvider);
+        if (projectId != null) {
+            viewModel.setProjectId(projectId);
+        }
+        setupBindings();
+    }
+
     @FXML
     public void initialize() {
-        System.out.println(">>> FORM ĐÃ MỞ!"); // Kiểm tra xem Controller có chạy không
-        setupStatusComboBox();
-        setupPriorityComboBox();
-        setupComboBoxStyling();
-
-        assigneeLabel.setText("Unassigned");
+        setupComboBoxes();
+        renderAssigneeChips(List.of(), false); // Hiện "Unassigned" mặc định
         rootPane.setFocusTraversable(true);
         Platform.runLater(() -> rootPane.requestFocus());
     }
@@ -56,123 +77,63 @@ public class NewTaskFormController {
     // Setup ComboBox: StringConverter + CellFactory tô màu
     // -----------------------------------------------------------------------
 
-    private void setupStatusComboBox() {
-        statusComboBox.setConverter(lookupConverter());
-        statusComboBox.setCellFactory(coloredCell("status"));
-        // ButtonCell: hiển thị item đang chọn trên nút ComboBox cũng có màu
-        statusComboBox.setButtonCell(coloredCell("status").call(null));
-    }
-
-    private void setupPriorityComboBox() {
-        priorityComboBox.setConverter(lookupConverter());
-        priorityComboBox.setCellFactory(coloredCell("priority"));
-        priorityComboBox.setButtonCell(coloredCell("priority").call(null));
-    }
-
-    /**
-     * StringConverter dùng chung: hiển thị dto.getName()
-     */
-    private StringConverter<LookupDTO> lookupConverter() {
-        return new StringConverter<>() {
-            @Override
-            public String toString(LookupDTO dto) {
-                // Trả về Name để hiển thị trên Dropdown
+    private void setupComboBoxes() {
+        StringConverter<LookupDTO> converter = new StringConverter<>() {
+            @Override public String toString(LookupDTO dto) {
                 return dto == null || dto.getName() == null ? "" : dto.getName();
             }
-            @Override
-            public LookupDTO fromString(String s) { return null; }
+            @Override public LookupDTO fromString(String s) { return null; }
         };
-    }
 
-    /**
-     * CellFactory tô màu dựa trên tên item và loại combobox ("status" / "priority").
-     * CSS class được thêm vào Label bên trong cell → định nghĩa màu trong lookup-colors.css
-     */
-    private Callback<ListView<LookupDTO>, ListCell<LookupDTO>> coloredCell(String type) {
-        return listView -> new ListCell<>() {
-            @Override
-            protected void updateItem(LookupDTO dto, boolean empty) {
-                super.updateItem(dto, empty);
+        Callback<ListView<LookupDTO>, ListCell<LookupDTO>> cellFactory =
+                lv -> new ListCell<>() {
+                    @Override protected void updateItem(LookupDTO dto, boolean empty) {
+                        super.updateItem(dto, empty);
+                        getStyleClass().removeIf(s ->
+                                s.startsWith("lookup-") || s.startsWith("status-") || s.startsWith("priority-"));
+                        if (empty || dto == null || dto.getName() == null) {
+                            setText(null); setGraphic(null);
+                        } else {
+                            setText(dto.getName());
+                            getStyleClass().addAll("lookup-badge",
+                                    slugify(dto.getName()));
+                            setStyle(getColorStyle(dto));
+                        }
+                    }
+                };
 
-                // Xóa hết style cũ trước khi set mới (tránh style bị giữ lại khi cell tái sử dụng)
-                getStyleClass().removeIf(s -> s.startsWith("lookup-") || s.startsWith("status-") || s.startsWith("priority-"));
+        statusComboBox.setConverter(converter);
+        statusComboBox.setCellFactory(cellFactory);
+        statusComboBox.setButtonCell(cellFactory.call(null));
 
-                if (empty || dto == null || dto.getName() == null) {
-                    setText(null);
-                    setGraphic(null);
-                } else {
-                    setText(dto.getName());
-                    // Thêm CSS class dạng: status-new, status-on-going, priority-high, ...
-                    String cssClass = type + "-" + slugify(dto.getName());
-                    getStyleClass().add("lookup-badge");
-                    getStyleClass().add(cssClass);
-                }
-            }
-        };
-    }
-
-    /**
-     * Chuyển tên thành CSS class slug: "ON_GOING" → "on-going", "HIGH" → "high"
-     */
-    private String getColorStyleForLookup(LookupDTO item) {
-        if (item == null || item.getName() == null) return "";
-
-        return switch (item.getName().toUpperCase()) {
-            // Task Status
-            case "CẦN LÀM", "TO DO" -> "-fx-text-fill: #757575; -fx-font-weight: bold;"; // Xám
-            case "ĐANG LÀM", "IN PROGRESS" -> "-fx-text-fill: #FCAB10; -fx-font-weight: bold;"; // Vàng
-            case "ĐANG KIỂM TRA", "UNDER REVIEW" -> "-fx-text-fill: #7B68EE; -fx-font-weight: bold;"; // Tím
-            case "HOÀN THÀNH", "DONE" -> "-fx-text-fill: #2E7D32; -fx-font-weight: bold;"; // Xanh lá
-            case "ĐÃ HỦY", "CANCELLED" -> "-fx-text-fill: #C62828; -fx-font-weight: bold;"; // Đỏ
-
-            // Priority
-            case "KHẨN CẤP", "URGENT" -> "-fx-text-fill: #C62828; -fx-font-weight: bold;"; // Đỏ
-            case "CAO", "HIGH" -> "-fx-text-fill: #EF6C00; -fx-font-weight: bold;"; // Cam
-            case "TRUNG BÌNH", "MEDIUM" -> "-fx-text-fill: #FCAB10; -fx-font-weight: bold;"; // Vàng
-            case "THẤP", "LOW" -> "-fx-text-fill: #2E7D32; -fx-font-weight: bold;"; // Xanh lá
-
-            default -> "-fx-text-fill: #333333;"; // Màu mặc định
-        };
+        priorityComboBox.setConverter(converter);
+        priorityComboBox.setCellFactory(cellFactory);
+        priorityComboBox.setButtonCell(cellFactory.call(null));
     }
 
     private String slugify(String name) {
         return name.toLowerCase().replace("_", "-").replace(" ", "-");
     }
 
-    private void setupComboBoxStyling() {
-        // Tạo Factory để tùy chỉnh từng dòng (Cell)
-        Callback<ListView<LookupDTO>, ListCell<LookupDTO>> cellFactory = listView -> new ListCell<>() {
-            @Override
-            protected void updateItem(LookupDTO item, boolean empty) {
-                super.updateItem(item, empty);
-
-                if (empty || item == null) {
-                    setText(null);
-                    setStyle(""); // Xóa style nếu dòng trống
-                } else {
-                    setText(item.getName()); // Hiển thị tên
-                    setStyle(getColorStyleForLookup(item)); // Áp dụng màu sắc đã định nghĩa ở Bước 1
-                }
-            }
+    private String getColorStyle(LookupDTO item) {
+        if (item == null || item.getName() == null) return "";
+        return switch (item.getName().toUpperCase()) {
+            case "CẦN LÀM", "TO DO"               -> "-fx-text-fill:#757575; -fx-font-weight:bold;";
+            case "ĐANG LÀM", "IN PROGRESS"         -> "-fx-text-fill:#FCAB10; -fx-font-weight:bold;";
+            case "ĐANG KIỂM TRA", "UNDER REVIEW"   -> "-fx-text-fill:#7B68EE; -fx-font-weight:bold;";
+            case "HOÀN THÀNH", "DONE"              -> "-fx-text-fill:#2E7D32; -fx-font-weight:bold;";
+            case "ĐÃ HỦY", "CANCELLED"             -> "-fx-text-fill:#C62828; -fx-font-weight:bold;";
+            case "KHẨN CẤP", "URGENT"              -> "-fx-text-fill:#C62828; -fx-font-weight:bold;";
+            case "CAO", "HIGH"                     -> "-fx-text-fill:#EF6C00; -fx-font-weight:bold;";
+            case "TRUNG BÌNH", "MEDIUM"             -> "-fx-text-fill:#FCAB10; -fx-font-weight:bold;";
+            case "THẤP", "LOW"                     -> "-fx-text-fill:#2E7D32; -fx-font-weight:bold;";
+            default                                -> "-fx-text-fill:#333333;";
         };
-
-        // 1. Áp dụng cho danh sách xổ xuống (Dropdown List)
-        statusComboBox.setCellFactory(cellFactory);
-        priorityComboBox.setCellFactory(cellFactory);
-
-        // 2. Áp dụng cho ô hiển thị sau khi đã chọn xong (Button Cell)
-        statusComboBox.setButtonCell(cellFactory.call(null));
-        priorityComboBox.setButtonCell(cellFactory.call(null));
     }
 
     // -----------------------------------------------------------------------
     // Session & Bindings
     // -----------------------------------------------------------------------
-
-    public void setSessionProvider(AuthSessionProvider sessionProvider) {
-        this.viewModel = new NewTaskViewModel(sessionProvider);
-        setupBindings();
-    }
 
     private void setupBindings() {
         // Input → ViewModel
@@ -187,31 +148,99 @@ public class NewTaskFormController {
         descriptionInput.textProperty().addListener(
                 (obs, old, val) -> viewModel.setDescription(val));
 
-        // ViewModel → View: data từ DB populate vào ComboBox
+        // ViewModel → View: populate ComboBox status
         disposables.add(
                 viewModel.taskStatusesObservable()
                         .subscribe(list -> Platform.runLater(() ->
                                 statusComboBox.getItems().setAll(list)))
         );
 
+        // ViewModel → View: populate ComboBox priority
         disposables.add(
                 viewModel.prioritiesObservable()
                         .subscribe(list -> Platform.runLater(() ->
                                 priorityComboBox.getItems().setAll(list)))
         );
 
+        // ViewModel → View: enable/disable nút Save
         disposables.add(
                 viewModel.isFormValidObservable()
                         .subscribe(valid -> Platform.runLater(() ->
                                 saveBtn.setDisable(!valid)))
         );
 
+        // ViewModel → View: hiện/ẩn nút "+" theo role
+        // Chỉ Manager mới thấy nút "+"
         disposables.add(
-                viewModel.assigneeObservable()
-                        .subscribe(name -> Platform.runLater(() ->
-                                assigneeLabel.setText(
-                                        name == null || name.isEmpty() ? "Unassigned" : name)))
+                viewModel.canManageAssigneesObservable()
+                        .subscribe(canManage -> Platform.runLater(() -> {
+                            addAssigneeBtn.setVisible(canManage);
+                            addAssigneeBtn.setManaged(canManage);
+                        }))
         );
+
+        // ViewModel → View: render lại chip khi selectedAssignees thay đổi
+        // (mỗi lần add/remove member)
+        disposables.add(
+                viewModel.selectedAssigneesObservable()
+                        .subscribe(selected -> Platform.runLater(() ->
+                                renderAssigneeChips(
+                                        selected,
+                                        Boolean.TRUE.equals(
+                                                viewModel.canManageAssigneesObservable()
+                                                        .blockingFirst()))))
+        );
+
+        // Load project members ngay nếu đã có projectId
+        if (projectId != null) {
+            viewModel.setProjectId(projectId);
+            viewModel.loadProjectMembers(currentMemberId);
+        }
+    }
+
+    // -----------------------------------------------------------------------
+    // Render Assignee Chips
+    // -----------------------------------------------------------------------
+
+    private void renderAssigneeChips(List<ProjectMemberDTO> members, boolean withRemoveBtn) {
+        assigneeChipsPane.getChildren().clear();
+
+        if (members == null || members.isEmpty()) {
+            Label unassigned = new Label("Unassigned");
+            unassigned.setStyle("-fx-text-fill:#999; -fx-font-style:italic;");
+            assigneeChipsPane.getChildren().add(unassigned);
+            return;
+        }
+
+        for (ProjectMemberDTO member : members) {
+            String name = (member.getFullName() != null && !member.getFullName().isBlank())
+                    ? member.getFullName()
+                    : (member.getUsername() != null ? member.getUsername() : "Unknown");
+
+            HBox chip = new HBox(4);
+            chip.setAlignment(Pos.CENTER_LEFT);
+            chip.setStyle("-fx-background-color:#E2E8F0;"
+                    + "-fx-background-radius:12;"
+                    + "-fx-padding:3 10 3 10;");
+
+            Label nameLabel = new Label(name);
+            nameLabel.setStyle("-fx-font-size:12px; -fx-text-fill:#333;");
+            chip.getChildren().add(nameLabel);
+
+            if (withRemoveBtn) {
+                Button removeBtn = new Button("×");
+                removeBtn.setStyle("-fx-background-color:transparent;"
+                        + "-fx-text-fill:#888;"
+                        + "-fx-font-size:12px;"
+                        + "-fx-cursor:hand;"
+                        + "-fx-padding:0 0 0 4;");
+                removeBtn.setOnAction(e ->
+                        viewModel.removeSelectedAssignee(member.getProjectMemberId()));
+                chip.getChildren().add(removeBtn);
+            }
+
+            assigneeChipsPane.getChildren().add(chip);
+        }
     }
 
     // -----------------------------------------------------------------------
@@ -220,23 +249,91 @@ public class NewTaskFormController {
 
     @FXML
     private void handleAddAssigneeClick(ActionEvent event) {
-        assigneeInput.setVisible(true);
-        assigneeInput.setManaged(true);
-        assigneeInput.requestFocus();
+        // Lấy snapshot từ ViewModel (đã được cache từ lần load trước)
+        List<ProjectMemberDTO> allMembers = viewModel.getProjectMembersSnapshot();
+
+        if (allMembers.isEmpty()) {
+            // Chưa load xong hoặc project không có member → không làm gì
+            System.out.println("[NewTaskForm] Project members chưa được load.");
+            return;
+        }
+
+        showMemberSearchPopup(allMembers);
     }
 
-    @FXML
-    private void handleAssigneeSubmit(ActionEvent event) {
-        String username = assigneeInput.getText().trim();
-        if (!username.isEmpty()) viewModel.setAssignee(username);
-        assigneeInput.clear();
-        assigneeInput.setVisible(false);
-        assigneeInput.setManaged(false);
+    private void showMemberSearchPopup(List<ProjectMemberDTO> allMembers) {
+        ContextMenu popup = new ContextMenu();
+
+        TextField searchField = new TextField();
+        searchField.setPromptText("Search members...");
+        searchField.setPrefWidth(220);
+
+        CustomMenuItem searchItem = new CustomMenuItem(searchField);
+        searchItem.setHideOnClick(false);
+        popup.getItems().add(searchItem);
+
+        VBox resultsBox = new VBox(2);
+        CustomMenuItem resultsItem = new CustomMenuItem(resultsBox);
+        resultsItem.setHideOnClick(false);
+        popup.getItems().add(resultsItem);
+
+        Runnable filter = () -> {
+            resultsBox.getChildren().clear();
+            String query = searchField.getText() != null
+                    ? searchField.getText().toLowerCase().trim() : "";
+
+            // IDs đã được chọn → loại khỏi danh sách search
+            List<Long> selectedIds = viewModel.getSelectedAssigneesSnapshot()
+                    .stream().map(ProjectMemberDTO::getProjectMemberId).collect(Collectors.toList());
+
+            List<ProjectMemberDTO> filtered = allMembers.stream()
+                    .filter(m -> {
+                        // Loại member đã chọn
+                        if (selectedIds.contains(m.getProjectMemberId())) return false;
+                        String fn = m.getFullName() != null ? m.getFullName().toLowerCase() : "";
+                        String un = m.getUsername() != null ? m.getUsername().toLowerCase() : "";
+                        return fn.contains(query) || un.contains(query);
+                    })
+                    .collect(Collectors.toList());
+
+            if (filtered.isEmpty()) {
+                Label noResult = new Label(query.isEmpty()
+                        ? "All members selected." : "No member found.");
+                noResult.setStyle("-fx-padding:4 8; -fx-text-fill:#888;");
+                resultsBox.getChildren().add(noResult);
+            } else {
+                for (ProjectMemberDTO member : filtered) {
+                    String display = (member.getFullName() != null
+                            && !member.getFullName().isBlank())
+                            ? member.getFullName() : member.getUsername();
+
+                    Button btn = new Button(display);
+                    btn.setStyle("-fx-background-color:transparent;"
+                            + "-fx-alignment:CENTER_LEFT;"
+                            + "-fx-pref-width:220;"
+                            + "-fx-padding:6 10;");
+                    btn.setOnAction(e -> {
+                        popup.hide();
+                        // Thêm vào selectedAssignees → trigger chip render qua Observable
+                        viewModel.addSelectedAssignee(member);
+                    });
+                    resultsBox.getChildren().add(btn);
+                }
+            }
+        };
+
+        searchField.textProperty().addListener((obs, old, val) -> filter.run());
+        filter.run(); // Hiện full list ngay khi mở
+
+        popup.show(addAssigneeBtn, Side.BOTTOM, 0, 4);
+        Platform.runLater(searchField::requestFocus);
     }
 
     @FXML
     private void handleSave(ActionEvent event) {
+        viewModel.setOnSuccess(this::closeForm);
         viewModel.submitTask();
+        // Đóng popup ngay, onSuccess callback sẽ reload list ở TasksViewController
         closeForm();
     }
 
