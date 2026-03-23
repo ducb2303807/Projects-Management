@@ -155,7 +155,7 @@ public class MainLayoutController {
         usernameField.setText(user.getUsername());
         fullnameField.setText(user.getFullName());
         emailField.setText(user.getEmail());
-        roleLabel.setText(user.getSystemRoleName());
+//        roleLabel.setText(user.getSystemRoleName());
     }
 
     private void loadCurrentUser() {
@@ -235,6 +235,20 @@ public class MainLayoutController {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
             Node view = loader.load();
+
+            // Lấy controller của màn hình vừa load
+            Object controller = loader.getController();
+
+            // Kiểm tra xem nếu màn hình đang load là TasksViewController
+            if (controller instanceof com.group4.projects_management_fe.features.task.TasksViewController) {
+                com.group4.projects_management_fe.features.task.TasksViewController tasksController =
+                        (com.group4.projects_management_fe.features.task.TasksViewController) controller;
+
+                // Truyền AppSessionManager vào (vì nó implements AuthSessionProvider)
+                tasksController.setSessionProvider(AppSessionManager.getInstance());
+
+//                tasksController.setProjectId(null);
+            }
 
             VBox wrapper = new VBox(view);
             wrapper.setMaxWidth(Double.MAX_VALUE);
