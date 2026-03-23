@@ -520,7 +520,7 @@ public class ProjectDetailsFormController {
 
             // Kiểm tra quyền Leave và Edit của User đang đăng nhập
             if (memberIdStr.equals(currentUserIdStr)) {
-                if ("Co-Project Manager".equalsIgnoreCase(role) || "Member".equalsIgnoreCase(role)) {
+                if ("Co-Project Manager".equalsIgnoreCase(role) || "Project Member".equalsIgnoreCase(role)) {
                     canLeave = true;
                     myProjectMemberId = member.getProjectMemberId();
                 }
