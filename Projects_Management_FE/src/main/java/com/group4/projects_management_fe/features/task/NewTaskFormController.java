@@ -7,15 +7,12 @@ import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
-import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
-import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import javafx.util.Callback;
 import javafx.util.StringConverter;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
-import javafx.util.Callback;
 import lombok.Getter;
 
 import java.util.List;
@@ -31,9 +28,6 @@ public class NewTaskFormController {
     @FXML private Button    addAssigneeBtn;
     @FXML private TextField assigneeInput;
     @FXML private TextArea  descriptionInput;
-    @FXML private Label     editedAtLabel;
-    @FXML private VBox      commentsContainer;
-    @FXML private TextField commentField;
     @FXML private Button    saveBtn;
 
     @Getter
@@ -125,13 +119,11 @@ public class NewTaskFormController {
 
         return switch (item.getName().toUpperCase()) {
             // Task Status
-            case "CẦN LÀM", "TODO" -> "-fx-text-fill: #757575; -fx-font-weight: bold;"; // Xám
+            case "CẦN LÀM", "TO DO" -> "-fx-text-fill: #757575; -fx-font-weight: bold;"; // Xám
             case "ĐANG LÀM", "IN PROGRESS" -> "-fx-text-fill: #FCAB10; -fx-font-weight: bold;"; // Vàng
-            case "ĐANG KIỂM TRA", "REVIEW" -> "-fx-text-fill: #7B68EE; -fx-font-weight: bold;"; // Tím
+            case "ĐANG KIỂM TRA", "UNDER REVIEW" -> "-fx-text-fill: #7B68EE; -fx-font-weight: bold;"; // Tím
             case "HOÀN THÀNH", "DONE" -> "-fx-text-fill: #2E7D32; -fx-font-weight: bold;"; // Xanh lá
             case "ĐÃ HỦY", "CANCELLED" -> "-fx-text-fill: #C62828; -fx-font-weight: bold;"; // Đỏ
-
-
 
             // Priority
             case "KHẨN CẤP", "URGENT" -> "-fx-text-fill: #C62828; -fx-font-weight: bold;"; // Đỏ
@@ -220,11 +212,6 @@ public class NewTaskFormController {
                                 assigneeLabel.setText(
                                         name == null || name.isEmpty() ? "Unassigned" : name)))
         );
-
-        disposables.add(
-                viewModel.commentsObservable()
-                        .subscribe(list -> Platform.runLater(() -> renderComments(list)))
-        );
     }
 
     // -----------------------------------------------------------------------
@@ -248,52 +235,19 @@ public class NewTaskFormController {
     }
 
     @FXML
-    private void handleCommentSubmit(ActionEvent event) {
-        String text = commentField.getText().trim();
-        if (!text.isEmpty()) viewModel.addComment(text);
-        commentField.clear();
-    }
-
-    @FXML
     private void handleSave(ActionEvent event) {
         viewModel.submitTask();
         closeForm();
     }
 
+    // -----------------------------------------------------------------------
+    // Close
+    // -----------------------------------------------------------------------
+
     @FXML
     private void handleCancel(ActionEvent event) {
         closeForm();
     }
-
-    // -----------------------------------------------------------------------
-    // Render comments
-    // -----------------------------------------------------------------------
-
-    private void renderComments(List<String> comments) {
-        commentsContainer.getChildren().clear();
-        for (String text : comments) {
-            HBox row = new HBox(8);
-            row.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
-
-            Label avatar = new Label("H");
-            avatar.setStyle("-fx-background-color:#5B3E9E; -fx-text-fill:white;" +
-                    " -fx-min-width:28; -fx-min-height:28; -fx-alignment:center;" +
-                    " -fx-background-radius:14; -fx-font-weight:bold;");
-
-            VBox content = new VBox(2);
-            Label name = new Label("Hunny");
-            name.setStyle("-fx-font-weight:bold;");
-            Label commentText = new Label(text);
-            content.getChildren().addAll(name, commentText);
-
-            row.getChildren().addAll(avatar, content);
-            commentsContainer.getChildren().add(row);
-        }
-    }
-
-    // -----------------------------------------------------------------------
-    // Close
-    // -----------------------------------------------------------------------
 
     private void closeForm() {
         disposables.clear();

@@ -76,8 +76,8 @@ public class MainLayoutController {
     @FXML
     private VBox profilePanel;
 
-    @FXML
-    private Label roleLabel;
+//    @FXML
+//    private Label roleLabel;
 
     @FXML private VBox profileContent;
     @FXML private VBox passwordContent;

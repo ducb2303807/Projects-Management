@@ -103,13 +103,7 @@ public class TaskDetailFormController {
             dueDatePicker.setValue(task.getDeadline().toLocalDate());
         }
 
-        // Hiển thị assignee theo role
         renderAssigneeChips(false);
-
-        // Ẩn nút "+" mặc định, load project members để xác định role
-        addAssigneeBtn.setVisible(false);
-        addAssigneeBtn.setManaged(false);
-//        loadProjectMembersAndDetermineRole();
 
         // GỌI API LẤY DANH SÁCH MEMBER & KIỂM TRA QUYỀN TRỰC TIẾP
         projectApi.getMembersOfProject(projectId).thenAccept(members -> {
@@ -127,7 +121,7 @@ public class TaskDetailFormController {
                         .orElse(null);
 
                 if (currentMember != null) {
-                    // Lấy tên Role (Lưu ý: Bạn điều chỉnh lại hàm getRoleName() cho đúng với ProjectMemberDTO của bạn)
+                    // Lấy tên Role
                     String roleName = currentMember.getRoleName() != null ? currentMember.getRoleName() : "";
 
                     // Nếu role là Project Manager hoặc Co-Project Manager thì hiện nút "+"
@@ -185,43 +179,6 @@ public class TaskDetailFormController {
         // Lắng nghe thay đổi của task
         setupChangeListeners();
     }
-
-//    private void loadProjectMembersAndDetermineRole() {
-//        if (projectId == null) return;
-//
-//        projectApi.getMembersOfProject(projectId)
-//                .thenAccept(members -> {
-//                    this.projectMembersCache = members;
-//
-//                    // Tìm user hiện tại trong danh sách member
-//                    boolean isManager = false;
-//                    if (currentMemberLookup != null && currentMemberLookup.getId() != null) {
-//                        String currentMemberId = currentMemberLookup.getId();
-//                        isManager = members.stream().anyMatch(m -> {
-//                            // So sánh theo projectMemberId
-//                            String memberId = m.getProjectMemberId() != null ? m.getProjectMemberId().toString() : "";
-//                            if (memberId.equals(currentMemberId)) {
-//                                // Kiểm tra role: MANAGER hoặc CO-MANAGER
-//                                String role = m.getRoleName() != null
-//                                        ? m.getRoleName().toUpperCase() : "";
-//                                return role.contains("Project Manager") || role.contains("Co-Project Manager");
-//                            }
-//                            return false;
-//                        });
-//                    }
-//
-//                    this.canManageAssignees = isManager;
-//                    final boolean canManage = isManager;
-//                    Platform.runLater(() -> {
-//                        addAssigneeBtn.setVisible(canManage);
-//                        addAssigneeBtn.setManaged(canManage);
-//                    });
-//                })
-//                .exceptionally(ex -> {
-//                    System.err.println("[TaskDetail] Lỗi load members: " + ex.getMessage());
-//                    return null;
-//                });
-//    }
 
     private void renderAssigneeChips(boolean withRemoveButton) {
         assigneeChipsPane.getChildren().clear();
@@ -314,9 +271,6 @@ public class TaskDetailFormController {
         priorityComboBox.setButtonCell(coloredCell("priority").call(null));
     }
 
-    /**
-     * StringConverter dùng chung: hiển thị dto.getName()
-     */
     private StringConverter<LookupDTO> lookupConverter() {
         return new StringConverter<>() {
             @Override
@@ -331,7 +285,6 @@ public class TaskDetailFormController {
 
     /**
      * CellFactory tô màu dựa trên tên item và loại combobox ("status" / "priority").
-     * CSS class được thêm vào Label bên trong cell → định nghĩa màu trong lookup-colors.css
      */
     private Callback<ListView<LookupDTO>, ListCell<LookupDTO>> coloredCell(String type) {
         return listView -> new ListCell<>() {
@@ -386,9 +339,6 @@ public class TaskDetailFormController {
         priorityComboBox.setButtonCell(cellFactory.call(null));
     }
 
-    /**
-     * Chuyển tên thành CSS class slug: "ON_GOING" → "on-going", "HIGH" → "high"
-     */
     private String getColorStyleForLookup(LookupDTO item) {
         if (item == null || item.getName() == null) return "";
 

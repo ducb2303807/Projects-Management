@@ -17,6 +17,8 @@ import javafx.scene.control.TextField;
 import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import javafx.stage.StageStyle;
+import javafx.stage.Window;
 
 import java.io.IOException;
 
@@ -122,7 +124,7 @@ public class ProjectTasksController {
     }
 
     @FXML
-    private void handleCreateNewTask() {
+    private void handleCreateNewTask(ActionEvent event) {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/group4/projects_management_fe/features/task/NewTaskForm.fxml"));
             Parent root = loader.load();
@@ -131,18 +133,27 @@ public class ProjectTasksController {
             controller.setSessionProvider(AppSessionManager.getInstance());
             controller.getViewModel().setProjectId(this.currentProjectId);
 
-            Stage stage = new Stage();
+            Stage popup = new Stage();
+            popup.initModality(Modality.APPLICATION_MODAL);
+            popup.initOwner(((javafx.scene.Node) event.getSource()).getScene().getWindow());
+            popup.initStyle(StageStyle.TRANSPARENT);
 
-            controller.getViewModel().setOnSuccess(() -> {
-                stage.close();
-                loadProjectTasks();
-            });
+            Scene scene = new Scene(root);
+            scene.setFill(javafx.scene.paint.Color.TRANSPARENT);
+            popup.setScene(scene);
 
-            stage.setScene(new Scene(root));
-            stage.initModality(Modality.APPLICATION_MODAL);
-            stage.setTitle("Create New Task");
+            // === PHẦN QUAN TRỌNG: DÙNG KÍCH THƯỚC TỪ FXML ===
+            popup.setResizable(false);  // không cho resize
+            popup.setWidth(780);
+            popup.setHeight(450);
 
-            stage.showAndWait();
+            // Căn giữa popup trên cửa sổ cha
+            Window owner = popup.getOwner();
+            popup.setX(owner.getX() + (owner.getWidth() - 780) / 2);
+            popup.setY(owner.getY() + (owner.getHeight() - 450) / 2);
+
+            controller.setPopupStage(popup);
+            popup.showAndWait();
 
         } catch (IOException e) {
             e.printStackTrace();
