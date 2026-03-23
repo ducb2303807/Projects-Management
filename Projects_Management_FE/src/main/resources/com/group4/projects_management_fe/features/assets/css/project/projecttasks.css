@@ -8,7 +8,7 @@
 
 .section-title {
     -fx-text-fill: #1a1a1a;
-    -fx-font-family: "Segoe UI", sans-serif;
+    -fx-font-family: "Montserrat";
     -fx-font-size: 40px;
     -fx-font-weight: bold;
 }
@@ -102,7 +102,7 @@
     -fx-background-color:linear-gradient(to right,#7b5cff,#9f7aea);
     -fx-background-radius: 20px;
     -fx-text-fill: white;
-    -fx-font-family: "Segoe UI", sans-serif;
+    -fx-font-family: "Montserrat";
     -fx-font-size: 14px;
     -fx-font-weight: bold;
     -fx-padding: 8px 20px;

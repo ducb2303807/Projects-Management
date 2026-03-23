@@ -36,6 +36,7 @@ public class ProjectDetailsFormController {
     @FXML private Button saveBtn;
     @FXML private Button cancelBtn;
     @FXML private Button deleteBtn;
+    private String currentUserRole = "";
 
     @FXML private TextField coManagerInput;
     @FXML private Button addCoManagerBtn;
@@ -49,6 +50,11 @@ public class ProjectDetailsFormController {
     @FXML private Label createdDateLabel;
     @FXML private Label lastUpdatedDateLabel;
     @FXML private Button leaveBtn;
+
+    @FXML private Label totalTasks;
+    @FXML private Label inProgress;
+    @FXML private Label completed;
+    @FXML private Label percentage;
 
     private ContextMenu coManagerDropdown = new ContextMenu();
     private ContextMenu memberDropdown = new ContextMenu();
@@ -196,6 +202,12 @@ public class ProjectDetailsFormController {
                     projectNameInput.getStyleClass().removeAll("view-mode", "edit-mode");
                     projectNameInput.getStyleClass().add(isEditing ? "edit-mode" : "view-mode");
                 }
+
+                if (deleteBtn != null) {
+                    boolean isManager = "Project Manager".equalsIgnoreCase(this.currentUserRole);
+                    deleteBtn.setVisible(isEditing && isManager);
+                    deleteBtn.setManaged(isEditing && isManager);
+                }
             });
         }));
 
@@ -337,6 +349,14 @@ public class ProjectDetailsFormController {
                             Platform.runLater(() -> renderMembers(members));
                         }, error -> error.printStackTrace())
         );
+
+        // Đăng ký nhận dữ liệu thống kê từ ViewModel
+        disposables.add(viewModel.getTotalTasks().subscribe(text -> Platform.runLater(() -> totalTasks.setText(text))));
+        disposables.add(viewModel.getInProgressTasks().subscribe(text -> Platform.runLater(() -> inProgress.setText(text))));
+        disposables.add(viewModel.getCompletedTasks().subscribe(text -> Platform.runLater(() -> completed.setText(text))));
+        disposables.add(viewModel.getProgressPercentage().subscribe(text -> Platform.runLater(() -> percentage.setText(text))));
+
+
 
         statusComboBox.setCellFactory(cellFactory);
         statusComboBox.setButtonCell(cellFactory.call(null));
@@ -501,7 +521,7 @@ public class ProjectDetailsFormController {
         }
 
         // LẤY CHỨC VỤ CỦA USER ĐANG ĐĂNG NHẬP (Chỉ thêm đúng đoạn này)
-        String currentUserRole = members.stream()
+        this.currentUserRole = members.stream()
                 .filter(m -> String.valueOf(m.getUserId()).equals(String.valueOf(currentUserId)))
                 .map(ProjectMemberDTO::getRoleName)
                 .findFirst()
