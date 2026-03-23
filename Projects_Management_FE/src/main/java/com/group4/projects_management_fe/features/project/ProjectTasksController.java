@@ -138,6 +138,7 @@ public class ProjectTasksController {
 
             NewTaskFormController controller = loader.getController();
             controller.setSessionProvider(AppSessionManager.getInstance());
+            controller.setProjectContext(this.currentProjectId);
             controller.getViewModel().setProjectId(this.currentProjectId);
 
             Stage popup = new Stage();

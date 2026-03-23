@@ -108,6 +108,7 @@ public class NewTaskViewModel {
 
         projectApi.getMembersOfProject(projectId)
                 .thenAccept(members -> {
+                    System.out.println(members);
                     projectMembers.onNext(members);
 
                     // Kiểm tra role: nếu roleName chứa "Manager" → canManage = true
@@ -190,34 +191,39 @@ public class NewTaskViewModel {
      */
     public void submitTask() {
         TaskCreateRequestDTO dto = new TaskCreateRequestDTO();
+
         dto.setName(taskName.getValue());
         dto.setProjectId(projectId);
         dto.setDescription(description.getValue());
 
+        // ✅ deadline
         if (!dueDate.getValue().equals(LocalDate.MIN)) {
             dto.setDeadline(dueDate.getValue().atStartOfDay());
         }
+
+        // ✅ status
         if (status.getValue() != null && status.getValue().getId() != null) {
             dto.setTaskStatusId(Long.parseLong(status.getValue().getId()));
         }
+
+        // ✅ priority
         if (priority.getValue() != null && priority.getValue().getId() != null) {
             dto.setPriorityId(Long.parseLong(priority.getValue().getId()));
         }
 
-        // Snapshot assignees trước khi gọi API (tránh race condition)
+        // ✅ assignee list
         List<Long> assigneeIds = selectedAssignees.getValue().stream()
                 .map(ProjectMemberDTO::getProjectMemberId)
-                .filter(id -> id != null)
-                .collect(Collectors.toList());
+                .toList();
 
-        // Dùng ProjectApi.createTaskInProject → POST /projects/{projectId}/tasks
+        // 🚀 CALL API
         projectApi.createTaskInProject(projectId, dto)
                 .thenCompose(createdTask -> {
                     if (assigneeIds.isEmpty()) {
-                        // Không có assignee → xong
                         return java.util.concurrent.CompletableFuture.completedFuture(null);
                     }
-                    // POST /tasks/{taskId}/members body: [id1, id2, ...]
+
+                    // 🔥 CHỖ QUAN TRỌNG
                     return taskApi.assignMember(createdTask.getTaskId(), assigneeIds);
                 })
                 .thenAccept(v -> {
