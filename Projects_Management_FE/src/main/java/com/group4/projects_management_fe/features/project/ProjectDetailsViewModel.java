@@ -1,14 +1,14 @@
 package com.group4.projects_management_fe.features.project;
 
-import com.group4.common.dto.ProjectResponseDTO;
-import com.group4.common.dto.ProjectUpdateRequestDTO;
+import com.group4.common.dto.*;
+import com.group4.projects_management_fe.core.api.UserApi;
 import com.group4.projects_management_fe.core.session.AppSessionManager;
 import com.group4.projects_management_fe.core.api.LookupApi;
 import com.group4.common.enums.LookupType;
-import com.group4.common.dto.LookupDTO;
 
 import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.subjects.BehaviorSubject;
+import javafx.application.Platform;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public class ProjectDetailsViewModel extends NewProjectViewModel {
 
@@ -36,6 +37,13 @@ public class ProjectDetailsViewModel extends NewProjectViewModel {
 
     // State lưu danh sách tên Status để hiển thị lên UI (ComboBox)
     private final BehaviorSubject<List<String>> statusList = BehaviorSubject.createDefault(new ArrayList<>());
+
+    // Subject quản lý danh sách thành viên
+    private final BehaviorSubject<List<ProjectMemberDTO>> projectMembers = BehaviorSubject.createDefault(new ArrayList<>());
+
+    // Subject quản lý kết quả search
+    private final BehaviorSubject<List<UserDTO>> coManagerSearchResults = BehaviorSubject.createDefault(new ArrayList<>());
+    private final BehaviorSubject<List<UserDTO>> memberSearchResults = BehaviorSubject.createDefault(new ArrayList<>());
 
     // Map dùng để quy đổi ngược từ: Tên Status (String) -> Status ID (Long) khi Save
     private final Map<String, Long> statusNameToIdMap = new HashMap<>();
@@ -61,6 +69,9 @@ public class ProjectDetailsViewModel extends NewProjectViewModel {
     public Observable<LocalDate> endDateObservable() { return this.endDate.hide(); }
     public Observable<Boolean> onDeleteSuccess() { return deleteSuccess.hide(); }
     public Observable<String> statusNameObservable() { return this.statusName.hide(); }
+    public Observable<List<ProjectMemberDTO>> getProjectMembersObservable() { return projectMembers; }
+    public Observable<List<UserDTO>> getCoManagerSearchResults() { return coManagerSearchResults; }
+    public Observable<List<UserDTO>> getMemberSearchResults() { return memberSearchResults; }
 
     // HÀM MỚI ĐƯỢC THÊM VÀO ĐỂ NHẬN GIÁ TRỊ TỪ COMBOBOX:
     public void setStatusName(String name) { this.statusName.onNext(name); }
@@ -78,6 +89,15 @@ public class ProjectDetailsViewModel extends NewProjectViewModel {
     public void enableEditMode() { isEditing.onNext(true); }
     public void addMember(String username) {}
     public void removeMember(String username) {}
+    private final UserApi userApi = new UserApi(AppSessionManager.getInstance());
+
+    public List<UserDTO> getCurrentCoManagerList() {
+        return coManagerSearchResults.getValue();
+    }
+
+    public List<UserDTO> getCurrentMemberList() {
+        return memberSearchResults.getValue();
+    }
 
     // ==========================================
     // PHASE 1: LOAD DỮ LIỆU TỪ API (TÍCH HỢP LOOKUP)
@@ -148,6 +168,7 @@ public class ProjectDetailsViewModel extends NewProjectViewModel {
                     ex.printStackTrace();
                     return null;
                 });
+        fetchProjectMembers();
     }
 
     // ==========================================
@@ -217,5 +238,133 @@ public class ProjectDetailsViewModel extends NewProjectViewModel {
             saveError.onNext("Lỗi xóa dự án: " + ex.getMessage());
             return null;
         });
+    }
+
+    public void fetchProjectMembers() {
+        if (currentProjectId == null) return;
+
+        projectApi.getMembersOfProject(currentProjectId)
+                .thenAccept(membersList -> {
+                    // Đẩy dữ liệu mới vào Subject
+                    projectMembers.onNext(membersList);
+                })
+                .exceptionally(ex -> {
+                    System.err.println("Lỗi khi lấy danh sách thành viên: " + ex.getMessage());
+                    return null;
+                });
+    }
+
+    // ==========================================
+    // LOGIC TÌM KIẾM CO-MANAGER
+    // ==========================================
+    public void searchUsersForCoManager(String keyword) {
+        if (keyword == null || keyword.trim().isEmpty()) {
+            coManagerSearchResults.onNext(new ArrayList<>());
+            return;
+        }
+        // Gọi API: GET /api/users/search
+        userApi.searchUsers(keyword).thenAccept(users -> {
+            // Lọc bỏ những người ĐÃ LÀ Co-Manager hiện tại
+            List<UserDTO> filtered = users.stream()
+                    .filter(u -> !isAlreadyCoManager(u.getId()))
+                    .collect(Collectors.toList());
+            coManagerSearchResults.onNext(filtered);
+        }).exceptionally(ex -> {
+            ex.printStackTrace(); return null;
+        });
+    }
+
+    private boolean isAlreadyCoManager(Long userId) {
+        return projectMembers.getValue().stream()
+                .anyMatch(m -> m.getUserId().equals(userId)
+                        && ("Co-Project Manager".equalsIgnoreCase(m.getRoleName()) || "Project Manager".equalsIgnoreCase(m.getRoleName()))
+                        && "Active".equalsIgnoreCase(m.getStatusName()));
+    }
+
+    // ==========================================
+    // LOGIC TÌM KIẾM MEMBER
+    // ==========================================
+    public void searchUsersForMember(String keyword) {
+        if (keyword == null || keyword.trim().isEmpty()) {
+            memberSearchResults.onNext(new ArrayList<>());
+            return;
+        }
+        userApi.searchUsers(keyword).thenAccept(users -> {
+            // Lọc bỏ những người ĐÃ LÀ MEMBER hoặc CO-MANAGER (Tức là đang Active trong project)
+            List<UserDTO> filtered = users.stream()
+                    .filter(u -> !isAlreadyInProject(u.getId()))
+                    .collect(Collectors.toList());
+            memberSearchResults.onNext(filtered);
+        }).exceptionally(ex -> {
+            ex.printStackTrace(); return null;
+        });
+    }
+
+    private boolean isAlreadyInProject(Long userId) {
+        return projectMembers.getValue().stream()
+                .anyMatch(m -> m.getUserId().equals(userId) && "Active".equalsIgnoreCase(m.getStatusName()));
+    }
+
+    // ==========================================
+    // LOGIC MỜI THAM GIA
+    // ==========================================
+    public void inviteUser(Long userId, Long roleId) {
+        if (currentProjectId == null) return;
+
+        // 1. Sử dụng Builder của MemberInviteRequest (Chỉ cần userId và roleId)
+        MemberInviteRequest inviteDTO = MemberInviteRequest.builder()
+                .userId(userId)             // Gắn User ID được mời
+                .roleId(roleId)             // Gắn Role ID (2 cho Co-manager, 3 cho Member)
+                .build();
+
+        // 2. Bọc vào List vì API endpoint yêu cầu List<MemberInviteRequest>
+        List<MemberInviteRequest> requestBody = List.of(inviteDTO);
+
+        // 3. Gọi API: projectId truyền vào tham số đầu, list truyền vào tham số thứ hai
+        projectApi.inviteMembers(currentProjectId, requestBody).thenAccept(v -> {
+            // Mời thành công -> Tự động gọi hàm fetch lại danh sách thành viên để cập nhật UI
+            javafx.application.Platform.runLater(this::fetchProjectMembers);
+        }).exceptionally(ex -> {
+            System.err.println("Lỗi khi mời thành viên: " + ex.getMessage());
+            return null;
+        });
+    }
+
+    // ==========================================
+    // LOGIC RỜI KHỎI DỰ ÁN (LEAVE)
+    // ==========================================
+    public void leaveProject(Long projectMemberId) {
+        if (projectMemberId == null) return;
+
+        projectApi.removeMemberFromProject(projectMemberId).thenAccept(v -> {
+            // Khi leave thành công, ta mượn luôn deleteSuccess để báo cho Controller đóng Popup
+            // và tự động refresh lại danh sách Project bên ngoài (y hệt như khi xóa dự án)
+            Platform.runLater(() -> deleteSuccess.onNext(true));
+        }).exceptionally(ex -> {
+            System.err.println("Lỗi khi rời dự án: " + ex.getMessage());
+            return null;
+        });
+    }
+
+    // ==========================================
+    // LOGIC KICK MEMBER (XÓA KHỎI DỰ ÁN)
+    // ==========================================
+    public void kickMember(Long projectMemberId) {
+        if (projectMemberId == null) return;
+
+        projectApi.removeMemberFromProject(projectMemberId).thenAccept(v -> {
+            System.out.println("Kick member thành công!");
+            // Cập nhật lại UI sau khi kick thành công
+            Platform.runLater(() -> {
+                fetchProjectMembers(); // Gọi lại hàm load members, danh sách sẽ tự động render lại
+            });
+        }).exceptionally(ex -> {
+            System.err.println("Lỗi khi kick member: " + ex.getMessage());
+            // Bạn có thể emit lỗi ra UI nếu cần
+            return null;
+        });
+    }
+    public Observable<Boolean> getIsEditing() {
+        return isEditing;
     }
 }
