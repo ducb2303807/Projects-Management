@@ -86,8 +86,11 @@
                             <Label styleClass="field-label" text="Assignee" />
                         </HBox>
                         <HBox alignment="CENTER_LEFT" spacing="10.0" GridPane.columnIndex="1">
-                            <Label fx:id="assigneeLabel" styleClass="field-value" text="Unassigned" />
-                            <Button fx:id="addAssigneeBtn" onAction="#handleAddAssigneeClick" styleClass="btn-add-circle" text="+" />
+                            <FlowPane fx:id="assigneeChipsPane" hgap="5.0" vgap="5.0">
+                        <children>
+                                  <Label fx:id="assigneeLabel" styleClass="field-value" text="Unassigned" />
+                                  <Button fx:id="addAssigneeBtn" maxWidth="30.0" minWidth="30.0" onAction="#handleAddAssigneeClick" prefHeight="26.0" prefWidth="11.0" styleClass="btn-add-circle" text="+" />
+                        </children></FlowPane>
                             <TextField fx:id="assigneeInput" managed="false" onAction="#handleAddAssigneeClick" promptText="Enter username" styleClass="clean-input" visible="false" HBox.hgrow="ALWAYS" />
                         </HBox>
                     </children>

@@ -117,7 +117,7 @@ public class NewTaskViewModel {
                             if (!currentMemberId.equals(m.getProjectMemberId())) return false;
                             String role = m.getRoleName() != null
                                     ? m.getRoleName().toUpperCase() : "";
-                            return role.contains("MANAGER") || role.contains("PM");
+                            return role.contains("Manager") || role.contains("Co-Project Manager");
                         });
                     }
                     canManageAssignees.onNext(isManager);

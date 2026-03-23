@@ -124,6 +124,13 @@ public class ProjectTasksController {
     }
 
     @FXML
+    private void handleRefresh(ActionEvent event) {
+        if (currentProjectId != null) {
+            viewModel.loadTasksForProject(currentProjectId);
+        }
+    }
+
+    @FXML
     private void handleCreateNewTask(ActionEvent event) {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/group4/projects_management_fe/features/task/NewTaskForm.fxml"));

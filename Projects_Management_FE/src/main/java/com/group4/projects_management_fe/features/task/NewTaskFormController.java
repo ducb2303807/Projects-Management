@@ -19,6 +19,7 @@ import lombok.Getter;
 import java.util.List;
 import java.util.stream.Collectors;
 
+
 public class NewTaskFormController {
 
     @FXML private StackPane  rootPane;
@@ -27,9 +28,10 @@ public class NewTaskFormController {
     @FXML private ComboBox<LookupDTO> statusComboBox;
     @FXML private ComboBox<LookupDTO> priorityComboBox;
 
-    @FXML private FlowPane   assigneeChipsPane;
+    @FXML
+    private FlowPane   assigneeChipsPane;
 
-    @FXML private Button     addAssigneeBtn;
+    @FXML private Button    addAssigneeBtn;
 
     @FXML private TextArea   descriptionInput;
     @FXML private Button     saveBtn;
@@ -68,9 +70,11 @@ public class NewTaskFormController {
     @FXML
     public void initialize() {
         setupComboBoxes();
-        renderAssigneeChips(List.of(), false); // Hiện "Unassigned" mặc định
+//        renderAssigneeChips(List.of(), false); // Hiện "Unassigned" mặc định
         rootPane.setFocusTraversable(true);
         Platform.runLater(() -> rootPane.requestFocus());
+        addAssigneeBtn.setVisible(true);
+        addAssigneeBtn.setManaged(true);
     }
 
     // -----------------------------------------------------------------------
@@ -171,25 +175,25 @@ public class NewTaskFormController {
 
         // ViewModel → View: hiện/ẩn nút "+" theo role
         // Chỉ Manager mới thấy nút "+"
-        disposables.add(
-                viewModel.canManageAssigneesObservable()
-                        .subscribe(canManage -> Platform.runLater(() -> {
-                            addAssigneeBtn.setVisible(canManage);
-                            addAssigneeBtn.setManaged(canManage);
-                        }))
-        );
+//        disposables.add(
+//                viewModel.canManageAssigneesObservable()
+//                        .subscribe(canManage -> Platform.runLater(() -> {
+//                            addAssigneeBtn.setVisible(canManage);
+//                            addAssigneeBtn.setManaged(canManage);
+//                        }))
+//        );
 
         // ViewModel → View: render lại chip khi selectedAssignees thay đổi
         // (mỗi lần add/remove member)
-        disposables.add(
-                viewModel.selectedAssigneesObservable()
-                        .subscribe(selected -> Platform.runLater(() ->
-                                renderAssigneeChips(
-                                        selected,
-                                        Boolean.TRUE.equals(
-                                                viewModel.canManageAssigneesObservable()
-                                                        .blockingFirst()))))
-        );
+//        disposables.add(
+//                viewModel.selectedAssigneesObservable()
+//                        .subscribe(selected -> Platform.runLater(() ->
+//                                renderAssigneeChips(
+//                                        selected,
+//                                        Boolean.TRUE.equals(
+//                                                viewModel.canManageAssigneesObservable()
+//                                                        .blockingFirst()))))
+//        );
 
         // Load project members ngay nếu đã có projectId
         if (projectId != null) {
