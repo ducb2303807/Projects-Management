@@ -36,6 +36,7 @@ public class ProjectDetailsFormController {
     @FXML private Button saveBtn;
     @FXML private Button cancelBtn;
     @FXML private Button deleteBtn;
+    private String currentUserRole = "";
 
     @FXML private TextField coManagerInput;
     @FXML private Button addCoManagerBtn;
@@ -201,6 +202,12 @@ public class ProjectDetailsFormController {
                     projectNameInput.getStyleClass().removeAll("view-mode", "edit-mode");
                     projectNameInput.getStyleClass().add(isEditing ? "edit-mode" : "view-mode");
                 }
+
+                if (deleteBtn != null) {
+                    boolean isManager = "Project Manager".equalsIgnoreCase(this.currentUserRole);
+                    deleteBtn.setVisible(isEditing && isManager);
+                    deleteBtn.setManaged(isEditing && isManager);
+                }
             });
         }));
 
@@ -348,6 +355,8 @@ public class ProjectDetailsFormController {
         disposables.add(viewModel.getInProgressTasks().subscribe(text -> Platform.runLater(() -> inProgress.setText(text))));
         disposables.add(viewModel.getCompletedTasks().subscribe(text -> Platform.runLater(() -> completed.setText(text))));
         disposables.add(viewModel.getProgressPercentage().subscribe(text -> Platform.runLater(() -> percentage.setText(text))));
+
+
 
         statusComboBox.setCellFactory(cellFactory);
         statusComboBox.setButtonCell(cellFactory.call(null));
@@ -512,7 +521,7 @@ public class ProjectDetailsFormController {
         }
 
         // LẤY CHỨC VỤ CỦA USER ĐANG ĐĂNG NHẬP (Chỉ thêm đúng đoạn này)
-        String currentUserRole = members.stream()
+        this.currentUserRole = members.stream()
                 .filter(m -> String.valueOf(m.getUserId()).equals(String.valueOf(currentUserId)))
                 .map(ProjectMemberDTO::getRoleName)
                 .findFirst()

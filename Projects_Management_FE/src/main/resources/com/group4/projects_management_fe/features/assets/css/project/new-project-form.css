@@ -147,7 +147,7 @@
     -fx-background-color:linear-gradient(to right,#7b5cff,#9f7aea);
     -fx-background-radius: 20px;
     -fx-text-fill: white;
-    -fx-font-family: "Segoe UI", sans-serif;
+    -fx-font-family: "Montserrat";
     -fx-font-size: 14px;
     -fx-font-weight: bold;
     -fx-padding: 8px 20px;
@@ -306,7 +306,7 @@
     -fx-background-color: #ff0000;
     -fx-background-radius: 20px;
     -fx-text-fill: white;
-    -fx-font-family: "Segoe UI", sans-serif;
+    -fx-font-family: "Montserrat";
     -fx-font-size: 14px;
     -fx-font-weight: bold;
     -fx-padding: 8px 20px;
@@ -366,7 +366,7 @@
 
 /* Tiêu đề con (Total, In Progress...) */
 .stat-title {
-    -fx-font-family: "Segoe UI", sans-serif; /* Đồng nhất với form */
+    -fx-font-family: "Montserrat"; /* Đồng nhất với form */
     -fx-font-size: 14px;
     -fx-text-fill: #797979; /* Màu chữ xám giống field-label */
     -fx-font-weight: bold;
@@ -374,7 +374,7 @@
 
 /* Kiểu dáng chung của con số */
 .stat-number {
-    -fx-font-family: "Montserrat", sans-serif;
+    -fx-font-family: "Montserrat";
     -fx-font-size: 30px;
     -fx-font-weight: 900;
     -fx-padding: 5px 0 0 0;
