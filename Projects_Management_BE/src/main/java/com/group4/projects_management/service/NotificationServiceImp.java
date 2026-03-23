@@ -129,9 +129,11 @@ public class NotificationServiceImp extends BaseServiceImpl<Notification, Long> 
             un.setNotification(notif);
 
             var dto = userNotificationMapper.toDto(un);
-            dto.setMetadata(metadataMap);
+            if (dto != null) {
+                dto.setMetadata(metadataMap);
+                eventPublisher.publishEvent(new NotificationEvent(user.getId(), dto));
+            }
 
-            eventPublisher.publishEvent(new NotificationEvent(user.getId(), dto));
             return un;
         }).toList();
 
