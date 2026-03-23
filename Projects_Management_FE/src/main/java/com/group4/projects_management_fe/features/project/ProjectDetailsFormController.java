@@ -50,6 +50,11 @@ public class ProjectDetailsFormController {
     @FXML private Label lastUpdatedDateLabel;
     @FXML private Button leaveBtn;
 
+    @FXML private Label totalTasks;
+    @FXML private Label inProgress;
+    @FXML private Label completed;
+    @FXML private Label percentage;
+
     private ContextMenu coManagerDropdown = new ContextMenu();
     private ContextMenu memberDropdown = new ContextMenu();
 
@@ -337,6 +342,12 @@ public class ProjectDetailsFormController {
                             Platform.runLater(() -> renderMembers(members));
                         }, error -> error.printStackTrace())
         );
+
+        // Đăng ký nhận dữ liệu thống kê từ ViewModel
+        disposables.add(viewModel.getTotalTasks().subscribe(text -> Platform.runLater(() -> totalTasks.setText(text))));
+        disposables.add(viewModel.getInProgressTasks().subscribe(text -> Platform.runLater(() -> inProgress.setText(text))));
+        disposables.add(viewModel.getCompletedTasks().subscribe(text -> Platform.runLater(() -> completed.setText(text))));
+        disposables.add(viewModel.getProgressPercentage().subscribe(text -> Platform.runLater(() -> percentage.setText(text))));
 
         statusComboBox.setCellFactory(cellFactory);
         statusComboBox.setButtonCell(cellFactory.call(null));

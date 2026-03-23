@@ -8,13 +8,13 @@
 
 <StackPane fx:id="rootPane" styleClass="popup-background" stylesheets="@../assets/css/project/new-project-form.css" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.group4.projects_management_fe.features.project.ProjectDetailsFormController">
 
-    <VBox minHeight="550.0" prefWidth="940.0" styleClass="popup-container">
+    <VBox minHeight="550.0" prefWidth="1150.0" styleClass="popup-container">
 
         <HBox>
             <padding>
                 <Insets bottom="15.0" left="30.0" right="30.0" top="25.0" />
             </padding>
-            <TextField fx:id="projectNameInput" prefHeight="55.0" prefWidth="930.0" promptText="Project name" styleClass="title-input">
+            <TextField fx:id="projectNameInput" prefHeight="55.0" prefWidth="1100.0" promptText="Project name" styleClass="title-input">
             <font>
                <Font size="30.0" />
             </font></TextField>
@@ -104,7 +104,7 @@
 
             <Separator orientation="VERTICAL" />
 
-            <VBox minWidth="320.0" prefWidth="320.0" spacing="25.0" styleClass="right-column">
+            <VBox minWidth="500.0" prefWidth="500.0" spacing="25.0" styleClass="right-column">
                 <padding>
                     <Insets bottom="30.0" left="20.0" right="30.0" top="25.0" />
                 </padding>
@@ -130,40 +130,33 @@
                     </ScrollPane>
                 </VBox>
 
-                <HBox alignment="CENTER" minHeight="120.0" prefHeight="130.0" prefWidth="270.0">
-                    <VBox prefHeight="130.0" prefWidth="135.0">
-                        <VBox alignment="CENTER_LEFT" prefHeight="65.0" prefWidth="135.0">
-                            <Label styleClass="user-name" text="Total" />
-                            <Label fx:id="totalTasks" styleClass="user-name" text="{Creator}" textAlignment="CENTER">
-                        <VBox.margin>
-                           <Insets left="30.0" />
-                        </VBox.margin></Label>
+                <VBox spacing="15.0">
+                    <Label styleClass="field-label" text="Statistics" />
+
+                    <HBox alignment="CENTER_LEFT" spacing="20.0">
+
+                        <VBox alignment="CENTER" prefWidth="150.0" styleClass="stat-card">
+                            <Label styleClass="stat-title" text="Total Tasks" />
+                            <Label fx:id="totalTasks" styleClass="stat-number, stat-total" text="0" />
                         </VBox>
-                        <VBox alignment="CENTER_LEFT" prefHeight="65.0" prefWidth="135.0">
-                            <Label styleClass="user-name" text="Progress" />
-                            <Label fx:id="percentage" styleClass="user-name" text="{CreateDate}" textAlignment="CENTER">
-                        <VBox.margin>
-                           <Insets left="30.0" />
-                        </VBox.margin></Label>
+
+                        <VBox alignment="CENTER" prefWidth="150.0" styleClass="stat-card">
+                            <Label styleClass="stat-title" text="In Progress" />
+                            <Label fx:id="inProgress" styleClass="stat-number, stat-in-progress" text="0" />
                         </VBox>
-                    </VBox>
-                    <VBox prefHeight="130.0" prefWidth="135.0">
-                        <VBox alignment="CENTER_LEFT" prefHeight="65.0" prefWidth="135.0">
-                            <Label styleClass="user-name" text="On going" />
-                            <Label fx:id="inProgress" styleClass="user-name" text="{Creator}" textAlignment="CENTER">
-                        <VBox.margin>
-                           <Insets left="30.0" />
-                        </VBox.margin></Label>
+
+                        <VBox alignment="CENTER" prefWidth="150.0" styleClass="stat-card">
+                            <Label styleClass="stat-title" text="Completed" />
+                            <Label fx:id="completed" styleClass="stat-number, stat-completed" text="0" />
                         </VBox>
-                        <VBox alignment="CENTER_LEFT" prefHeight="65.0" prefWidth="135.0">
-                            <Label styleClass="user-name" text="Completed" />
-                            <Label fx:id="completed" styleClass="user-name" text="{CreateDate}" textAlignment="CENTER">
-                        <VBox.margin>
-                           <Insets left="30.0" />
-                        </VBox.margin></Label>
+
+                        <VBox alignment="CENTER" prefWidth="150.0" styleClass="stat-card">
+                            <Label styleClass="stat-title" text="Progress" />
+                            <Label fx:id="percentage" styleClass="stat-number, stat-progress" text="0%" />
                         </VBox>
-                    </VBox>
-                </HBox>
+
+                    </HBox>
+                </VBox>
 
                 <VBox prefWidth="270.0" spacing="10.0">
                     <Label styleClass="field-label" text="Last updated at" />
