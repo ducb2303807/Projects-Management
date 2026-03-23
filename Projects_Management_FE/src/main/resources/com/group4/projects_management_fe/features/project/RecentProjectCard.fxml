@@ -15,6 +15,6 @@
         <Label fx:id="lblProjectName" styleClass="recent-project-name" text="Project name" />
     </children>
     <padding>
-        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+        <Insets bottom="5.0" left="25.0" right="25.0" top="5.0" />
     </padding>
 </VBox>

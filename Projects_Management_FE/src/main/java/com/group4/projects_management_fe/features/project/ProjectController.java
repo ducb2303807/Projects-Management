@@ -13,7 +13,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.TextField;
-import javafx.scene.layout.FlowPane;
+import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.paint.Color;
 import javafx.stage.Modality;
@@ -34,7 +34,7 @@ import java.util.stream.Collectors;
 public class ProjectController implements Initializable {
 
     @FXML private HBox recentCardsContainer;
-    @FXML private FlowPane mainCardsContainer;
+    @FXML private GridPane mainCardsContainer;
 
     @FXML private TextField searchInput;
     @FXML private Button sortBtn;
@@ -51,7 +51,7 @@ public class ProjectController implements Initializable {
     // ==========================================
 
     // Dùng LinkedList static để giữ lại danh sách khi người dùng chuyển trang
-    private static final LinkedList<ProjectResponseDTO> recentProjectsList = new LinkedList<>();
+    public static final LinkedList<ProjectResponseDTO> recentProjectsList = new LinkedList<>();
     private final List<ProjectItem> allProjectItems = new ArrayList<>();
 
     private static class ProjectItem {
@@ -70,6 +70,7 @@ public class ProjectController implements Initializable {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
+        renderRecentProjects();
         // 1. Setup ComboBox Sắp xếp
         if (sortCriteriaComboBox != null) {
             sortCriteriaComboBox.getItems().addAll("Name", "Date", "Status");
@@ -89,8 +90,44 @@ public class ProjectController implements Initializable {
         renderRecentProjects();
 
         // 4. Lắng nghe dữ liệu API từ ViewModel
+        // 4. Lắng nghe dữ liệu API từ ViewModel
         viewModel.projectsObservable().subscribe(projects -> {
-            Platform.runLater(() -> renderProjectsToUI(projects));
+            Platform.runLater(() -> {
+//                this.currentProjectsList = new ArrayList<>(projects);
+
+                if (!projects.isEmpty()) {
+                    List<Long> activeIds = projects.stream()
+                            .map(ProjectResponseDTO::getId)
+                            .collect(Collectors.toList());
+
+                    // Xóa sạch khỏi LinkedList tĩnh những dự án không còn trên DB nữa
+                    recentProjectsList.removeIf(p -> !activeIds.contains(p.getId()));
+                }
+
+                // 1. Giữ nguyên hàm cũ của bạn: Vẽ danh sách Project chính
+                renderProjectsToUI(projects);
+
+                // 2. PHẦN CHÈN THÊM: Dọn dẹp và vẽ lại danh sách Recent Project
+                if (recentCardsContainer != null) {
+                    recentCardsContainer.getChildren().clear(); // Xóa sạch thẻ cũ
+
+                    for (var localProject : recentProjectsList) {
+                        try {
+                            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/group4/projects_management_fe/features/project/RecentProjectCard.fxml"));
+                            Node card = loader.load();
+                            RecentProjectCardController controller = loader.getController();
+
+                            // Nạp dữ liệu vào thẻ (Thay đổi getProjectId/getProjectName nếu file của bạn đặt tên khác)
+                            controller.bindData(String.valueOf(localProject.getId()), localProject.getProjectName());
+
+                            recentCardsContainer.getChildren().add(card);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+
+            });
         }, Throwable::printStackTrace);
 
         // 5. Bắt đầu gọi API
@@ -168,10 +205,18 @@ public class ProjectController implements Initializable {
                     }
                 });
 
-                // GẮN SỰ KIỆN CLICK CHO THẺ CARD CHÍNH ĐỂ THÊM VÀO RECENT
-                projectCard.setOnMouseClicked(event -> {
+                // ============================================================
+                // CÁCH ĐƠN GIẢN HÓA: Gắn callback bằng hàm có sẵn
+                // ============================================================
+                cardCtrl.setOnAddToRecentCallback(() -> {
                     handleProjectClicked(dto);
                 });
+                // ============================================================
+
+//                // GẮN SỰ KIỆN CLICK CHO THẺ CARD CHÍNH ĐỂ THÊM VÀO RECENT
+//                projectCard.setOnMouseClicked(event -> {
+//                    handleProjectClicked(dto);
+//                });
 
                 // Lưu lại nội bộ để hỗ trợ Sort và Search
                 allProjectItems.add(new ProjectItem(projectCard, dto.getProjectName(), projectDate, dto.getStatusName()));
@@ -237,8 +282,28 @@ public class ProjectController implements Initializable {
 
         // 3. Render
         mainCardsContainer.getChildren().clear();
+
+        if (recentCardsContainer != null) {
+            recentCardsContainer.getChildren().clear();
+        }
+
+        // ========================================================
+        // CHỈ THAY ĐỔI ĐOẠN NÀY: Chèn giải thuật 3 cột cho GridPane
+        // ========================================================
+        int columns = 3;
+        int col = 0;
+        int row = 0;
+
         for (ProjectItem item : filteredList) {
-            mainCardsContainer.getChildren().add(item.cardNode);
+            // Thay vì dùng getChildren().add(), ta dùng hàm add(Node, col, row) của GridPane
+            mainCardsContainer.add(item.cardNode, col, row);
+
+            // Tính toán tọa độ cho thẻ tiếp theo
+            col++;
+            if (col == columns) {
+                col = 0;
+                row++;
+            }
         }
     }
 

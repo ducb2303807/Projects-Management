@@ -11,6 +11,7 @@ import com.group4.projects_management_fe.core.plugin.PluginLoader;
 import com.group4.projects_management_fe.core.ui.JavaFxErrorNotifier;
 import io.reactivex.rxjava3.schedulers.Schedulers;
 import javafx.application.Application;
+import javafx.scene.text.Font;
 import javafx.stage.Stage;
 
 import java.io.IOException;
@@ -33,6 +34,11 @@ public class MainWindow extends Application {
         Thread.currentThread().setUncaughtExceptionHandler((t, e) ->
                 GlobalExceptionHandler.handleException(e)
         );
+
+        Font.loadFont(getClass().getResourceAsStream("/com/group4/projects_management_fe/features/assets/fonts/Montserrat-Regular.ttf"), 12);
+        Font.loadFont(getClass().getResourceAsStream("/com/group4/projects_management_fe/features/assets/fonts/Montserrat-Medium.ttf"), 12);
+        Font.loadFont(getClass().getResourceAsStream("/com/group4/projects_management_fe/features/assets/fonts/Montserrat-SemiBold.ttf"), 12);
+        Font.loadFont(getClass().getResourceAsStream("/com/group4/projects_management_fe/features/assets/fonts/Montserrat-Bold.ttf"), 12);
 
         AppStageManager.getInstance().navigateToLogin();
     }

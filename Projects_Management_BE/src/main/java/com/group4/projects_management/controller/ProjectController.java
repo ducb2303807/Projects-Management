@@ -65,7 +65,7 @@ public class ProjectController {
     @PostMapping("/{projectId}/tasks")
     public ResponseEntity<TaskResponseDTO> createTaskInProject(
             @PathVariable Long projectId,
-            @Valid @RequestBody TaskCeateRequestDTO request) {
+            @Valid @RequestBody TaskCreateRequestDTO request) {
         request.setProjectId(projectId);
         return ResponseEntity.ok(taskService.createTask(request));
     }

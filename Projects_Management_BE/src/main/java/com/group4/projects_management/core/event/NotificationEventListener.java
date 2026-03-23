@@ -1,6 +1,5 @@
 package com.group4.projects_management.core.event;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.group4.common.dto.NotificationDTO;
 import com.group4.common.dto.SseNotificationDTO;
 import com.group4.projects_management.enums.NotificationType;
@@ -16,7 +15,6 @@ import org.springframework.transaction.event.TransactionalEventListener;
 @Slf4j
 public class NotificationEventListener {
     private final SseService sseService;
-    private final ObjectMapper objectMapper;
 
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void handleNotificationEvent(NotificationEvent event) {
@@ -31,20 +29,13 @@ public class NotificationEventListener {
             log.warn("Không tìm thấy Enum cho type: {}", dbDto.getType());
         }
 
-        Object metadataJson;
-        try {
-            metadataJson = objectMapper.readTree(dbDto.getMetadata());
-        } catch (Exception e) {
-            metadataJson = null;
-        }
-
         SseNotificationDTO ssePayload = SseNotificationDTO.builder()
                 .notificationId(dbDto.getId())
                 .type(dbDto.getType())
                 .title(friendlyTitle)
                 .message(dbDto.getTitle())
                 .referenceId(dbDto.getReferenceId() != null ? dbDto.getReferenceId().toString() : null)
-                .metadata(metadataJson)
+                .metadata(dbDto.getMetadata())
                 .timestamp(dbDto.getCreatedDate())
                 .build();
 

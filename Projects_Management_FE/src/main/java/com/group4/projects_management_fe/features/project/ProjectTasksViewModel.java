@@ -23,6 +23,7 @@ public class ProjectTasksViewModel {
     private final BehaviorSubject<String> sortSubject = BehaviorSubject.createDefault("Newest");
 
     public void loadTasksForProject(Long projectId) {
+        // Đổi tên hàm gọi API ở đây cho khớp với backend của bạn
         projectApi.getTasksByProjectId(projectId, false).thenAccept(tasks -> {
             allTasksSubject.onNext(tasks);
         }).exceptionally(ex -> {
@@ -43,12 +44,41 @@ public class ProjectTasksViewModel {
                             .collect(Collectors.toList());
 
                     // 2. Sắp xếp (Sort)
+                    // 2. Sắp xếp (Sort)
                     switch (sortType) {
                         case "Oldest":
                             filtered.sort(Comparator.comparing(TaskResponseDTO::getCreatedAt));
                             break;
                         case "Deadline (Earliest)":
-                            filtered.sort(Comparator.comparing(TaskResponseDTO::getDeadline));
+                            filtered.sort(Comparator.comparing(TaskResponseDTO::getDeadline, Comparator.nullsLast(Comparator.naturalOrder())));
+                            break;
+                        case "Name A-Z":
+                            filtered.sort((t1, t2) -> {
+                                String n1 = t1.getName() != null ? t1.getName() : "";
+                                String n2 = t2.getName() != null ? t2.getName() : "";
+                                return n1.compareToIgnoreCase(n2);
+                            });
+                            break;
+                        case "Name Z-A":
+                            filtered.sort((t1, t2) -> {
+                                String n1 = t1.getName() != null ? t1.getName() : "";
+                                String n2 = t2.getName() != null ? t2.getName() : "";
+                                return n2.compareToIgnoreCase(n1);
+                            });
+                            break;
+                        case "Status A-Z":
+                            filtered.sort((t1, t2) -> {
+                                String s1 = t1.getStatusName() != null ? t1.getStatusName() : "";
+                                String s2 = t2.getStatusName() != null ? t2.getStatusName() : "";
+                                return s1.compareToIgnoreCase(s2);
+                            });
+                            break;
+                        case "Priority A-Z":
+                            filtered.sort((t1, t2) -> {
+                                String p1 = t1.getPriorityName() != null ? t1.getPriorityName() : "";
+                                String p2 = t2.getPriorityName() != null ? t2.getPriorityName() : "";
+                                return p1.compareToIgnoreCase(p2);
+                            });
                             break;
                         case "Newest":
                         default:

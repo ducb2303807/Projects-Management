@@ -8,13 +8,13 @@
 
 <StackPane fx:id="rootPane" styleClass="popup-background" stylesheets="@../assets/css/project/new-project-form.css" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.group4.projects_management_fe.features.project.ProjectDetailsFormController">
 
-    <VBox minHeight="550.0" prefWidth="940.0" styleClass="popup-container">
+    <VBox minHeight="550.0" prefWidth="1200.0" styleClass="popup-container">
 
         <HBox>
             <padding>
                 <Insets bottom="15.0" left="30.0" right="30.0" top="25.0" />
             </padding>
-            <TextField fx:id="projectNameInput" prefHeight="55.0" prefWidth="930.0" promptText="Project name" styleClass="title-input">
+            <TextField fx:id="projectNameInput" prefHeight="55.0" prefWidth="1100.0" promptText="Project name" styleClass="title-input">
             <font>
                <Font size="30.0" />
             </font></TextField>
@@ -41,9 +41,9 @@
                     <Insets bottom="30.0" left="30.0" right="20.0" top="25.0" />
                 </padding>
 
-                <GridPane hgap="15.0" vgap="18.0">
+                <GridPane hgap="15.0" prefHeight="291.0" prefWidth="541.0" vgap="18.0">
                     <columnConstraints>
-                        <ColumnConstraints maxWidth="164.00000762939453" minWidth="100.0" prefWidth="129.2" />
+                        <ColumnConstraints maxWidth="164.00000762939453" minWidth="140.0" prefWidth="129.2" />
                         <ColumnConstraints hgrow="ALWAYS" maxWidth="425.2" minWidth="385.19999237060546" prefWidth="420.4" />
                     </columnConstraints>
 
@@ -90,7 +90,7 @@
 
                     <HBox alignment="CENTER_LEFT" spacing="10.0">
                         <Button fx:id="addMemberBtn" onAction="#handleAddMemberClick" styleClass="btn-add-circle" text="+" />
-                        <TextField fx:id="memberInput" managed="false" onAction="#handleMemberSubmit" promptText="Enter username..." styleClass="clean-input" visible="false" HBox.hgrow="ALWAYS" />
+                        <TextField fx:id="memberInput" managed="false" onAction="#handleMemberSubmit" promptText="Enter username" styleClass="clean-input" visible="false" HBox.hgrow="ALWAYS" />
                     </HBox>
 
                     <ScrollPane fitToWidth="true" hbarPolicy="NEVER" maxHeight="140.0" minHeight="50.0" prefHeight="100.0" styleClass="tags-scroll-pane" vbarPolicy="AS_NEEDED" VBox.vgrow="SOMETIMES">
@@ -104,7 +104,7 @@
 
             <Separator orientation="VERTICAL" />
 
-            <VBox minWidth="320.0" prefWidth="320.0" spacing="25.0" styleClass="right-column">
+            <VBox minWidth="550.0" prefWidth="550.0" spacing="25.0" styleClass="right-column">
                 <padding>
                     <Insets bottom="30.0" left="20.0" right="30.0" top="25.0" />
                 </padding>
@@ -130,19 +130,46 @@
                     </ScrollPane>
                 </VBox>
 
-                <Region VBox.vgrow="ALWAYS" />
+                <VBox spacing="15.0">
+                    <Label styleClass="field-label" text="Statistics" />
 
-                <VBox spacing="10.0">
+                    <HBox alignment="CENTER_LEFT" spacing="20.0">
+
+                        <VBox alignment="CENTER" prefWidth="150.0" styleClass="stat-card">
+                            <Label styleClass="stat-title" text="Total Tasks" />
+                            <Label fx:id="totalTasks" styleClass="stat-number, stat-total" text="0" />
+                        </VBox>
+
+                        <VBox alignment="CENTER" prefWidth="150.0" styleClass="stat-card">
+                            <Label styleClass="stat-title" text="In Progress" />
+                            <Label fx:id="inProgress" styleClass="stat-number, stat-in-progress" text="0" />
+                        </VBox>
+
+                        <VBox alignment="CENTER" prefWidth="150.0" styleClass="stat-card">
+                            <Label styleClass="stat-title" text="Completed" />
+                            <Label fx:id="completed" styleClass="stat-number, stat-completed" text="0" />
+                        </VBox>
+
+                        <VBox alignment="CENTER" prefWidth="150.0" styleClass="stat-card">
+                            <Label styleClass="stat-title" text="Progress" />
+                            <Label fx:id="percentage" styleClass="stat-number, stat-progress" text="0%" />
+                        </VBox>
+
+                    </HBox>
+                </VBox>
+
+                <VBox prefWidth="270.0" spacing="10.0">
                     <Label styleClass="field-label" text="Last updated at" />
-                    <HBox alignment="CENTER_LEFT" spacing="10.0">
-<!--                        <Label fx:id="lastUpdatedByLabel" styleClass="user-name" text="{Updater}" />-->
+                    <HBox alignment="CENTER_LEFT">
                         <Label fx:id="lastUpdatedDateLabel" styleClass="date-time" text="{UpdateDate}" />
                     </HBox>
                 </VBox>
 
-                <Region VBox.vgrow="ALWAYS" />
+                <HBox alignment="CENTER_LEFT" spacing="15.0">
+                    <Button fx:id="leaveBtn" managed="false" minHeight="35.0" minWidth="80.0" mnemonicParsing="false" onAction="#handleLeaveProject" styleClass="btn-leave" text="Leave" textFill="#d32f2f" visible="false" />
 
-                <HBox alignment="BOTTOM_RIGHT" spacing="15.0">
+                    <Region HBox.hgrow="ALWAYS" />
+
                     <Button fx:id="cancelBtn" cancelButton="true" minHeight="35.0" minWidth="80.0" mnemonicParsing="false" onAction="#handleCancel" styleClass="btn-cancel" text="Cancel" />
                     <Button fx:id="saveBtn" defaultButton="true" managed="false" minHeight="35.0" minWidth="80.0" mnemonicParsing="false" onAction="#handleSave" styleClass="btn-create" text="Save" visible="false" />
                 </HBox>

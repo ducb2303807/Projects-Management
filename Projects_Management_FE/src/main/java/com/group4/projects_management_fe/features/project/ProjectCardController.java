@@ -28,16 +28,20 @@ public class ProjectCardController {
 
     @FXML
     public void initialize() {
-//        if (rootCardPane != null) {
-//            rootCardPane.setOnMouseClicked(event -> {
-//                handleCardClick(event);
-//            });
-//        }
-        System.out.println("load: " + this.currentProjectId + " ======");
+        if (rootCardPane != null) {
+            rootCardPane.setOnMouseClicked(event -> {
+                handleCardClick(event);
+            });
+        }
+        System.out.println("Tải thành công 1 dự án");
     }
 
+    private Runnable onAddToRecentCallback;
     public void setOnProjectUpdatedCallback(Runnable callback) {
         this.onProjectUpdatedCallback = callback;
+    }
+    public void setOnAddToRecentCallback(Runnable callback) {
+        this.onAddToRecentCallback = callback;
     }
 
     public void bindData(String id, String title, String status, String creator, String date) {
@@ -57,6 +61,10 @@ public class ProjectCardController {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/group4/projects_management_fe/features/project/ProjectDetailsForm.fxml"));
             Parent root = loader.load();
+
+            if (onAddToRecentCallback != null) {
+                onAddToRecentCallback.run();
+            }
 
             // LẤY CONTROLLER VÀ TRUYỀN ID SANG
             ProjectDetailsFormController detailsController = loader.getController();
@@ -89,7 +97,24 @@ public class ProjectCardController {
 
     @FXML
     public void handleCardClick(MouseEvent event) { // Đổi thành public
+
+        // 1. Lấy phần tử thực sự bị click (thường là cái chữ "•••")
+        javafx.scene.Node target = (javafx.scene.Node) event.getTarget();
+
+        // 2. Dò ngược lên các thẻ cha để kiểm tra
+        while (target != null) {
+            if (target == moreOptionsLabel || target instanceof javafx.scene.control.Button) {
+                return; // Bắt trúng nút 3 chấm -> Quay xe, KHÔNG mở danh sách Task
+            }
+            target = target.getParent();
+        }
+
         System.out.println("====== ĐÃ CLICK VÀO CARD! ID: " + this.currentProjectId + " ======");
+
+        // 3. THÊM GỌI CALLBACK TẠI ĐÂY (trước hoặc sau khi showAndWait đều được)
+        if (onAddToRecentCallback != null) {
+            onAddToRecentCallback.run();
+        }
 
         // Tránh bị đè sự kiện click khi bấm vào nút 3 chấm Options
 //        if (event.getTarget() == moreOptionsLabel || event.getTarget() instanceof Button) {
@@ -100,16 +125,35 @@ public class ProjectCardController {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/group4/projects_management_fe/features/project/ProjectTasks.fxml"));
             Parent root = loader.load();
 
+            // Truyền dữ liệu sang Controller
             ProjectTasksController controller = loader.getController();
             controller.initData(Long.valueOf(this.currentProjectId), this.projectTitleLabel.getText());
 
             Stage popupStage = new Stage();
-            popupStage.setScene(new Scene(root));
-            popupStage.show();
+            Scene scene = new Scene(root);
+
+            // Nếu thiết kế form của bạn có bo góc, cần set Transparent để không bị viền đen
+            scene.setFill(javafx.scene.paint.Color.TRANSPARENT);
+            popupStage.setScene(scene);
+
+            // ====================================================================
+            // 1. Ẩn thanh Title (thanh chứa nút X, -, phóng to) và không cho resize
+            popupStage.initStyle(javafx.stage.StageStyle.TRANSPARENT); // Hoặc dùng StageStyle.UNDECORATED
+
+            // 2. Chặn tương tác với phần bên ngoài màn hình (Modality)
+            popupStage.initModality(javafx.stage.Modality.APPLICATION_MODAL);
+
+            // 3. Set Owner là cửa sổ chính (để popup luôn nằm trên cùng)
+            Stage mainStage = com.group4.projects_management_fe.core.navigation.AppStageManager.getInstance().getStage();
+            if (mainStage != null) {
+                popupStage.initOwner(mainStage);
+            }
+            // ====================================================================
+
+            popupStage.showAndWait(); // Thay show() bằng showAndWait() nếu muốn chặn hoàn toàn luồng
 
         } catch (Exception e) {
-            System.err.println("❌ LỖI KHI MỞ TAB TASK:");
-            e.printStackTrace(); // Phải có dòng này để lỗi hiện ra Console, không bị giấu đi
+            e.printStackTrace();
         }
     }
 }
