@@ -19,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class NotificationServiceImp extends BaseServiceImpl<Notification, Long> implements NotificationService {
@@ -109,8 +110,10 @@ public class NotificationServiceImp extends BaseServiceImpl<Notification, Long> 
         notif.setType(strategy.getType().name());
         notif.setTitle(strategy.buildTitle(contextData));
 
+        Map<String, Object> metadataMap = strategy.buildMetadata(contextData);
+
         try {
-            String jsonMetadata = objectMapper.writeValueAsString(strategy.buildMetadata(contextData));
+            String jsonMetadata = objectMapper.writeValueAsString(metadataMap);
             notif.setMetadata(jsonMetadata);
         } catch (JsonProcessingException e) {
             notif.setMetadata("{}");
@@ -126,8 +129,11 @@ public class NotificationServiceImp extends BaseServiceImpl<Notification, Long> 
             un.setNotification(notif);
 
             var dto = userNotificationMapper.toDto(un);
+            if (dto != null) {
+                dto.setMetadata(metadataMap);
+                eventPublisher.publishEvent(new NotificationEvent(user.getId(), dto));
+            }
 
-            eventPublisher.publishEvent(new NotificationEvent(user.getId(), dto));
             return un;
         }).toList();
 

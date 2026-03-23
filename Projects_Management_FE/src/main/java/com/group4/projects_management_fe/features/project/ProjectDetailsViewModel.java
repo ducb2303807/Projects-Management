@@ -1,11 +1,11 @@
 package com.group4.projects_management_fe.features.project;
 
 import com.group4.common.dto.*;
+import com.group4.common.enums.LookupType;
+import com.group4.common.enums.MemberStatusCode;
+import com.group4.projects_management_fe.core.api.LookupApi;
 import com.group4.projects_management_fe.core.api.UserApi;
 import com.group4.projects_management_fe.core.session.AppSessionManager;
-import com.group4.projects_management_fe.core.api.LookupApi;
-import com.group4.common.enums.LookupType;
-
 import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.subjects.BehaviorSubject;
 import javafx.application.Platform;
@@ -335,8 +335,8 @@ public class ProjectDetailsViewModel extends NewProjectViewModel {
     // ==========================================
     public void leaveProject(Long projectMemberId) {
         if (projectMemberId == null) return;
-
-        projectApi.removeMemberFromProject(projectMemberId).thenAccept(v -> {
+        ProjectMemberUpdateDTO dto = new ProjectMemberUpdateDTO(MemberStatusCode.LEFT);
+        projectApi.updateMemberStatus(projectMemberId,dto).thenAccept(v -> {
             // Khi leave thành công, ta mượn luôn deleteSuccess để báo cho Controller đóng Popup
             // và tự động refresh lại danh sách Project bên ngoài (y hệt như khi xóa dự án)
             Platform.runLater(() -> deleteSuccess.onNext(true));

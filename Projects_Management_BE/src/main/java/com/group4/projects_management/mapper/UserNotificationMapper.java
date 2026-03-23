@@ -13,6 +13,6 @@ public abstract class UserNotificationMapper {
     @Mapping(source = "notification.referenceId", target = "referenceId")
     @Mapping(source = "notification.createdAt", target = "createdDate")
     @Mapping(source = "read", target = "isRead")
-    @Mapping(source = "notification.metadata", target = "metadata")
+    @Mapping(target = "metadata", ignore = true)
     public abstract NotificationDTO toDto(UserNotification notification);
 }

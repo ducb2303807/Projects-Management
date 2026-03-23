@@ -239,6 +239,8 @@ public class NotificationServiceImplTest {
             when(mockStrategy.getType()).thenReturn(NotificationType.PROJECT_INVITATION);
 
             when(objectMapper.writeValueAsString(any())).thenThrow(JsonProcessingException.class);
+            when(userNotificationMapper.toDto(any(UserNotification.class)))
+                    .thenReturn(new NotificationDTO());
             when(userRepository.findAllById(anyList())).thenReturn(List.of(mockUser));
 
             notificationService.send(List.of(1L), dummyContext, 500L);
@@ -252,6 +254,8 @@ public class NotificationServiceImplTest {
         @DisplayName("Send to single user (Overload method) - Success")
         void send_SingleUser_Success() {
             // Chỉ cần verify nó gọi qua hàm list và không chết là được
+            when(userNotificationMapper.toDto(any(UserNotification.class)))
+                    .thenReturn(new NotificationDTO());
             when(mockStrategy.supports(any())).thenReturn(true);
             when(mockStrategy.getType()).thenReturn(NotificationType.PROJECT_INVITATION);
             when(userRepository.findAllById(anyList())).thenReturn(List.of(mockUser));

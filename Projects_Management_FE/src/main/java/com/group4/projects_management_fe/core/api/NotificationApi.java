@@ -11,6 +11,7 @@ import java.util.concurrent.CompletableFuture;
 
 public class NotificationApi extends AbstractAuthenticatedApi {
     private static final String ENDPOINT = "/notifications";
+
     public NotificationApi(AuthSessionProvider sessionProvider) {
         super(sessionProvider);
     }
@@ -36,8 +37,6 @@ public class NotificationApi extends AbstractAuthenticatedApi {
     public CompletableFuture<Void> markAsRead(Long notificationId) {
         String url = ENDPOINT + "/" + notificationId + "/read";
 
-        // Vì controller BE không yêu cầu @RequestBody, ta gửi một body rỗng
-        // BaseApi có check 'instanceof RequestBody', nên ta có thể tạo trực tiếp
         RequestBody emptyBody = RequestBody.create("", JSON_MEDIA_TYPE);
 
         return this.sendPatchRequest(
@@ -53,7 +52,7 @@ public class NotificationApi extends AbstractAuthenticatedApi {
      * Đánh dấu tất cả thông báo là đã đọc
      */
     public CompletableFuture<Void> markAllAsRead() {
-        String url = ENDPOINT + "/read-all";
+        String url = ENDPOINT + "/me/read-all";
 
         // Gửi body rỗng tương tự như markAsRead
         RequestBody emptyBody = RequestBody.create("", JSON_MEDIA_TYPE);
@@ -65,4 +64,19 @@ public class NotificationApi extends AbstractAuthenticatedApi {
                 null
         );
     }
+
+    /**
+     * GET /api/notifications/unread-count
+     * Lấy số lượng thông báo chưa đọc của user
+     */
+    public CompletableFuture<Integer> getUnreadCount() {
+        String url = ENDPOINT + "/me/unread-count";
+
+        return this.sendGetRequest(
+                url,
+                Integer.class,
+                null
+        ).thenApply(count -> count != null ? count : 0);
+    }
+
 }
