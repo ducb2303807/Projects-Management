@@ -290,7 +290,6 @@ public class TaskServiceImpl extends BaseServiceImpl<Task, Long> implements Task
 
         List<FieldChange> detectedChanges = detectTaskChanges(task, dto, priority, status);
 
-
         taskMapper.updateEntityFromDto(dto, task, priority, status);
         Task savedTask = taskRepository.save(task);
 
@@ -308,6 +307,7 @@ public class TaskServiceImpl extends BaseServiceImpl<Task, Long> implements Task
         if(!receiverIds.isEmpty()) {
             TaskUpdateContext context = TaskUpdateContext.builder()
                     .task(savedTask)
+                    .actor(actor.getUser())
                     .build();
             notificationService.send(receiverIds, context, savedTask.getId());
         }
