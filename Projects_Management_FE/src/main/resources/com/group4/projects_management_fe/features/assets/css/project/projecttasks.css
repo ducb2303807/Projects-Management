@@ -99,7 +99,7 @@
 
 /* 4. Nút + New (Gradient Tím) */
 .btn-new {
-    -fx-background-color:linear-gradient(to right,#7b5cff,#9f7aea);
+    -fx-background-color: linear-gradient(to right, #4b2e83, #a45bdc);
     -fx-background-radius: 20px;
     -fx-text-fill: white;
     -fx-font-family: "Montserrat";

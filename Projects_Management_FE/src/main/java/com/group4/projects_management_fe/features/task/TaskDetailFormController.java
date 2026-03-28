@@ -621,6 +621,7 @@ public class TaskDetailFormController {
     }
 
     private Long replyingToCommentId = null;
+    @FXML
     private Label replyingToLabel = null; // Label hiển thị "Đang reply: ..."
 
     @FXML

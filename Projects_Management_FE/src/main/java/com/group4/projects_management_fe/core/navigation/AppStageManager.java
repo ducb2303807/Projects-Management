@@ -50,7 +50,7 @@ public class AppStageManager {
             );
 
             Image logo = new Image(
-                    getClass().getResourceAsStream("/com/group4/projects_management_fe/features/assets/image/app_icon_v6.png")
+                    getClass().getResourceAsStream("/com/group4/projects_management_fe/features/assets/image/app_icon_v7.png")
             );
 
             stage.getIcons().add(logo);
