@@ -6,6 +6,8 @@ import com.group4.projects_management_fe.core.api.LookupApi;
 import com.group4.projects_management_fe.core.api.ProjectApi;
 import com.group4.projects_management_fe.core.api.TaskApi;
 import com.group4.projects_management_fe.core.api.CommentApi;
+import com.group4.projects_management_fe.core.exception.GlobalExceptionHandler;
+import com.group4.projects_management_fe.core.session.AppSessionManager;
 import com.group4.projects_management_fe.core.session.AuthSessionProvider;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
@@ -22,11 +24,14 @@ import javafx.util.Callback;
 import javafx.util.StringConverter;
 
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
 public class TaskDetailFormController {
+
     // ── FXML bindings ─────────────────────────────────────────────────────────
     @FXML private StackPane  rootPane;
     @FXML private TextField  taskNameInput;
@@ -34,9 +39,9 @@ public class TaskDetailFormController {
     @FXML private ComboBox<LookupDTO> statusComboBox;
     @FXML private ComboBox<LookupDTO> priorityComboBox;
 
-    @FXML private FlowPane assigneeChipsPane;   // hiển thị tên assignee hoặc "Unassigned"
-    @FXML private Button    addAssigneeBtn;   // nút "+", ẩn với MEMBER
-    @FXML private TextField assigneeInput;    // ẩn mặc định (visible=false, managed=false)
+    @FXML private FlowPane  assigneeChipsPane;
+    @FXML private Button    addAssigneeBtn;   // nút "+" từ FXML – sẽ được style lại nhỏ gọn
+    @FXML private TextField assigneeInput;    // legacy, giữ để không lỗi FXML
 
     @FXML private TextArea  descriptionInput;
     @FXML private VBox      commentsContainer;
@@ -45,424 +50,250 @@ public class TaskDetailFormController {
     @FXML private Button    saveBtn;
 
     // ── State ─────────────────────────────────────────────────────────────────
-    private Stage popupStage;
+    private Stage      popupStage;
     private ProjectApi projectApi;
-    private TaskApi taskApi;
-    private LookupApi lookupApi;
+    private TaskApi    taskApi;
+    private LookupApi  lookupApi;
     private CommentApi commentApi;
-    private Runnable onSaveSuccessCallback;
+    private Runnable   onSaveSuccessCallback;
 
     private TaskResponseDTO currentTask;
-    private LookupDTO currentMemberLookup;
-    private Long projectId;
+    private LookupDTO       currentMemberLookup;
+    private Long            projectId;
 
-    // True nếu user hiện tại có role PM hoặc CO_PM trong project này
-    private boolean canManageAssignees = false;
-    private boolean includeCancelled = true;
+    /**
+     * true  → mở từ ProjectTasksController → được thêm / xóa assignee
+     * false → mở từ TaskGroupController    → chỉ xem
+     */
+    private boolean assigneeManagementEnabled = false;
 
-    // Cache danh sách member của project (lazy load lần đầu nhấn "+")
-    private List<ProjectMemberDTO> projectMembersCache = null;
+    /** Cache toàn bộ member của project, dùng cho popup search */
+    private List<ProjectMemberDTO> projectMembersCache = new ArrayList<>();
 
-    // ── Public API ────────────────────────────────────────────────────────────
+    /**
+     * Danh sách assignee đang làm việc trên UI (có thể khác DB).
+     * Mọi thay đổi thêm / xóa chỉ cập nhật list này; API chỉ gọi khi Save.
+     */
+    private List<TaskAssigneeDTO> workingAssignees = new ArrayList<>();
 
-    // 1. Cấu hình các thiết lập ban đầu
+    /**
+     * IDs của assignee lúc mới mở form (dùng để tính diff khi Save).
+     */
+    private Set<Long> originalAssigneeIds = new HashSet<>();
+
+    // ── Public setters ────────────────────────────────────────────────────────
+
+    public void setAssigneeManagementEnabled(boolean enabled) {
+        this.assigneeManagementEnabled = enabled;
+    }
+
     public void setSessionProvider(AuthSessionProvider sessionProvider) {
-        this.projectApi = new ProjectApi(sessionProvider);
-        this.taskApi = new TaskApi(sessionProvider);
-        this.lookupApi = new LookupApi(sessionProvider);
-        this.commentApi = new CommentApi(sessionProvider);
-
+        AuthSessionProvider provider = AppSessionManager.getInstance();
+        this.projectApi = new ProjectApi(provider);
+        this.taskApi    = new TaskApi(provider);
+        this.lookupApi  = new LookupApi(provider);
+        this.commentApi = new CommentApi(provider);
         loadLookups();
     }
 
-    public void setPopupStage(Stage popupStage) { this.popupStage = popupStage; }
+    public void setPopupStage(Stage stage)           { this.popupStage = stage; }
+    public void setOnSaveSuccessCallback(Runnable r) { this.onSaveSuccessCallback = r; }
+    public void setProjectId(Long id)                { this.projectId = id; }
 
-    // Callback được gọi SAU khi save thành công VÀ popup đã đóng
-    public void setOnSaveSuccessCallback(Runnable callback) { this.onSaveSuccessCallback = callback; }
-
-    // Setter projectId (truyền từ TaskItemController)
-    public void setProjectId(Long projectId) {
-        this.projectId = projectId;
-    }
-
-    // 2. Nhận dữ liệu truyền vào và Load giao diện
-    public void initData(TaskResponseDTO task, LookupDTO currentMemberLookup, Long projectId) {
-        this.currentTask = task;
-        this.currentMemberLookup = currentMemberLookup;
+    public void setProjectContext(Long projectId) {
         this.projectId = projectId;
 
-        // Avatar của user hiện tại ở ô nhập comment
-        if (currentMemberLookup != null && currentMemberLookup.getName() != null) {
-            myAvatarLabel.setText(currentMemberLookup.getName().substring(0, 1).toUpperCase());
+        if (this.projectApi == null) {
+            this.projectApi = new ProjectApi(AppSessionManager.getInstance());
         }
 
-        // Điền các field
+        if (projectId != null) {
+            // Chủ động tải danh sách member ngay từ đầu (cache lại)
+            projectApi.getMembersOfProject(projectId)
+                    .thenAccept(members -> {
+                        this.projectMembersCache = members != null ? members : new ArrayList<>();
+                        System.out.println("[TaskDetail] Đã tải xong " + this.projectMembersCache.size() + " members.");
+                    })
+                    .exceptionally(ex -> {
+                        Platform.runLater(() -> GlobalExceptionHandler.handleException(ex));
+                        return null;
+                    });
+        } else {
+            System.err.println("[TaskDetail] CẢNH BÁO: Màn hình cha truyền projectId bị NULL vào setProjectContext!");
+        }
+    }
+
+    // ── initData ──────────────────────────────────────────────────────────────
+
+    public void initData(TaskResponseDTO task, LookupDTO memberLookup, Long projectId) {
+        this.currentTask         = task;
+        this.currentMemberLookup = memberLookup;
+        this.projectId           = projectId;
+
+        // ── Avatar ────────────────────────────────────────────────────────────
+        if (memberLookup != null && memberLookup.getName() != null
+                && !memberLookup.getName().isEmpty()) {
+            myAvatarLabel.setText(memberLookup.getName().substring(0, 1).toUpperCase());
+        }
+
+        // ── Điền các field ────────────────────────────────────────────────────
         taskNameInput.setText(task.getName() != null ? task.getName() : "");
         descriptionInput.setText(task.getDescription() != null ? task.getDescription() : "");
         if (task.getDeadline() != null) {
             dueDatePicker.setValue(task.getDeadline().toLocalDate());
         }
 
-        renderAssigneeChips(false);
+        // ── Khởi tạo working list từ dữ liệu gốc ────────────────────────────
+        workingAssignees = task.getAssignees() != null
+                ? new ArrayList<>(task.getAssignees())
+                : new ArrayList<>();
+        originalAssigneeIds = workingAssignees.stream()
+                .map(TaskAssigneeDTO::getProjectMemberId)
+                .filter(id -> id != null)
+                .collect(Collectors.toCollection(HashSet::new));
 
-        // GỌI API LẤY DANH SÁCH MEMBER & KIỂM TRA QUYỀN TRỰC TIẾP
-        projectApi.getMembersOfProject(projectId).thenAccept(members -> {
-            this.projectMembersCache = members; // Lưu cache danh sách member cho thanh search
+        // ── Assignee section ──────────────────────────────────────────────────
+        addAssigneeBtn.getStyleClass().add("add-assignee-btn");
+//        styleAddButton(); // thu nhỏ nút "+" FXML thành hình tròn nhỏ gọn
 
-            Platform.runLater(() -> {
-                // Tìm xem user hiện tại đang là ai trong danh sách project members
-                ProjectMemberDTO currentMember = members.stream()
-                        .filter(m -> {
-                            // Tùy theo currentMemberLookup của bạn đang giữ ID của ProjectMember hay User
-                            return String.valueOf(m.getProjectMemberId()).equals(currentMemberLookup.getId()) ||
-                                    (m.getUserId() != null && String.valueOf(m.getUserId()).equals(currentMemberLookup.getId()));
-                        })
-                        .findFirst()
-                        .orElse(null);
+        if (assigneeManagementEnabled) {
+            addAssigneeBtn.setVisible(true);
+            addAssigneeBtn.setManaged(true);
+            renderAssigneeChips();
 
-                if (currentMember != null) {
-                    // Lấy tên Role
-                    String roleName = currentMember.getRoleName() != null ? currentMember.getRoleName() : "";
-
-                    // Nếu role là Project Manager hoặc Co-Project Manager thì hiện nút "+"
-                    if (roleName.equalsIgnoreCase("Project Manager") ||
-                            roleName.equalsIgnoreCase("Co-Project Manager") ||
-                            roleName.toLowerCase().contains("PM")) {
-
-                        addAssigneeBtn.setVisible(true);
-                        addAssigneeBtn.setManaged(true);
-                    }
-                }
-            });
-        }).exceptionally(ex -> {
-            System.err.println("Lỗi tải danh sách member: " + ex.getMessage());
-            return null;
-        });
-
-        // Đổ dữ liệu khác
-        taskNameInput.setText(task.getName());
-        descriptionInput.setText(task.getDescription() != null ? task.getDescription() : "");
-
-        if (task.getDeadline() != null) {
-            dueDatePicker.setValue(task.getDeadline().toLocalDate());
+            // Load cache member background
+            if (projectId != null) {
+                projectApi.getMembersOfProject(projectId)
+                        .thenAccept(members ->
+                                this.projectMembersCache = members != null ? members : new ArrayList<>())
+                        .exceptionally(ex -> {
+                            Platform.runLater(() -> GlobalExceptionHandler.handleException(ex));
+                            return null;
+                        });
+            }
+        } else {
+            addAssigneeBtn.setVisible(false);
+            addAssigneeBtn.setManaged(false);
+            renderAssigneeChips();
         }
 
         setupStatusComboBox();
         setupPriorityComboBox();
-        setupComboBoxStyling();
-
-        // Set Avatar người dùng hiện tại ở ô nhập comment
-        if (currentMemberLookup != null && currentMemberLookup.getName() != null) {
-            myAvatarLabel.setText(currentMemberLookup.getName().substring(0, 1).toUpperCase());
-        }
-
-        // Đổ dữ liệu task
-        taskNameInput.setText(task.getName());
-        descriptionInput.setText(task.getDescription() != null ? task.getDescription() : "");
-
-        if (task.getDeadline() != null) {
-            dueDatePicker.setValue(task.getDeadline().toLocalDate());
-        }
-
-        // Hiển thị tên Assignee (nếu có)
-        if (task.getAssignees() != null && !task.getAssignees().isEmpty()) {
-            StringBuilder assigneesStr = new StringBuilder();
-            for (TaskAssigneeDTO assignee : task.getAssignees()) {
-                assigneesStr.append(assignee.getFullName() != null ? assignee.getFullName() : assignee.getUsername()).append(", ");
-            }
-            assigneeInput.setText(assigneesStr.substring(0, assigneesStr.length() - 2));
-        }
-
-        // Load comments từ server
         loadTaskComments();
-
-        // Lắng nghe thay đổi của task
         setupChangeListeners();
     }
 
-    private void renderAssigneeChips(boolean withRemoveButton) {
+    // ── Render Chips (đọc từ workingAssignees) ────────────────────────────────
+
+    private void renderAssigneeChips() {
         assigneeChipsPane.getChildren().clear();
 
-        List<TaskAssigneeDTO> assignees = currentTask.getAssignees();
-        if (assignees == null || assignees.isEmpty()) {
+        if (workingAssignees.isEmpty()) {
             Label unassigned = new Label("Unassigned");
-            unassigned.setStyle("-fx-text-fill:#999; -fx-font-style:italic;");
+            unassigned.setStyle("-fx-text-fill:#999; -fx-font-style:italic; -fx-font-size: 14px");
             assigneeChipsPane.getChildren().add(unassigned);
-            return;
-        }
+        } else {
+            for (TaskAssigneeDTO assignee : workingAssignees) {
+                String name = resolveAssigneeName(assignee);
 
-        for (TaskAssigneeDTO assignee : assignees) {
-            String name = (assignee.getFullName() != null && !assignee.getFullName().isBlank())
-                    ? assignee.getFullName()
-                    : (assignee.getUsername() != null ? assignee.getUsername() : "Unknown");
+                HBox chip = new HBox(4);
+                chip.setAlignment(Pos.CENTER_LEFT);
+                chip.setStyle("-fx-background-color:#E2E8F0;"
+                        + "-fx-background-radius:12;"
+                        + "-fx-padding:3 8 3 10;");
 
-            HBox chip = new HBox(4);
-            chip.setAlignment(Pos.CENTER_LEFT);
-            chip.setStyle("-fx-background-color:#E2E8F0;"
-                    + "-fx-background-radius:12;"
-                    + "-fx-padding:3 10 3 10;");
+                Label nameLabel = new Label(name);
+                nameLabel.setStyle("-fx-font-size:12px; -fx-text-fill:#333;");
+                chip.getChildren().add(nameLabel);
 
-            Label nameLabel = new Label(name);
-            nameLabel.setStyle("-fx-font-size:12px; -fx-text-fill:#333;");
-            chip.getChildren().add(nameLabel);
-
-            if (withRemoveButton) {
-                // Nút "×" chỉ hiện với PM/CO_PM
-                Button removeBtn = new Button("×");
-                removeBtn.setStyle("-fx-background-color:transparent;"
-                        + "-fx-text-fill:#888;"
-                        + "-fx-font-size:12px;"
-                        + "-fx-cursor:hand;"
-                        + "-fx-padding:0 0 0 4;");
-                removeBtn.setOnAction(e -> {
-                    // projectMemberId từ TaskAssigneeDTO
-                    if (assignee.getProjectMemberId() != null) {
-                        removeAssigneeFromTask(assignee.getProjectMemberId(), name);
-                    }
-                });
-                chip.getChildren().add(removeBtn);
-            }
-
-            assigneeChipsPane.getChildren().add(chip);
-        }
-    }
-
-    private void removeAssigneeFromTask(Long projectMemberId, String displayName) {
-        // Tắt tất cả nút × trong lúc đang gọi API để chống double-click
-        assigneeChipsPane.getChildren().forEach(node -> node.setDisable(true));
-
-        taskApi.removeMemberFromTask(currentTask.getTaskId(), Collections.singletonList(projectMemberId))
-                .thenCompose(v -> taskApi.getMyTasks(includeCancelled))
-                .thenAccept(tasks -> {
-                    tasks.stream()
-                            .filter(t -> t.getTaskId().equals(currentTask.getTaskId()))
-                            .findFirst()
-                            .ifPresent(updated -> {
-                                this.currentTask = updated;
-                                Platform.runLater(() -> {
-                                    renderAssigneeChips(canManageAssignees);
-                                    if (onSaveSuccessCallback != null)
-                                        onSaveSuccessCallback.run();
-                                });
-                            });
-                })
-                .exceptionally(ex -> {
-                    Platform.runLater(() -> {
-                        assigneeChipsPane.getChildren().forEach(n -> n.setDisable(false));
-                        System.err.println("[TaskDetail] Lỗi xóa assignee: " + ex.getMessage());
-                    });
-                    return null;
-                });
-    }
-    // -----------------------------------------------------------------------
-    // Setup ComboBox: StringConverter + CellFactory tô màu
-    // -----------------------------------------------------------------------
-
-    private void setupStatusComboBox() {
-        statusComboBox.setConverter(lookupConverter());
-        statusComboBox.setCellFactory(coloredCell("status"));
-        // ButtonCell: hiển thị item đang chọn trên nút ComboBox cũng có màu
-        statusComboBox.setButtonCell(coloredCell("status").call(null));
-    }
-
-    private void setupPriorityComboBox() {
-        priorityComboBox.setConverter(lookupConverter());
-        priorityComboBox.setCellFactory(coloredCell("priority"));
-        priorityComboBox.setButtonCell(coloredCell("priority").call(null));
-    }
-
-    private StringConverter<LookupDTO> lookupConverter() {
-        return new StringConverter<>() {
-            @Override
-            public String toString(LookupDTO dto) {
-                // Trả về Name để hiển thị trên Dropdown
-                return dto == null || dto.getName() == null ? "" : dto.getName();
-            }
-            @Override
-            public LookupDTO fromString(String s) { return null; }
-        };
-    }
-
-    /**
-     * CellFactory tô màu dựa trên tên item và loại combobox ("status" / "priority").
-     */
-    private Callback<ListView<LookupDTO>, ListCell<LookupDTO>> coloredCell(String type) {
-        return listView -> new ListCell<>() {
-            @Override
-            protected void updateItem(LookupDTO dto, boolean empty) {
-                super.updateItem(dto, empty);
-
-                // Xóa hết style cũ trước khi set mới (tránh style bị giữ lại khi cell tái sử dụng)
-                getStyleClass().removeIf(s -> s.startsWith("lookup-") || s.startsWith("status-") || s.startsWith("priority-"));
-
-                if (empty || dto == null || dto.getName() == null) {
-                    setText(null);
-                    setGraphic(null);
-                } else {
-                    setText(dto.getName());
-                    // Thêm CSS class dạng: status-new, status-on-going, priority-high, ...
-                    String cssClass = type + "-" + slugify(dto.getName());
-                    getStyleClass().add("lookup-badge");
-                    getStyleClass().add(cssClass);
+                // Nút "×" chỉ hiện khi có quyền quản lý
+                if (assigneeManagementEnabled && assignee.getProjectMemberId() != null) {
+                    Button removeBtn = new Button("×");
+                    removeBtn.setStyle(
+                            "-fx-background-color: transparent;"
+                                    + "-fx-text-fill: #888;"
+                                    + "-fx-font-size: 12px;"
+                                    + "-fx-cursor: hand;"
+                                    + "-fx-padding: 0 2 0 2;"
+                                    + "-fx-min-width: 16px;"
+                                    + "-fx-max-width: 16px;"
+                    );
+                    Long pmId = assignee.getProjectMemberId();
+                    // Chỉ cập nhật UI — KHÔNG gọi API
+                    removeBtn.setOnAction(e -> removeAssigneeLocally(pmId));
+                    chip.getChildren().add(removeBtn);
                 }
+
+                assigneeChipsPane.getChildren().add(chip);
             }
-        };
-    }
-
-    private String slugify(String name) {
-        return name.toLowerCase().replace("_", "-").replace(" ", "-");
-    }
-
-    private void setupComboBoxStyling() {
-        // Tạo Factory để tùy chỉnh từng dòng (Cell)
-        Callback<ListView<LookupDTO>, ListCell<LookupDTO>> cellFactory = listView -> new ListCell<>() {
-            @Override
-            protected void updateItem(LookupDTO item, boolean empty) {
-                super.updateItem(item, empty);
-
-                if (empty || item == null) {
-                    setText(null);
-                    setStyle(""); // Xóa style nếu dòng trống
-                } else {
-                    setText(item.getName()); // Hiển thị tên
-                    setStyle(getColorStyleForLookup(item)); // Áp dụng màu sắc đã định nghĩa ở Bước 1
-                }
-            }
-        };
-
-        // 1. Áp dụng cho danh sách xổ xuống (Dropdown List)
-        statusComboBox.setCellFactory(cellFactory);
-        priorityComboBox.setCellFactory(cellFactory);
-
-        // 2. Áp dụng cho ô hiển thị sau khi đã chọn xong (Button Cell)
-        statusComboBox.setButtonCell(cellFactory.call(null));
-        priorityComboBox.setButtonCell(cellFactory.call(null));
-    }
-
-    private String getColorStyleForLookup(LookupDTO item) {
-        if (item == null || item.getName() == null) return "";
-
-        return switch (item.getName().toUpperCase()) {
-            // Task Status
-            case "CẦN LÀM", "TO DO" -> "-fx-text-fill: #757575; -fx-font-weight: bold;"; // Xám
-            case "ĐANG LÀM", "IN PROGRESS" -> "-fx-text-fill: #FCAB10; -fx-font-weight: bold;"; // Vàng
-            case "ĐANG KIỂM TRA", "UNDER REVIEW" -> "-fx-text-fill: #7B68EE; -fx-font-weight: bold;"; // Tím
-            case "HOÀN THÀNH", "DONE" -> "-fx-text-fill: #2E7D32; -fx-font-weight: bold;"; // Xanh lá
-            case "ĐÃ HỦY", "CANCELLED" -> "-fx-text-fill: #C62828; -fx-font-weight: bold;"; // Đỏ
-
-            // Priority
-            case "KHẨN CẤP", "URGENT" -> "-fx-text-fill: #C62828; -fx-font-weight: bold;"; // Đỏ
-            case "CAO", "HIGH" -> "-fx-text-fill: #EF6C00; -fx-font-weight: bold;"; // Cam
-            case "TRUNG BÌNH", "MEDIUM" -> "-fx-text-fill: #FCAB10; -fx-font-weight: bold;"; // Vàng
-            case "THẤP", "LOW" -> "-fx-text-fill: #2E7D32; -fx-font-weight: bold;"; // Xanh lá
-
-            default -> "-fx-text-fill: #333333;"; // Màu mặc định
-        };
-    }
-
-    private void setupChangeListeners() {
-        // Mặc định disable nút Save ban đầu
-        saveBtn.setDisable(true);
-
-        // Bắt sự kiện mỗi khi người dùng gõ hoặc chọn giá trị mới
-        taskNameInput.textProperty().addListener((observable, oldValue, newValue) -> checkChanges());
-        descriptionInput.textProperty().addListener((observable, oldValue, newValue) -> checkChanges());
-        dueDatePicker.valueProperty().addListener((observable, oldValue, newValue) -> checkChanges());
-        statusComboBox.valueProperty().addListener((observable, oldValue, newValue) -> checkChanges());
-        priorityComboBox.valueProperty().addListener((observable, oldValue, newValue) -> checkChanges());
-    }
-
-    private void checkChanges() {
-        if (currentTask == null) return;
-
-        boolean isChanged = false;
-
-        // So sánh Tên task
-        String currentName = currentTask.getName() != null ? currentTask.getName() : "";
-        String newName = taskNameInput.getText() != null ? taskNameInput.getText() : "";
-        if (!currentName.equals(newName)) isChanged = true;
-
-        // So sánh Description
-        String currentDesc = currentTask.getDescription() != null ? currentTask.getDescription() : "";
-        String newDesc = descriptionInput.getText() != null ? descriptionInput.getText() : "";
-        if (!currentDesc.equals(newDesc)) isChanged = true;
-
-        // So sánh Due Date
-        java.time.LocalDate currentDate = currentTask.getDeadline() != null ? currentTask.getDeadline().toLocalDate() : null;
-        java.time.LocalDate newDate = dueDatePicker.getValue();
-        if ((currentDate == null && newDate != null) || (currentDate != null && !currentDate.equals(newDate))) {
-            isChanged = true;
         }
 
-        // So sánh Status
-        String currentStatus = currentTask.getStatusName();
-        LookupDTO newStatus = statusComboBox.getValue();
-        if (newStatus != null && currentStatus != null && !newStatus.getName().equalsIgnoreCase(currentStatus)) {
-            isChanged = true;
-        } else if (newStatus != null && currentStatus == null) {
-            isChanged = true;
+        // Nút "+" luôn ở cuối khi đang ở chế độ quản lý
+        if (assigneeManagementEnabled) {
+            assigneeChipsPane.getChildren().add(addAssigneeBtn);
         }
 
-        // So sánh Priority
-        String currentPriority = currentTask.getPriorityName();
-        LookupDTO newPriority = priorityComboBox.getValue();
-        if (newPriority != null && currentPriority != null && !newPriority.getName().equalsIgnoreCase(currentPriority)) {
-            isChanged = true;
-        } else if (newPriority != null && currentPriority == null) {
-            isChanged = true;
-        }
-
-        // Nếu có thay đổi -> Enable (Bật) nút Save. Nếu không -> Disable (Tắt)
-        saveBtn.setDisable(!isChanged);
+        // Bất cứ thay đổi assignee nào cũng enable nút Save
+        if (assigneeManagementEnabled) checkChanges();
     }
 
-
-    // 3. Gọi API Load Lookups (Trạng thái và Mức độ ưu tiên)
-    private void loadLookups() {
-        lookupApi.getAll(LookupType.TASK_STATUS).thenAccept(statuses -> {
-            Platform.runLater(() -> {
-                statusComboBox.getItems().setAll(statuses);
-                if (currentTask != null) {
-                    statuses.stream()
-                            .filter(s -> s.getName().equalsIgnoreCase(currentTask.getStatusName()))
-                            .findFirst()
-                            .ifPresent(statusComboBox.getSelectionModel()::select);
-                }
-            });
-        });
-
-        lookupApi.getAll(LookupType.PRIORITY).thenAccept(priorities -> {
-            Platform.runLater(() -> {
-                priorityComboBox.getItems().setAll(priorities);
-                if (currentTask != null) {
-                    priorities.stream()
-                            .filter(p -> p.getName().equalsIgnoreCase(currentTask.getPriorityName()))
-                            .findFirst()
-                            .ifPresent(priorityComboBox.getSelectionModel()::select);
-                }
-            });
-        });
+    private String resolveAssigneeName(TaskAssigneeDTO a) {
+        if (a.getFullName() != null && !a.getFullName().isBlank()) return a.getFullName();
+        if (a.getUsername()  != null && !a.getUsername().isBlank())  return a.getUsername();
+        return "Unknown";
     }
 
-    // Bấm "+" → load danh sách member của project
+    // ── Thêm assignee vào local list (KHÔNG gọi API) ─────────────────────────
+
+    private void addAssigneeLocally(ProjectMemberDTO member) {
+        // Tránh duplicate
+        boolean exists = workingAssignees.stream()
+                .anyMatch(a -> member.getProjectMemberId().equals(a.getProjectMemberId()));
+        if (exists) return;
+
+        TaskAssigneeDTO dto = new TaskAssigneeDTO();
+        dto.setProjectMemberId(member.getProjectMemberId());
+        dto.setUserId(member.getUserId());
+        dto.setFullName(member.getFullName());
+        dto.setUsername(member.getUsername());
+
+        workingAssignees.add(dto);
+        renderAssigneeChips();
+    }
+
+    // ── Xóa assignee khỏi local list (KHÔNG gọi API) ─────────────────────────
+
+    private void removeAssigneeLocally(Long projectMemberId) {
+        workingAssignees.removeIf(a -> projectMemberId.equals(a.getProjectMemberId()));
+        renderAssigneeChips();
+    }
+
+    // ── Add Assignee Popup ────────────────────────────────────────────────────
+
     @FXML
     private void handleAddAssigneeClick(ActionEvent event) {
-        // Vì danh sách member đã được tải và cache sẵn ở initData() nên chỉ việc show luôn
-        if (this.projectMembersCache != null && !this.projectMembersCache.isEmpty()) {
-            showMemberSearchPopup();
-        } else {
-            System.err.println("Chưa tải được danh sách thành viên dự án!");
+        if (!assigneeManagementEnabled) return;
+
+        // Nếu cache chưa có data, thử kích hoạt tải lại
+        if (projectMembersCache == null || projectMembersCache.isEmpty()) {
+            System.out.println("[TaskDetail] Cache trống, đang thử load lại...");
+            if (projectId != null) {
+                setProjectContext(projectId);
+            } else {
+                System.err.println("[TaskDetail] LỖI: projectId vẫn null, không thể lấy danh sách. Hãy check lại Controller cha.");
+            }
         }
+
+        // Luôn gọi hàm hiển thị popup
+        showMemberSearchPopup();
     }
 
-//    ContextMenu search: CHỈ lọc trong projectMembersCache
     private void showMemberSearchPopup() {
         ContextMenu popup = new ContextMenu();
 
         TextField searchField = new TextField();
         searchField.setPromptText("Search members...");
         searchField.setPrefWidth(230);
-
         CustomMenuItem searchItem = new CustomMenuItem(searchField);
         searchItem.setHideOnClick(false);
         popup.getItems().add(searchItem);
@@ -472,47 +303,42 @@ public class TaskDetailFormController {
         resultsItem.setHideOnClick(false);
         popup.getItems().add(resultsItem);
 
-        // Lấy danh sách projectMemberId đang assign để loại khỏi kết quả search
-        List<Long> alreadyAssignedIds = currentTask.getAssignees() != null
-                ? currentTask.getAssignees().stream()
-                .map(TaskAssigneeDTO::getProjectMemberId)
-                .filter(id -> id != null)
-                .collect(Collectors.toList())
-                : new ArrayList<>();
-
         Runnable filter = () -> {
             resultsBox.getChildren().clear();
             String query = searchField.getText() != null
                     ? searchField.getText().toLowerCase().trim() : "";
 
+            // IDs đang có trong working list → loại khỏi kết quả search
+            List <Long> currentIds = workingAssignees.stream()
+                    .map(TaskAssigneeDTO::getProjectMemberId)
+                    .filter(id -> id != null)
+                    .collect(Collectors.toList());
+
             List<ProjectMemberDTO> filtered = projectMembersCache.stream()
                     .filter(m -> {
-                        // Loại member đã được assign
-                        if (alreadyAssignedIds.contains(m.getProjectMemberId())) return false;
-                        String fn = m.getFullName() != null ? m.getFullName().toLowerCase() : "";
+                        if (currentIds.contains(m.getProjectMemberId())) return false;
+                        String fn = m.getFullName()  != null ? m.getFullName().toLowerCase()  : "";
                         String un = m.getUsername() != null ? m.getUsername().toLowerCase() : "";
                         return fn.contains(query) || un.contains(query);
                     })
                     .collect(Collectors.toList());
 
             if (filtered.isEmpty()) {
-                Label noResult = new Label(query.isEmpty()
+                Label lbl = new Label(query.isEmpty()
                         ? "All members already assigned." : "No member found.");
-                noResult.setStyle("-fx-padding:4 8; -fx-text-fill:#888;");
-                resultsBox.getChildren().add(noResult);
+                lbl.setStyle("-fx-padding:4 8; -fx-text-fill:#888;");
+                resultsBox.getChildren().add(lbl);
             } else {
                 for (ProjectMemberDTO member : filtered) {
                     String display = (member.getFullName() != null
                             && !member.getFullName().isBlank())
                             ? member.getFullName() : member.getUsername();
+
                     Button btn = new Button(display);
-                    btn.setStyle("-fx-background-color:transparent;"
-                            + "-fx-alignment:CENTER_LEFT;"
-                            + "-fx-pref-width:230;"
-                            + "-fx-padding:6 10;");
+                    btn.getStyleClass().add("member-item-btn");
                     btn.setOnAction(e -> {
                         popup.hide();
-                        assignMemberToTask(member.getProjectMemberId());
+                        addAssigneeLocally(member); // cập nhật UI, KHÔNG gọi API
                     });
                     resultsBox.getChildren().add(btn);
                 }
@@ -526,81 +352,275 @@ public class TaskDetailFormController {
         Platform.runLater(searchField::requestFocus);
     }
 
-    /**
-     * Gọi POST /tasks/{taskId}/members sau khi chọn member.
-     * TaskApi.assignMember() gửi List.of(projectMemberId) làm body.
-     * Sau khi gán: reload task từ server để cập nhật assignee label.
-     */
-    private void assignMemberToTask(Long projectMemberId) {
-        addAssigneeBtn.setDisable(true);
+    // ── Assignee Input (legacy FXML handler) ──────────────────────────────────
+    @FXML
+    private void handleAssigneeSubmit(ActionEvent event) {
+        if (assigneeInput != null) {
+            assigneeInput.clear();
+            assigneeInput.setVisible(false);
+            assigneeInput.setManaged(false);
+        }
+    }
 
-        taskApi.assignMember(currentTask.getProjectId(), Collections.singletonList(projectMemberId)).thenAccept(v -> {
+    // ── ComboBox helpers ──────────────────────────────────────────────────────
+
+    private void setupStatusComboBox() {
+        statusComboBox.setConverter(lookupConverter());
+        statusComboBox.setCellFactory(coloredCell("status"));
+        statusComboBox.setButtonCell(coloredCell("status").call(null));
+    }
+
+    private void setupPriorityComboBox() {
+        priorityComboBox.setConverter(lookupConverter());
+        priorityComboBox.setCellFactory(coloredCell("priority"));
+        priorityComboBox.setButtonCell(coloredCell("priority").call(null));
+    }
+
+    private StringConverter<LookupDTO> lookupConverter() {
+        return new StringConverter<>() {
+            @Override public String toString(LookupDTO dto) {
+                return dto == null || dto.getName() == null ? "" : dto.getName();
+            }
+            @Override public LookupDTO fromString(String s) { return null; }
+        };
+    }
+
+    private Callback<ListView<LookupDTO>, ListCell<LookupDTO>> coloredCell(String type) {
+        return listView -> new ListCell<>() {
+            @Override
+            protected void updateItem(LookupDTO dto, boolean empty) {
+                super.updateItem(dto, empty);
+                if (empty || dto == null || dto.getName() == null) {
+                    setText(null); setGraphic(null);
+                } else {
+                    Label badge = new Label(dto.getName());
+                    badge.getStyleClass().addAll("lookup-badge",
+                            type + "-" + slugify(dto.getName()));
+                    HBox container = new HBox(badge);
+                    container.setAlignment(Pos.CENTER_LEFT);
+                    setText(null); setGraphic(container);
+                }
+            }
+        };
+    }
+
+    private String slugify(String name) {
+        return name.toLowerCase().replace("_", "-").replace(" ", "-");
+    }
+
+    // ── Change Detection ──────────────────────────────────────────────────────
+
+    private void setupChangeListeners() {
+        saveBtn.setDisable(true);
+        taskNameInput.textProperty()    .addListener((o, v, n) -> checkChanges());
+        descriptionInput.textProperty() .addListener((o, v, n) -> checkChanges());
+        dueDatePicker.valueProperty()   .addListener((o, v, n) -> checkChanges());
+        statusComboBox.valueProperty()  .addListener((o, v, n) -> checkChanges());
+        priorityComboBox.valueProperty().addListener((o, v, n) -> checkChanges());
+    }
+
+    private void checkChanges() {
+        if (currentTask == null) return;
+        boolean changed = false;
+
+        // Tên
+        String curName = currentTask.getName() != null ? currentTask.getName() : "";
+        if (!curName.equals(taskNameInput.getText() != null ? taskNameInput.getText() : ""))
+            changed = true;
+
+        // Mô tả
+        String curDesc = currentTask.getDescription() != null ? currentTask.getDescription() : "";
+        if (!curDesc.equals(descriptionInput.getText() != null ? descriptionInput.getText() : ""))
+            changed = true;
+
+        // Ngày
+        java.time.LocalDate curDate = currentTask.getDeadline() != null
+                ? currentTask.getDeadline().toLocalDate() : null;
+        java.time.LocalDate newDate = dueDatePicker.getValue();
+        if ((curDate == null && newDate != null) || (curDate != null && !curDate.equals(newDate)))
+            changed = true;
+
+        // Status
+        LookupDTO ns = statusComboBox.getValue();
+        if (ns != null && currentTask.getStatusName() != null
+                && !ns.getName().equalsIgnoreCase(currentTask.getStatusName()))
+            changed = true;
+        else if (ns != null && currentTask.getStatusName() == null)
+            changed = true;
+
+        // Priority
+        LookupDTO np = priorityComboBox.getValue();
+        if (np != null && currentTask.getPriorityName() != null
+                && !np.getName().equalsIgnoreCase(currentTask.getPriorityName()))
+            changed = true;
+        else if (np != null && currentTask.getPriorityName() == null)
+            changed = true;
+
+        // Assignee thay đổi?
+        Set<Long> currentIds = workingAssignees.stream()
+                .map(TaskAssigneeDTO::getProjectMemberId)
+                .filter(id -> id != null)
+                .collect(Collectors.toSet());
+        if (!currentIds.equals(originalAssigneeIds)) changed = true;
+
+        saveBtn.setDisable(!changed);
+    }
+
+    // ── Load Lookups ──────────────────────────────────────────────────────────
+
+    private void loadLookups() {
+        lookupApi.getAll(LookupType.TASK_STATUS).thenAccept(statuses ->
+                Platform.runLater(() -> {
+                    statusComboBox.getItems().setAll(statuses);
+                    if (currentTask != null) {
+                        statuses.stream()
+                                .filter(s -> s.getName().equalsIgnoreCase(currentTask.getStatusName()))
+                                .findFirst()
+                                .ifPresent(statusComboBox.getSelectionModel()::select);
+                    }
+                }));
+
+        lookupApi.getAll(LookupType.PRIORITY).thenAccept(priorities ->
+                Platform.runLater(() -> {
+                    priorityComboBox.getItems().setAll(priorities);
+                    if (currentTask != null) {
+                        priorities.stream()
+                                .filter(p -> p.getName().equalsIgnoreCase(currentTask.getPriorityName()))
+                                .findFirst()
+                                .ifPresent(priorityComboBox.getSelectionModel()::select);
+                    }
+                }));
+    }
+
+    // ── Comments ──────────────────────────────────────────────────────────────
+
+    private void loadTaskComments() {
+        taskApi.getTaskComments(currentTask.getTaskId()).thenAccept(comments ->
+                Platform.runLater(() -> {
+                    commentsContainer.getChildren().clear();
+                    for (CommentDTO c : comments) addCommentToUI(c);
+                })
+        ).exceptionally(ex -> {
+            System.err.println("[TaskDetail] Lỗi load comments: " + ex.getMessage());
+            return null;
+        });
+    }
+
+    @FXML
+    private void handleCommentSubmit(ActionEvent event) {
+        String content = commentField.getText();
+        if (content == null || content.trim().isEmpty() || currentMemberLookup == null) return;
+
+        Long memberId;
+        try {
+            memberId = Long.valueOf(currentMemberLookup.getId());
+        } catch (NumberFormatException e) {
+            System.err.println("[TaskDetail] Member ID không hợp lệ.");
+            return;
+        }
+
+        CommentCreateRequestDTO request = CommentCreateRequestDTO.builder()
+                .taskId(currentTask.getTaskId())
+                .projectMemberId(memberId)
+                .content(content.trim())
+                .parentId(null)
+                .build();
+
+        commentField.setDisable(true);
+        commentApi.createComment(request).thenAccept(newComment ->
+                Platform.runLater(() -> {
+                    addCommentToUI(newComment);
+                    commentField.clear();
+                    commentField.setDisable(false);
+                    commentField.requestFocus();
+                })
+        ).exceptionally(ex -> {
             Platform.runLater(() -> {
-                System.out.println("Gán member thành công!");
-                if (onSaveSuccessCallback != null) onSaveSuccessCallback.run(); // Load lại list view ngoài
-                closeForm(); // Tắt popup để người dùng thấy giao diện ngoài cập nhật
-            });
-        }).exceptionally(ex -> {
-            Platform.runLater(() -> {
-                addAssigneeBtn.setDisable(false);
-                System.err.println("Lỗi gán member: " + ex.getMessage());
+                commentField.setDisable(false);
+                System.err.println("[TaskDetail] Lỗi thêm comment: " + ex.getMessage());
             });
             return null;
         });
     }
 
-    /**
-     * Enter trong TextField assignee: cập nhật label và ẩn input.
-     * FXML dòng 65: onAction="#handleAssigneeSubmit"
-     */
-    @FXML
-    private void handleAssigneeSubmit(ActionEvent event) {
-        assigneeInput.clear();
-        assigneeInput.setVisible(false);
-        assigneeInput.setManaged(false);
+    private void addCommentToUI(CommentDTO comment) {
+        HBox row = new HBox(10);
+        row.setAlignment(javafx.geometry.Pos.TOP_LEFT);
+
+        String displayName = comment.getFullName() != null
+                ? comment.getFullName() : comment.getUserName();
+        if (displayName == null || displayName.isEmpty()) displayName = "Unknown";
+
+        Label avatar = new Label(displayName.substring(0, 1).toUpperCase());
+        avatar.setStyle("-fx-background-color:#5B3E9E; -fx-text-fill:white;"
+                + "-fx-min-width:32; -fx-min-height:32; -fx-alignment:center;"
+                + "-fx-background-radius:16; -fx-font-weight:bold;");
+
+        VBox contentBox = new VBox(4);
+        Label nameLabel = new Label(displayName);
+        nameLabel.setStyle("-fx-font-weight:bold; -fx-text-fill:#333333; -fx-font-size:13px;");
+        Label commentText = new Label(comment.getContent());
+        commentText.setWrapText(true);
+        commentText.setStyle("-fx-background-color:white; -fx-padding:8 12;"
+                + "-fx-background-radius:0 10 10 10;"
+                + "-fx-border-color:#EEE; -fx-border-radius:0 10 10 10;");
+
+        contentBox.getChildren().addAll(nameLabel, commentText);
+        row.getChildren().addAll(avatar, contentBox);
+        commentsContainer.getChildren().add(row);
     }
 
-    private void selectCurrentLookupValues() {
-        if (currentTask == null) return;
+    // ── Save (gọi tất cả API tại đây) ────────────────────────────────────────
 
-        if (!statusComboBox.getItems().isEmpty() && currentTask.getStatusName() != null) {
-            statusComboBox.getItems().stream()
-                    .filter(s -> s.getName().equalsIgnoreCase(currentTask.getStatusName()))
-                    .findFirst()
-                    .ifPresent(statusComboBox.getSelectionModel()::select);
-        }
-
-        if (!priorityComboBox.getItems().isEmpty() && currentTask.getPriorityName() != null) {
-            priorityComboBox.getItems().stream()
-                    .filter(p -> p.getName().equalsIgnoreCase(currentTask.getPriorityName()))
-                    .findFirst()
-                    .ifPresent(priorityComboBox.getSelectionModel()::select);
-        }
-    }
-
-    // 4. Gọi API Cập Nhật Task (PUT /api/tasks/{taskId})
     @FXML
     private void handleSave(ActionEvent event) {
         if (currentTask == null) { closeForm(); return; }
-
         saveBtn.setDisable(true);
 
+        // ── Tính diff assignee ────────────────────────────────────────────────
+        Set<Long> currentIds = workingAssignees.stream()
+                .map(TaskAssigneeDTO::getProjectMemberId)
+                .filter(id -> id != null)
+                .collect(Collectors.toSet());
+
+        List<Long> toAdd = currentIds.stream()
+                .filter(id -> !originalAssigneeIds.contains(id))
+                .collect(Collectors.toList());
+
+        List<Long> toRemove = originalAssigneeIds.stream()
+                .filter(id -> !currentIds.contains(id))
+                .collect(Collectors.toList());
+
+        // Update thông tin task
         TaskUpdateDTO dto = new TaskUpdateDTO();
         dto.setName(taskNameInput.getText().trim());
         dto.setDescription(descriptionInput.getText().trim());
 
-        if (dueDatePicker.getValue() != null) {
+        if (dueDatePicker.getValue() != null)
             dto.setDeadline(dueDatePicker.getValue().atStartOfDay());
-        }
-        if (statusComboBox.getValue() != null) {
+        if (statusComboBox.getValue() != null)
             dto.setStatusId(Long.valueOf(statusComboBox.getValue().getId()));
-        }
-        if (priorityComboBox.getValue() != null) {
+        if (priorityComboBox.getValue() != null)
             dto.setPriorityId(Long.valueOf(priorityComboBox.getValue().getId()));
-        }
 
-        taskApi.updateTask(currentTask.getTaskId(), dto)
-                .thenAccept(updated -> Platform.runLater(() -> {
+        CompletableFuture<Void> updateFuture = taskApi.updateTask(currentTask.getTaskId(), dto)
+                .thenAccept(updated -> {});
+
+        // Gán member mới
+        CompletableFuture<Void> assignFuture = toAdd.isEmpty()
+                ? CompletableFuture.completedFuture(null)
+                : taskApi.assignMember(currentTask.getTaskId(), toAdd)
+                .thenAccept(v -> {});
+
+        // Xóa member
+        CompletableFuture<Void> removeFuture = toRemove.isEmpty()
+                ? CompletableFuture.completedFuture(null)
+                : taskApi.removeMemberFromTask(currentTask.getTaskId(), toRemove)
+                .thenAccept(v -> {});
+
+        // Đóng form + reload màn hình cha
+        CompletableFuture.allOf(updateFuture, assignFuture, removeFuture)
+                .thenAccept(v -> Platform.runLater(() -> {
                     closeForm();
                     if (onSaveSuccessCallback != null) onSaveSuccessCallback.run();
                 }))
@@ -613,96 +633,10 @@ public class TaskDetailFormController {
                 });
     }
 
-    // 5. Quản lý Comments (Load & Thêm mới)
-    private void loadTaskComments() {
-        taskApi.getTaskComments(currentTask.getTaskId()).thenAccept(comments -> {
-            Platform.runLater(() -> {
-                commentsContainer.getChildren().clear();
-                for (CommentDTO comment : comments) {
-                    addCommentToUI(comment);
-                }
-            });
-        }).exceptionally(ex -> {
-            System.err.println("Lỗi load comments: " + ex.getMessage());
-            return null;
-        });
-    }
-
-    @FXML
-    private void handleCommentSubmit(ActionEvent event) {
-        String content = commentField.getText();
-
-        if (content == null || content.trim().isEmpty() || currentMemberLookup == null) {
-            return;
-        }
-
-        Long memberId;
-        try {
-            memberId = Long.valueOf(currentMemberLookup.getId());
-        } catch (NumberFormatException e) {
-            System.err.println("Lỗi: Project Member ID không hợp lệ.");
-            return;
-        }
-
-        // Dùng SuperBuilder khởi tạo DTO gửi xuống backend
-        CommentCreateRequestDTO request = CommentCreateRequestDTO.builder()
-                .taskId(currentTask.getTaskId())
-                .projectMemberId(memberId)
-                .content(content.trim())
-                .parentId(null)
-                .build();
-
-        commentField.setDisable(true);
-
-        commentApi.createComment(request).thenAccept(newComment -> {
-            Platform.runLater(() -> {
-                addCommentToUI(newComment);
-                commentField.clear();
-                commentField.setDisable(false);
-                commentField.requestFocus();
-            });
-        }).exceptionally(ex -> {
-            Platform.runLater(() -> {
-                commentField.setDisable(false);
-                System.err.println("Lỗi khi thêm comment: " + ex.getMessage());
-            });
-            return null;
-        });
-    }
-
-    // Giao diện cho 1 dòng Comment
-    private void addCommentToUI(CommentDTO comment) {
-        HBox row = new HBox(10);
-        row.setAlignment(javafx.geometry.Pos.TOP_LEFT);
-
-        String displayName = comment.getFullName() != null ? comment.getFullName() : comment.getUserName();
-        if (displayName == null || displayName.isEmpty()) displayName = "Unknown";
-
-        String avatarChar = displayName.substring(0, 1).toUpperCase();
-        Label avatar = new Label(avatarChar);
-        avatar.setStyle("-fx-background-color:#5B3E9E; -fx-text-fill:white; -fx-min-width:32; -fx-min-height:32; -fx-alignment:center; -fx-background-radius:16; -fx-font-weight:bold;");
-
-        VBox contentBox = new VBox(4);
-
-        // Dòng header comment (Tên người gửi)
-        Label nameLabel = new Label(displayName);
-        nameLabel.setStyle("-fx-font-weight:bold; -fx-text-fill: #333333; -fx-font-size: 13px;");
-
-        // Nội dung comment có bo góc
-        Label commentText = new Label(comment.getContent());
-        commentText.setWrapText(true);
-        commentText.setStyle("-fx-background-color: white; -fx-padding: 8 12; -fx-background-radius: 0 10 10 10; -fx-border-color: #EEE; -fx-border-radius: 0 10 10 10;");
-
-        contentBox.getChildren().addAll(nameLabel, commentText);
-        row.getChildren().addAll(avatar, contentBox);
-
-        commentsContainer.getChildren().add(row);
-    }
+    // ── Close ─────────────────────────────────────────────────────────────────
 
     private void closeForm() {
-        if (popupStage != null) {
-            popupStage.close();
-        }
+        if (popupStage != null) popupStage.close();
     }
 
     @FXML

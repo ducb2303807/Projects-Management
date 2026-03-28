@@ -5,16 +5,17 @@
 <?import javafx.scene.layout.*?>
 <?import org.kordamp.ikonli.javafx.*?>
 
-<StackPane fx:id="rootPane" styleClass="popup-background" stylesheets="@../assets/css/tasks/stat-prio.css"
+<StackPane fx:id="rootPane" stylesheets="@../assets/css/tasks/new-task-form.css"
            xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1"
            fx:controller="com.group4.projects_management_fe.features.task.TaskDetailFormController">
+    <Pane styleClass="popup-background"/>
 
-    <VBox minHeight="480.0" prefWidth="780.0" styleClass="popup-container">
+    <VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="480.0" prefWidth="780.0" styleClass="popup-container">
 
         <!-- Header: Task name -->
         <VBox>
             <padding>
-                <Insets bottom="15.0" left="30.0" right="30.0" top="25.0"/>
+                <Insets bottom="10.0" left="30.0" right="30.0" top="10.0"/>
             </padding>
             <TextField fx:id="taskNameInput" promptText="Task name" styleClass="title-input"/>
         </VBox>
@@ -24,15 +25,17 @@
         <HBox VBox.vgrow="ALWAYS">
 
             <!-- Cột trái: metadata (giống NewProjectForm.fxml) -->
-            <VBox prefHeight="446.0" prefWidth="425.0" spacing="20.0" styleClass="left-column" HBox.hgrow="ALWAYS">
+            <VBox prefHeight="446.0" prefWidth="425.0" spacing="5.0" styleClass="left-column" HBox.hgrow="ALWAYS">
                 <padding>
                     <Insets bottom="30.0" left="30.0" right="20.0" top="25.0"/>
                 </padding>
 
-                <GridPane hgap="15.0" vgap="18.0">
+                <GridPane hgap="15.0" vgap="10.0">
                     <columnConstraints>
-                        <ColumnConstraints minWidth="100.0" prefWidth="120.0"/>
-                        <ColumnConstraints hgrow="ALWAYS"/>
+                        <ColumnConstraints maxWidth="122.00000762939453" minWidth="100.0"
+                                           prefWidth="122.00000762939453"/>
+                        <ColumnConstraints hgrow="ALWAYS" maxWidth="240.0" minWidth="222.99999237060547"
+                                           prefWidth="222.99999237060547"/>
                     </columnConstraints>
 
                     <!-- Due date -->
@@ -40,7 +43,7 @@
                         <FontIcon iconLiteral="fas-calendar-alt" styleClass="icon-muted"/>
                         <Label styleClass="field-label" text="Due date"/>
                     </HBox>
-                    <DatePicker fx:id="dueDatePicker" promptText="Empty" styleClass="clean-input"
+                    <DatePicker fx:id="dueDatePicker" promptText="Empty" styleClass="clean-input-date"
                                 GridPane.columnIndex="1" GridPane.rowIndex="0"/>
 
                     <!-- Status -->
@@ -65,34 +68,22 @@
                         <Label styleClass="field-label" text="Assignee"/>
                     </HBox>
 
-                    <VBox spacing="6" GridPane.columnIndex="1" GridPane.rowIndex="3">
-                        <FlowPane fx:id="assigneeChipsPane"
-                                  hgap="6" vgap="6"
-                                  maxWidth="1.7976931348623157E308"/>
-                        <HBox spacing="8" alignment="CENTER_LEFT">
-                            <Button fx:id="addAssigneeBtn"
-                                    onAction="#handleAddAssigneeClick"
-                                    styleClass="btn-add-circle"
-                                    text="+"
-                                    visible="false" managed="false"/>
-                            <TextField fx:id="assigneeInput"
-                                       managed="false"
-                                       onAction="#handleAssigneeSubmit"
-                                       promptText="Enter username"
-                                       styleClass="clean-input"
-                                       visible="false"
+                    <VBox alignment="CENTER_LEFT" spacing="6" GridPane.columnIndex="1" GridPane.rowIndex="3">
+                        <FlowPane fx:id="assigneeChipsPane" hgap="6" maxWidth="1.7976931348623157E308" vgap="6"/>
+                        <HBox alignment="CENTER_LEFT" spacing="8">
+                            <Button fx:id="addAssigneeBtn" managed="false" onAction="#handleAddAssigneeClick"
+                                    styleClass="btn-add-circle" text="+" visible="false"/>
+                            <TextField fx:id="assigneeInput" managed="false" onAction="#handleAssigneeSubmit"
+                                       promptText="Enter username" styleClass="clean-input" visible="false"
                                        HBox.hgrow="ALWAYS"/>
                         </HBox>
                     </VBox>
 
                     <!-- Description -->
-                    <HBox alignment="TOP_LEFT" spacing="10.0" GridPane.columnIndex="0" GridPane.rowIndex="4">
+                    <HBox alignment="CENTER_LEFT" spacing="10.0" GridPane.columnIndex="0" GridPane.rowIndex="4">
                         <FontIcon iconLiteral="fas-align-left" styleClass="icon-muted"/>
-                        <Label styleClass="field-label" text="Description:"/>
+                        <Label prefHeight="26.0" prefWidth="98.0" styleClass="field-label" text="Description:"/>
                     </HBox>
-                    <TextArea fx:id="descriptionInput" prefRowCount="4" promptText="Add a description..."
-                              styleClass="clean-textarea" wrapText="true" GridPane.columnIndex="1"
-                              GridPane.rowIndex="4"/>
                     <rowConstraints>
                         <RowConstraints/>
                         <RowConstraints/>
@@ -101,6 +92,8 @@
                         <RowConstraints/>
                     </rowConstraints>
                 </GridPane>
+                <TextArea fx:id="descriptionInput" prefHeight="145.0" prefRowCount="4" prefWidth="360.0"
+                          promptText="Add a description..." styleClass="clean-textarea" wrapText="true"/>
             </VBox>
 
             <Separator orientation="VERTICAL"/>

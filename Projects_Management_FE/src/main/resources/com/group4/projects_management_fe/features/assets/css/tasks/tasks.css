@@ -20,17 +20,8 @@
     -fx-padding: 25px 25px;
 }
 
-.task-category {
-    -fx-background-color: #FBFBFB;
-    -fx-background-radius: 5px;
-    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.25), 10, 0, 3, 3);
-}
-
 /*BUTTON*/
 .button .text{
-    /*-fx-background-image: url(../image/background.jpg); */
-    /*-fx-background-size: cover;*/
-    /*-fx-background-color: transparent;*/
     -fx-background-radius: 15px;
     -fx-text-fill: white;
     -fx-font-weight: 500;
@@ -64,14 +55,6 @@
     -fx-background-color: transparent;
 }
 /*SCROLL PANE*/
-
-/*CHECK BOX*/
-.check-box > .box{
-    -fx-border-color: #dcdcdc;
-    -fx-border-radius: 4px;
-    -fx-border-width: 1.5px;
-}
-/*CHECK BOX*/
 
 /*TASK STATUS*/
 .status-container {

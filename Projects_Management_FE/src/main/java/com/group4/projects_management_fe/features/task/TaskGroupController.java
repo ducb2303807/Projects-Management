@@ -59,7 +59,7 @@ public class TaskGroupController implements Initializable {
         TableColumn<TaskResponseDTO, String> colName = new TableColumn<>("Task name");
         colName.getStyleClass().add("task-name-col");
         colName.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getName()));
-        colName.setPrefWidth(550);
+        colName.setPrefWidth(520);
 
         // Due Date
         TableColumn<TaskResponseDTO, String> colDue = new TableColumn<>("Due date");
@@ -72,15 +72,47 @@ public class TaskGroupController implements Initializable {
         colDue.setPrefWidth(150);
 
         // Assignee
-        TableColumn<TaskResponseDTO, String> colAssignee = new TableColumn<>("Assignee");
-        colAssignee.setCellValueFactory(data -> {
-            List<TaskAssigneeDTO> assignees = data.getValue().getAssignees();
-            if (assignees == null || assignees.isEmpty()) return new SimpleStringProperty("Unassigned");
-            return new SimpleStringProperty(assignees.get(0).getFullName() != null
-                    ? assignees.get(0).getFullName()
-                    : assignees.get(0).getUsername());
+        TableColumn<TaskResponseDTO, List<TaskAssigneeDTO>> colAssignee = new TableColumn<>("Assignee");
+        colAssignee.setCellValueFactory(data -> new javafx.beans.property.SimpleObjectProperty<>(data.getValue().getAssignees()));
+        colAssignee.setCellFactory(column -> new TableCell<>() {
+            @Override
+            protected void updateItem(List<TaskAssigneeDTO> assignees, boolean empty) {
+                super.updateItem(assignees, empty);
+                if (empty) {
+                    setGraphic(null);
+                    return;
+                }
+
+                javafx.scene.layout.HBox container = new javafx.scene.layout.HBox(6);
+                container.setAlignment(javafx.geometry.Pos.CENTER);
+
+                if (assignees == null || assignees.isEmpty()) {
+                    Label unassigned = new Label("Unassigned");
+                    unassigned.setStyle("-fx-text-fill: #A0AEC0;");
+                    container.getChildren().add(unassigned);
+                } else {
+                    // Tên người đầu tiên
+                    String firstName = assignees.get(0).getFullName() != null
+                            ? assignees.get(0).getFullName()
+                            : assignees.get(0).getUsername();
+                    Label nameLabel = new Label(firstName);
+                    nameLabel.setStyle("-fx-text-fill: #333333;");
+                    container.getChildren().add(nameLabel);
+
+                    // Badge +N nếu có nhiều hơn 1 người
+                    if (assignees.size() > 1) {
+                        int extra = assignees.size() - 1;
+                        Label badge = new Label("+" + extra);
+                        badge.getStyleClass().add("assignee-extra-badge");
+                        container.getChildren().add(badge);
+                    }
+                }
+
+                setGraphic(container);
+                setText(null);
+            }
         });
-        colAssignee.setPrefWidth(150);
+        colAssignee.setPrefWidth(180);
 
         // Priority (có badge màu)
         TableColumn<TaskResponseDTO, String> colPriority = new TableColumn<>("Priority");
@@ -98,7 +130,8 @@ public class TaskGroupController implements Initializable {
                 badge.getStyleClass().add("priority-badge");
 
                 String p = priority.toLowerCase();
-                if (p.contains("high") || p.contains("urgent")) badge.getStyleClass().add("priority-high");
+                if (p.contains("urgent")) badge.getStyleClass().add("priority-urgent");
+                else if (p.contains("high")) badge.getStyleClass().add("priority-high");
                 else if (p.contains("medium")) badge.getStyleClass().add("priority-medium");
                 else badge.getStyleClass().add("priority-low");
 
@@ -159,9 +192,10 @@ public class TaskGroupController implements Initializable {
 
             Long projectId = taskToOpen.getProjectId();
 
-            // Khởi tạo dữ liệu form với taskToOpen (KHÔNG PHẢI currentTask)
+            // Khởi tạo dữ liệu form
             controller.initData(taskToOpen, memberLookup, projectId);
             controller.setOnSaveSuccessCallback(this.reloadCallback);
+            controller.setAssigneeManagementEnabled(false);
 
             // Mở cửa sổ dạng Popup mờ nền
             Window ownerWindow = taskGroupContent.getScene().getWindow();
@@ -176,16 +210,10 @@ public class TaskGroupController implements Initializable {
             scene.setFill(Color.TRANSPARENT);
             popup.setScene(scene);
 
-            // Phủ toàn màn hình
             popup.setWidth(ownerWindow.getWidth());
             popup.setHeight(ownerWindow.getHeight());
             popup.setX(ownerWindow.getX());
             popup.setY(ownerWindow.getY());
-
-            // Click viền ngoài đóng popup
-            root.setOnMouseClicked(e -> {
-                if (e.getTarget() == root) popup.close();
-            });
 
             popup.showAndWait();
 
