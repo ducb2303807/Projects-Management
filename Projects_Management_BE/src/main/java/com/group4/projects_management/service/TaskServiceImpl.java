@@ -30,6 +30,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Stream;
 
 @Service
 public class TaskServiceImpl extends BaseServiceImpl<Task, Long> implements TaskService {
@@ -302,14 +303,21 @@ public class TaskServiceImpl extends BaseServiceImpl<Task, Long> implements Task
             eventPublisher.publishEvent(historyEvent);
         }
 
+        List<Long> managerIds = task.getProject().getProjectManagers()
+                .stream().map(pm -> pm.getUser().getId()).toList();
         List<Long> receiverIds = task.getMembersId();
 
-        if(!receiverIds.isEmpty()) {
+        List<Long> finalReceiverIds = Stream.concat(receiverIds.stream(), managerIds.stream())
+                .distinct()
+                .filter(id -> !id.equals(actorId))
+                .toList();
+
+        if(!finalReceiverIds.isEmpty()) {
             TaskUpdateContext context = TaskUpdateContext.builder()
                     .task(savedTask)
                     .actor(actor.getUser())
                     .build();
-            notificationService.send(receiverIds, context, savedTask.getId());
+            notificationService.send(finalReceiverIds, context, savedTask.getId());
         }
 
         return taskMapper.toDto(task);
