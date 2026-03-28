@@ -12,14 +12,20 @@ import com.group4.projects_management_fe.core.session.AuthSessionProvider;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.geometry.Pos;
 import javafx.geometry.Side;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
+import javafx.stage.StageStyle;
 import javafx.util.Callback;
 import javafx.util.StringConverter;
 
@@ -43,6 +49,7 @@ public class TaskDetailFormController {
     @FXML private Button    addAssigneeBtn;   // nút "+" từ FXML – sẽ được style lại nhỏ gọn
     @FXML private TextField assigneeInput;    // legacy, giữ để không lỗi FXML
 
+    @FXML private StackPane deleteTaskBtn;
     @FXML private Button    showDetails;
     @FXML private TextArea  descriptionInput;
     @FXML private VBox      commentsContainer;
@@ -60,6 +67,7 @@ public class TaskDetailFormController {
     private LookupApi  lookupApi;
     private CommentApi commentApi;
     private Runnable   onSaveSuccessCallback;
+    private Runnable   onDeleteSuccessCallback;
 
     private TaskResponseDTO currentTask;
     private LookupDTO       currentMemberLookup;
@@ -71,18 +79,10 @@ public class TaskDetailFormController {
      */
     private boolean assigneeManagementEnabled = false;
 
-    /** Cache toàn bộ member của project, dùng cho popup search */
     private List<ProjectMemberDTO> projectMembersCache = new ArrayList<>();
 
-    /**
-     * Danh sách assignee đang làm việc trên UI (có thể khác DB).
-     * Mọi thay đổi thêm / xóa chỉ cập nhật list này; API chỉ gọi khi Save.
-     */
     private List<TaskAssigneeDTO> workingAssignees = new ArrayList<>();
 
-    /**
-     * IDs của assignee lúc mới mở form (dùng để tính diff khi Save).
-     */
     private Set<Long> originalAssigneeIds = new HashSet<>();
 
     // ── Public setters ────────────────────────────────────────────────────────
@@ -272,6 +272,58 @@ public class TaskDetailFormController {
         workingAssignees.removeIf(a -> projectMemberId.equals(a.getProjectMemberId()));
         renderAssigneeChips();
     }
+
+    @FXML
+    private void handleOpenHistoryDetails(ActionEvent event) {
+        if (currentTask == null || currentTask.getTaskId() == null) return;
+
+        taskApi.getTaskHistory(currentTask.getTaskId()).thenAccept(histories ->
+                javafx.application.Platform.runLater(() -> {
+                    try {
+                        FXMLLoader loader = new javafx.fxml.FXMLLoader(
+                                getClass().getResource("/com/group4/projects_management_fe/features/task/TaskHitory.fxml")
+                        );
+
+                        Parent root = loader.load();
+
+                        // Truyền dữ liệu vào controller
+                        TaskHistoryController historyController = loader.getController();
+                        historyController.setHistories(histories);
+
+                        // Tạo popup Stage
+                        Stage historyStage = new Stage();
+                        historyStage.initModality(Modality.APPLICATION_MODAL);
+                        historyStage.initStyle(StageStyle.TRANSPARENT);
+                        historyStage.initOwner(popupStage);
+
+                        // Truyền stage vào controller để nút Close hoạt động
+                        historyController.setPopupStage(historyStage);
+
+                        Scene scene = new Scene(root, 300, 500);
+                        scene.setFill(Color.TRANSPARENT);
+                        historyStage.setScene(scene);
+                        historyStage.setResizable(false);
+
+                        historyStage.setOnShown(e -> {
+                            historyStage.setX(popupStage.getX() + 1180);
+                            historyStage.setY(popupStage.getY() + 165);
+                        });
+
+                        historyStage.show();
+
+                    } catch (Exception ex) {
+                        System.err.println("[TaskDetail] Lỗi mở history popup: " + ex.getMessage());
+                        ex.printStackTrace();
+                    }
+                })
+        ).exceptionally(ex -> {
+            javafx.application.Platform.runLater(() ->
+                    System.err.println("[TaskDetail] Lỗi load history: " + ex.getMessage())
+            );
+            return null;
+        });
+    }
+
 
     // ── Add Assignee Popup ────────────────────────────────────────────────────
 
@@ -506,9 +558,8 @@ public class TaskDetailFormController {
         taskApi.getTaskHistory(currentTask.getTaskId()).thenAccept(histories ->
                 Platform.runLater(() -> {
                     if (histories != null && !histories.isEmpty()) {
-                        // Giả sử API trả về list mới nhất xếp đầu tiên (descending).
-                        // Nếu API trả về list tăng dần, hãy dùng histories.get(histories.size() - 1)
-                        var latestHistory = histories.get(0);
+                        // API trả về list tăng dần
+                        var latestHistory = histories.get(histories.size() - 1);
 
                         // Lấy tên hiển thị
                         String displayName = latestHistory.getChangedByFullName();
@@ -622,6 +673,66 @@ public class TaskDetailFormController {
         contentBox.getChildren().addAll(nameLabel, commentText);
         row.getChildren().addAll(avatar, contentBox);
         commentsContainer.getChildren().add(row);
+    }
+
+    // ── Delete Task ───────────────────────────────────────────────────────────
+
+    @FXML
+    private void handleDeleteTask(javafx.scene.input.MouseEvent event) {
+        showDeleteTaskConfirmation();
+    }
+
+    private void showDeleteTaskConfirmation() {
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.setTitle("Delete task?");
+        alert.setHeaderText(null);
+        alert.setContentText("Are you sure you want to delete this task? This action cannot be undone.");
+
+        // Tạo 2 nút custom
+        ButtonType btnDelete = new ButtonType("Delete", ButtonBar.ButtonData.OK_DONE);
+        ButtonType btnCancel = new ButtonType("Cancel", ButtonBar.ButtonData.CANCEL_CLOSE);
+        alert.getButtonTypes().setAll(btnDelete, btnCancel);
+
+        // Lấy object Button thật để cấu hình highlight
+        javafx.scene.Node deleteButtonNode = alert.getDialogPane().lookupButton(btnDelete);
+        javafx.scene.Node cancelButtonNode = alert.getDialogPane().lookupButton(btnCancel);
+
+        // Cancel là nút mặc định (Enter) để tránh xóa nhầm
+        if (cancelButtonNode instanceof Button) {
+            ((Button) cancelButtonNode).setDefaultButton(true);
+        }
+        if (deleteButtonNode instanceof Button) {
+            ((Button) deleteButtonNode).setDefaultButton(false);
+        }
+
+        alert.showAndWait().ifPresent(type -> {
+            if (type == btnDelete) {
+                performDeleteTask();
+            }
+            // Nếu Cancel → popup tự tắt, không làm gì thêm
+        });
+    }
+
+    private void performDeleteTask() {
+        if (currentTask == null) return;
+
+        // Vô hiệu hoá nút thùng rác để tránh double-click
+        if (deleteTaskBtn != null) deleteTaskBtn.setDisable(true);
+
+        taskApi.deleteTask(currentTask.getTaskId())
+                .thenAccept(v -> Platform.runLater(() -> {
+                    closeForm();
+                    // Thông báo cho màn hình cha reload danh sách
+                    if (onDeleteSuccessCallback != null) onDeleteSuccessCallback.run();
+                    else if (onSaveSuccessCallback != null) onSaveSuccessCallback.run();
+                }))
+                .exceptionally(ex -> {
+                    Platform.runLater(() -> {
+                        if (deleteTaskBtn != null) deleteTaskBtn.setDisable(false);
+                        GlobalExceptionHandler.handleException(ex);
+                    });
+                    return null;
+                });
     }
 
     // ── Save (gọi tất cả API tại đây) ────────────────────────────────────────

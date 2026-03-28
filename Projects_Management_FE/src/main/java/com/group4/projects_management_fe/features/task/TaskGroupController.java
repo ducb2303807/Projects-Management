@@ -45,6 +45,10 @@ public class TaskGroupController implements Initializable {
 
     public void setGroupName(String name) {
         groupTitledPane.setText(name);
+        if ("Cancelled".equalsIgnoreCase(name)) {
+            groupTitledPane.setVisible(false);   // Ẩn khỏi màn hình
+            groupTitledPane.setManaged(false);   // Không chiếm không gian layout
+        }
     }
 
     public void setReloadCallback(Runnable reloadCallback) {

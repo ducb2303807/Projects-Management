@@ -15,7 +15,7 @@
 }
 
 /* ==========================================================
- * Header & Input Task Name
+ * Header & Input Task Name & Delete Button
  * ========================================================== */
 
 /* Input tiêu đề task */
@@ -25,6 +25,34 @@
     -fx-font-weight: bold;
     -fx-border-color: transparent;
     -fx-text-fill: #333333;
+}
+
+.trash-btn-container {
+    -fx-background-color: #F7D6D6;
+    -fx-background-radius: 50%;
+    -fx-border-radius: 50%;
+    -fx-cursor: hand;
+    -fx-min-width: 35px;
+    -fx-min-height: 35px;
+    -fx-pref-width: 35px;
+    -fx-pref-height: 35px;
+    -fx-alignment: center;
+}
+
+/* Style cho chính icon thùng rác */
+.trash-btn {
+    -fx-icon-color: #ef5956;
+    -fx-icon-size: 16px;
+}
+
+/* Hiệu ứng khi đưa chuột vào vòng tròn (hover container) */
+.trash-btn-container:hover {
+    -fx-background-color: #ddc0c0;
+}
+
+/* Hiệu ứng khi nhấn vào vòng tròn (pressed container) */
+.trash-btn-container:pressed {
+    -fx-background-color: #c59c9c; /* Nền tối nhất khi nhấn giữ */
 }
 
 /* ==========================================================

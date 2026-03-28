@@ -17,7 +17,7 @@
 .task-category-container {
     -fx-background-color: #F3F4F5;
     -fx-background-radius: 25px;
-    -fx-padding: 25px 25px;
+    -fx-padding: 25px 25px 5px;
 }
 
 /*BUTTON*/

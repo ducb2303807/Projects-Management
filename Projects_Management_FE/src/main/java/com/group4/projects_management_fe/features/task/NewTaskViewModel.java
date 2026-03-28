@@ -93,16 +93,6 @@ public class NewTaskViewModel {
 
     // ── Load project members + xác định role ─────────────────────────────────
 
-    /**
-     * Gọi ngay sau khi projectId được set (từ TasksViewController).
-     * GET /api/projects/{projectId}/members
-     *   → cache vào projectMembers
-     *   → kiểm tra roleName của user hiện tại có chứa "Manager"
-     *   → emit canManageAssignees
-     *
-     * @param currentMemberId projectMemberId của user đang đăng nhập
-     *                        (dùng để tìm role của user trong project này)
-     */
     public void loadProjectMembers(Long currentMemberId) {
         if (projectId == null) return;
 
