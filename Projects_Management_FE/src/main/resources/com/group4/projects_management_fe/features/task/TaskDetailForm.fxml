@@ -141,7 +141,8 @@
                             </rowConstraints>
                             <children>
                                 <Label styleClass="field-label" text="Last edited by"/>
-                                <Button fx:id="showDetails" onAction="#handleOpenHistoryDetails" mnemonicParsing="false" prefHeight="26.0" prefWidth="100.0"
+                                <Button fx:id="showDetails" onAction="#handleOpenHistoryDetails" mnemonicParsing="false"
+                                        prefHeight="26.0" prefWidth="100.0"
                                         styleClass="show-detail" text="Show details" GridPane.columnIndex="1"/>
                             </children>
                         </GridPane>
@@ -169,6 +170,10 @@
                     <!-- Add comment -->
                     <HBox alignment="CENTER_LEFT" spacing="8.0">
                         <Label fx:id="myAvatarLabel" styleClass="avatar"/>
+                        <Label fx:id="replyingToLabel" text="" visible="false" managed="false"
+                               style="-fx-text-fill:#5B3E9E; -fx-font-size:11px; -fx-padding:2 6;
+                               -fx-background-color:#EDE8F9; -fx-background-radius:4;"
+                               onMouseClicked="#onCancelReplyClicked"/>
                         <TextField fx:id="commentField" onAction="#handleCommentSubmit" promptText="Add a comment..."
                                    style="-fx-background-color: #F5F5F5; -fx-background-radius: 20; -fx-padding: 6 14; -fx-border-color: transparent;"
                                    HBox.hgrow="ALWAYS"/>

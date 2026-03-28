@@ -127,6 +127,11 @@ public class TaskDetailFormController {
         }
     }
 
+    @FXML
+    private void onCancelReplyClicked(javafx.scene.input.MouseEvent e) {
+        cancelReply();
+    }
+
     // ── initData ──────────────────────────────────────────────────────────────
 
     public void initData(TaskResponseDTO task, LookupDTO memberLookup, Long projectId) {
@@ -603,13 +608,20 @@ public class TaskDetailFormController {
         taskApi.getTaskComments(currentTask.getTaskId()).thenAccept(comments ->
                 Platform.runLater(() -> {
                     commentsContainer.getChildren().clear();
-                    for (CommentDTO c : comments) addCommentToUI(c);
+                    for (CommentDTO c : comments) {
+                        if (c.getParentId() == null) {
+                            addCommentToUI(c, comments, 0);
+                        }
+                    }
                 })
         ).exceptionally(ex -> {
             System.err.println("[TaskDetail] Lỗi load comments: " + ex.getMessage());
             return null;
         });
     }
+
+    private Long replyingToCommentId = null;
+    private Label replyingToLabel = null; // Label hiển thị "Đang reply: ..."
 
     @FXML
     private void handleCommentSubmit(ActionEvent event) {
@@ -628,16 +640,19 @@ public class TaskDetailFormController {
                 .taskId(currentTask.getTaskId())
                 .projectMemberId(memberId)
                 .content(content.trim())
-                .parentId(null)
+                .parentId(replyingToCommentId)
                 .build();
 
         commentField.setDisable(true);
         commentApi.createComment(request).thenAccept(newComment ->
                 Platform.runLater(() -> {
-                    addCommentToUI(newComment);
+                    // Reload toàn bộ comments để giữ cấu trúc thread đúng
+                    loadTaskComments();
                     commentField.clear();
                     commentField.setDisable(false);
                     commentField.requestFocus();
+                    // Reset reply state
+                    cancelReply();
                 })
         ).exceptionally(ex -> {
             Platform.runLater(() -> {
@@ -648,31 +663,124 @@ public class TaskDetailFormController {
         });
     }
 
-    private void addCommentToUI(CommentDTO comment) {
+    /** Hủy trạng thái reply */
+    private void cancelReply() {
+        replyingToCommentId = null;
+        if (replyingToLabel != null) {
+            replyingToLabel.setVisible(false);
+            replyingToLabel.setManaged(false);
+        }
+    }
+
+    /**
+     * Thêm comment vào UI, hỗ trợ nested reply theo indent level.
+     * @param comment   Comment cần render
+     * @param allComments Toàn bộ danh sách comment (để tìm replies)
+     * @param depth     Mức indent (0 = root, 1 = reply, ...)
+     */
+    private void addCommentToUI(CommentDTO comment, List<CommentDTO> allComments, int depth) {
         HBox row = new HBox(10);
         row.setAlignment(javafx.geometry.Pos.TOP_LEFT);
+        // Indent theo depth, tối đa ~3 cấp
+        row.setPadding(new javafx.geometry.Insets(0, 0, 0, depth * 36.0));
 
-        String displayName = comment.getFullName() != null
-                ? comment.getFullName() : comment.getUserName();
-        if (displayName == null || displayName.isEmpty()) displayName = "Unknown";
+        String displayName = (comment.getFullName() != null && !comment.getFullName().isEmpty())
+                ? comment.getFullName()
+                : (comment.getUserName() != null ? comment.getUserName() : "Unknown");
 
+        // --- Avatar ---
         Label avatar = new Label(displayName.substring(0, 1).toUpperCase());
-        avatar.setStyle("-fx-background-color:#5B3E9E; -fx-text-fill:white;"
-                + "-fx-min-width:32; -fx-min-height:32; -fx-alignment:center;"
-                + "-fx-background-radius:16; -fx-font-weight:bold;");
+        // Màu avatar khác nhau theo depth để dễ phân biệt
+        String[] avatarColors = {"#5B3E9E", "#2E86AB", "#E76F51", "#2A9D8F"};
+        String avatarColor = avatarColors[depth % avatarColors.length];
+        avatar.setStyle("-fx-background-color:" + avatarColor + "; -fx-text-fill:white;"
+                + "-fx-min-width:32; -fx-min-height:32; -fx-max-width:32; -fx-max-height:32;"
+                + "-fx-alignment:center; -fx-background-radius:16; -fx-font-weight:bold;");
 
+        // --- Content box ---
         VBox contentBox = new VBox(4);
+        HBox.setHgrow(contentBox, javafx.scene.layout.Priority.ALWAYS);
+
+        // Tên + thời gian
+        HBox nameTimeRow = new HBox(8);
+        nameTimeRow.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
+
         Label nameLabel = new Label(displayName);
         nameLabel.setStyle("-fx-font-weight:bold; -fx-text-fill:#333333; -fx-font-size:13px;");
+
+        Label timeLabel = new Label(formatTimeAgo(String.valueOf(comment.getCreateAt())));
+        timeLabel.setStyle("-fx-text-fill:#999999; -fx-font-size:11px;");
+
+        nameTimeRow.getChildren().addAll(nameLabel, timeLabel);
+
+        // Nội dung comment
         Label commentText = new Label(comment.getContent());
         commentText.setWrapText(true);
+        commentText.setMaxWidth(Double.MAX_VALUE);
         commentText.setStyle("-fx-background-color:white; -fx-padding:8 12;"
                 + "-fx-background-radius:0 10 10 10;"
-                + "-fx-border-color:#EEE; -fx-border-radius:0 10 10 10;");
+                + "-fx-border-color:#EEE; -fx-border-radius:0 10 10 10;"
+                + "-fx-font-size:13px;");
 
-        contentBox.getChildren().addAll(nameLabel, commentText);
+        // Nút Reply
+        Button replyBtn = new Button("↩ Reply");
+        replyBtn.setStyle("-fx-background-color:transparent; -fx-text-fill:#75737c;"
+                + "-fx-font-size:11px; -fx-cursor:hand; -fx-padding:0;");
+        replyBtn.setOnAction(e -> startReply(comment));
+
+        contentBox.getChildren().addAll(nameTimeRow, commentText, replyBtn);
         row.getChildren().addAll(avatar, contentBox);
         commentsContainer.getChildren().add(row);
+
+        // Render các reply của comment này (đệ quy)
+        for (CommentDTO child : allComments) {
+            if (child.getParentId() != null && child.getParentId().equals(comment.getCommentId())) {
+                addCommentToUI(child, allComments, depth + 1);
+            }
+        }
+    }
+
+    /** Bắt đầu chế độ reply: lưu parentId và hiển thị label */
+    private void startReply(CommentDTO parentComment) {
+        replyingToCommentId = parentComment.getCommentId();
+
+        String name = (parentComment.getFullName() != null && !parentComment.getFullName().isEmpty())
+                ? parentComment.getFullName() : parentComment.getUserName();
+
+        if (replyingToLabel != null) {
+            replyingToLabel.setText("↩ Đang reply " + name + "  ✕");
+            replyingToLabel.setVisible(true);
+            replyingToLabel.setManaged(true);
+        }
+        commentField.requestFocus();
+    }
+
+    /**
+     * Format thời gian kiểu "X minutes ago", "X hours ago", v.v.
+     * @param createAt chuỗi ISO 8601, ví dụ "2026-03-21T22:41:56"
+     */
+    private String formatTimeAgo(String createAt) {
+        if (createAt == null) return "";
+        try {
+            java.time.LocalDateTime commentTime = java.time.LocalDateTime.parse(
+                    createAt, java.time.format.DateTimeFormatter.ISO_LOCAL_DATE_TIME);
+            java.time.LocalDateTime now = java.time.LocalDateTime.now();
+            long seconds = java.time.Duration.between(commentTime, now).getSeconds();
+
+            if (seconds < 60) return "just now";
+            long minutes = seconds / 60;
+            if (minutes < 60) return minutes + " minute" + (minutes > 1 ? "s" : "") + " ago";
+            long hours = minutes / 60;
+            if (hours < 24) return hours + " hour" + (hours > 1 ? "s" : "") + " ago";
+            long days = hours / 24;
+            if (days < 30) return days + " day" + (days > 1 ? "s" : "") + " ago";
+            long months = days / 30;
+            if (months < 12) return months + " month" + (months > 1 ? "s" : "") + " ago";
+            long years = months / 12;
+            return years + " year" + (years > 1 ? "s" : "") + " ago";
+        } catch (Exception e) {
+            return createAt;
+        }
     }
 
     // ── Delete Task ───────────────────────────────────────────────────────────
