@@ -317,7 +317,7 @@ public class TaskServiceImpl extends BaseServiceImpl<Task, Long> implements Task
                     .task(savedTask)
                     .actor(actor.getUser())
                     .build();
-            notificationService.send(receiverIds, context, savedTask.getId());
+            notificationService.send(finalReceiverIds, context, savedTask.getId());
         }
 
         return taskMapper.toDto(task);
