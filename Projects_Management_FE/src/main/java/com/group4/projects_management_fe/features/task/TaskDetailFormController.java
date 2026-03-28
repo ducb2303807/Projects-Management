@@ -139,10 +139,29 @@ public class TaskDetailFormController {
         this.currentMemberLookup = memberLookup;
         this.projectId           = projectId;
 
-        // ── Avatar ────────────────────────────────────────────────────────────
-        if (memberLookup != null && memberLookup.getName() != null
-                && !memberLookup.getName().isEmpty()) {
-            myAvatarLabel.setText(memberLookup.getName().substring(0, 1).toUpperCase());
+        UserDTO currentUser = AppSessionManager.getInstance().getCurrentUser();
+
+        if (projectId != null) {
+            projectApi.getMembersOfProject(projectId).thenAccept(members -> {
+                Platform.runLater(() -> {
+                    members.stream()
+                            .filter(m -> m.getUserId().equals(currentUser.getId()))
+                            .findFirst()
+                            .ifPresent(myMember -> {
+                                this.currentMemberLookup = LookupDTO.builder()
+                                        .id(String.valueOf(myMember.getProjectMemberId()))
+                                        .name(myMember.getFullName())
+                                        .build();
+
+                                if (myMember.getFullName() != null && !myMember.getFullName().isEmpty()) {
+                                    myAvatarLabel.setText(myMember.getFullName().substring(0, 1).toUpperCase());
+                                }
+                            });
+                });
+            }).exceptionally(ex -> {
+                Platform.runLater(() -> GlobalExceptionHandler.handleException(ex));
+                return null;
+            });
         }
 
         // ── Điền các field ────────────────────────────────────────────────────
