@@ -27,6 +27,7 @@ public class ProjectTasksController {
     @FXML private Label projectNameLabel;
     @FXML private TextField searchInput;
     @FXML private ComboBox<String> sortTaskComboBox;
+    @FXML private Button newTaskBtn;
 
     // Đây là VBox nằm bên trong TaskListInProject.fxml
     @FXML private VBox taskItemsContainer;
@@ -45,6 +46,7 @@ public class ProjectTasksController {
             projectNameLabel.setText(projectName);
         }
         viewModel.loadTasksForProject(projectId);
+        viewModel.checkUserRole(projectId);
     }
 
     @FXML
@@ -65,6 +67,15 @@ public class ProjectTasksController {
         if (searchInput != null) {
             searchInput.textProperty().addListener((obs, oldV, newV) -> viewModel.setSearchKeyword(newV));
         }
+
+        disposables.add(viewModel.getCanCreateTask().subscribe(canCreate -> {
+            Platform.runLater(() -> {
+                if (newTaskBtn != null) {
+                    newTaskBtn.setVisible(canCreate);
+                    newTaskBtn.setManaged(canCreate);
+                }
+            });
+        }));
 
         // Lắng nghe dữ liệu lọc trả về và vẽ giao diện
         disposables.add(viewModel.filteredTasksObservable().subscribe(tasks -> {
