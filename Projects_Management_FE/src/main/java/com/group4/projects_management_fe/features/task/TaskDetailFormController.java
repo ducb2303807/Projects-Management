@@ -43,10 +43,14 @@ public class TaskDetailFormController {
     @FXML private Button    addAssigneeBtn;   // nút "+" từ FXML – sẽ được style lại nhỏ gọn
     @FXML private TextField assigneeInput;    // legacy, giữ để không lỗi FXML
 
+    @FXML private Button    showDetails;
     @FXML private TextArea  descriptionInput;
     @FXML private VBox      commentsContainer;
     @FXML private TextField commentField;
     @FXML private Label     myAvatarLabel;
+    @FXML private Label     lastEditedAvatarLabel;
+    @FXML private Label     usernameLabel;
+    @FXML private Label     editedAtLabel;
     @FXML private Button    saveBtn;
 
     // ── State ─────────────────────────────────────────────────────────────────
@@ -179,6 +183,7 @@ public class TaskDetailFormController {
 
         setupStatusComboBox();
         setupPriorityComboBox();
+        loadTaskHistory();
         loadTaskComments();
         setupChangeListeners();
     }
@@ -490,6 +495,55 @@ public class TaskDetailFormController {
                                 .ifPresent(priorityComboBox.getSelectionModel()::select);
                     }
                 }));
+    }
+
+    // ── History ──────────────────────────────────────────────────────────────
+
+    private void loadTaskHistory() {
+        if (currentTask == null || currentTask.getTaskId() == null) return;
+
+        // Giả sử taskApi có hàm getTaskHistories trả về List<TaskHistoryDTO>
+        taskApi.getTaskHistory(currentTask.getTaskId()).thenAccept(histories ->
+                Platform.runLater(() -> {
+                    if (histories != null && !histories.isEmpty()) {
+                        // Giả sử API trả về list mới nhất xếp đầu tiên (descending).
+                        // Nếu API trả về list tăng dần, hãy dùng histories.get(histories.size() - 1)
+                        var latestHistory = histories.get(0);
+
+                        // Lấy tên hiển thị
+                        String displayName = latestHistory.getChangedByFullName();
+                        if (displayName == null || displayName.isBlank()) {
+                            displayName = latestHistory.getChangedByFullName();
+                        }
+                        if (displayName == null || displayName.isBlank()) {
+                            displayName = "Unknown";
+                        }
+
+                        // Cập nhật Avatar và Tên
+                        usernameLabel.setText(displayName);
+                        lastEditedAvatarLabel.setText(displayName.substring(0, 1).toUpperCase());
+
+                        // Cập nhật thời gian (Giả định getCreatedAt() trả về LocalDateTime)
+                        if (latestHistory.getChangedAt() != null) {
+                            java.time.format.DateTimeFormatter formatter =
+                                    java.time.format.DateTimeFormatter.ofPattern("MMM dd, yyyy, hh:mm a");
+                            editedAtLabel.setText(latestHistory.getChangedAt().format(formatter));
+                        } else {
+                            editedAtLabel.setText("Unknown time");
+                        }
+                    } else {
+                        // Trạng thái mặc định nếu chưa có lịch sử nào
+                        usernameLabel.setText("No edits yet");
+                        editedAtLabel.setText("");
+                        lastEditedAvatarLabel.setText("-");
+                    }
+                })
+        ).exceptionally(ex -> {
+            Platform.runLater(() -> {
+                System.err.println("[TaskDetail] Lỗi load history: " + ex.getMessage());
+            });
+            return null;
+        });
     }
 
     // ── Comments ──────────────────────────────────────────────────────────────

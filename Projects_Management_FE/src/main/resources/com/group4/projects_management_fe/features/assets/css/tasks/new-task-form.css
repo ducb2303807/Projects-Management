@@ -456,3 +456,44 @@
     -fx-background-color: #95A5A6;
     -fx-text-fill: white;
 }
+
+/*LAST EDITED*/
+.avatar {
+    -fx-background-color: linear-gradient(to right, #4b2e83, #a45bdc);
+    -fx-text-fill: white;
+    -fx-min-width: 30;
+    -fx-min-height: 30;
+    -fx-alignment: center;
+    -fx-background-radius: 15;
+    -fx-font-weight: bold;
+}
+
+.user-name {
+    -fx-font-size: 15px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #000000;
+}
+
+.date-time {
+    -fx-font-size: 13px;
+    -fx-text-fill: #2B5CE6;
+}
+
+.show-detail {
+    -fx-background-color: #f2f2f2;
+    -fx-border-color: #d9d9d9;
+    -fx-border-radius: 5px;
+    -fx-background-radius: 5px;
+    -fx-text-fill: #595959;
+    -fx-font-size: 14px;
+    -fx-cursor: hand;
+}
+
+.show-detail:hover {
+    -fx-background-color: #e6e6e6;
+}
+/*LAST EDITED*/
+
+/*COMMENT*/
+
+/*COMMENT*/
