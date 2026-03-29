@@ -16,5 +16,7 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 abstract class MemberBaseDTO {
    private java.lang.String roleName;
+   private String roleCode;
    private java.lang.String statusName;
+   private String statusCode;
 }

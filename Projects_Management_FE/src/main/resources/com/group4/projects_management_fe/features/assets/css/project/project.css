@@ -7,7 +7,19 @@
 }
 
 .main-view-bg {
-    -fx-background-color: #F4F7FB;
+    -fx-padding: 10px 0px;
+}
+
+.project-container {
+    -fx-background-color: #F8F9FA;
+    -fx-padding: 20px 200px;
+    -fx-spacing: 10px;
+    -fx-font-family: "Montserrat";
+}
+
+.project-content-container {
+    -fx-background-color: #F3F4F5;
+    -fx-background-radius: 25px;
 }
 
 .section-subtitle {
@@ -30,7 +42,7 @@
 }
 
 .btn-new {
-    -fx-background-color:linear-gradient(to right,#7b5cff,#9f7aea);
+    -fx-background-color: linear-gradient(to right, #4b2e83, #a45bdc);
     -fx-background-radius: 20px;
     -fx-text-fill: white;
     -fx-font-family: "Montserrat";
