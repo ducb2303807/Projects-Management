@@ -5,7 +5,6 @@ import com.group4.common.dto.TaskResponseDTO;
 import com.group4.common.dto.TaskUpdateDTO;
 import com.group4.common.enums.MemberStatusCode;
 import com.group4.common.enums.TaskStatusCode;
-import com.group4.projects_management.core.event.TaskHistoryEvent;
 import com.group4.projects_management.core.exception.BusinessException;
 import com.group4.projects_management.core.exception.ResourceNotFoundException;
 import com.group4.projects_management.entity.*;
@@ -18,6 +17,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -231,14 +231,32 @@ class TaskServiceImplTest {
         @DisplayName("Remove Members - Success and notify unassigned")
         void removeMembersFromTask_Success() {
             List<Long> memberIds = List.of(50L);
+
+            // 1. Setup 2 User riêng biệt để không bị lộn ID
+            User mockRequesterUser = new User();
+            mockRequesterUser.setId(10L);
+            mockRequesterUser.setUsername("Admin");
+
+            User mockRemovedUser = new User();
+            mockRemovedUser.setId(50L);
+             mockRemovedUser.setUsername("UserDeleted");
+
+            ProjectMember mockRequesterMember = new ProjectMember();
+            mockRequesterMember.setUser(mockRequesterUser);
+
+            ProjectMember mockRemovedMember = new ProjectMember();
+            mockRemovedMember.setUser(mockRemovedUser);
+
             when(taskRepository.findById(100L)).thenReturn(Optional.of(mockTask));
-            when(userRepository.findById(anyLong())).thenReturn(Optional.of(mockUser));
-            when(projectMemberRepository.findAllById(anyList())).thenReturn(List.of(mockMember));
+            when(projectMemberRepository.findByUser_IdAndProject_Id(eq(10L), any()))
+                    .thenReturn(Optional.of(mockRequesterMember));
+            when(projectMemberRepository.findAllById(memberIds))
+                    .thenReturn(List.of(mockRemovedMember));
 
             taskService.removeMembersFromTask(100L, memberIds, 10L);
 
             verify(taskAssignmentRepository).deleteByTaskIdAndProjectMemberIdIn(100L, memberIds);
-            verify(notificationService).send(eq(List.of(10L)), any(), eq(100L));
+            verify(notificationService).send(eq(List.of(50L)), any(), eq(100L));
         }
 
         @Test
@@ -344,70 +362,80 @@ class TaskServiceImplTest {
         }
 
         @Test
-        @DisplayName("Update Task - Complete flow with notification and history event")
+        @DisplayName("Update Task - Complete flow with filtered notification and history event")
         void updateTask_FullFlow() {
-            // Arrange
+            // 1. Arrange
             Long taskId = 100L;
-            Long actorId = 10L; // Thêm ID của người thực hiện
+            Long actorId = 10L;
+            Long otherMemberId = 20L;
 
             TaskUpdateDTO dto = new TaskUpdateDTO();
+            dto.setName("New Task Name");
             dto.setPriorityId(2L);
             dto.setStatusId(3L);
 
             Priority p = new Priority();
             p.setId(2L);
+            p.setName("High");
             TaskStatus s = new TaskStatus();
             s.setId(3L);
+            s.setName("In Progress");
 
-            // Chuẩn bị Entity cũ để hàm so sánh (detect changes) không bị NullPointerException
             Priority oldP = new Priority();
             oldP.setId(1L);
+            oldP.setName("Low");
             TaskStatus oldS = new TaskStatus();
             oldS.setId(1L);
+            oldS.setName("Todo");
 
+            Project spyProject = spy(mockProject);
             Task spyTask = spy(mockTask);
-            spyTask.setProject(mockProject); // mockProject đã tạo ở @BeforeEach có ID = 1L
+            spyTask.setName("Old Task Name");
+            spyTask.setProject(spyProject);
             spyTask.setPriority(oldP);
             spyTask.setTaskStatus(oldS);
-            when(spyTask.getMembersId()).thenReturn(List.of(10L));
 
-            // Mock dữ liệu cho người thực hiện (Actor)
-            ProjectMember mockActor = new ProjectMember();
-            mockActor.setUser(mockUser);
+            ProjectMember mockActorMember = new ProjectMember();
+            mockActorMember.setUser(mockUser); // mockUser ID = 10L
 
-            // Mock các Repository
+            // Stubbing Spies
+            doReturn(List.of(actorId, otherMemberId)).when(spyTask).getMembersId();
+            doReturn(new ArrayList<ProjectMember>()).when(spyProject).getProjectManagers();
+
+            // Mock Repositories
             when(taskRepository.findById(taskId)).thenReturn(Optional.of(spyTask));
             when(priorityRepository.findById(2L)).thenReturn(Optional.of(p));
             when(taskStatusRepository.findById(3L)).thenReturn(Optional.of(s));
-
-            // MOCK MỚI: Tìm người thực hiện trong Project
-            when(projectMemberRepository.findByUser_IdAndProject_Id(actorId, spyTask.getProject().getId()))
-                    .thenReturn(Optional.of(mockActor));
-
+            when(projectMemberRepository.findByUser_IdAndProject_Id(eq(actorId), anyLong()))
+                    .thenReturn(Optional.of(mockActorMember));
             when(taskRepository.save(any())).thenReturn(spyTask);
             when(taskMapper.toDto(any())).thenReturn(new TaskResponseDTO());
 
-            // Act
-            // TRUYỀN THÊM actorId VÀO ĐÂY
+            // 2. Act
             taskService.updateTask(taskId, dto, actorId);
 
-            // Assert
-            verify(taskMapper).updateEntityFromDto(dto, spyTask, p, s);
-            verify(notificationService).send(eq(List.of(10L)), any(), eq(taskId));
+            verify(taskMapper).updateEntityFromDto(eq(dto), eq(spyTask), eq(p), eq(s));
 
-            verify(eventPublisher).publishEvent(any(TaskHistoryEvent.class));
+            ArgumentCaptor<List<Long>> captor = ArgumentCaptor.forClass(List.class);
+            verify(notificationService).send(captor.capture(), any(), eq(taskId));
+
+            List<Long> capturedIds = captor.getValue();
+            assertTrue(capturedIds.contains(20L));
+            assertFalse(capturedIds.contains(10L));
+
+            verify(eventPublisher, times(1)).publishEvent(any(Object.class));
         }
-    }
 
-    @Nested
-    @DisplayName("Tests for Exceptions")
-    class ExceptionTests {
-        @Test
-        @DisplayName("Any Method - Should throw ResourceNotFoundException when Task not found")
-        void taskNotFound_ThrowsException() {
-            when(taskRepository.findById(999L)).thenReturn(Optional.empty());
+        @Nested
+        @DisplayName("Tests for Exceptions")
+        class ExceptionTests {
+            @Test
+            @DisplayName("Any Method - Should throw ResourceNotFoundException when Task not found")
+            void taskNotFound_ThrowsException() {
+                when(taskRepository.findById(999L)).thenReturn(Optional.empty());
 
-            assertThrows(ResourceNotFoundException.class, () -> taskService.updateTaskPriority(999L, 1L));
+                assertThrows(ResourceNotFoundException.class, () -> taskService.updateTaskPriority(999L, 1L));
+            }
         }
     }
 }

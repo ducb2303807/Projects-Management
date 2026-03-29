@@ -279,7 +279,6 @@
 /* Nút Save (Đang mô phỏng trạng thái giống trong ảnh - nền xanh nhạt) */
 .btn-create {
     -fx-background-color: linear-gradient(to right, #4b2e83, #a45bdc);
-
     -fx-border-color: transparent;
     -fx-background-radius: 25px;
     -fx-border-radius: 25px;
@@ -489,8 +488,8 @@
 .avatar {
     -fx-background-color: linear-gradient(to right, #4b2e83, #a45bdc);
     -fx-text-fill: white;
-    -fx-min-width: 30;
-    -fx-min-height: 30;
+    -fx-min-width: 40;
+    -fx-min-height: 40;
     -fx-alignment: center;
     -fx-background-radius: 15;
     -fx-font-weight: bold;

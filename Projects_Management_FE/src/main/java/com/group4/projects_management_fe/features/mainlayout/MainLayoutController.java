@@ -139,6 +139,9 @@ public class MainLayoutController {
         disposables.add(SseRxBridge.toObservable(sseClientManager)
                 .observeOn(JavaFxScheduler.platform())
                 .subscribe(sseNotificationDTO -> Platform.runLater(() -> {
+
+//                    System.out.println(sseNotificationDTO);
+
                     Toast.showToast(stage, sseNotificationDTO);
                     incrementBadgeCount();
 
@@ -155,7 +158,7 @@ public class MainLayoutController {
         usernameField.setText(user.getUsername());
         fullnameField.setText(user.getFullName());
         emailField.setText(user.getEmail());
-//        roleLabel.setText(user.getSystemRoleName());
+        roleLabel.setText(user.getSystemRoleName());
     }
 
     private void loadCurrentUser() {

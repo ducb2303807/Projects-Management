@@ -27,8 +27,7 @@
 
                 <Label fx:id="moreOptionsLabel" styleClass="ellipsis" text="•••"
                        AnchorPane.rightAnchor="15.0" AnchorPane.topAnchor="60.0"
-                       onMouseClicked="#handleOpenDetails"
-                       style="-fx-cursor: hand;" />
+                       onMouseClicked="#handleOpenDetails"/>
                 <HBox AnchorPane.bottomAnchor="15.0" AnchorPane.leftAnchor="20.0">
                     <Label styleClass="icon-text" text="📅 " AnchorPane.bottomAnchor="15.0" AnchorPane.leftAnchor="20.0" />
                     <Label fx:id="dateLabel" styleClass="icon-text" text="-" AnchorPane.bottomAnchor="15.0" AnchorPane.leftAnchor="20.0" />

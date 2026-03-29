@@ -30,6 +30,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Stream;
 
 @Service
 public class TaskServiceImpl extends BaseServiceImpl<Task, Long> implements TaskService {
@@ -105,6 +106,8 @@ public class TaskServiceImpl extends BaseServiceImpl<Task, Long> implements Task
 
         notificationService.send(receiverId, context, referenceId);
 
+
+
         taskAssignmentRepository.save(assignment);
     }
 
@@ -125,6 +128,7 @@ public class TaskServiceImpl extends BaseServiceImpl<Task, Long> implements Task
 
         List<TaskAssignment> assignments = new ArrayList<>();
         List<Long> receiverIds = new ArrayList<>();
+        List<FieldChange> changes = new ArrayList<>();
 
         for (ProjectMember assignee : assignees) {
             TaskAssignment assignment = new TaskAssignment();
@@ -135,9 +139,19 @@ public class TaskServiceImpl extends BaseServiceImpl<Task, Long> implements Task
             assignments.add(assignment);
 
             receiverIds.add(assignee.getUser().getId());
+            changes.add(new FieldChange("Assignee", "", assignee.getUser().getUsername()));
         }
 
         taskAssignmentRepository.saveAll(assignments);
+
+        if (!changes.isEmpty()) {
+            TaskHistoryEvent historyEvent = TaskHistoryEvent.builder()
+                    .task(task)
+                    .changedBy(assigner)
+                    .changes(changes)
+                    .build();
+            eventPublisher.publishEvent(historyEvent);
+        }
 
         TaskAssignContext context = TaskAssignContext.builder()
                 .task(task)
@@ -254,21 +268,37 @@ public class TaskServiceImpl extends BaseServiceImpl<Task, Long> implements Task
         Task task = taskRepository.findById(taskId)
                 .orElseThrow(() -> new ResourceNotFoundException("Task not found"));
 
-        User requester  = userRepository.findById(requesterId)
-                .orElseThrow(() -> new ResourceNotFoundException("Requester not found"));
+        ProjectMember requesterMember = projectMemberRepository.findByUser_IdAndProject_Id(requesterId, task.getProject().getId())
+                .orElseThrow(() -> new ResourceNotFoundException("Requester not found or not in project"));
 
-        List<Long> receiverIds = projectMemberRepository.findAllById(projectMemberIds)
-                .stream()
-                .map(m -> m.getUser().getId())
-                .toList();
 
         // Kiểm tra xem requesterId có phải là PM của project này không, nếu không ném Exception 403.
 
+        List<ProjectMember> removedMembers = projectMemberRepository.findAllById(projectMemberIds);
+        List<Long> receiverIds = new ArrayList<>();
+        List<FieldChange> changes = new ArrayList<>();
+
+        for (ProjectMember removedMember : removedMembers) {
+            receiverIds.add(removedMember.getUser().getId());
+
+            String removedName = removedMember.getUser().getUsername();
+            changes.add(new FieldChange("Assignee", removedName, ""));
+        }
+
         taskAssignmentRepository.deleteByTaskIdAndProjectMemberIdIn(taskId, projectMemberIds);
+
+        if (!changes.isEmpty()) {
+            TaskHistoryEvent historyEvent = TaskHistoryEvent.builder()
+                    .task(task)
+                    .changedBy(requesterMember) // Log ai là người đã xóa
+                    .changes(changes)
+                    .build();
+            eventPublisher.publishEvent(historyEvent);
+        }
 
         TaskUnassignContext context = TaskUnassignContext.builder()
                 .task(task)
-                .actor(requester)
+                .actor(requesterMember.getUser())
                 .build();
         notificationService.send(receiverIds, context, task.getId());
     }
@@ -288,8 +318,11 @@ public class TaskServiceImpl extends BaseServiceImpl<Task, Long> implements Task
         TaskStatus status = taskStatusRepository.findById(dto.getStatusId())
                 .orElseThrow(() -> new ResourceNotFoundException("Status not found"));
 
-        List<FieldChange> detectedChanges = detectTaskChanges(task, dto, priority, status);
+        if (dto.getDeadline() != null) {
+            dto.setDeadline(taskMapper.adjustDeadline(dto.getDeadline()));
+        }
 
+        List<FieldChange> detectedChanges = detectTaskChanges(task, dto, priority, status);
 
         taskMapper.updateEntityFromDto(dto, task, priority, status);
         Task savedTask = taskRepository.save(task);
@@ -303,13 +336,21 @@ public class TaskServiceImpl extends BaseServiceImpl<Task, Long> implements Task
             eventPublisher.publishEvent(historyEvent);
         }
 
+        List<Long> managerIds = task.getProject().getProjectManagers()
+                .stream().map(pm -> pm.getUser().getId()).toList();
         List<Long> receiverIds = task.getMembersId();
 
-        if(!receiverIds.isEmpty()) {
+        List<Long> finalReceiverIds = Stream.concat(receiverIds.stream(), managerIds.stream())
+                .distinct()
+                .filter(id -> !id.equals(actorId))
+                .toList();
+
+        if(!finalReceiverIds.isEmpty()) {
             TaskUpdateContext context = TaskUpdateContext.builder()
                     .task(savedTask)
+                    .actor(actor.getUser())
                     .build();
-            notificationService.send(receiverIds, context, savedTask.getId());
+            notificationService.send(finalReceiverIds, context, savedTask.getId());
         }
 
         return taskMapper.toDto(task);
