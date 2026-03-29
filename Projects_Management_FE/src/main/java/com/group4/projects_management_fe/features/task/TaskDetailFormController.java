@@ -2,10 +2,12 @@ package com.group4.projects_management_fe.features.task;
 
 import com.group4.common.dto.*;
 import com.group4.common.enums.LookupType;
+import com.group4.common.enums.ProjectMemberRoleCode;
+import com.group4.common.enums.TaskStatusCode;
+import com.group4.projects_management_fe.core.api.CommentApi;
 import com.group4.projects_management_fe.core.api.LookupApi;
 import com.group4.projects_management_fe.core.api.ProjectApi;
 import com.group4.projects_management_fe.core.api.TaskApi;
-import com.group4.projects_management_fe.core.api.CommentApi;
 import com.group4.projects_management_fe.core.exception.GlobalExceptionHandler;
 import com.group4.projects_management_fe.core.session.AppSessionManager;
 import com.group4.projects_management_fe.core.session.AuthSessionProvider;
@@ -72,6 +74,7 @@ public class TaskDetailFormController {
     private TaskResponseDTO currentTask;
     private LookupDTO       currentMemberLookup;
     private Long            projectId;
+    private ProjectMemberDTO currentMember;
 
     /**
      * true  → mở từ ProjectTasksController → được thêm / xóa assignee
@@ -116,6 +119,9 @@ public class TaskDetailFormController {
             projectApi.getMembersOfProject(projectId)
                     .thenAccept(members -> {
                         this.projectMembersCache = members != null ? members : new ArrayList<>();
+
+                        findProjectMemberInProject(this.projectMembersCache);
+
                         System.out.println("[TaskDetail] Đã tải xong " + this.projectMembersCache.size() + " members.");
                     })
                     .exceptionally(ex -> {
@@ -125,6 +131,8 @@ public class TaskDetailFormController {
         } else {
             System.err.println("[TaskDetail] CẢNH BÁO: Màn hình cha truyền projectId bị NULL vào setProjectContext!");
         }
+
+
     }
 
     @FXML
@@ -533,7 +541,11 @@ public class TaskDetailFormController {
     private void loadLookups() {
         lookupApi.getAll(LookupType.TASK_STATUS).thenAccept(statuses ->
                 Platform.runLater(() -> {
-                    statusComboBox.getItems().setAll(statuses);
+                    var statusesWithoutCancelled = statuses.stream()
+                                    .filter(s -> !TaskStatusCode.CANCELLED.name().equalsIgnoreCase(s.getSystemCode()))
+                                    .toList();
+
+                    statusComboBox.getItems().setAll(statusesWithoutCancelled);
                     if (currentTask != null) {
                         statuses.stream()
                                 .filter(s -> s.getName().equalsIgnoreCase(currentTask.getStatusName()))
@@ -842,6 +854,21 @@ public class TaskDetailFormController {
                     });
                     return null;
                 });
+    }
+
+    private void findProjectMemberInProject(List<ProjectMemberDTO> projectMembers) {
+        var appSession = AppSessionManager.getInstance().getCurrentUser().getId();
+
+        this.currentMember = projectMembers.stream()
+                .filter(pm -> pm.getUserId().equals(appSession))
+                .findFirst()
+                .orElse(null);
+
+        if (this.currentMember != null
+                && ProjectMemberRoleCode.MEMBER.name().equalsIgnoreCase(this.currentMember.getRoleCode())) {
+            this.deleteTaskBtn.setVisible(false);
+            this.deleteTaskBtn.setManaged(false);
+        }
     }
 
     // ── Save (gọi tất cả API tại đây) ────────────────────────────────────────
