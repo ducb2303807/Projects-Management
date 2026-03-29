@@ -553,7 +553,8 @@ VALUES ('TODO', 'To Do', 'Task just created, no assignee yet.'),
 INSERT INTO PROJECT_MEMBER_STATUS (SYSTEM_CODE, SYSTEM_NAME, SYSTEM_DESCRIPTION)
 VALUES ('PENDING', 'Pending', 'User has been invited but has not confirmed participation.'),
        ('ACTIVE', 'Active', 'Member is officially active in the project.'),
-       ('LEFT', 'Left', 'Member no longer belongs to this project.');
+       ('LEFT', 'Left', 'Member no longer belongs to this project.'),
+       ('REMOVED', 'Removed', 'Member was removed from the project by a manager.');
 
 
 -- Gán quyền cho APP_ROLE: USER
