@@ -122,7 +122,7 @@ public class ProjectTasksController {
 
             LookupDTO memberLookup = buildCurrentMemberLookup();
 
-            controller.initData(task, memberLookup, task.getProjectId());
+            controller.initData(task, memberLookup, currentProjectId);
             controller.setOnSaveSuccessCallback(this::loadProjectTasks);
             controller.setProjectContext(currentProjectId);
 

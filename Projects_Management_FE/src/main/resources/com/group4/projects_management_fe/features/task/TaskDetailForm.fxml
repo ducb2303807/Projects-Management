@@ -159,7 +159,7 @@
                     <Label styleClass="field-label" text="Comments"/>
 
                     <!-- Danh sách comments (dynamic) -->
-                    <ScrollPane fitToWidth="true" hbarPolicy="NEVER" maxHeight="220.0" minHeight="80.0"
+                    <ScrollPane fx:id="commentScrollPane" fitToWidth="true" hbarPolicy="NEVER" maxHeight="220.0" minHeight="80.0"
                                 prefHeight="180.0" styleClass="tags-scroll-pane" vbarPolicy="AS_NEEDED"
                                 VBox.vgrow="SOMETIMES">
                         <content>
