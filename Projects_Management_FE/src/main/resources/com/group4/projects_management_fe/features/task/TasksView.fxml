@@ -1,41 +1,31 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.geometry.Insets?>
-<?import javafx.scene.control.Button?>
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.control.ScrollPane?>
-<?import javafx.scene.layout.HBox?>
-<?import javafx.scene.layout.Region?>
-<?import javafx.scene.layout.VBox?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
 
-<ScrollPane fitToWidth="true" hbarPolicy="NEVER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="572.0" prefWidth="909.0" style="-fx-background-color: #F8F9FA;" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.group4.projects_management_fe.features.task.TaskController">
-   <content>
-      <VBox alignment="TOP_CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="516.0" spacing="20" styleClass="task-container" stylesheets="@../assets/css/tasks.css">
-         <children>
-            <HBox alignment="CENTER" styleClass="task-title">
-               <children>
-                  <Label styleClass="task-title" text="My tasks " />
-                  <Region HBox.hgrow="ALWAYS" />
-                  <HBox alignment="CENTER" spacing="15.0">
-                     <children>
-                        <FontAwesomeIcon glyphName="SEARCH" />
-                        <FontAwesomeIcon glyphName="SORT" />
-                        <HBox styleClass="button1">
-                           <children>
-                              <Button onAction="#openPopup" mnemonicParsing="false" styleClass="button2" text="+ New" />
-                           </children>
-                        </HBox>
-                     </children>
-                  </HBox>
-               </children>
-            </HBox>
-            <VBox id="taskCategoryVBox" prefHeight="200.0" prefWidth="100.0" />
+<ScrollPane fitToHeight="true" fitToWidth="true" hbarPolicy="NEVER" maxHeight="-Infinity" style="-fx-background-color: #F8F9FA;" styleClass="scroll-pane-container" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.group4.projects_management_fe.features.task.TasksViewController">
 
-         </children>
-      </VBox>
-   </content>
+    <content>
+        <VBox alignment="TOP_CENTER" maxHeight="Infinity" maxWidth="Infinity" styleClass="task-container" stylesheets="@../assets/css/tasks/tasks.css">
 
-   <padding>
-      <Insets left="100.0" right="100.0" top="40.0" />
-   </padding>
+            <children>
+                <!-- TITLE -->
+                <HBox alignment="CENTER_LEFT" styleClass="task-title">
+                    <children>
+                        <Label styleClass="task-title" text="My tasks " />
+                    </children>
+                    <VBox.margin>
+                        <Insets top="40.0" />
+                    </VBox.margin>
+                </HBox>
+                <VBox fx:id="taskCategoryVBox" alignment="TOP_CENTER" maxHeight="Infinity" spacing="20.0" styleClass="task-category-container" VBox.vgrow="ALWAYS">
+
+                    <VBox.margin>
+                        <Insets bottom="20.0" />
+                    </VBox.margin>
+                </VBox>
+            </children>
+        </VBox>
+    </content>
 </ScrollPane>

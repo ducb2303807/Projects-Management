@@ -102,6 +102,10 @@
     -fx-font-weight: bold;
 }
 
+.main-layout-container {
+    -fx-font-family: Montserrat;
+}
+
 /*-fx-effect với cú pháp dropshadow( <blurType>, <color>, <radius>, <spread>, <offsetX>,*/
 .top-bar {
     -fx-background-color: white;
@@ -109,21 +113,20 @@
 }
 
 .nav-btn {
-    -fx-font-size: 16px;
+    -fx-font-size: 22px;
     -fx-background-color: transparent;
     -fx-background-insets: 0;
     -fx-background-radius: 0;
     -fx-border-color: transparent;
     -fx-border-width: 0;
-    -fx-font-family: "SansSerif";
     -fx-font-weight: 600;
     -fx-text-fill: #111111;
     -fx-cursor: hand;;
 }
 
 .nav-btn.active {
-    -fx-border-color: #8558cc;
-    -fx-border-width: 0 0 3 0;
+    -fx-border-color: linear-gradient(to right, #4b2e83, #a45bdc);
+    -fx-border-width: 0 0 4 0;
     -fx-cursor: hand;;
 }
 
@@ -161,7 +164,7 @@
 .user-box {
     -fx-background-color: #F5F6F8;
     -fx-background-radius: 40;
-    -fx-padding: 3 16 3 10; /* cân lại padding */
+    -fx-padding: 5 20; /* cân lại padding */
     -fx-alignment: center-left;
     -fx-cursor: hand;
 }
@@ -171,21 +174,14 @@
 }
 
 .avatar {
-    -fx-min-width: 40;
-    -fx-min-height: 40;
-    -fx-max-width: 40;
-    -fx-max-height: 40;
-
+    -fx-min-width: 30;
+    -fx-min-height: 30;
+    -fx-max-width: 30;
+    -fx-max-height: 30;
     -fx-background-radius: 50%;
-    -fx-background-color: transparent;
-
+    -fx-background-color: linear-gradient(to right, #4b2e83, #a45bdc);
     -fx-alignment: center;
     -fx-padding: 0;
-}
-
-.avt {
-    -fx-fit-width: 40;
-    -fx-fit-height: 40;
 }
 
 #usernameLabel {
@@ -258,11 +254,34 @@
     -fx-padding: 10;
 }
 
+.cancel-btn {
+    -fx-background-color: #f2f2f2;
+    -fx-border-color: #d9d9d9;
+    -fx-border-radius: 25px;
+    -fx-background-radius: 25px;
+    -fx-text-fill: #595959;
+    -fx-font-size: 16px;
+    -fx-cursor: hand;
+}
+
+.cancel-btn:hover {
+    -fx-background-color: #e6e6e6;
+}
+
 .save-btn {
     -fx-background-color: linear-gradient(to right, #4b2e83, #a45bdc);
-    -fx-text-fill: white;
-    -fx-background-radius: 20;
-    -fx-cursor: hand;;
+    -fx-border-color: transparent;
+    -fx-padding: 5 20;
+    -fx-background-radius: 25px;
+    -fx-border-radius: 25px;
+    -fx-text-fill: #ffffff;
+    -fx-font-size: 16px;
+    -fx-cursor: hand;
+}
+
+.save-btn:hover {
+    -fx-background-color: linear-gradient(to right, #4B2E83B3, #A45BDCB3);
+    -fx-text-fill: #FFFFFFB2;
 }
 
 .logout-btn {
@@ -270,7 +289,7 @@
     -fx-text-fill: white;
     -fx-font-size: 16px;
     -fx-font-weight: bold;
-    -fx-padding: 10 30 10 30;
+    -fx-padding: 5 15;
     -fx-background-radius: 25;
     -fx-cursor: hand;
 }

@@ -99,7 +99,7 @@
 
 /* 4. Nút + New (Gradient Tím) */
 .btn-new {
-    -fx-background-color:linear-gradient(to right,#7b5cff,#9f7aea);
+    -fx-background-color: linear-gradient(to right, #4b2e83, #a45bdc);
     -fx-background-radius: 20px;
     -fx-text-fill: white;
     -fx-font-family: "Montserrat";
@@ -208,4 +208,104 @@
     -fx-font-weight: bold;
     -fx-font-size: 11px; /* Font nhỏ hơn một chút */
     -fx-alignment: CENTER; /* Căn giữa hoàn hảo */
+}
+
+.status-completed {
+    -fx-background-color: #D4F3E6;
+    -fx-text-fill: #107C41;
+}
+
+.status-on-going {
+    -fx-background-color: #FFF4D6;
+    -fx-text-fill: #B78103;
+}
+
+.status-in-review {
+    -fx-background-color: #FFEDE5;
+    -fx-text-fill: #E65100;
+}
+
+.status-delayed {
+    -fx-background-color: #FFE5E5;
+    -fx-text-fill: #D32F2F;
+}
+
+/*SCROLL PANE*/
+.scroll-pane {
+    -fx-background-color: transparent;
+    -fx-background-insets: 0;
+    -fx-padding: 0;
+    -fx-border-color: transparent;
+}
+
+.scroll-pane > .viewport {
+    -fx-background-color: transparent;
+}
+
+/* Tùy chỉnh vùng chứa tổng thể của thanh cuộn dọc */
+.scroll-bar:vertical {
+    -fx-background-color: transparent;
+    -fx-pref-width: 8px; /* Độ rộng của thanh cuộn */
+}
+
+/* 1. Phần rãnh trượt (Track) */
+.scroll-bar:vertical .track {
+    -fx-background-color: transparent; /* Có thể đổi thành màu xám nhạt nếu muốn thấy rãnh */
+    -fx-border-color: transparent;
+    -fx-background-radius: 4px;
+}
+
+/* 2. Phần thanh nắm kéo (Thumb) */
+.scroll-bar:vertical .thumb {
+    -fx-background-color: #c1c1c1; /* Màu của cục cuộn */
+    -fx-background-radius: 4px; /* Bo góc */
+}
+
+/* Hiệu ứng khi di chuột (hover) vào cục cuộn */
+.scroll-bar:vertical .thumb:hover {
+    -fx-background-color: #a8a8a8;
+}
+
+/* Hiệu ứng khi đang nhấn giữ (nhấp chuột) vào cục cuộn */
+.scroll-bar:vertical .thumb:pressed {
+    -fx-background-color: #787878;
+}
+
+/* 3. Ẩn 2 nút mũi tên Lên/Xuống ở 2 đầu */
+.scroll-bar:vertical .increment-button,
+.scroll-bar:vertical .decrement-button {
+    -fx-background-color: transparent;
+    -fx-pref-height: 0px; /* Ép chiều cao về 0 để ẩn hoàn toàn */
+    -fx-padding: 0;
+}
+
+/* Ẩn hình ảnh mũi tên bên trong nút */
+.scroll-bar:vertical .increment-arrow,
+.scroll-bar:vertical .decrement-arrow {
+    -fx-shape: " ";
+    -fx-padding: 0;
+}
+/*SCROLL PANE*/
+
+/* ── Task row – trạng thái mặc định ─────────────────────────────────────── */
+.task-row {
+    -fx-cursor: hand;
+    -fx-background-color: transparent;
+    -fx-background-radius: 8px;
+
+    /* Transition mượt mà (JavaFX hỗ trợ từ 21+).
+       Nếu dùng phiên bản cũ hơn, xóa dòng này – vẫn hoạt động bình thường. */
+    -fx-transition: background-color 150ms ease;
+}
+
+/* ── Hover: nền xám nhạt ────────────────────────────────────────────────── */
+.task-row:hover {
+    -fx-background-color: #f1f5f9;
+    -fx-background-radius: 8px;
+}
+
+/* ── Pressed: nền đậm hơn một chút để có cảm giác nhấn ─────────────────── */
+.task-row:pressed {
+    -fx-background-color: #e2e8f0;
+    -fx-background-radius: 8px;
 }
