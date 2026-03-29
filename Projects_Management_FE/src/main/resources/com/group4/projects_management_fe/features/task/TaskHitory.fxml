@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox prefHeight="500.0" prefWidth="300.0" spacing="5.0" styleClass="task-history-container"
+      stylesheets="@../assets/css/tasks/task-history.css" xmlns="http://javafx.com/javafx/17.0.12"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.group4.projects_management_fe.features.task.TaskHistoryController">
+    <children>
+        <Label styleClass="history-title" text="Activities">
+            <VBox.margin>
+                <Insets left="10.0" right="10.0" top="10.0"/>
+            </VBox.margin>
+        </Label>
+
+        <ScrollPane fx:id="historyScrollPane" fitToWidth="true" prefWidth="280.0" styleClass="history-scroll-pane"
+                    VBox.vgrow="ALWAYS">
+            <content>
+                <VBox fx:id="taskListVBox" prefWidth="500" spacing="8">
+                    <padding>
+                        <Insets bottom="10.0" left="5.0" right="5.0" top="10.0"/>
+                    </padding>
+                </VBox>
+            </content>
+        </ScrollPane>
+
+        <!-- Footer: nút Close góc dưới phải -->
+        <HBox alignment="CENTER_RIGHT" styleClass="history-footer">
+            <padding>
+                <Insets bottom="10.0" left="10.0" right="10.0" top="10.0"/>
+            </padding>
+            <Button fx:id="closeBtn" onAction="#handleClose" styleClass="history-close-btn" text="Close"/>
+        </HBox>
+    </children>
+    <padding>
+        <Insets left="10.0" right="10.0"/>
+    </padding>
+</VBox>

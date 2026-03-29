@@ -21,12 +21,6 @@
                     <children>
                         <TextField fx:id="searchInput" managed="true" prefWidth="200.0" promptText="Search task" styleClass="search-input" visible="true" />
 
-                        <Button fx:id="refreshBtn" onAction="#handleRefresh" mnemonicParsing="false" styleClass="icon-btn" text="↻">
-                            <tooltip>
-                                <Tooltip text="Refresh list" />
-                            </tooltip>
-                        </Button>
-
                         <ComboBox fx:id="sortTaskComboBox" managed="false" prefWidth="120.0" promptText="Sort by" styleClass="clean-input" visible="false" />
                         <Button fx:id="sortTaskBtn" onAction="#handleSortClick" mnemonicParsing="false" styleClass="icon-btn" text="⇅" />
                         <Button fx:id="newTaskBtn" onAction="#handleCreateNewTask" mnemonicParsing="false" styleClass="btn-new" text="+ New" />

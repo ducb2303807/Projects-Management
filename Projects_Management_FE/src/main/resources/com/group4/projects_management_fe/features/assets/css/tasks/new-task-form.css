@@ -1,0 +1,527 @@
+#rootPane {
+    -fx-background-color: transparent;
+}
+/* Lớp phủ đen mờ phía sau popup */
+.popup-background {
+    -fx-background-color: rgba(0, 0, 0, 0.4);
+}
+
+/* Khung trắng của Form */
+.popup-container {
+    -fx-background-color: #ffffff;
+    -fx-background-radius: 8px;
+    -fx-border-radius: 8px;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.15), 15, 0, 0, 5);
+}
+
+/* ==========================================================
+ * Header & Input Task Name & Delete Button
+ * ========================================================== */
+
+/* Input tiêu đề task */
+.title-input {
+    -fx-font-size: 28px;
+    -fx-background-color: #ffffff;
+    -fx-font-weight: bold;
+    -fx-border-color: transparent;
+    -fx-text-fill: #333333;
+}
+
+.trash-btn-container {
+    -fx-background-color: #F7D6D6;
+    -fx-background-radius: 50%;
+    -fx-border-radius: 50%;
+    -fx-cursor: hand;
+    -fx-min-width: 35px;
+    -fx-min-height: 35px;
+    -fx-pref-width: 35px;
+    -fx-pref-height: 35px;
+    -fx-alignment: center;
+}
+
+/* Style cho chính icon thùng rác */
+.trash-btn {
+    -fx-icon-color: #ef5956;
+    -fx-icon-size: 16px;
+}
+
+/* Hiệu ứng khi đưa chuột vào vòng tròn (hover container) */
+.trash-btn-container:hover {
+    -fx-background-color: #ddc0c0;
+}
+
+/* Hiệu ứng khi nhấn vào vòng tròn (pressed container) */
+.trash-btn-container:pressed {
+    -fx-background-color: #c59c9c; /* Nền tối nhất khi nhấn giữ */
+}
+
+/* ==========================================================
+ * Labels & Icons
+ * ========================================================== */
+
+/* Chữ nhãn (Due date, Status, Priority...) */
+.field-label {
+    -fx-font-size: 16px;
+    -fx-text-fill: #686666;
+}
+
+/* Icon kế bên nhãn */
+.icon-muted {
+    -fx-icon-color: #686666;
+    -fx-icon-size: 14px;
+}
+
+/* ==========================================================
+ * Inputs Form (DatePicker, ComboBox, TextArea)
+ * ========================================================== */
+
+/* Loại bỏ style viền mặc định của JavaFX */
+.clean-input-date {
+    -fx-background-color: transparent;
+    -fx-border-color: #d1d1d1;
+    -fx-border-radius: 25px;
+    -fx-background-radius: 25px;
+    -fx-font-size: 15px;
+    -fx-text-fill: #7c7c7c;
+    -fx-padding: 2px 5px;
+    -fx-focus-color: transparent;
+    -fx-faint-focus-color: transparent;
+    -fx-background-insets: 0;
+}
+
+.clean-input {
+    -fx-background-color: transparent;
+    -fx-border-color: #d1d1d1;
+    -fx-border-radius: 25px;
+    -fx-background-radius: 25px;
+    -fx-font-size: 14px;
+    -fx-text-fill: #7c7c7c;
+    -fx-padding: 0px 3px;
+    -fx-focus-color: transparent;
+    -fx-faint-focus-color: transparent;
+    -fx-background-insets: 0;
+}
+
+/* Loại bỏ nền, viền và shadow của TextField con nằm trong DatePicker/ComboBox */
+.clean-input > .text-field,
+.clean-input-date > .text-field {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-border-width: 0;
+    -fx-background-insets: 0;
+    -fx-background-radius: 0;
+    -fx-effect: none;
+}
+
+/* Đảm bảo khi click (focus) vào ô nhập chữ, cái khung vuông cũng không hiện lên lại */
+.clean-input > .text-field:focused,
+.clean-input-date > .text-field:focused {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-focus-color: transparent;
+    -fx-faint-focus-color: transparent;
+}
+
+/* Tinh chỉnh nút mũi tên của ComboBox / DatePicker để trông phẳng hơn */
+.clean-input > .arrow-button,
+.clean-input-date > .arrow-button {
+    -fx-background-color: transparent;
+    -fx-padding: 0 5 0 5;
+}
+.clean-input > .arrow-button > .arrow,
+.clean-input-date > .arrow-button > .arrow {
+    -fx-background-color: #666666;
+}
+
+/* Tinh chỉnh riêng TextArea cho Description */
+.clean-textarea {
+    -fx-padding: 3px 5px;
+    -fx-background-color: transparent;
+    -fx-border-color: #d1d1d1;
+    -fx-border-radius: 5px;
+    -fx-background-radius: 5px;
+    -fx-font-size: 14px;
+    -fx-text-fill: #333333;
+    -fx-focus-color: transparent;
+    -fx-faint-focus-color: transparent;
+    -fx-background-insets: 0;
+}
+
+.clean-textarea .text-field {
+    -fx-background-color: transparent;
+    -fx-background-insets: 0;
+    -fx-effect: none;
+}
+
+.clean-textarea .scroll-pane,
+.clean-textarea .scroll-pane .viewport,
+.clean-textarea .scroll-pane .content {
+    -fx-background-color: transparent;
+    -fx-background-insets: 0;
+    -fx-border-color: transparent;
+    -fx-effect: none;
+}
+
+/* ==========================================================
+ * Assignee Chips (Kiểu hình viên thuốc)
+ * ========================================================== */
+
+/* Label của Assignee (Ví dụ: Default User) */
+.field-value {
+    -fx-font-size: 16px;
+    -fx-font-style: italic;
+    -fx-text-fill: #8a8a8a;
+}
+
+/* Nút thêm (+) dạng tròn */
+.btn-add-circle {
+    -fx-background-color: transparent;
+    -fx-border-color: #c4c4c4;
+    -fx-border-radius: 70%;
+    -fx-background-radius: 70%;
+    -fx-min-width: 24px; -fx-min-height: 24px;
+    -fx-max-width: 24px; -fx-max-height: 24px;
+    -fx-pref-width: 24px; -fx-pref-height: 24px;
+    -fx-font-size: 14px;
+    -fx-text-fill: #666666;
+    -fx-cursor: hand;
+    -fx-padding: 0;
+}
+
+.btn-add-circle:hover {
+    -fx-background-color: #e4e7eb;
+}
+
+.add-assignee-btn {
+    -fx-background-color: transparent;
+    -fx-background-radius: 50%;
+    -fx-min-width: 24px; -fx-min-height: 24px;
+    -fx-max-width: 24px; -fx-max-height: 24px;
+    -fx-pref-width: 24px; -fx-pref-height: 24px;
+    -fx-font-size: 14px;
+    -fx-text-fill: #666666;
+    -fx-cursor: hand;
+    -fx-padding: 0;
+}
+
+/* ==========================================================
+ * SEARCH MEMBER POPUP
+ * ========================================================== */
+
+/* Style cho container của ContextMenu */
+.context-menu {
+    -fx-background-color: white;
+    -fx-background-radius: 8;
+    -fx-border-color: #E2E8F0;
+    -fx-border-radius: 8;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 10, 0, 0, 5);
+    -fx-padding: 5;
+}
+
+/* Style cho ô Search TextField bên trong popup */
+.context-menu .text-field {
+    -fx-background-color: #F8FAFC;
+    -fx-border-color: #CBD5E1;
+    -fx-border-radius: 4;
+    -fx-padding: 6 10;
+    -fx-font-size: 13px;
+}
+
+/* Style cho các nút Member (kết quả tìm kiếm) */
+.context-menu .button {
+    -fx-background-color: transparent;
+    -fx-text-fill: #334155;
+    -fx-cursor: hand;
+    -fx-transition: all 0.2s;
+    -fx-alignment: center-left;
+}
+
+.context-menu .button:hover {
+    -fx-background-color: #e4e7eb;
+}
+
+/* Style cho từng dòng member trong popup */
+.member-item-btn {
+    -fx-background-color: transparent;
+    -fx-text-fill: #334155;
+    -fx-alignment: CENTER_LEFT;
+    -fx-pref-width: 220;
+    -fx-padding: 8 12;
+    -fx-cursor: hand;
+    -fx-font-size: 13px;
+    -fx-transition: all 0.2s;
+}
+
+/* Ẩn các vạch chia mặc định của ContextMenu nếu cần */
+.context-menu .menu-item:focused {
+    -fx-background-color: transparent;
+}
+
+/* ==========================================================
+ * Buttons Dưới Cùng (Cancel & Save)
+ * ========================================================== */
+
+/* Nút Cancel */
+.btn-cancel {
+    -fx-background-color: #f2f2f2;
+    -fx-border-color: #d9d9d9;
+    -fx-border-radius: 25px;
+    -fx-background-radius: 25px;
+    -fx-text-fill: #595959;
+    -fx-font-size: 16px;
+    -fx-cursor: hand;
+}
+
+.btn-cancel:hover {
+    -fx-background-color: #e6e6e6;
+}
+
+/* Nút Save (Đang mô phỏng trạng thái giống trong ảnh - nền xanh nhạt) */
+.btn-create {
+    -fx-background-color: linear-gradient(to right, #4b2e83, #a45bdc);
+
+    -fx-border-color: transparent;
+    -fx-background-radius: 25px;
+    -fx-border-radius: 25px;
+    -fx-text-fill: #ffffff;
+    -fx-font-size: 16px;
+    -fx-cursor: hand;
+}
+
+/* Nút Save khi hover / được kích hoạt (có thể đổi màu đậm hơn) */
+.btn-create:hover {
+    -fx-background-color: linear-gradient(to right, #4B2E83B3, #A45BDCB3);
+    -fx-text-fill: #FFFFFFB2;
+}
+
+/*SCROLL PANE*/
+.scroll-pane {
+    -fx-background-color: transparent;
+    -fx-background-insets: 0;
+    -fx-padding: 0;
+    -fx-border-color: transparent;
+}
+
+.scroll-pane > .viewport {
+    -fx-background-color: transparent;
+}
+
+/* Tùy chỉnh vùng chứa tổng thể của thanh cuộn dọc */
+.scroll-bar:vertical {
+    -fx-background-color: transparent;
+    -fx-pref-width: 8px; /* Độ rộng của thanh cuộn */
+}
+
+/* 1. Phần rãnh trượt (Track) */
+.scroll-bar:vertical .track {
+    -fx-background-color: transparent; /* Có thể đổi thành màu xám nhạt nếu muốn thấy rãnh */
+    -fx-border-color: transparent;
+    -fx-background-radius: 4px;
+}
+
+/* 2. Phần thanh nắm kéo (Thumb) */
+.scroll-bar:vertical .thumb {
+    -fx-background-color: #c1c1c1; /* Màu của cục cuộn */
+    -fx-background-radius: 4px; /* Bo góc */
+}
+
+/* Hiệu ứng khi di chuột (hover) vào cục cuộn */
+.scroll-bar:vertical .thumb:hover {
+    -fx-background-color: #a8a8a8;
+}
+
+/* Hiệu ứng khi đang nhấn giữ (nhấp chuột) vào cục cuộn */
+.scroll-bar:vertical .thumb:pressed {
+    -fx-background-color: #787878;
+}
+
+/* 3. Ẩn 2 nút mũi tên Lên/Xuống ở 2 đầu */
+.scroll-bar:vertical .increment-button,
+.scroll-bar:vertical .decrement-button {
+    -fx-background-color: transparent;
+    -fx-pref-height: 0px; /* Ép chiều cao về 0 để ẩn hoàn toàn */
+    -fx-padding: 0;
+}
+
+/* Ẩn hình ảnh mũi tên bên trong nút */
+.scroll-bar:vertical .increment-arrow,
+.scroll-bar:vertical .decrement-arrow {
+    -fx-shape: " ";
+    -fx-padding: 0;
+}
+/*SCROLL PANE*/
+
+/* ==========================================================
+ * ComboBox Dropdown – List Cell hover & selection
+ * ========================================================== */
+
+/* Reset nền mặc định của từng dòng trong dropdown */
+.combo-box-popup .list-view .list-cell {
+    -fx-background-color: transparent;
+}
+
+/* Nền xám nhạt khi hover */
+.combo-box-popup .list-view .list-cell:hover {
+    -fx-background-color: #f0f0f0;
+}
+
+/* Nền xám đậm hơn khi đang được chọn (selected) */
+.combo-box-popup .list-view .list-cell:selected {
+    -fx-background-color: #D0D0D0;
+}
+
+/* Kết hợp: selected + hover */
+.combo-box-popup .list-view .list-cell:selected:hover {
+    -fx-background-color: #bfbfbf;
+}
+
+/* --- Base badge: bo góc, padding, font --- */
+.lookup-badge {
+    -fx-background-radius: 4;
+    -fx-text-fill: white;
+    -fx-cursor: hand;
+}
+
+/* =============================================================
+   TASK STATUS
+   ============================================================= */
+
+/* NEW — xanh dương nhạt */
+.status-to-do {
+    -fx-background-radius: 20;
+    -fx-padding: 2px 10px;
+    -fx-font-size: 15px;
+    -fx-background-color: #DADBDB;
+    -fx-text-fill: #535C5C;
+}
+
+/* ON_GOING → slug: on-going — cam */
+.status-in-progress {
+    -fx-background-radius: 20;
+    -fx-padding: 2px 10px;
+    -fx-font-size: 15px;
+    -fx-background-color: #D8E6F4;
+    -fx-text-fill: #4A90D9;
+}
+
+/* IN_REVIEW → slug: in-review — tím */
+.status-under-review {
+    -fx-background-radius: 20;
+    -fx-padding:2px 10px;
+    -fx-font-size: 15px;
+    -fx-background-color: #E2DEF9;
+    -fx-text-fill: #7B68EE;
+}
+
+/* DONE — xanh lá */
+.status-done {
+    -fx-background-radius: 20;
+    -fx-padding: 2px 10px;
+    -fx-font-size: 15px;
+    -fx-background-color: #D3E8D6;
+    -fx-text-fill: #1A932E;
+}
+
+.status-cancelled {
+    -fx-background-radius: 20;
+    -fx-padding: 2px 10px;
+    -fx-font-size: 15px;
+    -fx-background-color: #F7D6D6;
+    -fx-text-fill: #EE201C;
+}
+
+/* Fallback cho status chưa biết */
+.status-unknown {
+    -fx-background-color: #95A5A6;
+    -fx-text-fill: white;
+}
+
+/* =============================================================
+   PRIORITY
+   ============================================================= */
+
+/* LOW — xanh lá nhạt */
+.priority-low {
+    -fx-background-radius: 20;
+    -fx-padding: 2px 10px;
+    -fx-font-size: 15px;
+    -fx-background-color: #D3E8D6;
+    -fx-text-fill: #1A932E;
+}
+
+/* MEDIUM — vàng */
+.priority-medium {
+    -fx-background-radius: 20;
+    -fx-padding: 2px 10px;
+    -fx-font-size: 15px;
+    -fx-background-color: #F7EED7;
+    -fx-text-fill: #DFA510;
+}
+
+/* HIGH — cam */
+.priority-high {
+    -fx-background-radius: 20;
+    -fx-padding: 2px 10px;;
+    -fx-font-size: 15px;
+    -fx-background-color: #F7DFD6;
+    -fx-text-fill: #E65F2B;
+}
+
+/* URGENT — đỏ */
+.priority-urgent {
+    -fx-background-radius: 20;
+    -fx-padding: 2px 10px;
+    -fx-font-size: 15px;
+    -fx-background-color: #F7D6D6;
+    -fx-text-fill: #EE201C;
+}
+
+/* Fallback */
+.priority-unknown {
+    -fx-background-radius: 20;
+    -fx-padding: 2px 10px;
+    -fx-font-size: 15px;
+    -fx-background-color: #95A5A6;
+    -fx-text-fill: white;
+}
+
+/*LAST EDITED*/
+.avatar {
+    -fx-background-color: linear-gradient(to right, #4b2e83, #a45bdc);
+    -fx-text-fill: white;
+    -fx-min-width: 30;
+    -fx-min-height: 30;
+    -fx-alignment: center;
+    -fx-background-radius: 15;
+    -fx-font-weight: bold;
+}
+
+.user-name {
+    -fx-font-size: 15px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #000000;
+}
+
+.date-time {
+    -fx-font-size: 13px;
+    -fx-text-fill: #2B5CE6;
+}
+
+.show-detail {
+    -fx-background-color: #f2f2f2;
+    -fx-border-color: #d9d9d9;
+    -fx-border-radius: 5px;
+    -fx-background-radius: 5px;
+    -fx-text-fill: #595959;
+    -fx-font-size: 14px;
+    -fx-cursor: hand;
+}
+
+.show-detail:hover {
+    -fx-background-color: #e6e6e6;
+}
+/*LAST EDITED*/
+
+/*COMMENT*/
+
+/*COMMENT*/

@@ -19,7 +19,7 @@
                         <Insets top="40.0" />
                     </VBox.margin>
                 </HBox>
-                <VBox fx:id="taskCategoryVBox" alignment="TOP_CENTER" maxHeight="Infinity" spacing="12" styleClass="task-category-container" VBox.vgrow="ALWAYS">
+                <VBox fx:id="taskCategoryVBox" alignment="TOP_CENTER" maxHeight="Infinity" spacing="20.0" styleClass="task-category-container" VBox.vgrow="ALWAYS">
 
                     <VBox.margin>
                         <Insets bottom="20.0" />
