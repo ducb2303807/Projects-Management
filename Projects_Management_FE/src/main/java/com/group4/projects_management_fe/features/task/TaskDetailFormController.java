@@ -28,11 +28,11 @@ import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import javafx.util.Callback;
 import javafx.util.StringConverter;
+import org.ocpsoft.prettytime.PrettyTime;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
@@ -737,7 +737,7 @@ public class TaskDetailFormController {
         Label nameLabel = new Label(displayName);
         nameLabel.setStyle("-fx-font-weight:bold; -fx-text-fill:#333333; -fx-font-size:13px;");
 
-        Label timeLabel = new Label(formatTimeAgo(String.valueOf(comment.getCreateAt())));
+        Label timeLabel = new Label(formatTimeAgo(comment.getCreateAt()));
         timeLabel.setStyle("-fx-text-fill:#999999; -fx-font-size:11px;");
 
         nameTimeRow.getChildren().addAll(nameLabel, timeLabel);
@@ -786,30 +786,14 @@ public class TaskDetailFormController {
 
     /**
      * Format thời gian kiểu "X minutes ago", "X hours ago", v.v.
-     * @param createAt chuỗi ISO 8601, ví dụ "2026-03-21T22:41:56"
+     * @param createdAt chuỗi ISO 8601, ví dụ "2026-03-21T22:41:56"
      */
-    private String formatTimeAgo(String createAt) {
-        if (createAt == null) return "";
-        try {
-            java.time.LocalDateTime commentTime = java.time.LocalDateTime.parse(
-                    createAt, java.time.format.DateTimeFormatter.ISO_LOCAL_DATE_TIME);
-            java.time.LocalDateTime now = java.time.LocalDateTime.now();
-            long seconds = java.time.Duration.between(commentTime, now).getSeconds();
+    private String formatTimeAgo(LocalDateTime createdAt) {
+        if (createdAt == null) return "";
+        Date date = Date.from(createdAt.atZone(ZoneId.systemDefault()).toInstant());
+        PrettyTime prettyTime = new PrettyTime(Locale.ENGLISH);
 
-            if (seconds < 60) return "just now";
-            long minutes = seconds / 60;
-            if (minutes < 60) return minutes + " minute" + (minutes > 1 ? "s" : "") + " ago";
-            long hours = minutes / 60;
-            if (hours < 24) return hours + " hour" + (hours > 1 ? "s" : "") + " ago";
-            long days = hours / 24;
-            if (days < 30) return days + " day" + (days > 1 ? "s" : "") + " ago";
-            long months = days / 30;
-            if (months < 12) return months + " month" + (months > 1 ? "s" : "") + " ago";
-            long years = months / 12;
-            return years + " year" + (years > 1 ? "s" : "") + " ago";
-        } catch (Exception e) {
-            return createAt;
-        }
+        return prettyTime.format(date);
     }
 
     // ── Delete Task ───────────────────────────────────────────────────────────
