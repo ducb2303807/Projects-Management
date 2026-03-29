@@ -1,32 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.geometry.Insets?>
-<?import javafx.scene.control.Button?>
-<?import javafx.scene.control.DatePicker?>
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.control.ListView?>
-<?import javafx.scene.control.ScrollPane?>
-<?import javafx.scene.control.Separator?>
-<?import javafx.scene.control.TableColumn?>
-<?import javafx.scene.control.TableView?>
-<?import javafx.scene.control.TextArea?>
-<?import javafx.scene.layout.ColumnConstraints?>
-<?import javafx.scene.layout.GridPane?>
-<?import javafx.scene.layout.HBox?>
-<?import javafx.scene.layout.Pane?>
-<?import javafx.scene.layout.Region?>
-<?import javafx.scene.layout.RowConstraints?>
-<?import javafx.scene.layout.StackPane?>
-<?import javafx.scene.layout.VBox?>
-<?import javafx.scene.shape.Circle?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
 
-<ScrollPane fitToWidth="true" style="-fx-background-color:transparent;" stylesheets="@../assets/css/dashboard.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.group4.projects_management_fe.features.dashboard.DashboardController">
+<ScrollPane fitToWidth="true" style="-fx-background-color:transparent;" styleClass="scroll-pane-container" stylesheets="@../assets/css/dashboard.css" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.group4.projects_management_fe.features.dashboard.DashboardController">
     <content>
 <StackPane alignment="CENTER" maxWidth="1500.0">
 
     <VBox prefHeight="700.0" prefWidth="1500.0" spacing="25" styleClass="main-container">
 
-        <VBox maxHeight="150.0" prefHeight="174.0" prefWidth="1439.0" spacing="15" style="-fx-background-color: #E9E9E9; -fx-border-radius: 20px; -fx-background-radius: 20px; -fx-padding: 20px;" styleClass="overview-section">
+        <VBox maxHeight="150.0" prefHeight="174.0" prefWidth="1439.0" spacing="15" style="-fx-background-color: #F8F9FA; -fx-border-radius: 20px; -fx-background-radius: 20px; -fx-padding: 20px;" styleClass="overview-section">
 
             <HBox alignment="CENTER_LEFT" spacing="10">
 
@@ -45,7 +29,7 @@
 
             <HBox alignment="CENTER" maxHeight="80.0" spacing="50.0" styleClass="card-container">
 
-                <VBox maxHeight="70.0" prefWidth="350" styleClass="card">
+                <VBox maxHeight="70.0" maxWidth="-Infinity" prefWidth="350" styleClass="card">
                     <Label styleClass="card-title" text="Total Project" />
                     <Label fx:id="totalProjectLabel" styleClass="card-number" text="0" />
                 </VBox>
@@ -92,10 +76,10 @@
                 <TableView fx:id="projectTable" prefHeight="200" prefWidth="620" styleClass="project-table">
 
                     <columns>
-                        <TableColumn fx:id="colName" text="Project name"/>
-                        <TableColumn fx:id="colManager" text="Project manager"/>
-                        <TableColumn fx:id="colDueDate" text="Due date"/>
-                        <TableColumn fx:id="colStatus" text="Status" styleClass="status-column"/>
+                        <TableColumn fx:id="colName" text="Project name" />
+                        <TableColumn fx:id="colManager" text="Project manager" />
+                        <TableColumn fx:id="colDueDate" text="Due date" />
+                        <TableColumn fx:id="colStatus" styleClass="status-column" text="Status" />
                     </columns>
 
                 </TableView>
@@ -107,24 +91,22 @@
                 <VBox fx:id="calendarBox" />
             </VBox>
 
-            <VBox maxHeight="400.0" minHeight="300.0" prefHeight="300.0"
-                  prefWidth="0.0" spacing="15" styleClass="box"
-                  GridPane.columnIndex="0" GridPane.rowIndex="1">
+            <VBox maxHeight="400.0" minHeight="300.0" prefHeight="300.0" prefWidth="0.0" spacing="15" styleClass="box" GridPane.columnIndex="0" GridPane.rowIndex="1">
 
                 <HBox alignment="CENTER_LEFT" spacing="10">
                     <Label styleClass="box-title" text="Today task" />
 
                     <Region HBox.hgrow="ALWAYS" />
 
-                    <Button text="Reset" onAction="#handleResetTodayTasks" styleClass="new-btn"/>
+                    <Button onAction="#handleResetTodayTasks" styleClass="new-btn" text="Reset" />
                 </HBox>
 
                 <TableView fx:id="todayTaskTable" prefHeight="220" styleClass="project-table">
 
                     <columns>
-                        <TableColumn fx:id="colTaskName" text="Task name"/>
-                        <TableColumn fx:id="colTaskDeadline" text="Deadline"/>
-                        <TableColumn fx:id="colTaskStatus" text="Status"/>
+                        <TableColumn fx:id="colTaskName" text="Task name" />
+                        <TableColumn fx:id="colTaskDeadline" text="Deadline" />
+                        <TableColumn fx:id="colTaskStatus" text="Status" />
                     </columns>
 
                 </TableView>

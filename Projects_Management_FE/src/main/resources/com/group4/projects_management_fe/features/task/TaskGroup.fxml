@@ -5,6 +5,7 @@
 <?import javafx.scene.control.TitledPane?>
 <?import javafx.scene.layout.VBox?>
 
+<?import javafx.scene.control.Label?>
 <VBox spacing="0" stylesheets="@../assets/css/tasks/task-group-item.css" xmlns="http://javafx.com/javafx/25"
       xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="com.group4.projects_management_fe.features.task.TaskGroupController">
@@ -18,6 +19,9 @@
                            styleClass="task-table"
                            maxHeight="Infinity"
                            prefHeight="200.0">
+                    <placeholder>
+                        <Label text="There's no task in this status." />
+                    </placeholder>
                     <columnResizePolicy>
                         <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
                     </columnResizePolicy>

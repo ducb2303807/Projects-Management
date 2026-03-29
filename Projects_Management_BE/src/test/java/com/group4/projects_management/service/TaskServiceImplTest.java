@@ -231,14 +231,32 @@ class TaskServiceImplTest {
         @DisplayName("Remove Members - Success and notify unassigned")
         void removeMembersFromTask_Success() {
             List<Long> memberIds = List.of(50L);
+
+            // 1. Setup 2 User riêng biệt để không bị lộn ID
+            User mockRequesterUser = new User();
+            mockRequesterUser.setId(10L);
+            mockRequesterUser.setUsername("Admin");
+
+            User mockRemovedUser = new User();
+            mockRemovedUser.setId(50L);
+             mockRemovedUser.setUsername("UserDeleted");
+
+            ProjectMember mockRequesterMember = new ProjectMember();
+            mockRequesterMember.setUser(mockRequesterUser);
+
+            ProjectMember mockRemovedMember = new ProjectMember();
+            mockRemovedMember.setUser(mockRemovedUser);
+
             when(taskRepository.findById(100L)).thenReturn(Optional.of(mockTask));
-            when(userRepository.findById(anyLong())).thenReturn(Optional.of(mockUser));
-            when(projectMemberRepository.findAllById(anyList())).thenReturn(List.of(mockMember));
+            when(projectMemberRepository.findByUser_IdAndProject_Id(eq(10L), any()))
+                    .thenReturn(Optional.of(mockRequesterMember));
+            when(projectMemberRepository.findAllById(memberIds))
+                    .thenReturn(List.of(mockRemovedMember));
 
             taskService.removeMembersFromTask(100L, memberIds, 10L);
 
             verify(taskAssignmentRepository).deleteByTaskIdAndProjectMemberIdIn(100L, memberIds);
-            verify(notificationService).send(eq(List.of(10L)), any(), eq(100L));
+            verify(notificationService).send(eq(List.of(50L)), any(), eq(100L));
         }
 
         @Test
@@ -356,11 +374,19 @@ class TaskServiceImplTest {
             dto.setPriorityId(2L);
             dto.setStatusId(3L);
 
-            Priority p = new Priority(); p.setId(2L); p.setName("High");
-            TaskStatus s = new TaskStatus(); s.setId(3L); s.setName("In Progress");
+            Priority p = new Priority();
+            p.setId(2L);
+            p.setName("High");
+            TaskStatus s = new TaskStatus();
+            s.setId(3L);
+            s.setName("In Progress");
 
-            Priority oldP = new Priority(); oldP.setId(1L); oldP.setName("Low");
-            TaskStatus oldS = new TaskStatus(); oldS.setId(1L); oldS.setName("Todo");
+            Priority oldP = new Priority();
+            oldP.setId(1L);
+            oldP.setName("Low");
+            TaskStatus oldS = new TaskStatus();
+            oldS.setId(1L);
+            oldS.setName("Todo");
 
             Project spyProject = spy(mockProject);
             Task spyTask = spy(mockTask);

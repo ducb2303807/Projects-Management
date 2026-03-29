@@ -15,12 +15,12 @@ public class ProjectTasksViewModel {
 
     private final ProjectApi projectApi = new ProjectApi(AppSessionManager.getInstance());
 
-    // Nơi chứa dữ liệu gốc từ API
     private final BehaviorSubject<List<TaskResponseDTO>> allTasksSubject = BehaviorSubject.createDefault(new ArrayList<>());
 
-    // Nơi chứa các điều kiện lọc
     private final BehaviorSubject<String> searchSubject = BehaviorSubject.createDefault("");
     private final BehaviorSubject<String> sortSubject = BehaviorSubject.createDefault("Newest");
+
+    private final BehaviorSubject<Boolean> canCreateTaskSubject = BehaviorSubject.createDefault(false);
 
     public void loadTasksForProject(Long projectId) {
         // Đổi tên hàm gọi API ở đây cho khớp với backend của bạn
@@ -32,7 +32,26 @@ public class ProjectTasksViewModel {
         });
     }
 
-    // Luồng dữ liệu ĐÃ LỌC để UI lắng nghe và vẽ lại
+    public Observable<Boolean> getCanCreateTask() { return canCreateTaskSubject; }
+
+    public void checkUserRole(Long projectId) {
+        if (projectId == null) return;
+
+        Long currentUserId = AppSessionManager.getInstance().getCurrentUser().getId();
+
+        projectApi.getMembersOfProject(projectId).thenAccept(members -> {
+            boolean isManager = members.stream()
+                    .anyMatch(m -> String.valueOf(m.getUserId()).equals(String.valueOf(currentUserId))
+                            && ("Project Manager".equalsIgnoreCase(m.getRoleName()) || "Co-Project Manager".equalsIgnoreCase(m.getRoleName())));
+
+            canCreateTaskSubject.onNext(isManager);
+        }).exceptionally(ex -> {
+            System.err.println("Lỗi khi lấy danh sách member để phân quyền: " + ex.getMessage());
+            canCreateTaskSubject.onNext(false);
+            return null;
+        });
+    }
+
     public Observable<List<TaskResponseDTO>> filteredTasksObservable() {
         return Observable.combineLatest(
                 allTasksSubject, searchSubject, sortSubject,

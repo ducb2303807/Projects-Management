@@ -17,6 +17,8 @@ public abstract class ProjectMemberMapper {
     @Mapping(source = "joinAt", target = "joinDate")
     @Mapping(source = "projectRole.name", target = "roleName")
     @Mapping(source = "projectMemberStatus.name", target = "statusName")
+    @Mapping(source = "projectRole.systemCode", target = "roleCode")
+    @Mapping(source = "projectMemberStatus.systemCode", target = "statusCode")
     public abstract ProjectMemberDTO toDto(ProjectMember projectMember);
 
     @Mapping(source = "id", target = "projectMemberId")
@@ -25,6 +27,8 @@ public abstract class ProjectMemberMapper {
     @Mapping(source = "invitedAt", target = "sentAt")
     @Mapping(source = "projectRole.name", target = "roleName")
     @Mapping(source = "projectMemberStatus.name", target = "statusName")
+    @Mapping(source = "projectRole.systemCode", target = "roleCode")
+    @Mapping(source = "projectMemberStatus.systemCode", target = "statusCode")
     public abstract InvitationDTO toInvitationDto(ProjectMember projectMember);
 
     @Mapping(target = "id", ignore = true)
