@@ -59,6 +59,7 @@ public class TaskDetailFormController {
     @FXML private Label     usernameLabel;
     @FXML private Label     editedAtLabel;
     @FXML private Button    saveBtn;
+    @FXML private ScrollPane commentScrollPane;
 
     // ── State ─────────────────────────────────────────────────────────────────
     private Stage      popupStage;
@@ -130,6 +131,15 @@ public class TaskDetailFormController {
     @FXML
     private void onCancelReplyClicked(javafx.scene.input.MouseEvent e) {
         cancelReply();
+    }
+
+    @FXML
+    public void initialize() {
+        commentsContainer.heightProperty().addListener((observable, oldValue, newValue) -> {
+            if (commentScrollPane != null) {
+                commentScrollPane.setVvalue(1.0);
+            }
+        });
     }
 
     // ── initData ──────────────────────────────────────────────────────────────
