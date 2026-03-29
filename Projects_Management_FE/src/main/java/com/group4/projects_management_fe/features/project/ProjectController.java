@@ -283,9 +283,9 @@ public class ProjectController implements Initializable {
         // 3. Render
         mainCardsContainer.getChildren().clear();
 
-        if (recentCardsContainer != null) {
-            recentCardsContainer.getChildren().clear();
-        }
+//        if (recentCardsContainer != null) {
+//            recentCardsContainer.getChildren().clear();
+//        }
 
         // ========================================================
         // CHỈ THAY ĐỔI ĐOẠN NÀY: Chèn giải thuật 3 cột cho GridPane

@@ -89,6 +89,7 @@
     -fx-background-color: transparent;
     -fx-padding: 0;
     -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.15), 10, 0, 0, 5); /* Giữ bóng đổ cho thẻ */
+    -fx-cursor: hand;
 }
 
 /* Các lớp bọc nội dung nằm đè lên ảnh */
@@ -143,6 +144,10 @@
     -fx-font-size: 20px;
     -fx-font-weight: bold;
     -fx-cursor: hand;
+}
+
+.ellipsis:hover {
+    -fx-text-fill: #4f2e70;
 }
 
 /* Class cũ là icon-text, đổi thành date-label cho chuẩn ngữ nghĩa theo thẻ mới */
