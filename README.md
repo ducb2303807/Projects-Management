@@ -1,5 +1,5 @@
 # Projects Management System
-**Hệ thống quản lý dự án tối ưu dành cho nhóm làm việc hiện đại.**
+**Hệ thống quản lý dự án Nexus tối ưu dành cho nhóm làm việc hiện đại.**
 
 <p align="left">
   <img src="https://img.shields.io/github/repo-size/ducb2303807/Projects-Management?style=for-the-badge" alt="repo-size">
@@ -9,7 +9,7 @@
 ---
 
 ##  Giới thiệu dự án
-**Projects Management** là một ứng dụng hỗ trợ quản lý quy trình làm việc, giúp các thành viên trong nhóm theo dõi tiến độ, phân chia nhiệm vụ và quản lý thời gian hiệu quả. Dự án được xây dựng với mục tiêu tối giản hóa thao tác nhưng vẫn đảm bảo tính chuyên nghiệp trong quản trị.
+**Nexus** là một ứng dụng hỗ trợ quản lý quy trình làm việc, giúp các thành viên trong nhóm theo dõi tiến độ, phân chia nhiệm vụ và quản lý thời gian hiệu quả. Dự án được xây dựng với mục tiêu tối giản hóa thao tác nhưng vẫn đảm bảo tính chuyên nghiệp trong quản trị.
 
 ## Thành viên
 
@@ -47,34 +47,63 @@ TS. Trương Minh Thái
 Projects-Management/
 ├── common/
 │   ├── dto/
-│   ├── interfaces/
+│   ├── enums/
+│   └── interfaces/
 │
 ├── Projects_Management_BE/
 │   ├── controller/
 │   ├── service/
+│   │   ├── base/
 │   ├── repository/
+│   │   └── base/
 │   ├── entity/
+│   ├── mapper/
+│   ├── enums/
 │   ├── core/
 │   │   ├── config/
 │   │   ├── security/
 │   │   ├── exception/
+│   │   ├── event/
+│   │   ├── scheduler/
+│   │   ├── strategy/
+│   │   │   └── notification/
 │   │   └── util/
 │   └── exception-handler/
 │
 ├── Projects_Management_FE/
 │   ├── core/
 │   │   ├── api/
-│   │   ├── di/
+│   │   │   ├── base/
+│   │   │   ├── config/
+│   │   │   └── utils/
+│   │   ├── config/
+│   │   ├── exception/
 │   │   ├── navigation/
-│   │   └── events/
+│   │   ├── plugin/
+│   │   ├── session/
+│   │   ├── extension/
+│   │   ├── interfaces/
+│   │   └── ui/
+│   │
 │   ├── features/
-│   │   └── project_list/
+│   │   ├── auth/
+│   │   ├── dashboard/
+│   │   ├── mainlayout/
+│   │   ├── project/
+│   │   ├── task/
+│   │   └── toast/
+│   │
 │   ├── ui/
 │   │   ├── components/
 │   │   └── styles/
+│   │
 │   └── resources/
 │
+├── plugins-source/
+│   └── HelloWorldPlugin/
+│
 ├── docs/
+├── .github/workflows/
 └── README.md
 ```
 
@@ -103,7 +132,11 @@ cd Projects-Management
 mvn clean install
 ```
 
-### 4. Cấu hình Backend
+### 4. Cài đặt database
+
+- Tạo database mysql và import file `database.sql` [Tại đây](docs/projects_management.sql)
+
+### 5. Cấu hình Backend
 
 - Cấu hình lại `.env` file bằng file `.env.example`, chỉnh sửa cấu hình lại theo database của bạn
 
@@ -128,7 +161,7 @@ spring.profiles.active=dev
 #spring.profiles.active=test
 ```
 
-### 5. Chạy Backend
+### 6. Chạy Backend
 
 - Chạy backend bằng lệnh sau
 
@@ -136,7 +169,7 @@ spring.profiles.active=dev
 mvn spring-boot:run -pl Projects_Management_BE
 ```
 
-### 6. Cấu hình Frontend
+### 7. Cấu hình Frontend
 
 - Cấu hình lại `.env` file bằng file `.env.example`, chỉnh sửa cấu hình lại theo cấu hình của bạn
 
@@ -145,7 +178,7 @@ API_BASE_URL=<YOUR_API_SERVER_BASE_ENDPOINT_BASE_URL>
 APP_TIMEOUT=<YOUR_APP_REQUEST_TIMEOUT>
 ```
 
-### 7. Chạy Frontend
+### 8. Chạy Frontend
 
 - Chạy frontend bằng lệnh sau
 
